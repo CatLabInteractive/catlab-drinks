@@ -42,6 +42,9 @@ class CreateEventsTable extends Migration
             $table->string('order_token', 32);
             $table->unique('order_token');
 
+            $table->string('waiter_token', 32);
+            $table->unique('waiter_token');
+
             $table->integer('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users');
 

@@ -20,32 +20,28 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-namespace App\Models;
+namespace App\Policies;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Event;
+use App\Models\User;
 
 /**
- * Class Event
- * @package App\Models
+ * Class EventPolicy
+ * @package App\Policies
  */
-class Event extends Model
+class EventPolicy
 {
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
+     * @param $user
+     * @return bool
      */
-    protected $fillable = [
-        'name',
-        'order_token',
-        'is_selling'
-    ];
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
+    public function create(?User $user)
     {
-        return $this->belongsTo(User::class);
+        return true;
+    }
+
+    public function view(?User $user, Event $event = null)
+    {
+        return true;
     }
 }

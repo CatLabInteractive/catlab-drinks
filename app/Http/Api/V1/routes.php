@@ -68,6 +68,8 @@ $routes->group(
                  * List all controllers
                  */
                 \App\Http\Api\V1\Controllers\UserController::setRoutes($routes);
+                \App\Http\Api\V1\Controllers\EventController::setRoutes($routes);
+
 
             }
         );

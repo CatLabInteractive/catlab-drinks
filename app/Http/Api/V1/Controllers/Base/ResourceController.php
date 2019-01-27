@@ -24,6 +24,7 @@ namespace App\Http\Api\V1\Controllers\Base;
 
 use App\Http\Controllers\Controller;
 use CatLab\Base\Helpers\ArrayHelper;
+use CatLab\Charon\Laravel\InputParsers\JsonBodyInputParser;
 use CatLab\CursorPagination\CursorPaginationBuilder;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Library\ResourceDefinitionLibrary;
@@ -62,6 +63,8 @@ class ResourceController extends Controller
     {
         $arguments = func_get_args();
         array_shift($arguments);
+
+        // @todo this is still not correct
 
         // No object defined?
         if (is_array($arguments) && count($arguments) === 0) {
@@ -172,7 +175,7 @@ class ResourceController extends Controller
      * @param array $parameters
      * @return Context|string
      */
-    protected function getContext($action = Action::VIEW, $parameters = [])
+    protected function getContext($action = Action::VIEW, $parameters = []): \CatLab\Charon\Interfaces\Context
     {
         $context = new Context($action, $parameters);
 
@@ -187,6 +190,8 @@ class ResourceController extends Controller
         $context->addProcessor(new PaginationProcessor(CursorPaginationBuilder::class));
 
         $context->setUrl(Request::url());
+
+        $context->addInputParser(JsonBodyInputParser::class);
 
         return $context;
     }

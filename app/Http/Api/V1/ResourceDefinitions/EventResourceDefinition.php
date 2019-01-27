@@ -20,32 +20,32 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-namespace App\Models;
+namespace App\Http\Api\V1\ResourceDefinitions;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Event;
+use CatLab\Charon\Models\ResourceDefinition;
 
 /**
- * Class Event
- * @package App\Models
+ * Class EventResourceDefinition
+ * @package App\Http\Api\V1\ResourceDefinitions
  */
-class Event extends Model
+class EventResourceDefinition extends ResourceDefinition
 {
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
+     * EventResourceDefinition constructor.
      */
-    protected $fillable = [
-        'name',
-        'order_token',
-        'is_selling'
-    ];
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
+    public function __construct()
     {
-        return $this->belongsTo(User::class);
+        parent::__construct(Event::class);
+
+        $this
+            ->identifier('id')
+            ->int();
+
+        $this->field('name')
+            ->string()
+            ->visible(true)
+            ->writeable(true, true)
+        ;
     }
 }
