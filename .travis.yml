@@ -1,0 +1,8 @@
+language: php
+php:
+  - '7.1'
+env:
+  APP_KEY=base64:1BVkTyeUSy6VLK1YX7pFbpbzc18+7mvTcBDtxPJ7gu0=
+before_script:
+  - npm install -g bower
+  - composer install
