@@ -11,7 +11,7 @@ return [
     ],
 
     'ui' => [
-        'client_id' => '3' // This client is automatically created by the migration.
+        'client_id' => '1' // This client is automatically created by the migration.
     ]
 
 ];
