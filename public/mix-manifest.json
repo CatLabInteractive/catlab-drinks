@@ -1,6 +1,8 @@
 {
+    "/client-res/js/app.js": "/client-res/js/app.js",
     "/js/app.js": "/js/app.js",
     "/css/app.css": "/css/app.css",
     "/swaggerui/swagger.css": "/swaggerui/swagger.css",
+    "/pubic/client-res/css/app.css": "/pubic/client-res/css/app.css",
     "/swaggerui/swagger-ui.js": "/swaggerui/swagger-ui.js"
 }

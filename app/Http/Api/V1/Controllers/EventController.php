@@ -41,7 +41,9 @@ class EventController extends Base\ResourceController
     const RESOURCE_ID = 'event';
     const PARENT_RESOURCE_ID = 'user';
 
-    use \CatLab\Charon\Laravel\Controllers\ChildCrudController;
+    use \CatLab\Charon\Laravel\Controllers\ChildCrudController {
+        beforeSaveEntity as traitBeforeSaveEntity;
+    }
 
     /**
      * @param RouteCollection $routes
@@ -94,10 +96,7 @@ class EventController extends Base\ResourceController
      */
     protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity)
     {
-        $relationship = $this->getRelationship($request);
-        if ($relationship instanceof HasMany) {
-            $this->getInverseRelationship($entity)->associate($this->getParent($request));
-        }
+        $this->traitBeforeSaveEntity($request, $entity);
 
         $entity->order_token = str_random(32);
         $entity->waiter_token = str_random(32);
