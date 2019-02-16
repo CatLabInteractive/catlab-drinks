@@ -23,9 +23,41 @@
 
     <b-container fluid>
 
-        <h1>Home</h1>
-        <p>This is the home.</p>
+        <h1>Events</h1>
+        <div class="text-center" v-if="!loaded">
+            <b-spinner label="Loading data" />
+        </div>
+
+        <b-table striped hover :items="items" v-if="loaded" />
 
     </b-container>
 
 </template>
+
+<script>
+
+    export default {
+        mounted() {
+
+            window.axios.get('/api/v1/events')
+                .then(response => {
+                    this.loaded = true;
+                    response.data.items.forEach(
+                        (item) => {
+                            this.items.push(item);
+                        }
+                    )
+                });
+
+        },
+
+        data() {
+            return {
+                loaded: false,
+                items: [
+
+                ]
+            }
+        }
+    }
+</script>

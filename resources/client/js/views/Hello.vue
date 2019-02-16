@@ -20,5 +20,12 @@
   -->
 
 <template>
-    <p>Hello World!</p>
+
+    <b-container fluid>
+
+        <h1>Hello world</h1>
+        <p>This is the hello world.</p>
+
+    </b-container>
+
 </template>

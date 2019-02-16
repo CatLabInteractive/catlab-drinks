@@ -32,6 +32,15 @@ use App\Models\User;
 class EventPolicy
 {
     /**
+     * @param User|null $user
+     * @return bool
+     */
+    public function index(?User $user)
+    {
+        return true;
+    }
+
+    /**
      * @param $user
      * @return bool
      */

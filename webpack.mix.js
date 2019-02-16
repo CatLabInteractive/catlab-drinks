@@ -19,4 +19,4 @@ mix.js('resources/js/swagger-ui.js', 'public/swaggerui')
 
 // Client
 mix.js('resources/client/js/app.js', 'public/client-res/js')
-    .sass('resources/client/sass/app.scss', 'pubic/client-res/css');
+    .sass('resources/client/sass/app.scss', 'public/client-res/css');
