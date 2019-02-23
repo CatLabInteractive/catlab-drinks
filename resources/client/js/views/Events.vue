@@ -28,7 +28,36 @@
             <b-spinner label="Loading data" />
         </div>
 
-        <b-table striped hover :items="items" v-if="loaded" />
+        <b-row>
+            <b-col>
+                <b-table striped hover :items="items" :fields="fields" v-if="loaded">
+
+                    <template slot="actions" slot-scope="row">
+                        <b-button size="sm" class="mr-1">
+                            Info modal
+                        </b-button>
+                        <b-button size="sm" >
+                            Details
+                        </b-button>
+                    </template>
+
+                </b-table>
+            </b-col>
+
+            <b-col lg="4">
+                <b-card :title="(model.id ? 'Edit event ID#' + model.id : 'New event')">
+                    <form @submit.prevent="saveEvent">
+                        <b-form-group label="Name">
+                            <b-form-input type="text" v-model="model.name"></b-form-input>
+                        </b-form-group>
+
+                        <div>
+                            <b-btn type="submit" variant="success">Save Post</b-btn>
+                        </div>
+                    </form>
+                </b-card>
+            </b-col>
+        </b-row>
 
     </b-container>
 
@@ -36,18 +65,13 @@
 
 <script>
 
+    import {EventService} from "../services/EventService";
+
     export default {
         mounted() {
 
-            window.axios.get('/api/v1/events')
-                .then(response => {
-                    this.loaded = true;
-                    response.data.items.forEach(
-                        (item) => {
-                            this.items.push(item);
-                        }
-                    )
-                });
+            this.service = new EventService();
+            this.refreshEvents();
 
         },
 
@@ -56,7 +80,38 @@
                 loaded: false,
                 items: [
 
-                ]
+                ],
+                fields: [
+                    {
+                        key: 'id',
+                        label: '#'
+                    },
+                    {
+                        key: 'name',
+                        label: 'Event name',
+                    },
+                    {
+                        key: 'actions',
+                        label: 'Actions'
+                    }
+                ],
+                model: {}
+            }
+        },
+
+        methods: {
+
+            async refreshEvents() {
+                this.items = (await this.service.index()).items;
+                this.loaded = true;
+            },
+
+            async saveEvent() {
+
+                await this.service.create(this.model);
+                this.refreshEvents();
+
+
             }
         }
     }

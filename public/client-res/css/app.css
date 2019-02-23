@@ -10740,6 +10740,13 @@ a.text-dark:focus {
   border-bottom-left-radius: 0;
 }
 
+.was-validated .form-control:invalid,
+.was-validated .form-control:valid,
+.form-control.is-invalid,
+.form-control.is-valid {
+  background-position: right calc(0.4em + 0.1875rem) center;
+}
+
 input[type=color].form-control {
   height: calc(1.6em + 0.75rem + 2px);
   padding: 0.125rem 0.25rem;
