@@ -20,6 +20,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import Menu from "./views/Menu";
+
 require('./bootstrap');
 
 import Vue from "vue";
@@ -60,6 +62,12 @@ const router = new VueRouter({
             path: '/events',
             name: 'events',
             component: Events,
+        },
+
+        {
+            path: '/events/:id/menu',
+            name: 'menu',
+            component: Menu,
         },
     ],
 });

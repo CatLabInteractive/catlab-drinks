@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dc53dd2821f6540b7ceb2a021fda2541",
+    "content-hash": "8c67743ae25b4d1938b518f7dee0c31e",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -321,16 +321,16 @@
         },
         {
             "name": "catlabinteractive/charon",
-            "version": "v1.2.5",
+            "version": "v1.2.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CatLabInteractive/charon.git",
-                "reference": "b317b963467de5fec2f947ef6baf90ced21e6442"
+                "reference": "b00affaf53c959da95f94df6ac298865e0e9a743"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CatLabInteractive/charon/zipball/b317b963467de5fec2f947ef6baf90ced21e6442",
-                "reference": "b317b963467de5fec2f947ef6baf90ced21e6442",
+                "url": "https://api.github.com/repos/CatLabInteractive/charon/zipball/b00affaf53c959da95f94df6ac298865e0e9a743",
+                "reference": "b00affaf53c959da95f94df6ac298865e0e9a743",
                 "shasum": ""
             },
             "require": {
@@ -357,7 +357,7 @@
                 }
             ],
             "description": "Charon is a framework for building self documented RESTfull API's.",
-            "time": "2019-01-27T23:31:54+00:00"
+            "time": "2019-02-24T12:18:12+00:00"
         },
         {
             "name": "catlabinteractive/charon-laravel",
@@ -449,16 +449,16 @@
         },
         {
             "name": "catlabinteractive/requirements",
-            "version": "v1.0.2",
+            "version": "v1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CatLabInteractive/requirements.git",
-                "reference": "f3068b34583b8f32068f34e808445b4257259495"
+                "reference": "2b1a7b7d61c1db2b38b422c35fd5b9891d8d5ce7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CatLabInteractive/requirements/zipball/f3068b34583b8f32068f34e808445b4257259495",
-                "reference": "f3068b34583b8f32068f34e808445b4257259495",
+                "url": "https://api.github.com/repos/CatLabInteractive/requirements/zipball/2b1a7b7d61c1db2b38b422c35fd5b9891d8d5ce7",
+                "reference": "2b1a7b7d61c1db2b38b422c35fd5b9891d8d5ce7",
                 "shasum": ""
             },
             "require": {
@@ -485,7 +485,7 @@
                 }
             ],
             "description": "Requirements for resource properties",
-            "time": "2018-07-16T13:06:28+00:00"
+            "time": "2019-02-24T12:16:01+00:00"
         },
         {
             "name": "composer/ca-bundle",

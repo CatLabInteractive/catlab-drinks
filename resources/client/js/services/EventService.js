@@ -28,6 +28,7 @@ export class EventService extends AbstractService {
         super();
 
         this.entityUrl = 'events';
+        this.indexUrl = this.entityUrl;
     }
 
 

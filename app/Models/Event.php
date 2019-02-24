@@ -48,4 +48,20 @@ class Event extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function menuItems()
+    {
+        return $this->hasMany(MenuItem::class);
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrderUrl()
+    {
+        return action('OrderController@view', [ $this->order_token ]);
+    }
 }

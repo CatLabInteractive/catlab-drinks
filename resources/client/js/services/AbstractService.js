@@ -23,6 +23,7 @@ export class AbstractService {
 
     constructor() {
         this.entityUrl = '';
+        this.indexUrl = '';
 
         this.client = window.axios.create({
             baseURL: '/api/v1',
@@ -49,23 +50,23 @@ export class AbstractService {
     }
 
     index () {
-        return this.execute('get', this.entityUrl)
-    }
-
-    get (id) {
-        return this.execute('get', '/' + this.entityUrl + '/${id}')
+        return this.execute('get', this.indexUrl + "?records=1000")
     }
 
     create (data) {
-        return this.execute('post', '/' + this.entityUrl, data)
+        return this.execute('post', '/' + this.indexUrl, data);
+    }
+
+    get (id) {
+        return this.execute('get', '/' + this.entityUrl + '/' + id);
     }
 
     update (id, data) {
-        return this.execute('put', '/' + this.entityUrl + '/${id}', data)
+        return this.execute('put', '/' + this.entityUrl + '/' + id, data);
     }
 
     delete (id) {
-        return this.execute('delete', '/' + this.entityUrl + '/${id}')
+        return this.execute('delete', '/' + this.entityUrl + '/' + id);
     }
 
 }

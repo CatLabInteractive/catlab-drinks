@@ -24,6 +24,8 @@ Route::get('/client/{any?}', 'ClientController@index')
     ->middleware('auth')
 ;
 
+Route::get('/{orderController}', 'OrderController@view');
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');

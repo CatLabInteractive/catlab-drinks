@@ -23,43 +23,71 @@
 namespace App\Policies;
 
 use App\Models\Event;
+use App\Models\MenuItem;
 use App\Models\User;
 
 /**
- * Class EventPolicy
+ * Class MenuItemPolicy
  * @package App\Policies
  */
-class EventPolicy
+class MenuItemPolicy
 {
     /**
      * @param User|null $user
+     * @param Event $event
      * @return bool
      */
-    public function index(?User $user)
+    public function index(?User $user, Event $event)
     {
-        return true;
+        return $this->isMyEvent($user, $event);
     }
 
     /**
-     * @param $user
+     * @param User|null $user
+     * @param Event $event
      * @return bool
      */
-    public function create(?User $user)
+    public function create(?User $user, Event $event)
     {
-        return true;
+        return $this->isMyEvent($user, $event);
     }
 
-    public function view(?User $user, Event $event)
+    /**
+     * @param User|null $user
+     * @param MenuItem $menuItem
+     * @return bool
+     */
+    public function view(?User $user, MenuItem $menuItem)
     {
-        return $event->user->id === $user->id;
+        return $this->isMyEvent($user, $menuItem->event);
     }
 
-    public function edit(?User $user, Event $event)
+    /**
+     * @param User|null $user
+     * @param MenuItem $menuItem
+     * @return bool
+     */
+    public function edit(?User $user, MenuItem $menuItem)
     {
-        return $event->user->id === $user->id;
+        return $this->isMyEvent($user, $menuItem->event);
     }
 
-    public function destroy(?User $user, Event $event)
+    /**
+     * @param User|null $user
+     * @param MenuItem $menuItem
+     * @return bool
+     */
+    public function destroy(?User $user, MenuItem $menuItem)
+    {
+        return $this->isMyEvent($user, $menuItem->event);
+    }
+
+    /**
+     * @param User|null $user
+     * @param Event $event
+     * @return bool
+     */
+    protected function isMyEvent(?User $user, Event $event)
     {
         return $event->user->id === $user->id;
     }

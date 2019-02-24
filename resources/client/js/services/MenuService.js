@@ -1,5 +1,4 @@
-<?php
-/**
+/*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
  * CatLab Interactive bvba, Gent, Belgium
@@ -20,47 +19,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-namespace App\Policies;
+import {AbstractService} from './AbstractService';
 
-use App\Models\Event;
-use App\Models\User;
+export class MenuService extends AbstractService {
 
-/**
- * Class EventPolicy
- * @package App\Policies
- */
-class EventPolicy
-{
-    /**
-     * @param User|null $user
-     * @return bool
-     */
-    public function index(?User $user)
-    {
-        return true;
+
+    constructor(eventId) {
+        super();
+
+        this.indexUrl = 'events/' + eventId + '/menu';
+        this.entityUrl = 'menuitems';
     }
 
-    /**
-     * @param $user
-     * @return bool
-     */
-    public function create(?User $user)
-    {
-        return true;
-    }
 
-    public function view(?User $user, Event $event)
-    {
-        return $event->user->id === $user->id;
-    }
-
-    public function edit(?User $user, Event $event)
-    {
-        return $event->user->id === $user->id;
-    }
-
-    public function destroy(?User $user, Event $event)
-    {
-        return $event->user->id === $user->id;
-    }
 }

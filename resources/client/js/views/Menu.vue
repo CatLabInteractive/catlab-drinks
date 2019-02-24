@@ -23,7 +23,7 @@
 
     <b-container fluid>
 
-        <h1>Events</h1>
+        <h1>Menu</h1>
         <div class="text-center" v-if="!loaded">
             <b-spinner label="Loading data" />
         </div>
@@ -33,34 +33,23 @@
                 <b-table striped hover :items="items" :fields="fields" v-if="loaded">
 
                     <template slot="actions" slot-scope="row">
-                        <b-button size="sm" class="btn-info" :to="{ name: 'menu', params: { id: row.item.id } }">
-                            Menu items
-                        </b-button>
-
-                        <b-link class="btn btn-sm btn-success" :href="row.item.order_url" target="_blank">
-                            Client panel
-                        </b-link>
-
                         <b-button size="sm" class="" @click="edit(row.item, row.index)">
                             <i class="fas fa-edit"></i>
                             <span class="sr-only">Edit</span>
                         </b-button>
-
                         <b-button size="sm" @click="remove(row.item)" class="btn-danger">
                             <i class="fas fa-trash"></i>
                             <span class="sr-only">Delete</span>
                         </b-button>
-
-
                     </template>
 
                     <template slot="is_selling" slot-scope="row">
                         <b-button v-if="!row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)" class="btn-danger">
-                            Closed
+                            Not selling
                         </b-button>
 
                         <b-button v-if="row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)" class="btn-success">
-                            Open
+                            Selling
                         </b-button>
 
                         <b-spinner v-if="toggling === row.item.id" small></b-spinner>
@@ -70,10 +59,14 @@
             </b-col>
 
             <b-col lg="4">
-                <b-card :title="(model.id ? 'Edit event ID#' + model.id : 'New event')">
+                <b-card :title="(model.id ? 'Edit item ID#' + model.id : 'New item')">
                     <form @submit.prevent="save">
                         <b-form-group label="Name">
                             <b-form-input type="text" v-model="model.name"></b-form-input>
+                        </b-form-group>
+
+                        <b-form-group label="Price">
+                            <b-form-input type="number" v-model="model.price" step=".01"></b-form-input>
                         </b-form-group>
 
                         <div>
@@ -94,13 +87,13 @@
 
 <script>
 
-    import {EventService} from "../services/EventService";
+    import {MenuService} from "../services/MenuService";
 
     export default {
         mounted() {
 
-            this.service = new EventService();
-            this.refreshEvents();
+            this.service = new MenuService(4);
+            this.refresh();
 
         },
 
@@ -109,7 +102,7 @@
                 loaded: false,
                 saving: false,
                 saved: false,
-                toggling: 0,
+                toggling: null,
                 items: [],
                 fields: [
                     {
@@ -118,7 +111,12 @@
                     },
                     {
                         key: 'name',
-                        label: 'Event name',
+                        label: 'Product name',
+                    },
+                    {
+                        key: 'price',
+                        label: 'Price',
+                        class: 'text-center'
                     },
                     {
                         key: 'is_selling',
@@ -137,7 +135,7 @@
 
         methods: {
 
-            async refreshEvents() {
+            async refresh() {
 
                 this.items = (await this.service.index()).items;
                 this.loaded = true;
@@ -164,7 +162,7 @@
                     2500
                 );
 
-                this.refreshEvents();
+                this.refresh();
 
             },
 
@@ -176,13 +174,13 @@
 
             async remove(model) {
 
-                if (confirm('Are you sure you want to remove this event?')) {
+                if (confirm('Are you sure you want to remove this menu item?')) {
                     if (this.model.id === model.id) {
                         this.model = {};
                     }
 
                     await this.service.delete(model.id);
-                    await this.refreshEvents();
+                    await this.refresh();
                 }
 
             },

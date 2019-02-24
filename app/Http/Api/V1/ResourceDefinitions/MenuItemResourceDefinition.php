@@ -23,6 +23,7 @@
 namespace App\Http\Api\V1\ResourceDefinitions;
 
 use App\Models\Event;
+use App\Models\MenuItem;
 use CatLab\Charon\Models\ResourceDefinition;
 use CatLab\Charon\Transformers\ScalarTransformer;
 use CatLab\Requirements\Enums\PropertyType;
@@ -31,15 +32,14 @@ use CatLab\Requirements\Enums\PropertyType;
  * Class EventResourceDefinition
  * @package App\Http\Api\V1\ResourceDefinitions
  */
-class EventResourceDefinition extends ResourceDefinition
+class MenuItemResourceDefinition extends ResourceDefinition
 {
     /**
      * EventResourceDefinition constructor.
-     * @throws \CatLab\Charon\Exceptions\InvalidScalarException
      */
     public function __construct()
     {
-        parent::__construct(Event::class);
+        parent::__construct(MenuItem::class);
 
         $this
             ->identifier('id')
@@ -52,20 +52,17 @@ class EventResourceDefinition extends ResourceDefinition
             ->writeable(true, true)
         ;
 
+        $this->field('price')
+            ->number()
+            ->required()
+            ->visible(true)
+            ->writeable(true, true)
+        ;
+
         $this->field('is_selling')
             ->bool()
             ->visible(true)
             ->writeable(true, true);
-
-        $this->field('order_token')
-            ->string()
-            ->visible(true)
-            ->writeable(true, true);
-
-        $this->field('orderUrl')
-            ->display('order_url')
-            ->string()
-            ->visible(true);
 
 
     }

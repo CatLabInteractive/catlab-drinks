@@ -23,6 +23,8 @@
 namespace App\Http\Api\V1\Controllers;
 
 use App\Http\Api\V1\ResourceDefinitions\EventResourceDefinition;
+use App\Http\Api\V1\ResourceDefinitions\MenuItemResourceDefinition;
+use App\Models\Event;
 use App\Models\User;
 use Auth;
 use CatLab\Charon\Collections\RouteCollection;
@@ -34,11 +36,11 @@ use Illuminate\Http\Request;
  * Class EventController
  * @package App\Http\Api\V1\Controllers
  */
-class EventController extends Base\ResourceController
+class MenuController extends Base\ResourceController
 {
-    const RESOURCE_DEFINITION = EventResourceDefinition::class;
-    const RESOURCE_ID = 'event';
-    const PARENT_RESOURCE_ID = 'user';
+    const RESOURCE_DEFINITION = MenuItemResourceDefinition::class;
+    const RESOURCE_ID = 'id';
+    const PARENT_RESOURCE_ID = 'event';
 
     use \CatLab\Charon\Laravel\Controllers\ChildCrudController {
         beforeSaveEntity as traitBeforeSaveEntity;
@@ -50,16 +52,17 @@ class EventController extends Base\ResourceController
      */
     public static function setRoutes(RouteCollection $routes)
     {
-        $childResource = $routes->resource(
+        $childResource = $routes->childResource(
             static::RESOURCE_DEFINITION,
-            'events',
-            'EventController',
+            'events/{parentId}/menu',
+            'menuitems',
+            'MenuController',
             [
                 'id' => self::RESOURCE_ID
             ]
         );
 
-        $childResource->tag('events');
+        $childResource->tag('menu');
     }
 
     /**
@@ -68,9 +71,9 @@ class EventController extends Base\ResourceController
      */
     public function getRelationship(Request $request): Relation
     {
-        /** @var User $user */
-        $user = $this->getParent($request);
-        return $user->events();
+        /** @var Event $event */
+        $event = $this->getParent($request);
+        return $event->menuItems();
     }
 
     /**
@@ -79,7 +82,8 @@ class EventController extends Base\ResourceController
      */
     public function getParent(Request $request): Model
     {
-        return User::find(Auth::id());
+        $eventId = $request->route('parentId');
+        return Event::findOrFail($eventId);
     }
 
 
@@ -98,8 +102,5 @@ class EventController extends Base\ResourceController
     protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity)
     {
         $this->traitBeforeSaveEntity($request, $entity);
-
-        $entity->order_token = str_random(32);
-        $entity->waiter_token = str_random(32);
     }
 }
