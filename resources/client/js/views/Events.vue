@@ -81,7 +81,7 @@
                             <b-btn type="button" variant="light" @click="resetForm()">Reset</b-btn>
 
                             <b-alert v-if="saving" variant="none" show>Saving</b-alert>
-                            <b-alert v-if="saved" variant="none" :show="2">Saved</b-alert>
+                            <b-alert v-if="saved" variant="none" show="2">Saved</b-alert>
                         </div>
                     </form>
                 </b-card>

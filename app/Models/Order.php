@@ -25,54 +25,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Event
+ * Class Order
  * @package App\Models
  */
-class Event extends Model
+class Order extends Model
 {
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'name',
-        'order_token',
-        'is_selling'
-    ];
 
-    /**
-     * @param $key
-     * @return Event|null
-     */
-    public static function getFromOrderToken($key)
-    {
-        $event = Event::where('order_token', '=', $key)->first();
-
-        return $event;
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function menuItems()
-    {
-        return $this->hasMany(MenuItem::class);
-    }
-
-    /**
-     * @return string
-     */
-    public function getOrderUrl()
-    {
-        return action('OrderController@view', [ $this->order_token ]);
-    }
 }

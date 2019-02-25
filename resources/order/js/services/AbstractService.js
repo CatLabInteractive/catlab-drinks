@@ -1,5 +1,4 @@
-<?php
-/**
+/*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
  * CatLab Interactive bvba, Gent, Belgium
@@ -20,37 +19,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-namespace App\Http\Controllers;
+export class AbstractService {
 
-use App\Models\Event;
+    constructor() {
+        this.entityUrl = '';
+        this.indexUrl = '';
 
-/**
- * Class OrderController
- * @package App\Http\Controllers
- */
-class OrderController
-{
-    /**
-     * @param $orderToken
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|void
-     */
-    public function view($orderToken)
-    {
-        $event = Event::getFromOrderToken($orderToken);
-        if (!$event) {
-            abort(404, 'Event not found.');
-            return;
-        }
-
-        $baseUrl = '/order/' . $event->order_token . '/';
-        $token = $event->order_token;
-
-        return view(
-            'order.index',
-            [
-                'baseUrl' => $baseUrl,
-                'token' => $token
-            ]
-        );
+        this.client = window.axios.create({
+            baseURL: '/api/v1',
+            json: true
+        });
     }
+
+    /**
+     * @param method
+     * @param resource
+     * @param data
+     * @returns {Promise<void>}
+     */
+    async execute(method, resource, data = {}) {
+        return this.client({
+            method: method,
+            url: resource,
+            data: data
+        }).then(
+            (response) => {
+                return response.data;
+            }
+        )
+    }
+
 }

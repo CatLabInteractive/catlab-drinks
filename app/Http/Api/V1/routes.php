@@ -57,6 +57,17 @@ $routes->group(
         // Swagger documentation
         $routes->get('description', 'DescriptionController@description')->tag('description');
 
+        $routes->group(
+            [
+                'middleware' => [
+                    \App\Http\Middleware\PublicEventApiAuthentication::class
+                ]
+            ],
+            function(RouteCollection $routes) {
+                \App\Http\Api\V1\Controllers\PublicController::setRoutes($routes);
+            }
+        );
+
         // Controllers: oauth middleware is required
         $routes->group(
             [

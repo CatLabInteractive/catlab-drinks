@@ -4,5 +4,7 @@
     "/css/app.css": "/css/app.css",
     "/swaggerui/swagger.css": "/swaggerui/swagger.css",
     "/client-res/css/app.css": "/client-res/css/app.css",
+    "/order-res/css/app.css": "/order-res/css/app.css",
+    "/order-res/js/app.js": "/order-res/js/app.js",
     "/swaggerui/swagger-ui.js": "/swaggerui/swagger-ui.js"
 }

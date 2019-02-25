@@ -20,3 +20,7 @@ mix.js('resources/js/swagger-ui.js', 'public/swaggerui')
 // Client
 mix.js('resources/client/js/app.js', 'public/client-res/js')
     .sass('resources/client/sass/app.scss', 'public/client-res/css');
+
+// Order
+mix.js('resources/order/js/app.js', 'public/order-res/js')
+    .sass('resources/order/sass/app.scss', 'public/order-res/css');

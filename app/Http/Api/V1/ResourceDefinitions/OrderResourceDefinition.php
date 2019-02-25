@@ -20,37 +20,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-namespace App\Http\Controllers;
+namespace App\Http\Api\V1\ResourceDefinitions;
 
-use App\Models\Event;
+use App\Models\Order;
+use CatLab\Charon\Models\ResourceDefinition;
 
 /**
- * Class OrderController
- * @package App\Http\Controllers
+ * Class OrderResourceDefinition
+ * @package App\Http\Api\V1\ResourceDefinitions
  */
-class OrderController
+class OrderResourceDefinition extends ResourceDefinition
 {
-    /**
-     * @param $orderToken
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|void
-     */
-    public function view($orderToken)
+    public function __construct()
     {
-        $event = Event::getFromOrderToken($orderToken);
-        if (!$event) {
-            abort(404, 'Event not found.');
-            return;
-        }
-
-        $baseUrl = '/order/' . $event->order_token . '/';
-        $token = $event->order_token;
-
-        return view(
-            'order.index',
-            [
-                'baseUrl' => $baseUrl,
-                'token' => $token
-            ]
-        );
+        parent::__construct(Order::class);
     }
 }

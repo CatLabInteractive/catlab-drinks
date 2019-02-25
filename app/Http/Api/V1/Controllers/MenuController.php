@@ -58,11 +58,16 @@ class MenuController extends Base\ResourceController
             'menuitems',
             'MenuController',
             [
-                'id' => self::RESOURCE_ID
+                'id' => self::RESOURCE_ID,
+                'only' => [ 'index', 'view', 'store', 'edit', 'destroy' ]
             ]
         );
 
         $childResource->tag('menu');
+    }
+
+    public static function setPublicRoutes(RouteCollection $routes)
+    {
     }
 
     /**
