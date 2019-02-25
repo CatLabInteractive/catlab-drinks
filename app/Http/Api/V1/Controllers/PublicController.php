@@ -26,6 +26,7 @@ use App\Http\Api\V1\Controllers\Base\ResourceController;
 use App\Http\Api\V1\ResourceDefinitions\MenuItemResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\OrderResourceDefinition;
 use App\Models\Event;
+use App\Models\Order;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Models\ResourceResponse;
@@ -86,9 +87,21 @@ class PublicController extends ResourceController
 
     /**
      *
+     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
      */
     public function order()
     {
+        $context = $this->getContext(Action::CREATE);
 
+        $bodyResource = $this->bodyToResource($context, OrderResourceDefinition::class);
+
+        /** @var Order $entity */
+        $entity = $this->toEntity($bodyResource, $context, null, OrderResourceDefinition::class);
+
+        $entity->saveRecursively();
+
+        $readContext = $this->getContext(Action::VIEW);
+        $resource = $this->toResource($entity, $readContext, OrderResourceDefinition::class);
+        return new ResourceResponse($resource, $readContext);
     }
 }

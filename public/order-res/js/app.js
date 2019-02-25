@@ -2688,9 +2688,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
@@ -2794,6 +2791,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.totals.price = totalPrice;
       this.totals.amount = totalAmount;
     },
+    reset: function reset() {
+      this.items.forEach(function (item) {
+        if (item.isTotals) {
+          return;
+        }
+
+        item.amount = 0;
+      });
+      this.updateTotals();
+    },
     submit: function () {
       var _submit = _asyncToGenerator(
       /*#__PURE__*/
@@ -2821,7 +2828,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 5:
                 data = {};
-                data.tableNumber = this.tableNumber;
+                data.location = this.tableNumber;
                 data.order = {
                   items: []
                 };
@@ -2843,6 +2850,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 return this.service.order(data);
 
               case 11:
+                alert('We hebben je bestelling ontvangen!');
+                this.reset();
+
+              case 13:
               case "end":
                 return _context2.stop();
             }
@@ -45969,8 +45980,6 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("b-container", { attrs: { fluid: "" } }, [
     _c("h2", [_vm._v("Bestellen")]),
-    _vm._v(" "),
-    _c("p", [_vm._v("\n        Wat wilt u bestellen?\n    ")]),
     _vm._v(" "),
     !_vm.loaded
       ? _c(
