@@ -3060,8 +3060,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
-    this.service = new _services_MenuService__WEBPACK_IMPORTED_MODULE_1__["MenuService"](4);
+    this.service = new _services_MenuService__WEBPACK_IMPORTED_MODULE_1__["MenuService"](this.$route.params.id);
     this.refresh();
+  },
+  watch: {
+    '$route': function $route(to, from) {
+      // react to route changes...
+      this.service = new _services_MenuService__WEBPACK_IMPORTED_MODULE_1__["MenuService"](to.params.id);
+      this.refresh();
+    }
   },
   data: function data() {
     return {
