@@ -16,6 +16,7 @@
         "catlabinteractive/charon": "^1.2.7",
         "catlabinteractive/charon-laravel": "^1.2",
         "catlabinteractive/cursor-pagination": "^1.0",
+        "catlabinteractive/laravel-catlab-accounts": "^1.0",
         "catlabinteractive/requirements": "^1.0.3",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.7.*",
@@ -69,5 +70,11 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ]
-    }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:CatLabInteractive/laravel-catlab-accounts.git"
+        }
+    ]
 }

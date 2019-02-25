@@ -22,6 +22,7 @@
 
 namespace App\Providers;
 
+use CatLab\Accounts\Client\SocialiteProvider\CatLabExtendSocialite;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -37,6 +38,9 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+            CatLabExtendSocialite::class
         ],
     ];
 

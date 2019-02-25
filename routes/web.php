@@ -32,6 +32,7 @@ Route::get('/client/{any?}', 'ClientController@index')
 Route::get('/order/{orderId}/{any?}', 'OrderController@view')
     ->where('any', '.*');
 
-Auth::routes();
+//Auth::routes();
+\CatLab\Accounts\Client\Controllers\LoginController::setRoutes();
 
 Route::get('/home', 'HomeController@index')->name('home');
