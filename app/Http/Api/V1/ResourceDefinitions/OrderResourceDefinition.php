@@ -34,5 +34,17 @@ class OrderResourceDefinition extends ResourceDefinition
     public function __construct()
     {
         parent::__construct(Order::class);
+
+        $this->field('location')
+            ->string()
+            ->required()
+            ->visible(true)
+            ->writeable(true, true);
+
+        $this->relationship('order', OrderItemResourceDefinition::class)
+            ->many()
+            ->expanded()
+            ->visible(true)
+            ->writeable(true, true);
     }
 }

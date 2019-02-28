@@ -25,15 +25,28 @@ namespace App\Models;
 use CatLab\Charon\Laravel\Database\Model;
 
 /**
- * Class Order
+ * Class OrderItem
  * @package App\Models
  */
-class Order extends Model
+class OrderItem extends Model
 {
-    protected $table = 'orders';
+    protected $fillable = [
+        'amount'
+    ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function menuItem()
+    {
+        return $this->belongsTo(MenuItem::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function order()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->belongsTo(Order::class);
     }
 }

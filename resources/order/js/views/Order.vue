@@ -24,9 +24,6 @@
     <b-container fluid>
 
         <h2>Bestellen</h2>
-        <p>
-            Wat wilt u bestellen?
-        </p>
 
         <div class="text-center" v-if="!loaded">
             <b-spinner label="Loading data" />
@@ -188,6 +185,19 @@
                 this.totals.amount = totalAmount;
             },
 
+            reset() {
+                this.items.forEach(
+                    (item) => {
+                        if (item.isTotals) {
+                            return;
+                        }
+
+                        item.amount = 0;
+                    }
+                );
+                this.updateTotals();
+            },
+
             async submit() {
                 if (this.saving) {
                     return;
@@ -199,7 +209,7 @@
                 }
 
                 const data = {};
-                data.tableNumber = this.tableNumber;
+                data.location = this.tableNumber;
                 data.order = {
                     items: []
                 };
@@ -223,6 +233,9 @@
 
 
                 await this.service.order(data);
+                alert('We hebben je bestelling ontvangen!');
+
+                this.reset();
             }
 
         }

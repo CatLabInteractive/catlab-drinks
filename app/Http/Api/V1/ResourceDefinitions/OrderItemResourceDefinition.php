@@ -20,20 +20,32 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-namespace App\Models;
+namespace App\Http\Api\V1\ResourceDefinitions;
 
-use CatLab\Charon\Laravel\Database\Model;
+use App\Models\OrderItem;
+use CatLab\Charon\Models\ResourceDefinition;
 
 /**
- * Class Order
- * @package App\Models
+ * Class OrderItemResourceDefinition
+ * @package App\Http\Api\V1\ResourceDefinitions
  */
-class Order extends Model
+class OrderItemResourceDefinition extends ResourceDefinition
 {
-    protected $table = 'orders';
-
-    public function order()
+    public function __construct()
     {
-        return $this->hasMany(OrderItem::class);
+        parent::__construct(OrderItem::class);
+
+        $this->field('amount')
+            ->int()
+            ->required()
+            ->writeable(true, true)
+            ->visible(true, true);
+
+        $this->relationship('menuItem', MenuItemResourceDefinition::class)
+            ->one()
+            ->linkable(true, true)
+            ->required()
+            ->visible(true)
+            ->expanded();
     }
 }

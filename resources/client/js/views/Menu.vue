@@ -92,9 +92,17 @@
     export default {
         mounted() {
 
-            this.service = new MenuService(4);
+            this.service = new MenuService(this.$route.params.id);
             this.refresh();
 
+        },
+
+        watch: {
+            '$route' (to, from) {
+                // react to route changes...
+                this.service = new MenuService(to.params.id);
+                this.refresh();
+            }
         },
 
         data() {

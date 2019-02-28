@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use CatLab\Charon\Laravel\Database\Model;
 
 class MenuItem extends Model
 {
