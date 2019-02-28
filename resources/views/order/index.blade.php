@@ -16,7 +16,7 @@
     <link href="{{ asset('order-res/css/app.css') }}" rel="stylesheet">
 </head>
 <body>
-<div id="app">
+<div id="app" style="min-height: 1000px">
     <app></app>
 </div>
 
