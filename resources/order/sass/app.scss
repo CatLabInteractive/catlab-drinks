@@ -25,4 +25,5 @@
 
 #app {
   margin-top: 10px;
+  min-height: 1500px; // this is because of silly iframe issues in ios
 }
