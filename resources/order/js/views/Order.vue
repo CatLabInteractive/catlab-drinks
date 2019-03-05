@@ -33,14 +33,6 @@
 
             <b-row>
                 <b-col>
-                    <b-form-group label="Tafelnummer">
-                        <b-form-input type="text" v-model="tableNumber"></b-form-input>
-                    </b-form-group>
-                </b-col>
-            </b-row>
-
-            <b-row>
-                <b-col>
                     <b-table striped hover :items="items" :fields="fields" v-if="loaded">
 
                         <template slot="name" slot-scope="row">
@@ -66,6 +58,14 @@
                     </b-table>
                 </b-col>
 
+            </b-row>
+
+            <b-row>
+                <b-col>
+                    <b-form-group label="Tafelnummer">
+                        <b-form-input type="text" v-model="tableNumber"></b-form-input>
+                    </b-form-group>
+                </b-col>
             </b-row>
 
             <b-row>

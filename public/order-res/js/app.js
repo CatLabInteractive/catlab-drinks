@@ -46083,36 +46083,6 @@ var render = function() {
                 _c(
                   "b-col",
                   [
-                    _c(
-                      "b-form-group",
-                      { attrs: { label: "Tafelnummer" } },
-                      [
-                        _c("b-form-input", {
-                          attrs: { type: "text" },
-                          model: {
-                            value: _vm.tableNumber,
-                            callback: function($$v) {
-                              _vm.tableNumber = $$v
-                            },
-                            expression: "tableNumber"
-                          }
-                        })
-                      ],
-                      1
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c(
-              "b-row",
-              [
-                _c(
-                  "b-col",
-                  [
                     _vm.loaded
                       ? _c("b-table", {
                           attrs: {
@@ -46214,6 +46184,36 @@ var render = function() {
                           )
                         })
                       : _vm._e()
+                  ],
+                  1
+                )
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "b-row",
+              [
+                _c(
+                  "b-col",
+                  [
+                    _c(
+                      "b-form-group",
+                      { attrs: { label: "Tafelnummer" } },
+                      [
+                        _c("b-form-input", {
+                          attrs: { type: "text" },
+                          model: {
+                            value: _vm.tableNumber,
+                            callback: function($$v) {
+                              _vm.tableNumber = $$v
+                            },
+                            expression: "tableNumber"
+                          }
+                        })
+                      ],
+                      1
+                    )
                   ],
                   1
                 )
