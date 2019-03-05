@@ -43,8 +43,9 @@
                 <b-col>
                     <b-table striped hover :items="items" :fields="fields" v-if="loaded">
 
-                        <template slot="price" slot-scope="row">
-                            €{{row.item.price.toFixed(2)}}
+                        <template slot="name" slot-scope="row">
+                            {{row.item.name}}<br />
+                            <span class="price">€{{row.item.price.toFixed(2)}}</span>
                         </template>
 
                         <template slot="amount" slot-scope="row">
@@ -69,7 +70,11 @@
 
             <b-row>
                 <b-col>
-                    <b-btn type="submit" variant="success" @click="submit()">Bestellen</b-btn>
+                    <p><b-btn type="submit" variant="success" @click="submit()">Bestellen</b-btn></p>
+
+                    <b-alert danger :show="warning !== null">
+                        {{warning}}
+                    </b-alert>
                 </b-col>
             </b-row>
 
@@ -106,11 +111,6 @@
                         label: 'Product',
                     },
                     {
-                        key: 'price',
-                        label: 'Prijs',
-                        class: 'text-center'
-                    },
-                    {
                         key: 'amount',
                         label: 'Aantal',
                         class: 'text-center'
@@ -118,11 +118,13 @@
 
                     {
                         key: 'actions',
-                        class: 'text-right'
+                        label: '',
+                        class: 'text-right order-buttons'
                     }
                 ],
                 model: {},
-                tableNumber: ''
+                tableNumber: '',
+                warning: null
             }
         },
 
@@ -204,7 +206,12 @@
                 }
 
                 if (!this.tableNumber || this.tableNumber === '') {
-                    alert('Gelieve een tafelnummer in te voeren.');
+                    this.warning = 'Gelieve een tafelnummer in te voeren.';
+                    return;
+                }
+
+                if (this.totals.amount === 0) {
+                    this.warning = 'Gelieve minstens 1 drankje te bestellen.';
                     return;
                 }
 
@@ -232,8 +239,8 @@
                 );
 
 
-                await this.service.order(data);
-                alert('We hebben je bestelling ontvangen!');
+                const order = await this.service.order(data);
+                this.$router.push({ name: 'ordersubmitted', params: { id: order.id  } });
 
                 this.reset();
             }

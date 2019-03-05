@@ -27,3 +27,11 @@
   margin-top: 10px;
   min-height: 1500px; // this is because of silly iframe issues in ios
 }
+
+td.order-buttons {
+  min-width: 90px;
+}
+
+.price {
+  color: gray;
+}

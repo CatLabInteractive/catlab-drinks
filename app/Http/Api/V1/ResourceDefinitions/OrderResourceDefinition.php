@@ -35,6 +35,8 @@ class OrderResourceDefinition extends ResourceDefinition
     {
         parent::__construct(Order::class);
 
+        $this->identifier('id');
+
         $this->field('location')
             ->string()
             ->required()
