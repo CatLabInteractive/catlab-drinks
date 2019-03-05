@@ -46228,6 +46228,20 @@ var render = function() {
                   "b-col",
                   [
                     _c(
+                      "b-alert",
+                      {
+                        attrs: { variant: "danger", show: _vm.warning !== null }
+                      },
+                      [
+                        _vm._v(
+                          "\n                    " +
+                            _vm._s(_vm.warning) +
+                            "\n                "
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c(
                       "p",
                       [
                         _c(
@@ -46244,18 +46258,6 @@ var render = function() {
                         )
                       ],
                       1
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "b-alert",
-                      { attrs: { danger: "", show: _vm.warning !== null } },
-                      [
-                        _vm._v(
-                          "\n                    " +
-                            _vm._s(_vm.warning) +
-                            "\n                "
-                        )
-                      ]
                     )
                   ],
                   1

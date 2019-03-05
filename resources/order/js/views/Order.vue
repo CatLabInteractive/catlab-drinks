@@ -70,11 +70,11 @@
 
             <b-row>
                 <b-col>
-                    <p><b-btn type="submit" variant="success" @click="submit()">Bestellen</b-btn></p>
-
-                    <b-alert danger :show="warning !== null">
+                    <b-alert variant="danger" :show="warning !== null">
                         {{warning}}
                     </b-alert>
+
+                    <p><b-btn type="submit" variant="success" @click="submit()">Bestellen</b-btn></p>
                 </b-col>
             </b-row>
 
