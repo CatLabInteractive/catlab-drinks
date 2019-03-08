@@ -22,6 +22,8 @@
 
 namespace App\Http\Api\V1\Controllers;
 
+use App\Factories\EntityFactory;
+use App\Factories\OrderEntityFactory;
 use App\Http\Api\V1\Controllers\Base\ResourceController;
 use App\Http\Api\V1\ResourceDefinitions\MenuItemResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\OrderResourceDefinition;
@@ -30,6 +32,7 @@ use App\Models\Order;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Models\ResourceResponse;
+use Illuminate\Http\JsonResponse;
 
 /**
  * Class PublicController
@@ -75,11 +78,21 @@ class PublicController extends ResourceController
      */
     public function menu()
     {
-        /** @var Event $project */
-        $project = \Request::input('event');
+        /** @var Event $event */
+        $event = \Request::input('event');
+
+        // Check if the bar is actually open.
+        if (!$event->isOpen()) {
+            return new JsonResponse([
+                'error' => [
+                    'message' => 'De bar aanvaardt momenteel geen bestellingen.'
+                ]
+            ], 423);
+        }
+
         $context = $this->getContext(Action::VIEW);
 
-        $menuItems = $this->getModels($project->menuItems(), $context);
+        $menuItems = $this->getModels($event->menuItems()->where('is_selling', '=', true), $context);
 
         $resources = $this->toResources($menuItems, $context, MenuItemResourceDefinition::class);
         return new ResourceResponse($resources, $context);
@@ -91,12 +104,33 @@ class PublicController extends ResourceController
      */
     public function order()
     {
+        /** @var Event $event */
+        $event = \Request::input('event');
+
+        // Check if the bar is actually open.
+        if (!$event->isOpen()) {
+            return new JsonResponse([
+                'error' => [
+                    'message' => 'De bar aanvaardt momenteel geen bestellingen. Probeer het later nog eens.'
+                ]
+            ], 423);
+        }
+
+        // Process the order
         $context = $this->getContext(Action::CREATE);
 
         $bodyResource = $this->bodyToResource($context, OrderResourceDefinition::class);
 
         /** @var Order $entity */
-        $entity = $this->toEntity($bodyResource, $context, null, OrderResourceDefinition::class);
+        $entity = $this->toEntity(
+            $bodyResource,
+            $context,
+            null,
+            OrderResourceDefinition::class,
+            new OrderEntityFactory($event)
+        );
+
+        $entity->event()->associate($event);
 
         $entity->saveRecursively();
 

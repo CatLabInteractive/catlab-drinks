@@ -22,9 +22,13 @@
 
 namespace App\Http\Api\V1\Controllers\Base;
 
+use App\Factories\EntityFactory;
 use App\Http\Controllers\Controller;
 use CatLab\Base\Helpers\ArrayHelper;
 use CatLab\Charon\Laravel\InputParsers\JsonBodyInputParser;
+use CatLab\Charon\Laravel\Resolvers\PropertyResolver;
+use CatLab\Charon\Laravel\Resolvers\PropertySetter;
+use CatLab\Charon\Laravel\Transformers\ResourceTransformer;
 use CatLab\CursorPagination\CursorPaginationBuilder;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Library\ResourceDefinitionLibrary;

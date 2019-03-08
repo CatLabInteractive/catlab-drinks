@@ -75,4 +75,12 @@ class Event extends Model
     {
         return action('OrderController@view', [ $this->order_token ]);
     }
+
+    /**
+     * @return boolean
+     */
+    public function isOpen()
+    {
+        return $this->is_selling;
+    }
 }

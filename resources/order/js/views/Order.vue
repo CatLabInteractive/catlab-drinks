@@ -29,7 +29,11 @@
             <b-spinner label="Loading data" />
         </div>
 
-        <div v-if="loaded">
+        <b-alert variant="danger" :show="error !== null">
+            {{error}}
+        </b-alert>
+
+        <div v-if="loaded && error === null">
 
             <b-row>
                 <b-col>
@@ -124,14 +128,24 @@
                 ],
                 model: {},
                 tableNumber: '',
-                warning: null
+                warning: null,
+                error:  null
             }
         },
 
         methods: {
 
             async refresh() {
-                const items = (await this.service.getMenu()).items;
+
+                let items = [];
+                try {
+                    items = (await this.service.getMenu()).items;
+                } catch (e) {
+                    this.loaded = true;
+                    this.error = e.response.data.error.message;
+                    return;
+                }
+
                 items.forEach(
                     (item) => {
                         item.amount = 0;
@@ -238,11 +252,15 @@
                     }
                 );
 
+                try {
+                    const order = await this.service.order(data);
 
-                const order = await this.service.order(data);
-                this.$router.push({ name: 'ordersubmitted', params: { id: order.id  } });
+                    this.$router.push({ name: 'ordersubmitted', params: { id: order.id  } });
+                    this.reset();
 
-                this.reset();
+                } catch (e) {
+                    this.warning = e.response.data.error.message;
+                }
             }
 
         }

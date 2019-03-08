@@ -2693,6 +2693,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
@@ -2721,7 +2725,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }],
       model: {},
       tableNumber: '',
-      warning: null
+      warning: null,
+      error: null
     };
   },
   methods: {
@@ -2734,11 +2739,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
+                items = [];
+                _context.prev = 1;
+                _context.next = 4;
                 return this.service.getMenu();
 
-              case 2:
+              case 4:
                 items = _context.sent.items;
+                _context.next = 12;
+                break;
+
+              case 7:
+                _context.prev = 7;
+                _context.t0 = _context["catch"](1);
+                this.loaded = true;
+                this.error = _context.t0.response.data.error.message;
+                return _context.abrupt("return");
+
+              case 12:
                 items.forEach(function (item) {
                   item.amount = 0;
                 });
@@ -2753,12 +2771,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 this.items.push(this.totals);
                 this.loaded = true;
 
-              case 8:
+              case 17:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this);
+        }, _callee, this, [[1, 7]]);
       }));
 
       function refresh() {
@@ -2858,10 +2876,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     });
                   }
                 });
-                _context2.next = 14;
+                _context2.prev = 12;
+                _context2.next = 15;
                 return this.service.order(data);
 
-              case 14:
+              case 15:
                 order = _context2.sent;
                 this.$router.push({
                   name: 'ordersubmitted',
@@ -2870,13 +2889,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
                 });
                 this.reset();
+                _context2.next = 23;
+                break;
 
-              case 17:
+              case 20:
+                _context2.prev = 20;
+                _context2.t0 = _context2["catch"](12);
+                this.warning = _context2.t0.response.data.error.message;
+
+              case 23:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, this);
+        }, _callee2, this, [[12, 20]]);
       }));
 
       function submit() {
@@ -46061,215 +46087,230 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("b-container", { attrs: { fluid: "" } }, [
-    _c("h2", [_vm._v("Bestellen")]),
-    _vm._v(" "),
-    !_vm.loaded
-      ? _c(
-          "div",
-          { staticClass: "text-center" },
-          [_c("b-spinner", { attrs: { label: "Loading data" } })],
-          1
-        )
-      : _vm._e(),
-    _vm._v(" "),
-    _vm.loaded
-      ? _c(
-          "div",
-          [
-            _c(
-              "b-row",
-              [
-                _c(
-                  "b-col",
-                  [
-                    _vm.loaded
-                      ? _c("b-table", {
-                          attrs: {
-                            striped: "",
-                            hover: "",
-                            items: _vm.items,
-                            fields: _vm.fields
-                          },
-                          scopedSlots: _vm._u(
-                            [
-                              {
-                                key: "name",
-                                fn: function(row) {
-                                  return [
-                                    _vm._v(
-                                      "\n                        " +
-                                        _vm._s(row.item.name)
-                                    ),
-                                    _c("br"),
-                                    _vm._v(" "),
-                                    _c("span", { staticClass: "price" }, [
-                                      _vm._v(
-                                        "€" + _vm._s(row.item.price.toFixed(2))
-                                      )
-                                    ])
-                                  ]
-                                }
-                              },
-                              {
-                                key: "amount",
-                                fn: function(row) {
-                                  return [
-                                    _vm._v(
-                                      "\n\n                        " +
-                                        _vm._s(row.item.amount) +
-                                        "\n\n                    "
-                                    )
-                                  ]
-                                }
-                              },
-                              {
-                                key: "actions",
-                                fn: function(row) {
-                                  return [
-                                    !row.item.isTotals
-                                      ? _c(
-                                          "span",
-                                          [
-                                            _c(
-                                              "b-button",
-                                              {
-                                                attrs: {
-                                                  variant: "success small",
-                                                  size: "sm"
-                                                },
-                                                on: {
-                                                  click: function($event) {
-                                                    return _vm.up(row.item)
-                                                  }
-                                                }
-                                              },
-                                              [
-                                                _c("i", {
-                                                  staticClass: "fas fa-plus"
-                                                })
-                                              ]
-                                            ),
-                                            _vm._v(" "),
-                                            _c(
-                                              "b-button",
-                                              {
-                                                attrs: {
-                                                  variant: "danger small",
-                                                  size: "sm"
-                                                },
-                                                on: {
-                                                  click: function($event) {
-                                                    return _vm.down(row.item)
-                                                  }
-                                                }
-                                              },
-                                              [
-                                                _c("i", {
-                                                  staticClass: "fas fa-minus"
-                                                })
-                                              ]
-                                            )
-                                          ],
-                                          1
-                                        )
-                                      : _vm._e()
-                                  ]
-                                }
-                              }
-                            ],
-                            null,
-                            false,
-                            194889155
-                          )
-                        })
-                      : _vm._e()
-                  ],
-                  1
-                )
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c(
-              "b-row",
-              [
-                _c(
-                  "b-col",
-                  [
-                    _c(
-                      "b-form-group",
-                      { attrs: { label: "Tafelnummer" } },
-                      [
-                        _c("b-form-input", {
-                          attrs: { type: "text" },
-                          model: {
-                            value: _vm.tableNumber,
-                            callback: function($$v) {
-                              _vm.tableNumber = $$v
+  return _c(
+    "b-container",
+    { attrs: { fluid: "" } },
+    [
+      _c("h2", [_vm._v("Bestellen")]),
+      _vm._v(" "),
+      !_vm.loaded
+        ? _c(
+            "div",
+            { staticClass: "text-center" },
+            [_c("b-spinner", { attrs: { label: "Loading data" } })],
+            1
+          )
+        : _vm._e(),
+      _vm._v(" "),
+      _c(
+        "b-alert",
+        { attrs: { variant: "danger", show: _vm.error !== null } },
+        [_vm._v("\n        " + _vm._s(_vm.error) + "\n    ")]
+      ),
+      _vm._v(" "),
+      _vm.loaded && _vm.error === null
+        ? _c(
+            "div",
+            [
+              _c(
+                "b-row",
+                [
+                  _c(
+                    "b-col",
+                    [
+                      _vm.loaded
+                        ? _c("b-table", {
+                            attrs: {
+                              striped: "",
+                              hover: "",
+                              items: _vm.items,
+                              fields: _vm.fields
                             },
-                            expression: "tableNumber"
-                          }
-                        })
-                      ],
-                      1
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c(
-              "b-row",
-              [
-                _c(
-                  "b-col",
-                  [
-                    _c(
-                      "b-alert",
-                      {
-                        attrs: { variant: "danger", show: _vm.warning !== null }
-                      },
-                      [
-                        _vm._v(
-                          "\n                    " +
-                            _vm._s(_vm.warning) +
-                            "\n                "
-                        )
-                      ]
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "p",
-                      [
-                        _c(
-                          "b-btn",
-                          {
-                            attrs: { type: "submit", variant: "success" },
-                            on: {
-                              click: function($event) {
-                                return _vm.submit()
-                              }
+                            scopedSlots: _vm._u(
+                              [
+                                {
+                                  key: "name",
+                                  fn: function(row) {
+                                    return [
+                                      _vm._v(
+                                        "\n                        " +
+                                          _vm._s(row.item.name)
+                                      ),
+                                      _c("br"),
+                                      _vm._v(" "),
+                                      _c("span", { staticClass: "price" }, [
+                                        _vm._v(
+                                          "€" +
+                                            _vm._s(row.item.price.toFixed(2))
+                                        )
+                                      ])
+                                    ]
+                                  }
+                                },
+                                {
+                                  key: "amount",
+                                  fn: function(row) {
+                                    return [
+                                      _vm._v(
+                                        "\n\n                        " +
+                                          _vm._s(row.item.amount) +
+                                          "\n\n                    "
+                                      )
+                                    ]
+                                  }
+                                },
+                                {
+                                  key: "actions",
+                                  fn: function(row) {
+                                    return [
+                                      !row.item.isTotals
+                                        ? _c(
+                                            "span",
+                                            [
+                                              _c(
+                                                "b-button",
+                                                {
+                                                  attrs: {
+                                                    variant: "success small",
+                                                    size: "sm"
+                                                  },
+                                                  on: {
+                                                    click: function($event) {
+                                                      return _vm.up(row.item)
+                                                    }
+                                                  }
+                                                },
+                                                [
+                                                  _c("i", {
+                                                    staticClass: "fas fa-plus"
+                                                  })
+                                                ]
+                                              ),
+                                              _vm._v(" "),
+                                              _c(
+                                                "b-button",
+                                                {
+                                                  attrs: {
+                                                    variant: "danger small",
+                                                    size: "sm"
+                                                  },
+                                                  on: {
+                                                    click: function($event) {
+                                                      return _vm.down(row.item)
+                                                    }
+                                                  }
+                                                },
+                                                [
+                                                  _c("i", {
+                                                    staticClass: "fas fa-minus"
+                                                  })
+                                                ]
+                                              )
+                                            ],
+                                            1
+                                          )
+                                        : _vm._e()
+                                    ]
+                                  }
+                                }
+                              ],
+                              null,
+                              false,
+                              194889155
+                            )
+                          })
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "b-row",
+                [
+                  _c(
+                    "b-col",
+                    [
+                      _c(
+                        "b-form-group",
+                        { attrs: { label: "Tafelnummer" } },
+                        [
+                          _c("b-form-input", {
+                            attrs: { type: "text" },
+                            model: {
+                              value: _vm.tableNumber,
+                              callback: function($$v) {
+                                _vm.tableNumber = $$v
+                              },
+                              expression: "tableNumber"
                             }
-                          },
-                          [_vm._v("Bestellen")]
-                        )
-                      ],
-                      1
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            )
-          ],
-          1
-        )
-      : _vm._e()
-  ])
+                          })
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "b-row",
+                [
+                  _c(
+                    "b-col",
+                    [
+                      _c(
+                        "b-alert",
+                        {
+                          attrs: {
+                            variant: "danger",
+                            show: _vm.warning !== null
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                    " +
+                              _vm._s(_vm.warning) +
+                              "\n                "
+                          )
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "p",
+                        [
+                          _c(
+                            "b-btn",
+                            {
+                              attrs: { type: "submit", variant: "success" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.submit()
+                                }
+                              }
+                            },
+                            [_vm._v("Bestellen")]
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
+        : _vm._e()
+    ],
+    1
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
