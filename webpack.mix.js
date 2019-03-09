@@ -11,16 +11,15 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/js/app.js', 'public/js')
-   .sass('resources/sass/app.scss', 'public/css');
+mix.sass('resources/sass/app.scss', 'public/css');
 
-mix.js('resources/js/swagger-ui.js', 'public/swaggerui')
-    .sass('resources/sass/swagger.scss', 'public/swaggerui');
+mix.js('resources/swagger/swagger-ui.js', 'public/swaggerui')
+    .sass('resources/swagger/swagger.scss', 'public/swaggerui');
 
 // Client
-mix.js('resources/client/js/app.js', 'public/client-res/js')
-    .sass('resources/client/sass/app.scss', 'public/client-res/css');
+mix.js('resources/sales/js/app.js', 'public/res/sales/js')
+    .sass('resources/sales/sass/app.scss', 'public/res/sales/css');
 
 // Order
-mix.js('resources/order/js/app.js', 'public/order-res/js')
-    .sass('resources/order/sass/app.scss', 'public/order-res/css');
+mix.js('resources/clients/js/app.js', 'public/res/clients/js')
+    .sass('resources/clients/sass/app.scss', 'public/res/clients/css');

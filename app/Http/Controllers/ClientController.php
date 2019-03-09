@@ -30,6 +30,6 @@ class ClientController
 {
     public function index()
     {
-        return view('client.index');
+        return view('sales.index');
     }
 }

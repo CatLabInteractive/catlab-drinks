@@ -19,7 +19,7 @@ Route::get('/docs/oauth2', 'DocumentController@oauth2Redirect');
 /*
  * Link to the single page web application
  */
-Route::get('/client/{any?}', 'ClientController@index')
+Route::get('/sales/{any?}', 'ClientController@index')
     ->where('any', '.*')
     ->middleware('auth')
 ;

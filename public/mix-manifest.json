@@ -1,10 +1,9 @@
 {
-    "/client-res/js/app.js": "/client-res/js/app.js",
-    "/js/app.js": "/js/app.js",
+    "/res/clients/js/app.js": "/res/clients/js/app.js",
+    "/res/sales/js/app.js": "/res/sales/js/app.js",
+    "/swaggerui/swagger-ui.js": "/swaggerui/swagger-ui.js",
     "/css/app.css": "/css/app.css",
     "/swaggerui/swagger.css": "/swaggerui/swagger.css",
-    "/client-res/css/app.css": "/client-res/css/app.css",
-    "/order-res/css/app.css": "/order-res/css/app.css",
-    "/order-res/js/app.js": "/order-res/js/app.js",
-    "/swaggerui/swagger-ui.js": "/swaggerui/swagger-ui.js"
+    "/res/sales/css/app.css": "/res/sales/css/app.css",
+    "/res/clients/css/app.css": "/res/clients/css/app.css"
 }

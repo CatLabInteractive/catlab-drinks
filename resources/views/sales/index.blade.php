@@ -13,13 +13,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Styles -->
-    <link href="{{ asset('client-res/css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('res/sales/css/app.css') }}" rel="stylesheet">
 </head>
 <body>
 <div id="app">
     <app></app>
 </div>
 
-<script src="{{ mix('client-res/js/app.js') }}"></script>
+<script src="{{ mix('res/sales/js/app.js') }}"></script>
 </body>
 </html>

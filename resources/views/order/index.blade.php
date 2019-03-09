@@ -13,7 +13,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Styles -->
-    <link href="{{ asset('order-res/css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('res/clients/css/app.css') }}" rel="stylesheet">
 </head>
 <body>
 <div id="app" style="min-height: 1000px">
@@ -24,6 +24,6 @@
     var BASE_URL = '{{$baseUrl}}';
     var EVENT_TOKEN = '{{$token }}';
 </script>
-<script src="{{ mix('order-res/js/app.js') }}"></script>
+<script src="{{ mix('res/clients/js/app.js') }}"></script>
 </body>
 </html>
