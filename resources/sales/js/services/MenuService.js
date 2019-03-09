@@ -31,5 +31,7 @@ export class MenuService extends AbstractService {
         this.entityUrl = 'menuitems';
     }
 
-
+    order(data) {
+        console.log(data);
+    }
 }

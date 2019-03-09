@@ -37,6 +37,11 @@ import Home from './views/Home'
 import Events from './views/Events'
 import Headquarters from "./views/Headquarters";
 
+Vue.component(
+    'live-sales',
+    require('./components/LiveSales.vue').default
+);
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue

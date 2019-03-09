@@ -21,25 +21,13 @@
 
 import {AbstractService} from './AbstractService';
 
-export class MenuService extends AbstractService {
+export class OrderService extends AbstractService {
 
-    /**
-     *
-     */
-    constructor() {
+
+    constructor(eventId) {
         super();
 
+        this.indexUrl = 'events/' + eventId + '/orders';
+        this.entityUrl = 'order';
     }
-
-    /**
-     * @returns {Promise<void>}
-     */
-    getMenu() {
-        return this.execute('get', "public/menu.json?records=1000");
-    }
-
-    order(data) {
-        return this.execute('post', 'public/order.json', data);
-    }
-
 }

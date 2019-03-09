@@ -23,44 +23,10 @@
 
     <b-container fluid>
 
-        <h1>Headquarters</h1>
-        <div class="text-center" v-if="!loaded">
-            <b-spinner label="Loading data" />
-        </div>
-
         <b-row>
             <b-col cols="8" id="live-orders">
 
-                <h2>Live orders</h2>
-                <b-row>
-                    <b-col cols="12">
-
-                    <div class="live-orders">
-                        <div v-for="item in items" class="product">
-                            <span class="name">{{ item.name}}</span>
-                            <span class="buttons">
-                                <button class="btn btn-success btn-sm">+</button>
-                                <button class="btn btn-danger btn-sm">-</button>
-                            </span>
-                            <span class="amount">0</span>
-                        </div>
-                    </div>
-
-                    </b-col>
-                </b-row>
-
-                <b-row>
-                    <b-col cols="12">
-                        <div class="total">
-                            <p>Totaal: €14 (28 vakjes)</p>
-                        </div>
-
-                        <p>
-                            <button class="btn btn-success">Bevestigen</button>
-                            <button class="btn btn-danger">Reset</button>
-                        </p>
-                    </b-col>
-                </b-row>
+                <live-sales v-bind:eventId="eventId"></live-sales>
 
             </b-col>
 
@@ -126,7 +92,8 @@
     export default {
         mounted() {
 
-            this.service = new MenuService(this.$route.params.id);
+            this.eventId = this.$route.params.id;
+            this.service = new MenuService(this.eventId);
             this.refresh();
 
         },
@@ -141,6 +108,7 @@
 
         data() {
             return {
+                eventId: null,
                 loaded: false,
                 saving: false,
                 saved: false,

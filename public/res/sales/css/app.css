@@ -15716,6 +15716,7 @@ table.b-table.b-table-selectable > tbody > tr {
 
 #live-orders .total {
   border: 2px solid green;
+  background: #bcffc8;
   padding: 10px;
   border-radius: 10px;
   font-size: 150%;
@@ -15725,5 +15726,9 @@ table.b-table.b-table-selectable > tbody > tr {
 #live-orders .total p {
   margin: 0;
   padding: 0;
+}
+
+.order-confirm-modal li {
+  font-size: 150%;
 }
 
