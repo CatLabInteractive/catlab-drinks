@@ -37,6 +37,10 @@
                             Menu items
                         </b-button>
 
+                        <b-link class="btn btn-sm btn-success" :to="{ name: 'hq', params: { id: row.item.id } }">
+                            HQ
+                        </b-link>
+
                         <b-link class="btn btn-sm btn-success" :href="row.item.order_url" target="_blank">
                             Client panel
                         </b-link>

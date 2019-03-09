@@ -35,6 +35,7 @@ import App from './views/App'
 import Hello from './views/Hello'
 import Home from './views/Home'
 import Events from './views/Events'
+import Headquarters from "./views/Headquarters";
 
 /**
  * The following block of code may be used to automatically register your
@@ -45,7 +46,7 @@ import Events from './views/Events'
  */
 const router = new VueRouter({
     mode: 'history',
-    base: '/client/',
+    base: '/sales/',
     routes: [
         {
             path: '/',
@@ -68,6 +69,12 @@ const router = new VueRouter({
             path: '/events/:id/menu',
             name: 'menu',
             component: Menu,
+        },
+
+        {
+            path: '/events/:id/hq',
+            name: 'hq',
+            component: Headquarters,
         },
     ],
 });

@@ -1,0 +1,219 @@
+<!--
+  - CatLab Drinks - Simple bar automation system
+  - Copyright (C) 2019 Thijs Van der Schaeghe
+  - CatLab Interactive bvba, Gent, Belgium
+  - http://www.catlab.eu/
+  -
+  - This program is free software; you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation; either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - This program is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License along
+  - with this program; if not, write to the Free Software Foundation, Inc.,
+  - 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  -->
+
+<template>
+
+    <b-container fluid>
+
+        <h1>Headquarters</h1>
+        <div class="text-center" v-if="!loaded">
+            <b-spinner label="Loading data" />
+        </div>
+
+        <b-row>
+            <b-col cols="8" id="live-orders">
+
+                <h2>Live orders</h2>
+                <b-row>
+                    <b-col cols="12">
+
+                    <div class="live-orders">
+                        <div v-for="item in items" class="product">
+                            <span class="name">{{ item.name}}</span>
+                            <span class="buttons">
+                                <button class="btn btn-success btn-sm">+</button>
+                                <button class="btn btn-danger btn-sm">-</button>
+                            </span>
+                            <span class="amount">0</span>
+                        </div>
+                    </div>
+
+                    </b-col>
+                </b-row>
+
+                <b-row>
+                    <b-col cols="12">
+                        <div class="total">
+                            <p>Totaal: €14 (28 vakjes)</p>
+                        </div>
+
+                        <p>
+                            <button class="btn btn-success">Bevestigen</button>
+                            <button class="btn btn-danger">Reset</button>
+                        </p>
+                    </b-col>
+                </b-row>
+
+            </b-col>
+
+            <b-col cols="4">
+                <h2>Remote orders</h2>
+
+                <div class="remote-orders">
+
+                    <div class="order">
+
+                        <h3>Order #718</h3>
+                        <ul>
+                            <li>3x Augustijn Blond</li>
+                            <li>1x Augustijn Bruin</li>
+                            <li>1x Chips pickels</li>
+                        </ul>
+
+                        <p>
+                            Tafel: 15<br />
+                            Totaal: €14 (28 vakjes)
+                        </p>
+
+                        <p>
+                            <button class="btn btn-success">Afgewerkt</button>
+                            <button class="btn btn-danger">Niet aanvaard</button>
+                        </p>
+
+                    </div>
+
+                    <div class="order">
+
+                        <h3>Order #719</h3>
+                        <ul>
+                            <li>3x Augustijn Blond</li>
+                            <li>1x Augustijn Bruin</li>
+                            <li>1x Chips pickels</li>
+                        </ul>
+
+                        <p>
+                            Tafel: 9<br />
+                            Totaal: €14 (28 vakjes)
+                        </p>
+
+                        <p>
+                            <button class="btn btn-success">Afgewerkt</button>
+                            <button class="btn btn-danger">Niet aanvaard</button>
+                        </p>
+
+                    </div>
+
+                </div>
+            </b-col>
+        </b-row>
+
+    </b-container>
+
+</template>
+
+<script>
+
+    import {MenuService} from "../services/MenuService";
+
+    export default {
+        mounted() {
+
+            this.service = new MenuService(this.$route.params.id);
+            this.refresh();
+
+        },
+
+        watch: {
+            '$route' (to, from) {
+                // react to route changes...
+                this.service = new MenuService(to.params.id);
+                this.refresh();
+            }
+        },
+
+        data() {
+            return {
+                loaded: false,
+                saving: false,
+                saved: false,
+                toggling: null,
+                items: [],
+                model: {}
+            }
+        },
+
+        methods: {
+
+            async refresh() {
+
+                this.items = (await this.service.index()).items;
+                this.loaded = true;
+
+            },
+
+            async save() {
+
+                this.saving = true;
+                if (this.model.id) {
+                    await this.service.update(this.model.id, this.model);
+                } else {
+                    await this.service.create(this.model);
+                }
+
+                this.model = {};
+                this.saving = false;
+                this.saved = true;
+
+                setTimeout(
+                    () => {
+                        this.saved = false;
+                    },
+                    2500
+                );
+
+                this.refresh();
+
+            },
+
+            async edit(model, index) {
+
+                this.model = Object.assign({}, model);
+
+            },
+
+            async remove(model) {
+
+                if (confirm('Are you sure you want to remove this menu item?')) {
+                    if (this.model.id === model.id) {
+                        this.model = {};
+                    }
+
+                    await this.service.delete(model.id);
+                    await this.refresh();
+                }
+
+            },
+
+            async toggleIsSelling(model) {
+
+                this.toggling = model.id;
+                model.is_selling = !model.is_selling;
+                await this.service.update(model.id, model);
+                this.toggling = null;
+
+            },
+
+            resetForm() {
+                this.model = {};
+            }
+        }
+    }
+</script>
