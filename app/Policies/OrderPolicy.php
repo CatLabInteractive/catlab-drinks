@@ -24,6 +24,7 @@ namespace App\Policies;
 
 use App\Models\Event;
 use App\Models\MenuItem;
+use App\Models\Order;
 use App\Models\User;
 
 /**
@@ -54,30 +55,30 @@ class OrderPolicy
 
     /**
      * @param User|null $user
-     * @param MenuItem $menuItem
+     * @param Order $menuItem
      * @return bool
      */
-    public function view(?User $user, MenuItem $menuItem)
+    public function view(?User $user, Order $menuItem)
     {
         return $this->isMyEvent($user, $menuItem->event);
     }
 
     /**
      * @param User|null $user
-     * @param MenuItem $menuItem
+     * @param Order $menuItem
      * @return bool
      */
-    public function edit(?User $user, MenuItem $menuItem)
+    public function edit(?User $user, Order $menuItem)
     {
         return $this->isMyEvent($user, $menuItem->event);
     }
 
     /**
      * @param User|null $user
-     * @param MenuItem $menuItem
+     * @param Order $menuItem
      * @return bool
      */
-    public function destroy(?User $user, MenuItem $menuItem)
+    public function destroy(?User $user, Order $menuItem)
     {
         return $this->isMyEvent($user, $menuItem->event);
     }

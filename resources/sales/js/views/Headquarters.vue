@@ -30,54 +30,10 @@
 
             </b-col>
 
-            <b-col cols="4">
-                <h2>Remote orders</h2>
+            <b-col cols="4" class="remote-orders">
 
-                <div class="remote-orders">
+                <remote-orders v-bind:eventId="eventId"></remote-orders>
 
-                    <div class="order">
-
-                        <h3>Order #718</h3>
-                        <ul>
-                            <li>3x Augustijn Blond</li>
-                            <li>1x Augustijn Bruin</li>
-                            <li>1x Chips pickels</li>
-                        </ul>
-
-                        <p>
-                            Tafel: 15<br />
-                            Totaal: €14 (28 vakjes)
-                        </p>
-
-                        <p>
-                            <button class="btn btn-success">Afgewerkt</button>
-                            <button class="btn btn-danger">Niet aanvaard</button>
-                        </p>
-
-                    </div>
-
-                    <div class="order">
-
-                        <h3>Order #719</h3>
-                        <ul>
-                            <li>3x Augustijn Blond</li>
-                            <li>1x Augustijn Bruin</li>
-                            <li>1x Chips pickels</li>
-                        </ul>
-
-                        <p>
-                            Tafel: 9<br />
-                            Totaal: €14 (28 vakjes)
-                        </p>
-
-                        <p>
-                            <button class="btn btn-success">Afgewerkt</button>
-                            <button class="btn btn-danger">Niet aanvaard</button>
-                        </p>
-
-                    </div>
-
-                </div>
             </b-col>
         </b-row>
 

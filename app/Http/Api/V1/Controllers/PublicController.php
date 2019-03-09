@@ -132,6 +132,8 @@ class PublicController extends ResourceController
 
         $entity->event()->associate($event);
 
+        $entity->status = Order::STATUS_PENDING;
+
         $entity->saveRecursively();
 
         $readContext = $this->getContext(Action::VIEW);

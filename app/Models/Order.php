@@ -30,8 +30,17 @@ use CatLab\Charon\Laravel\Database\Model;
  */
 class Order extends Model
 {
+    const STATUS_PENDING = 'pending';
+    const STATUS_PROCESSED = 'processed';
+
+    /**
+     * @var string
+     */
     protected $table = 'orders';
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function order()
     {
         return $this->hasMany(OrderItem::class);

@@ -234,6 +234,7 @@
                 try {
                     const data = {
                         location: 'Manual',
+                        status: 'processed',
                         order: {
                             items: this.selectedItems
                         }

@@ -28,6 +28,6 @@ export class OrderService extends AbstractService {
         super();
 
         this.indexUrl = 'events/' + eventId + '/orders';
-        this.entityUrl = 'order';
+        this.entityUrl = 'orders';
     }
 }

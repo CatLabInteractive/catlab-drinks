@@ -48,5 +48,11 @@ class OrderResourceDefinition extends ResourceDefinition
             ->expanded()
             ->visible(true)
             ->writeable(true, true);
+
+        $this->field('status')
+            ->string()
+            ->visible(true)
+            ->filterable()
+            ->writeable(true, true);
     }
 }

@@ -19,6 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import $ from 'jquery';
+
 export class AbstractService {
 
     constructor() {
@@ -49,8 +51,14 @@ export class AbstractService {
         )
     }
 
-    index () {
-        return this.execute('get', this.indexUrl + "?records=1000")
+    index (parameters) {
+        if (typeof(parameters) === 'undefined') {
+            parameters = {};
+        }
+
+        parameters.records = 1000;
+
+        return this.execute('get', this.indexUrl + "?" + $.param(parameters))
     }
 
     create (data) {

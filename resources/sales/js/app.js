@@ -42,6 +42,16 @@ Vue.component(
     require('./components/LiveSales.vue').default
 );
 
+Vue.component(
+    'remote-orders',
+    require('./components/RemoteOrders.vue').default
+);
+
+Vue.component(
+    'relax',
+    require('./components/Relax.vue').default
+);
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
