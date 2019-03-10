@@ -2708,6 +2708,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       localStorage.userName = this.userName;
     } else if (typeof localStorage.userName !== 'undefined') {
       this.userName = localStorage.userName;
+    } // Look for name
+
+
+    if (typeof localStorage.tableNumber !== 'undefined') {
+      this.tableNumber = localStorage.tableNumber;
     }
   },
   data: function data() {
@@ -2777,8 +2782,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 this.items = items;
                 this.items.push(this.totals);
                 this.loaded = true;
+                this.recoverStoredOrder();
 
-              case 17:
+              case 18:
               case "end":
                 return _context.stop();
             }
@@ -2795,6 +2801,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     up: function up(model) {
       model.amount++;
       this.updateTotals();
+      this.storeOrderForRecovery();
     },
     down: function down(model) {
       model.amount--;
@@ -2804,6 +2811,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       this.updateTotals();
+      this.storeOrderForRecovery();
     },
     updateTotals: function updateTotals() {
       var totalPrice = 0;
@@ -2828,6 +2836,44 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         item.amount = 0;
       });
       this.updateTotals();
+      this.storeOrderForRecovery();
+    },
+    recoverStoredOrder: function recoverStoredOrder() {
+      if (typeof localStorage.currentOrder === 'undefined') {
+        return;
+      }
+
+      var amounts;
+
+      try {
+        amounts = JSON.parse(localStorage.currentOrder);
+        this.items.forEach(function (item) {
+          if (item.isTotals) {
+            return;
+          }
+
+          if (typeof amounts[item.id] !== 'undefined') {
+            item.amount = amounts[item.id];
+          }
+        });
+        this.updateTotals();
+      } catch (e) {
+        console.error(e);
+        return;
+      }
+    },
+    storeOrderForRecovery: function storeOrderForRecovery() {
+      var amounts = {};
+      this.items.forEach(function (item) {
+        if (item.isTotals) {
+          return;
+        }
+
+        if (item.amount > 0) {
+          amounts[item.id] = item.amount;
+        }
+      });
+      localStorage.currentOrder = JSON.stringify(amounts);
     },
     submit: function () {
       var _submit = _asyncToGenerator(
@@ -2885,10 +2931,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
                 });
                 _context2.prev = 13;
-                _context2.next = 16;
+                localStorage.tableNumber = this.tableNumber;
+                _context2.next = 17;
                 return this.service.order(data);
 
-              case 16:
+              case 17:
                 order = _context2.sent;
                 this.$router.push({
                   name: 'ordersubmitted',
@@ -2897,20 +2944,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
                 });
                 this.reset();
-                _context2.next = 24;
+                _context2.next = 25;
                 break;
 
-              case 21:
-                _context2.prev = 21;
+              case 22:
+                _context2.prev = 22;
                 _context2.t0 = _context2["catch"](13);
                 this.warning = _context2.t0.response.data.error.message;
 
-              case 24:
+              case 25:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, this, [[13, 21]]);
+        }, _callee2, this, [[13, 22]]);
       }));
 
       function submit() {

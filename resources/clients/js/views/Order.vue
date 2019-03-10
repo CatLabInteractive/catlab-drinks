@@ -107,6 +107,11 @@
                 this.userName = localStorage.userName;
             }
 
+            // Look for name
+            if (typeof(localStorage.tableNumber) !== 'undefined') {
+                this.tableNumber = localStorage.tableNumber;
+            }
+
         },
 
         data() {
@@ -172,12 +177,15 @@
                 this.items.push(this.totals);
 
                 this.loaded = true;
+
+                this.recoverStoredOrder();
             },
 
             up(model) {
                 model.amount ++;
 
                 this.updateTotals();
+                this.storeOrderForRecovery();
             },
 
             down(model) {
@@ -188,6 +196,7 @@
                 }
 
                 this.updateTotals();
+                this.storeOrderForRecovery();
             },
 
             updateTotals() {
@@ -220,6 +229,57 @@
                     }
                 );
                 this.updateTotals();
+                this.storeOrderForRecovery();
+            },
+
+            recoverStoredOrder() {
+
+                if (typeof (localStorage.currentOrder) === 'undefined') {
+                    return;
+                }
+
+                let amounts;
+                try {
+                    amounts = JSON.parse(localStorage.currentOrder);
+
+                    this.items.forEach(
+                        (item) => {
+                            if (item.isTotals) {
+                                return;
+                            }
+
+                            if (typeof (amounts[item.id]) !== 'undefined') {
+                                item.amount = amounts[item.id];
+                            }
+                        }
+                    );
+
+                    this.updateTotals();
+
+                } catch (e) {
+                    console.error(e);
+                    return;
+                }
+
+            },
+
+            storeOrderForRecovery() {
+
+                const amounts = {};
+                this.items.forEach(
+                    (item) => {
+                        if (item.isTotals) {
+                            return;
+                        }
+
+                        if (item.amount > 0) {
+                            amounts[item.id] = item.amount;
+                        }
+                    }
+                );
+
+                localStorage.currentOrder = JSON.stringify(amounts);
+
             },
 
             async submit() {
@@ -262,6 +322,8 @@
                 );
 
                 try {
+                    localStorage.tableNumber = this.tableNumber;
+
                     const order = await this.service.order(data);
 
                     this.$router.push({ name: 'ordersubmitted', params: { id: order.id  } });
