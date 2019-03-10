@@ -45,7 +45,6 @@ class OrderResourceDefinition extends ResourceDefinition
 
         $this->field('requester')
             ->string()
-            ->required()
             ->visible(true)
             ->writeable(true, true);
 
