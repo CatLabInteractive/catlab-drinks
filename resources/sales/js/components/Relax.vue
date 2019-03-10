@@ -28,7 +28,10 @@
 
 <script>
 
-    const lyrics = 'Relax, take it easy \n' +
+    /**
+     * @Copyright MIKA, Nicholas Eede, 2006, "Relax, take it easy"
+     */
+    const lyrics = ('Relax, take it easy \n' +
         'For there is nothing that we can do. \n' +
         'Relax, take it easy \n' +
         'Blame it on me or blame it on you.\n' +
@@ -36,8 +39,8 @@
         'Where no one ever goes. \n' +
         'Ended up on a broken train with nobody I know. \n' +
         'But the pain and the (longings) the same. \n' +
-        '(Where the dying \n' +
-        'Now I\'m lost and I\'m screaming for help.)\n' +
+        'Where the dying \n' +
+        'Now I\'m lost and I\'m screaming for help.\n' +
         'Relax, take it easy \n' +
         'For there is nothing that we can do. \n' +
         'Relax, take it easy \n' +
@@ -55,7 +58,7 @@
         'It\'s clear we don\'t understand but the last thing on my mind \n' +
         'Is to leave you. \n' +
         'I believe that we\'re in this together. \n' +
-        'Don\'t scream \' there are so many roads left.'.split('\\n');
+        'Don\'t scream \' there are so many roads left.').split('\n');
 
     export default {
 
@@ -69,7 +72,7 @@
 
             this.interval = setInterval(
                 () => {
-                    this.position = (this.position + 1) / lyrics.length;
+                    this.position = (this.position + 1) % lyrics.length;
                     this.line = lyrics[this.position];
                 },
                 5000

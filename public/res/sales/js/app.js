@@ -2965,7 +2965,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-var lyrics = 'Relax, take it easy \n' + 'For there is nothing that we can do. \n' + 'Relax, take it easy \n' + 'Blame it on me or blame it on you.\n' + 'Took a right to the end of the line \n' + 'Where no one ever goes. \n' + 'Ended up on a broken train with nobody I know. \n' + 'But the pain and the (longings) the same. \n' + '(Where the dying \n' + 'Now I\'m lost and I\'m screaming for help.)\n' + 'Relax, take it easy \n' + 'For there is nothing that we can do. \n' + 'Relax, take it easy \n' + 'Blame it on me or blame it on you.\n' + 'It\'s as if I\'m scared. \n' + 'It\'s as if I\'m terrified. \n' + 'It\'s as if I scared. \n' + 'It\'s as if I\'m playing with fire. \n' + 'Scared. \n' + 'It\'s as if I\'m terrified. \n' + 'Are you scared\' \n' + 'Are we playing with fire\'\n' + 'Relax \n' + 'There is an answer to the darkest times. \n' + 'It\'s clear we don\'t understand but the last thing on my mind \n' + 'Is to leave you. \n' + 'I believe that we\'re in this together. \n' + 'Don\'t scream \' there are so many roads left.'.split('\n');
+
+/**
+ * @Copyright MIKA, Nicholas Eede, 2006, "Relax, take it easy"
+ */
+var lyrics = ('Relax, take it easy \n' + 'For there is nothing that we can do. \n' + 'Relax, take it easy \n' + 'Blame it on me or blame it on you.\n' + 'Took a right to the end of the line \n' + 'Where no one ever goes. \n' + 'Ended up on a broken train with nobody I know. \n' + 'But the pain and the (longings) the same. \n' + 'Where the dying \n' + 'Now I\'m lost and I\'m screaming for help.\n' + 'Relax, take it easy \n' + 'For there is nothing that we can do. \n' + 'Relax, take it easy \n' + 'Blame it on me or blame it on you.\n' + 'It\'s as if I\'m scared. \n' + 'It\'s as if I\'m terrified. \n' + 'It\'s as if I scared. \n' + 'It\'s as if I\'m playing with fire. \n' + 'Scared. \n' + 'It\'s as if I\'m terrified. \n' + 'Are you scared\' \n' + 'Are we playing with fire\'\n' + 'Relax \n' + 'There is an answer to the darkest times. \n' + 'It\'s clear we don\'t understand but the last thing on my mind \n' + 'Is to leave you. \n' + 'I believe that we\'re in this together. \n' + 'Don\'t scream \' there are so many roads left.').split('\n');
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['eventId'],
   mounted: function mounted() {
@@ -2973,7 +2977,7 @@ var lyrics = 'Relax, take it easy \n' + 'For there is nothing that we can do. \n
 
     this.position = 0;
     this.interval = setInterval(function () {
-      _this.position = (_this.position + 1) / lyrics.length;
+      _this.position = (_this.position + 1) % lyrics.length;
       _this.line = lyrics[_this.position];
     }, 5000);
     this.ine = lyrics[0];
@@ -3116,9 +3120,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   item.totalPrice = totalPrice;
                 });
                 this.items = items;
-                console.log(items);
 
-              case 7:
+              case 6:
               case "end":
                 return _context.stop();
             }

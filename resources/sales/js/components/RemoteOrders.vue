@@ -121,8 +121,6 @@
 
                 this.items = items;
 
-                console.log(items);
-
             },
 
             async acceptOrder(item) {
