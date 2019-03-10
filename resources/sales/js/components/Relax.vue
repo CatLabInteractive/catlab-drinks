@@ -58,7 +58,7 @@
         'It\'s clear we don\'t understand but the last thing on my mind \n' +
         'Is to leave you. \n' +
         'I believe that we\'re in this together. \n' +
-        'Don\'t scream \' there are so many roads left.').split('\n');
+        'Don\'t scream there are so many roads left.').split('\n');
 
     export default {
 
