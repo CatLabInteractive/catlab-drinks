@@ -15693,6 +15693,10 @@ table.b-table.b-table-selectable > tbody > tr {
   /* Standard */
 }
 
+.live-orders .product .amount {
+  font-size: 140%;
+}
+
 .live-orders .product .buttons {
   position: absolute;
   bottom: 5px;

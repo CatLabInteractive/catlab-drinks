@@ -46,7 +46,7 @@
         <b-row>
             <b-col cols="12">
                 <div class="total">
-                    <p>Totaal: €{{totals.price.toFixed(2)}} ({{Math.ceil(totals.price / 0.5)}} vakjes)</p>
+                    <p>Totaal: {{totals.amount}} stuks = €{{totals.price.toFixed(2)}} (<strong>{{Math.ceil(totals.price / 0.5)}} vakjes</strong>)</p>
                 </div>
 
                 <p>
@@ -72,7 +72,7 @@
                 </li>
             </ul>
 
-            <p class="total">Totaal: €{{totals.price.toFixed(2)}} <strong>({{Math.ceil(totals.price / 0.5)}} vakjes)</strong></p>
+            <p class="total">Totaal: {{totals.amount}} stuks = €{{totals.price.toFixed(2)}} <strong>({{Math.ceil(totals.price / 0.5)}} vakjes)</strong></p>
         </b-modal>
     </div>
 

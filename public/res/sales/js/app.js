@@ -57752,12 +57752,18 @@ var render = function() {
               _c("div", { staticClass: "total" }, [
                 _c("p", [
                   _vm._v(
-                    "Totaal: €" +
+                    "Totaal: " +
+                      _vm._s(_vm.totals.amount) +
+                      " stuks = €" +
                       _vm._s(_vm.totals.price.toFixed(2)) +
-                      " (" +
-                      _vm._s(Math.ceil(_vm.totals.price / 0.5)) +
-                      " vakjes)"
-                  )
+                      " ("
+                  ),
+                  _c("strong", [
+                    _vm._v(
+                      _vm._s(Math.ceil(_vm.totals.price / 0.5)) + " vakjes"
+                    )
+                  ]),
+                  _vm._v(")")
                 ])
               ]),
               _vm._v(" "),
@@ -57832,7 +57838,13 @@ var render = function() {
           ),
           _vm._v(" "),
           _c("p", { staticClass: "total" }, [
-            _vm._v("Totaal: €" + _vm._s(_vm.totals.price.toFixed(2)) + " "),
+            _vm._v(
+              "Totaal: " +
+                _vm._s(_vm.totals.amount) +
+                " stuks = €" +
+                _vm._s(_vm.totals.price.toFixed(2)) +
+                " "
+            ),
             _c("strong", [
               _vm._v(
                 "(" + _vm._s(Math.ceil(_vm.totals.price / 0.5)) + " vakjes)"
