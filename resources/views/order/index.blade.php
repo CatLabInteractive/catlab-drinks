@@ -14,6 +14,8 @@
 
     <!-- Styles -->
     <link href="{{ asset('res/clients/css/app.css') }}" rel="stylesheet">
+
+    @include('blocks.favicon')
 </head>
 <body>
 <div id="app" style="min-height: 1000px">

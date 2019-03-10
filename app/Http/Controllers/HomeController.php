@@ -43,7 +43,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        return redirect(action('ClientController@index'));
+        //return view('home');
     }
 
     /**
@@ -51,6 +52,7 @@ class HomeController extends Controller
      */
     public function welcome()
     {
-        return view('welcome');
+        return redirect(action('ClientController@index'));
+        //return view('welcome');
     }
 }

@@ -2969,7 +2969,7 @@ __webpack_require__.r(__webpack_exports__);
 /**
  * @Copyright MIKA, Nicholas Eede, 2006, "Relax, take it easy"
  */
-var lyrics = ('Relax, take it easy \n' + 'For there is nothing that we can do. \n' + 'Relax, take it easy \n' + 'Blame it on me or blame it on you.\n' + 'Took a right to the end of the line \n' + 'Where no one ever goes. \n' + 'Ended up on a broken train with nobody I know. \n' + 'But the pain and the (longings) the same. \n' + 'Where the dying \n' + 'Now I\'m lost and I\'m screaming for help.\n' + 'Relax, take it easy \n' + 'For there is nothing that we can do. \n' + 'Relax, take it easy \n' + 'Blame it on me or blame it on you.\n' + 'It\'s as if I\'m scared. \n' + 'It\'s as if I\'m terrified. \n' + 'It\'s as if I scared. \n' + 'It\'s as if I\'m playing with fire. \n' + 'Scared. \n' + 'It\'s as if I\'m terrified. \n' + 'Are you scared\' \n' + 'Are we playing with fire\'\n' + 'Relax \n' + 'There is an answer to the darkest times. \n' + 'It\'s clear we don\'t understand but the last thing on my mind \n' + 'Is to leave you. \n' + 'I believe that we\'re in this together. \n' + 'Don\'t scream \' there are so many roads left.').split('\n');
+var lyrics = ('Relax, take it easy \n' + 'For there is nothing that we can do. \n' + 'Relax, take it easy \n' + 'Blame it on me or blame it on you.\n' + 'Took a right to the end of the line \n' + 'Where no one ever goes. \n' + 'Ended up on a broken train with nobody I know. \n' + 'But the pain and the (longings) the same. \n' + 'Where the dying \n' + 'Now I\'m lost and I\'m screaming for help.\n' + 'Relax, take it easy \n' + 'For there is nothing that we can do. \n' + 'Relax, take it easy \n' + 'Blame it on me or blame it on you.\n' + 'It\'s as if I\'m scared. \n' + 'It\'s as if I\'m terrified. \n' + 'It\'s as if I scared. \n' + 'It\'s as if I\'m playing with fire. \n' + 'Scared. \n' + 'It\'s as if I\'m terrified. \n' + 'Are you scared\' \n' + 'Are we playing with fire\'\n' + 'Relax \n' + 'There is an answer to the darkest times. \n' + 'It\'s clear we don\'t understand but the last thing on my mind \n' + 'Is to leave you. \n' + 'I believe that we\'re in this together. \n' + 'Don\'t scream there are so many roads left.').split('\n');
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['eventId'],
   mounted: function mounted() {
@@ -3207,6 +3207,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+//
 //
 //
 //
@@ -58011,27 +58012,14 @@ var render = function() {
               _c(
                 "b-navbar-nav",
                 [
-                  _c("b-nav-item", { attrs: { to: { name: "home" } } }, [
-                    _vm._v("Home")
-                  ]),
-                  _vm._v(" "),
-                  _c("b-nav-item", { attrs: { to: { name: "hello" } } }, [
-                    _vm._v("Hello world")
-                  ])
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "b-navbar-nav",
-                { staticClass: "ml-auto" },
-                [
                   _c("b-nav-item", { attrs: { to: { name: "events" } } }, [
                     _vm._v("Events")
                   ])
                 ],
                 1
-              )
+              ),
+              _vm._v(" "),
+              _c("b-navbar-nav", { staticClass: "ml-auto" })
             ],
             1
           )
@@ -73542,7 +73530,7 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_2__["default"]({
   routes: [{
     path: '/',
     name: 'home',
-    component: _views_Home__WEBPACK_IMPORTED_MODULE_6__["default"]
+    component: _views_Events__WEBPACK_IMPORTED_MODULE_7__["default"]
   }, {
     path: '/hello',
     name: 'hello',

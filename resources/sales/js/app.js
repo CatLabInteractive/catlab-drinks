@@ -66,7 +66,7 @@ const router = new VueRouter({
         {
             path: '/',
             name: 'home',
-            component: Home
+            component: Events
         },
         {
             path: '/hello',
