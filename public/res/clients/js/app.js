@@ -2701,7 +2701,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     this.service = new _services_MenuService__WEBPACK_IMPORTED_MODULE_1__["MenuService"]();
-    this.refresh();
+    this.refresh(); // Look for name attribute
+
+    if (this.$route.query.name) {
+      this.userName = this.$route.query.name;
+      localStorage.userName = this.userName;
+    } else if (typeof localStorage.userName !== 'undefined') {
+      this.userName = localStorage.userName;
+    }
   },
   data: function data() {
     return {
@@ -2859,6 +2866,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 8:
                 data = {};
                 data.location = this.tableNumber;
+                data.requester = this.userName;
                 data.order = {
                   items: []
                 };
@@ -2876,11 +2884,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     });
                   }
                 });
-                _context2.prev = 12;
-                _context2.next = 15;
+                _context2.prev = 13;
+                _context2.next = 16;
                 return this.service.order(data);
 
-              case 15:
+              case 16:
                 order = _context2.sent;
                 this.$router.push({
                   name: 'ordersubmitted',
@@ -2889,20 +2897,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
                 });
                 this.reset();
-                _context2.next = 23;
+                _context2.next = 24;
                 break;
 
-              case 20:
-                _context2.prev = 20;
-                _context2.t0 = _context2["catch"](12);
+              case 21:
+                _context2.prev = 21;
+                _context2.t0 = _context2["catch"](13);
                 this.warning = _context2.t0.response.data.error.message;
 
-              case 23:
+              case 24:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, this, [[12, 20]]);
+        }, _callee2, this, [[13, 21]]);
       }));
 
       function submit() {

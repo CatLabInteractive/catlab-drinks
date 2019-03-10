@@ -3070,6 +3070,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -57940,13 +57941,17 @@ var render = function() {
           _c("p", [
             _vm._v("\n            Tafel: " + _vm._s(item.location)),
             _c("br"),
+            _vm._v("\n            Besteller: " + _vm._s(item.requester)),
+            _c("br"),
             _vm._v(
               "\n            Totaal: €" +
                 _vm._s(item.totalPrice.toFixed(2)) +
-                " (" +
-                _vm._s(Math.ceil(item.totalPrice / 0.5)) +
-                " vakjes)\n        "
-            )
+                " ("
+            ),
+            _c("strong", [
+              _vm._v(_vm._s(Math.ceil(item.totalPrice / 0.5)) + " vakjes")
+            ]),
+            _vm._v(")\n        ")
           ]),
           _vm._v(" "),
           _c("p", [

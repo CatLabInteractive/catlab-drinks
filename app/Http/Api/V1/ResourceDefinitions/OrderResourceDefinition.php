@@ -43,6 +43,12 @@ class OrderResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->writeable(true, true);
 
+        $this->field('requester')
+            ->string()
+            ->required()
+            ->visible(true)
+            ->writeable(true, true);
+
         $this->relationship('order', OrderItemResourceDefinition::class)
             ->many()
             ->expanded()

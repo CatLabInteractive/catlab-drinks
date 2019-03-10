@@ -39,7 +39,8 @@
 
             <p>
                 Tafel: {{item.location}}<br />
-                Totaal: €{{item.totalPrice.toFixed(2)}} ({{Math.ceil(item.totalPrice / 0.5)}} vakjes)
+                Besteller: {{item.requester}}<br />
+                Totaal: €{{item.totalPrice.toFixed(2)}} (<strong>{{Math.ceil(item.totalPrice / 0.5)}} vakjes</strong>)
             </p>
 
             <p>

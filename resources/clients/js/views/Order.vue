@@ -99,6 +99,14 @@
 
             this.refresh();
 
+            // Look for name attribute
+            if (this.$route.query.name) {
+                this.userName = this.$route.query.name;
+                localStorage.userName = this.userName;
+            } else if(typeof(localStorage.userName) !== 'undefined') {
+                this.userName = localStorage.userName;
+            }
+
         },
 
         data() {
@@ -231,6 +239,7 @@
 
                 const data = {};
                 data.location = this.tableNumber;
+                data.requester = this.userName;
                 data.order = {
                     items: []
                 };
