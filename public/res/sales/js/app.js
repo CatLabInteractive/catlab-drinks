@@ -2995,6 +2995,157 @@ var lyrics = ('Relax, take it easy \n' + 'For there is nothing that we can do. \
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/sales/js/components/RemoteOrderStatus.vue?vue&type=script&lang=js&":
+/*!**********************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/sales/js/components/RemoteOrderStatus.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _services_MenuService__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/MenuService */ "./resources/sales/js/services/MenuService.js");
+/* harmony import */ var _services_OrderService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../services/OrderService */ "./resources/sales/js/services/OrderService.js");
+/* harmony import */ var _services_EventService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../services/EventService */ "./resources/sales/js/services/EventService.js");
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['eventId'],
+  mounted: function mounted() {
+    this.service = new _services_EventService__WEBPACK_IMPORTED_MODULE_3__["EventService"]();
+  },
+  beforeDestroy: function beforeDestroy() {
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+  },
+  data: function data() {
+    return {
+      event: event
+    };
+  },
+  watch: {
+    eventId: function eventId(newVal, oldVal) {
+      var _this = this;
+
+      this.eventId = newVal;
+
+      if (this.interval) {
+        clearInterval(this.interval);
+      }
+
+      this.refresh();
+      this.interval = setInterval(function () {
+        _this.refresh();
+      }, 5000);
+    }
+  },
+  methods: {
+    refresh: function () {
+      var _refresh = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return this.service.get(this.eventId);
+
+              case 2:
+                this.event = _context.sent;
+
+              case 3:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function refresh() {
+        return _refresh.apply(this, arguments);
+      }
+
+      return refresh;
+    }(),
+    toggleIsSelling: function () {
+      var _toggleIsSelling = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                this.event.is_selling = !this.event.is_selling;
+                _context2.next = 3;
+                return this.service.update(this.event.id, this.event);
+
+              case 3:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function toggleIsSelling() {
+        return _toggleIsSelling.apply(this, arguments);
+      }
+
+      return toggleIsSelling;
+    }()
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/sales/js/components/RemoteOrders.vue?vue&type=script&lang=js&":
 /*!*****************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/sales/js/components/RemoteOrders.vue?vue&type=script&lang=js& ***!
@@ -3076,6 +3227,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['eventId'],
   mounted: function mounted() {},
+  beforeDestroy: function beforeDestroy() {
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+  },
   data: function data() {
     return {
       loaded: false,
@@ -3088,8 +3244,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       this.menuService = new _services_MenuService__WEBPACK_IMPORTED_MODULE_1__["MenuService"](newVal);
       this.orderService = new _services_OrderService__WEBPACK_IMPORTED_MODULE_2__["OrderService"](newVal);
+
+      if (this.interval) {
+        clearInterval(this.interval);
+      }
+
       this.refresh();
-      setInterval(function () {
+      this.interval = setInterval(function () {
         _this.refresh();
       }, 5000);
     }
@@ -3300,6 +3461,13 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -57726,6 +57894,68 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/sales/js/components/RemoteOrderStatus.vue?vue&type=template&id=715dbd5c&":
+/*!**************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/sales/js/components/RemoteOrderStatus.vue?vue&type=template&id=715dbd5c& ***!
+  \**************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.event
+    ? _c(
+        "span",
+        [
+          !_vm.event.is_selling
+            ? _c(
+                "b-button",
+                {
+                  staticClass: "btn-danger",
+                  attrs: { size: "sm" },
+                  on: {
+                    click: function($event) {
+                      return _vm.toggleIsSelling()
+                    }
+                  }
+                },
+                [_vm._v("\n        Closed\n    ")]
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.event.is_selling
+            ? _c(
+                "b-button",
+                {
+                  staticClass: "btn-success",
+                  attrs: { size: "sm" },
+                  on: {
+                    click: function($event) {
+                      return _vm.toggleIsSelling()
+                    }
+                  }
+                },
+                [_vm._v("\n        Open\n    ")]
+              )
+            : _vm._e()
+        ],
+        1
+      )
+    : _vm._e()
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/sales/js/components/RemoteOrders.vue?vue&type=template&id=f615dace&":
 /*!*********************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/sales/js/components/RemoteOrders.vue?vue&type=template&id=f615dace& ***!
@@ -57744,7 +57974,14 @@ var render = function() {
   return _c(
     "div",
     [
-      _c("h2", [_vm._v("Remote orders")]),
+      _c(
+        "h2",
+        [
+          _vm._v("Remote orders "),
+          _c("remote-order-status", { attrs: { eventId: _vm.eventId } })
+        ],
+        1
+      ),
       _vm._v(" "),
       !_vm.loaded
         ? _c(
@@ -57940,6 +58177,25 @@ var render = function() {
                     scopedSlots: _vm._u(
                       [
                         {
+                          key: "name",
+                          fn: function(row) {
+                            return [
+                              _c(
+                                "router-link",
+                                {
+                                  attrs: {
+                                    to: {
+                                      name: "menu",
+                                      params: { id: row.item.id }
+                                    }
+                                  }
+                                },
+                                [_vm._v(_vm._s(row.item.name))]
+                              )
+                            ]
+                          }
+                        },
+                        {
                           key: "actions",
                           fn: function(row) {
                             return [
@@ -57956,27 +58212,11 @@ var render = function() {
                                   }
                                 },
                                 [
-                                  _vm._v(
-                                    "\n                        Menu items\n                    "
-                                  )
-                                ]
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "b-link",
-                                {
-                                  staticClass: "btn btn-sm btn-success",
-                                  attrs: {
-                                    to: {
-                                      name: "hq",
-                                      params: { id: row.item.id }
-                                    }
-                                  }
-                                },
-                                [
-                                  _vm._v(
-                                    "\n                        HQ\n                    "
-                                  )
+                                  _c("i", { staticClass: "fas fa-scroll" }),
+                                  _vm._v(" "),
+                                  _c("span", { staticClass: "sr-only" }, [
+                                    _vm._v("Menu items")
+                                  ])
                                 ]
                               ),
                               _vm._v(" "),
@@ -57990,9 +58230,11 @@ var render = function() {
                                   }
                                 },
                                 [
-                                  _vm._v(
-                                    "\n                        Client panel\n                    "
-                                  )
+                                  _c("i", { staticClass: "fas fa-user" }),
+                                  _vm._v(" "),
+                                  _c("span", { staticClass: "sr-only" }, [
+                                    _vm._v("Client panel")
+                                  ])
                                 ]
                               ),
                               _vm._v(" "),
@@ -58041,6 +58283,24 @@ var render = function() {
                           key: "is_selling",
                           fn: function(row) {
                             return [
+                              _c(
+                                "b-link",
+                                {
+                                  staticClass: "btn btn-sm btn-info",
+                                  attrs: {
+                                    to: {
+                                      name: "hq",
+                                      params: { id: row.item.id }
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                        Bar HQ\n                    "
+                                  )
+                                ]
+                              ),
+                              _vm._v(" "),
                               !row.item.is_selling
                                 ? _c(
                                     "b-button",
@@ -58090,7 +58350,7 @@ var render = function() {
                       ],
                       null,
                       false,
-                      527796591
+                      752220136
                     )
                   })
                 : _vm._e()
@@ -73370,6 +73630,7 @@ vue__WEBPACK_IMPORTED_MODULE_1___default.a.use(bootstrap_vue__WEBPACK_IMPORTED_M
 vue__WEBPACK_IMPORTED_MODULE_1___default.a.component('live-sales', __webpack_require__(/*! ./components/LiveSales.vue */ "./resources/sales/js/components/LiveSales.vue").default);
 vue__WEBPACK_IMPORTED_MODULE_1___default.a.component('remote-orders', __webpack_require__(/*! ./components/RemoteOrders.vue */ "./resources/sales/js/components/RemoteOrders.vue").default);
 vue__WEBPACK_IMPORTED_MODULE_1___default.a.component('relax', __webpack_require__(/*! ./components/Relax.vue */ "./resources/sales/js/components/Relax.vue").default);
+vue__WEBPACK_IMPORTED_MODULE_1___default.a.component('remote-order-status', __webpack_require__(/*! ./components/RemoteOrderStatus.vue */ "./resources/sales/js/components/RemoteOrderStatus.vue").default);
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -73661,6 +73922,75 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Relax_vue_vue_type_template_id_cea4a99c___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Relax_vue_vue_type_template_id_cea4a99c___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/sales/js/components/RemoteOrderStatus.vue":
+/*!*************************************************************!*\
+  !*** ./resources/sales/js/components/RemoteOrderStatus.vue ***!
+  \*************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _RemoteOrderStatus_vue_vue_type_template_id_715dbd5c___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./RemoteOrderStatus.vue?vue&type=template&id=715dbd5c& */ "./resources/sales/js/components/RemoteOrderStatus.vue?vue&type=template&id=715dbd5c&");
+/* harmony import */ var _RemoteOrderStatus_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./RemoteOrderStatus.vue?vue&type=script&lang=js& */ "./resources/sales/js/components/RemoteOrderStatus.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _RemoteOrderStatus_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _RemoteOrderStatus_vue_vue_type_template_id_715dbd5c___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _RemoteOrderStatus_vue_vue_type_template_id_715dbd5c___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/sales/js/components/RemoteOrderStatus.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/sales/js/components/RemoteOrderStatus.vue?vue&type=script&lang=js&":
+/*!**************************************************************************************!*\
+  !*** ./resources/sales/js/components/RemoteOrderStatus.vue?vue&type=script&lang=js& ***!
+  \**************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_RemoteOrderStatus_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./RemoteOrderStatus.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/sales/js/components/RemoteOrderStatus.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_RemoteOrderStatus_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/sales/js/components/RemoteOrderStatus.vue?vue&type=template&id=715dbd5c&":
+/*!********************************************************************************************!*\
+  !*** ./resources/sales/js/components/RemoteOrderStatus.vue?vue&type=template&id=715dbd5c& ***!
+  \********************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_RemoteOrderStatus_vue_vue_type_template_id_715dbd5c___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./RemoteOrderStatus.vue?vue&type=template&id=715dbd5c& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/sales/js/components/RemoteOrderStatus.vue?vue&type=template&id=715dbd5c&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_RemoteOrderStatus_vue_vue_type_template_id_715dbd5c___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_RemoteOrderStatus_vue_vue_type_template_id_715dbd5c___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

@@ -32,17 +32,19 @@
             <b-col>
                 <b-table striped hover :items="items" :fields="fields" v-if="loaded">
 
+                    <template slot="name" slot-scope="row">
+                        <router-link :to="{ name: 'menu', params: { id: row.item.id } }">{{ row.item.name }}</router-link>
+                    </template>
+
                     <template slot="actions" slot-scope="row">
                         <b-button size="sm" class="btn-info" :to="{ name: 'menu', params: { id: row.item.id } }">
-                            Menu items
+                            <i class="fas fa-scroll"></i>
+                            <span class="sr-only">Menu items</span>
                         </b-button>
 
-                        <b-link class="btn btn-sm btn-success" :to="{ name: 'hq', params: { id: row.item.id } }">
-                            HQ
-                        </b-link>
-
                         <b-link class="btn btn-sm btn-success" :href="row.item.order_url" target="_blank">
-                            Client panel
+                            <i class="fas fa-user"></i>
+                            <span class="sr-only">Client panel</span>
                         </b-link>
 
                         <b-button size="sm" class="" @click="edit(row.item, row.index)">
@@ -59,6 +61,11 @@
                     </template>
 
                     <template slot="is_selling" slot-scope="row">
+
+                        <b-link class="btn btn-sm btn-info" :to="{ name: 'hq', params: { id: row.item.id } }">
+                            Bar HQ
+                        </b-link>
+
                         <b-button v-if="!row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)" class="btn-danger">
                             Closed
                         </b-button>

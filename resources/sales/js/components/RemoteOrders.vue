@@ -21,7 +21,7 @@
 
 <template>
     <div>
-        <h2>Remote orders</h2>
+        <h2>Remote orders <remote-order-status v-bind:eventId="eventId"></remote-order-status></h2>
         <div class="text-center" v-if="!loaded">
             <b-spinner label="Loading data" />
         </div>
@@ -71,6 +71,12 @@
 
         },
 
+        beforeDestroy() {
+            if (this.interval) {
+                clearInterval(this.interval);
+            }
+        },
+
         data() {
             return {
                 loaded: false,
@@ -85,8 +91,12 @@
                 this.menuService = new MenuService(newVal);
                 this.orderService = new OrderService(newVal);
 
+                if (this.interval) {
+                    clearInterval(this.interval);
+                }
+
                 this.refresh();
-                setInterval(
+                this.interval = setInterval(
                     () => {
                         this.refresh();
                     },
