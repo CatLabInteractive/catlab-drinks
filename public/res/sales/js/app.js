@@ -57747,19 +57747,6 @@ var render = function() {
                           _c(
                             "button",
                             {
-                              staticClass: "btn btn-success btn-sm",
-                              on: {
-                                click: function($event) {
-                                  return _vm.increaseOrder(item, index, $event)
-                                }
-                              }
-                            },
-                            [_vm._v("+")]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "button",
-                            {
                               staticClass: "btn btn-danger btn-sm",
                               on: {
                                 click: function($event) {
@@ -57768,6 +57755,19 @@ var render = function() {
                               }
                             },
                             [_vm._v("-")]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-success btn-sm",
+                              on: {
+                                click: function($event) {
+                                  return _vm.increaseOrder(item, index, $event)
+                                }
+                              }
+                            },
+                            [_vm._v("+")]
                           )
                         ]),
                         _vm._v(" "),

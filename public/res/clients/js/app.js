@@ -46226,26 +46226,6 @@ var render = function() {
                                                 "b-button",
                                                 {
                                                   attrs: {
-                                                    variant: "success small",
-                                                    size: "sm"
-                                                  },
-                                                  on: {
-                                                    click: function($event) {
-                                                      return _vm.up(row.item)
-                                                    }
-                                                  }
-                                                },
-                                                [
-                                                  _c("i", {
-                                                    staticClass: "fas fa-plus"
-                                                  })
-                                                ]
-                                              ),
-                                              _vm._v(" "),
-                                              _c(
-                                                "b-button",
-                                                {
-                                                  attrs: {
                                                     variant: "danger small",
                                                     size: "sm"
                                                   },
@@ -46260,6 +46240,26 @@ var render = function() {
                                                     staticClass: "fas fa-minus"
                                                   })
                                                 ]
+                                              ),
+                                              _vm._v(" "),
+                                              _c(
+                                                "b-button",
+                                                {
+                                                  attrs: {
+                                                    variant: "success small",
+                                                    size: "sm"
+                                                  },
+                                                  on: {
+                                                    click: function($event) {
+                                                      return _vm.up(row.item)
+                                                    }
+                                                  }
+                                                },
+                                                [
+                                                  _c("i", {
+                                                    staticClass: "fas fa-plus"
+                                                  })
+                                                ]
                                               )
                                             ],
                                             1
@@ -46271,7 +46271,7 @@ var render = function() {
                               ],
                               null,
                               false,
-                              194889155
+                              142135747
                             )
                           })
                         : _vm._e()

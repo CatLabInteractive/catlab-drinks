@@ -53,8 +53,8 @@
                         <template slot="actions" slot-scope="row">
 
                             <span v-if="!row.item.isTotals">
-                                <b-button variant="success small" @click="up(row.item)" size="sm"><i class="fas fa-plus"></i></b-button>
                                 <b-button variant="danger small" @click="down(row.item)" size="sm"><i class="fas fa-minus"></i></b-button>
+                                <b-button variant="success small" @click="up(row.item)" size="sm"><i class="fas fa-plus"></i></b-button>
                             </span>
 
                         </template>
