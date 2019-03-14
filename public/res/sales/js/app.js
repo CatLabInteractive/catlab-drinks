@@ -2645,6 +2645,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -57708,7 +57715,30 @@ var render = function() {
   return _c(
     "div",
     [
-      _c("h2", [_vm._v("Live orders")]),
+      _c(
+        "h2",
+        [
+          _vm._v("\n        Bar\n\n        "),
+          this.eventId
+            ? _c(
+                "b-button",
+                {
+                  staticClass: "btn-light",
+                  attrs: {
+                    size: "sm",
+                    to: { name: "menu", params: { id: this.eventId } }
+                  }
+                },
+                [
+                  _c("i", { staticClass: "fas fa-edit" }),
+                  _vm._v(" "),
+                  _c("span", { staticClass: "sr-only" }, [_vm._v("Menu items")])
+                ]
+              )
+            : _vm._e()
+        ],
+        1
+      ),
       _vm._v(" "),
       !_vm.loaded
         ? _c(
@@ -57747,19 +57777,6 @@ var render = function() {
                           _c(
                             "button",
                             {
-                              staticClass: "btn btn-danger btn-sm",
-                              on: {
-                                click: function($event) {
-                                  return _vm.decreaseOrder(item, index, $event)
-                                }
-                              }
-                            },
-                            [_vm._v("-")]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "button",
-                            {
                               staticClass: "btn btn-success btn-sm",
                               on: {
                                 click: function($event) {
@@ -57768,6 +57785,19 @@ var render = function() {
                               }
                             },
                             [_vm._v("+")]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-danger btn-sm",
+                              on: {
+                                click: function($event) {
+                                  return _vm.decreaseOrder(item, index, $event)
+                                }
+                              }
+                            },
+                            [_vm._v("-")]
                           )
                         ]),
                         _vm._v(" "),
@@ -58051,7 +58081,7 @@ var render = function() {
       _c(
         "h2",
         [
-          _vm._v("Remote orders "),
+          _vm._v("Bestellingen "),
           _c("remote-order-status", { attrs: { eventId: _vm.eventId } })
         ],
         1

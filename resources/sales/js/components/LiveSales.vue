@@ -21,7 +21,14 @@
 
 <template>
     <div>
-        <h2>Live orders</h2>
+        <h2>
+            Bar
+
+            <b-button v-if="this.eventId" size="sm" class="btn-light" :to="{ name: 'menu', params: { id: this.eventId } }">
+                <i class="fas fa-edit"></i>
+                <span class="sr-only">Menu items</span>
+            </b-button>
+        </h2>
         <div class="text-center" v-if="!loaded">
             <b-spinner label="Loading data" />
         </div>
