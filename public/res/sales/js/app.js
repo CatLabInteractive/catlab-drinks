@@ -3621,7 +3621,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _services_MenuService__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/MenuService */ "./resources/sales/js/services/MenuService.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -3671,29 +3670,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     this.eventId = this.$route.params.id;
-    this.service = new _services_MenuService__WEBPACK_IMPORTED_MODULE_1__["MenuService"](this.eventId);
     this.refresh();
   },
   watch: {
     '$route': function $route(to, from) {
       // react to route changes...
-      this.service = new _services_MenuService__WEBPACK_IMPORTED_MODULE_1__["MenuService"](to.params.id);
+      this.eventId = to.params.id;
       this.refresh();
     }
   },
   data: function data() {
     return {
-      eventId: null,
-      loaded: false,
-      saving: false,
-      saved: false,
-      toggling: null,
-      items: [],
-      model: {}
+      eventId: null
     };
   },
   methods: {
@@ -3705,14 +3696,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
-                return this.service.index();
-
-              case 2:
-                this.items = _context.sent.items;
-                this.loaded = true;
-
-              case 4:
               case "end":
                 return _context.stop();
             }
@@ -3725,153 +3708,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       return refresh;
-    }(),
-    save: function () {
-      var _save = _asyncToGenerator(
-      /*#__PURE__*/
-      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-        var _this = this;
-
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                this.saving = true;
-
-                if (!this.model.id) {
-                  _context2.next = 6;
-                  break;
-                }
-
-                _context2.next = 4;
-                return this.service.update(this.model.id, this.model);
-
-              case 4:
-                _context2.next = 8;
-                break;
-
-              case 6:
-                _context2.next = 8;
-                return this.service.create(this.model);
-
-              case 8:
-                this.model = {};
-                this.saving = false;
-                this.saved = true;
-                setTimeout(function () {
-                  _this.saved = false;
-                }, 2500);
-                this.refresh();
-
-              case 13:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, _callee2, this);
-      }));
-
-      function save() {
-        return _save.apply(this, arguments);
-      }
-
-      return save;
-    }(),
-    edit: function () {
-      var _edit = _asyncToGenerator(
-      /*#__PURE__*/
-      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3(model, index) {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                this.model = Object.assign({}, model);
-
-              case 1:
-              case "end":
-                return _context3.stop();
-            }
-          }
-        }, _callee3, this);
-      }));
-
-      function edit(_x, _x2) {
-        return _edit.apply(this, arguments);
-      }
-
-      return edit;
-    }(),
-    remove: function () {
-      var _remove = _asyncToGenerator(
-      /*#__PURE__*/
-      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4(model) {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
-          while (1) {
-            switch (_context4.prev = _context4.next) {
-              case 0:
-                if (!confirm('Are you sure you want to remove this menu item?')) {
-                  _context4.next = 6;
-                  break;
-                }
-
-                if (this.model.id === model.id) {
-                  this.model = {};
-                }
-
-                _context4.next = 4;
-                return this.service.delete(model.id);
-
-              case 4:
-                _context4.next = 6;
-                return this.refresh();
-
-              case 6:
-              case "end":
-                return _context4.stop();
-            }
-          }
-        }, _callee4, this);
-      }));
-
-      function remove(_x3) {
-        return _remove.apply(this, arguments);
-      }
-
-      return remove;
-    }(),
-    toggleIsSelling: function () {
-      var _toggleIsSelling = _asyncToGenerator(
-      /*#__PURE__*/
-      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee5(model) {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee5$(_context5) {
-          while (1) {
-            switch (_context5.prev = _context5.next) {
-              case 0:
-                this.toggling = model.id;
-                model.is_selling = !model.is_selling;
-                _context5.next = 4;
-                return this.service.update(model.id, model);
-
-              case 4:
-                this.toggling = null;
-
-              case 5:
-              case "end":
-                return _context5.stop();
-            }
-          }
-        }, _callee5, this);
-      }));
-
-      function toggleIsSelling(_x4) {
-        return _toggleIsSelling.apply(this, arguments);
-      }
-
-      return toggleIsSelling;
-    }(),
-    resetForm: function resetForm() {
-      this.model = {};
-    }
+    }()
   }
 });
 
@@ -73577,7 +73414,12 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1___default.a({
   components: {
     App: _views_App__WEBPACK_IMPORTED_MODULE_4__["default"]
   },
-  router: router
+  router: router,
+  methods: {
+    refreshToken: function refreshToken() {
+      window.location.reload();
+    }
+  }
 });
 
 /***/ }),
@@ -73635,7 +73477,38 @@ if (token) {
   console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
 
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'; // Add authentication interceptor
+
+window.axios.interceptors.response.use(function (response) {
+  return response;
+}, function (error) {
+  var status = error.response.status; // Show the user a 500 error
+
+  if (status >= 500) {
+    console.log({
+      500: error
+    });
+    alert(error.message);
+  } // Handle Session Timeouts
+
+
+  if (status === 401) {
+    console.log({
+      401: error
+    });
+    window.location.reload();
+  } // Handle Forbidden
+
+
+  if (status === 403) {
+    console.log({
+      403: error
+    });
+    alert(error.message);
+  }
+
+  return Promise.reject(error);
+});
 axios.get('/api/v1/users/me').then(function (response) {
   console.log(response.data);
 });
@@ -73920,6 +73793,37 @@ function () {
     this.client = window.axios.create({
       baseURL: '/api/v1',
       json: true
+    }); // Add authentication interceptor
+
+    this.client.interceptors.response.use(function (response) {
+      return response;
+    }, function (error) {
+      var status = error.response.status; // Show the user a 500 error
+
+      if (status >= 500) {
+        console.log({
+          500: error
+        });
+        alert(error.message);
+      } // Handle Session Timeouts
+
+
+      if (status === 401) {
+        console.log({
+          401: error
+        });
+        window.location.reload();
+      } // Handle Forbidden
+
+
+      if (status === 403) {
+        console.log({
+          403: error
+        });
+        alert(error.message);
+      }
+
+      return Promise.reject(error);
     });
   }
   /**

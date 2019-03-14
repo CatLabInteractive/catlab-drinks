@@ -104,5 +104,10 @@ const router = new VueRouter({
 const app = new Vue({
     el: '#app',
     components: { App },
-    router
+    router,
+    methods: {
+        refreshToken: function() {
+            window.location.reload();
+        }
+    }
 });

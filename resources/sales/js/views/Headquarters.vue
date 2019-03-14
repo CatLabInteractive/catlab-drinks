@@ -43,13 +43,10 @@
 
 <script>
 
-    import {MenuService} from "../services/MenuService";
-
     export default {
         mounted() {
 
             this.eventId = this.$route.params.id;
-            this.service = new MenuService(this.eventId);
             this.refresh();
 
         },
@@ -57,20 +54,14 @@
         watch: {
             '$route' (to, from) {
                 // react to route changes...
-                this.service = new MenuService(to.params.id);
+                this.eventId = to.params.id;
                 this.refresh();
             }
         },
 
         data() {
             return {
-                eventId: null,
-                loaded: false,
-                saving: false,
-                saved: false,
-                toggling: null,
-                items: [],
-                model: {}
+                eventId: null
             }
         },
 
@@ -78,65 +69,7 @@
 
             async refresh() {
 
-                this.items = (await this.service.index()).items;
-                this.loaded = true;
 
-            },
-
-            async save() {
-
-                this.saving = true;
-                if (this.model.id) {
-                    await this.service.update(this.model.id, this.model);
-                } else {
-                    await this.service.create(this.model);
-                }
-
-                this.model = {};
-                this.saving = false;
-                this.saved = true;
-
-                setTimeout(
-                    () => {
-                        this.saved = false;
-                    },
-                    2500
-                );
-
-                this.refresh();
-
-            },
-
-            async edit(model, index) {
-
-                this.model = Object.assign({}, model);
-
-            },
-
-            async remove(model) {
-
-                if (confirm('Are you sure you want to remove this menu item?')) {
-                    if (this.model.id === model.id) {
-                        this.model = {};
-                    }
-
-                    await this.service.delete(model.id);
-                    await this.refresh();
-                }
-
-            },
-
-            async toggleIsSelling(model) {
-
-                this.toggling = model.id;
-                model.is_selling = !model.is_selling;
-                await this.service.update(model.id, model);
-                this.toggling = null;
-
-            },
-
-            resetForm() {
-                this.model = {};
             }
         }
     }

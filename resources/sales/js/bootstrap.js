@@ -49,6 +49,35 @@ if (token) {
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+// Add authentication interceptor
+window.axios.interceptors.response.use(
+    response => response,
+    error => {
+
+        const status = error.response.status;
+
+        // Show the user a 500 error
+        if (status >= 500) {
+            console.log({500:error});
+            alert(error.message);
+        }
+
+        // Handle Session Timeouts
+        if (status === 401) {
+            console.log({401:error});
+            window.location.reload();
+        }
+
+        // Handle Forbidden
+        if (status === 403) {
+            console.log({403:error});
+            alert(error.message);
+        }
+
+        return Promise.reject(error)
+    }
+);
+
 axios.get('/api/v1/users/me')
     .then(response => {
         console.log(response.data);
