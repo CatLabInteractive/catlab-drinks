@@ -2945,10 +2945,14 @@ __webpack_require__.r(__webpack_exports__);
     logout: function logout() {
       axios.post('/logout').then(function (response) {
         if (response.status === 302 || 401) {
-          console.log('logout');
-        } else {// throw error and go to catch block
+          window.location.reload();
+        } else {
+          // throw error and go to catch block
+          console.error(response);
         }
-      }).catch(function (error) {});
+      }).catch(function (error) {
+        console.error(error);
+      });
     }
   }
 });

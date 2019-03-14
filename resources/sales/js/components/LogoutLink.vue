@@ -7,13 +7,14 @@
             logout:function(){
                 axios.post('/logout').then(response => {
                     if (response.status === 302 || 401) {
-                        console.log('logout')
+                        window.location.reload();
                     }
                     else {
                         // throw error and go to catch block
+                        console.error(response);
                     }
                 }).catch(error => {
-
+                    console.error(error);
                 });
             },
         },
