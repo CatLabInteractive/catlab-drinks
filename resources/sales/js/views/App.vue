@@ -38,7 +38,13 @@
                 <!-- Right aligned nav items -->
                 <b-navbar-nav class="ml-auto">
 
+                    <b-navbar-nav>
 
+                        <li class="nav-item">
+                            <logout-link />
+                        </li>
+
+                    </b-navbar-nav>
 
                     <!--
                     <b-nav-form>
