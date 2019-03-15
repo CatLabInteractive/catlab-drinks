@@ -46206,11 +46206,9 @@ var render = function() {
                                   key: "amount",
                                   fn: function(row) {
                                     return [
-                                      _vm._v(
-                                        "\n\n                        " +
-                                          _vm._s(row.item.amount) +
-                                          "\n\n                    "
-                                      )
+                                      _c("span", { staticClass: "amount" }, [
+                                        _vm._v(_vm._s(row.item.amount))
+                                      ])
                                     ]
                                   }
                                 },
@@ -46271,7 +46269,7 @@ var render = function() {
                               ],
                               null,
                               false,
-                              2010856035
+                              2227658130
                             )
                           })
                         : _vm._e()

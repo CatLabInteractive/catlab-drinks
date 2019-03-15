@@ -46,7 +46,7 @@
 
                         <template slot="amount" slot-scope="row">
 
-                            {{row.item.amount}}
+                            <span class="amount">{{row.item.amount}}</span>
 
                         </template>
 
