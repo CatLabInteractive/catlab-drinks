@@ -40,14 +40,17 @@
                     <div v-for="(item, index) in items" class="product" v-on:click="increaseOrder(item, index, $event)">
                         <span class="name">{{ item.name}}</span>
                         <span class="buttons">
-                            <button class="btn btn-success btn-sm" v-on:click="increaseOrder(item, index, $event)">
-                                <i class="fa fa-plus fa-sm"></i>
-                                <span class="sr-only">+</span>
-                            </button>
+
                             <button class="btn btn-danger btn-sm" v-on:click="decreaseOrder(item, index, $event)">
                                 <i class="fa fa-minus fa-sm"></i>
                                 <span class="sr-only">-</span>
                             </button>
+
+                            <button class="btn btn-success btn-sm" v-on:click="increaseOrder(item, index, $event)">
+                                <i class="fa fa-plus fa-sm"></i>
+                                <span class="sr-only">+</span>
+                            </button>
+
                         </span>
                         <span class="amount">{{item.amount}}</span>
                     </div>

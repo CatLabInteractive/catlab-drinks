@@ -2658,6 +2658,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -57783,25 +57786,6 @@ var render = function() {
                           _c(
                             "button",
                             {
-                              staticClass: "btn btn-success btn-sm",
-                              on: {
-                                click: function($event) {
-                                  return _vm.increaseOrder(item, index, $event)
-                                }
-                              }
-                            },
-                            [
-                              _c("i", { staticClass: "fa fa-plus fa-sm" }),
-                              _vm._v(" "),
-                              _c("span", { staticClass: "sr-only" }, [
-                                _vm._v("+")
-                              ])
-                            ]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "button",
-                            {
                               staticClass: "btn btn-danger btn-sm",
                               on: {
                                 click: function($event) {
@@ -57814,6 +57798,25 @@ var render = function() {
                               _vm._v(" "),
                               _c("span", { staticClass: "sr-only" }, [
                                 _vm._v("-")
+                              ])
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-success btn-sm",
+                              on: {
+                                click: function($event) {
+                                  return _vm.increaseOrder(item, index, $event)
+                                }
+                              }
+                            },
+                            [
+                              _c("i", { staticClass: "fa fa-plus fa-sm" }),
+                              _vm._v(" "),
+                              _c("span", { staticClass: "sr-only" }, [
+                                _vm._v("+")
                               ])
                             ]
                           )
