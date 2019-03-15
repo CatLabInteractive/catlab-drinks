@@ -46237,7 +46237,7 @@ var render = function() {
                                                 },
                                                 [
                                                   _c("i", {
-                                                    staticClass: "fas fa-minus"
+                                                    staticClass: "fa fa-minus"
                                                   })
                                                 ]
                                               ),
@@ -46257,7 +46257,7 @@ var render = function() {
                                                 },
                                                 [
                                                   _c("i", {
-                                                    staticClass: "fas fa-plus"
+                                                    staticClass: "fa fa-plus"
                                                   })
                                                 ]
                                               )
@@ -46271,7 +46271,7 @@ var render = function() {
                               ],
                               null,
                               false,
-                              142135747
+                              2010856035
                             )
                           })
                         : _vm._e()
