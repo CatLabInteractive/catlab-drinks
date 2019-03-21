@@ -2645,6 +2645,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -3937,10 +3953,6 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-//
-//
-//
-//
 //
 //
 //
@@ -57712,7 +57724,30 @@ var render = function() {
   return _c(
     "div",
     [
-      _c("h2", [_vm._v("Live orders")]),
+      _c(
+        "h2",
+        [
+          _vm._v("\n        Bar\n\n        "),
+          this.eventId
+            ? _c(
+                "b-button",
+                {
+                  staticClass: "btn-light",
+                  attrs: {
+                    size: "sm",
+                    to: { name: "menu", params: { id: this.eventId } }
+                  }
+                },
+                [
+                  _c("i", { staticClass: "fas fa-edit" }),
+                  _vm._v(" "),
+                  _c("span", { staticClass: "sr-only" }, [_vm._v("Menu items")])
+                ]
+              )
+            : _vm._e()
+        ],
+        1
+      ),
       _vm._v(" "),
       !_vm.loaded
         ? _c(
@@ -57751,19 +57786,6 @@ var render = function() {
                           _c(
                             "button",
                             {
-                              staticClass: "btn btn-success btn-sm",
-                              on: {
-                                click: function($event) {
-                                  return _vm.increaseOrder(item, index, $event)
-                                }
-                              }
-                            },
-                            [_vm._v("+")]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "button",
-                            {
                               staticClass: "btn btn-danger btn-sm",
                               on: {
                                 click: function($event) {
@@ -57771,7 +57793,32 @@ var render = function() {
                                 }
                               }
                             },
-                            [_vm._v("-")]
+                            [
+                              _c("i", { staticClass: "fa fa-minus fa-sm" }),
+                              _vm._v(" "),
+                              _c("span", { staticClass: "sr-only" }, [
+                                _vm._v("-")
+                              ])
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-success btn-sm",
+                              on: {
+                                click: function($event) {
+                                  return _vm.increaseOrder(item, index, $event)
+                                }
+                              }
+                            },
+                            [
+                              _c("i", { staticClass: "fa fa-plus fa-sm" }),
+                              _vm._v(" "),
+                              _c("span", { staticClass: "sr-only" }, [
+                                _vm._v("+")
+                              ])
+                            ]
                           )
                         ]),
                         _vm._v(" "),
@@ -58055,7 +58102,7 @@ var render = function() {
       _c(
         "h2",
         [
-          _vm._v("Remote orders "),
+          _vm._v("Bestellingen "),
           _c("remote-order-status", { attrs: { eventId: _vm.eventId } })
         ],
         1
@@ -58849,24 +58896,6 @@ var render = function() {
                                 _vm.$set(_vm.model, "name", $$v)
                               },
                               expression: "model.name"
-                            }
-                          })
-                        ],
-                        1
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "b-form-group",
-                        { attrs: { label: "Description" } },
-                        [
-                          _c("b-form-input", {
-                            attrs: { type: "text" },
-                            model: {
-                              value: _vm.model.description,
-                              callback: function($$v) {
-                                _vm.$set(_vm.model, "description", $$v)
-                              },
-                              expression: "model.description"
                             }
                           })
                         ],

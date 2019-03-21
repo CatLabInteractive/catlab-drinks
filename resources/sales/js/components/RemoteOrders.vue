@@ -21,7 +21,7 @@
 
 <template>
     <div>
-        <h2>Remote orders <remote-order-status v-bind:eventId="eventId"></remote-order-status></h2>
+        <h2>Bestellingen <remote-order-status v-bind:eventId="eventId"></remote-order-status></h2>
         <div class="text-center" v-if="!loaded">
             <b-spinner label="Loading data" />
         </div>

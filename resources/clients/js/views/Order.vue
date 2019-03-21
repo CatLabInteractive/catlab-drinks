@@ -50,15 +50,15 @@
 
                         <template slot="amount" slot-scope="row">
 
-                            {{row.item.amount}}
+                            <span class="amount">{{row.item.amount}}</span>
 
                         </template>
 
                         <template slot="actions" slot-scope="row">
 
                             <span v-if="!row.item.isTotals">
-                                <b-button variant="danger small" @click="down(row.item)" size="sm"><i class="fas fa-minus"></i></b-button>
-                                <b-button variant="success small" @click="up(row.item)" size="sm"><i class="fas fa-plus"></i></b-button>
+                                <b-button variant="danger small" @click="down(row.item)" size="sm"><i class="fa fa-minus"></i></b-button>
+                                <b-button variant="success small" @click="up(row.item)" size="sm"><i class="fa fa-plus"></i></b-button>
                             </span>
 
                         </template>

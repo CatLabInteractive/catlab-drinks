@@ -2697,10 +2697,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
@@ -2775,7 +2771,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 12:
                 items.forEach(function (item) {
                   item.amount = 0;
-                  item._showDetails = true;
                 });
                 this.totals = {
                   isTotals: true,
@@ -46180,7 +46175,6 @@ var render = function() {
                     [
                       _vm.loaded
                         ? _c("b-table", {
-                            staticClass: "order-table",
                             attrs: {
                               striped: "",
                               hover: "",
@@ -46189,18 +46183,6 @@ var render = function() {
                             },
                             scopedSlots: _vm._u(
                               [
-                                {
-                                  key: "row-details",
-                                  fn: function(row) {
-                                    return [
-                                      _vm._v(
-                                        "\n                        " +
-                                          _vm._s(row.item.description) +
-                                          "\n                    "
-                                      )
-                                    ]
-                                  }
-                                },
                                 {
                                   key: "name",
                                   fn: function(row) {
@@ -46224,11 +46206,9 @@ var render = function() {
                                   key: "amount",
                                   fn: function(row) {
                                     return [
-                                      _vm._v(
-                                        "\n\n                        " +
-                                          _vm._s(row.item.amount) +
-                                          "\n\n                    "
-                                      )
+                                      _c("span", { staticClass: "amount" }, [
+                                        _vm._v(_vm._s(row.item.amount))
+                                      ])
                                     ]
                                   }
                                 },
@@ -46255,7 +46235,7 @@ var render = function() {
                                                 },
                                                 [
                                                   _c("i", {
-                                                    staticClass: "fas fa-minus"
+                                                    staticClass: "fa fa-minus"
                                                   })
                                                 ]
                                               ),
@@ -46275,7 +46255,7 @@ var render = function() {
                                                 },
                                                 [
                                                   _c("i", {
-                                                    staticClass: "fas fa-plus"
+                                                    staticClass: "fa fa-plus"
                                                   })
                                                 ]
                                               )
@@ -46289,7 +46269,7 @@ var render = function() {
                               ],
                               null,
                               false,
-                              1109618368
+                              2227658130
                             )
                           })
                         : _vm._e()
