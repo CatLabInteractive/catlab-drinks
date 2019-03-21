@@ -65,6 +65,10 @@
                             <b-form-input type="text" v-model="model.name"></b-form-input>
                         </b-form-group>
 
+                        <b-form-group label="Description">
+                            <b-form-input type="text" v-model="model.description"></b-form-input>
+                        </b-form-group>
+
                         <b-form-group label="Price">
                             <b-form-input type="number" v-model="model.price" step=".01"></b-form-input>
                         </b-form-group>

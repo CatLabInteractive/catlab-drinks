@@ -4024,6 +4024,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
@@ -57747,19 +57751,6 @@ var render = function() {
                           _c(
                             "button",
                             {
-                              staticClass: "btn btn-danger btn-sm",
-                              on: {
-                                click: function($event) {
-                                  return _vm.decreaseOrder(item, index, $event)
-                                }
-                              }
-                            },
-                            [_vm._v("-")]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "button",
-                            {
                               staticClass: "btn btn-success btn-sm",
                               on: {
                                 click: function($event) {
@@ -57768,6 +57759,19 @@ var render = function() {
                               }
                             },
                             [_vm._v("+")]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-danger btn-sm",
+                              on: {
+                                click: function($event) {
+                                  return _vm.decreaseOrder(item, index, $event)
+                                }
+                              }
+                            },
+                            [_vm._v("-")]
                           )
                         ]),
                         _vm._v(" "),
@@ -58845,6 +58849,24 @@ var render = function() {
                                 _vm.$set(_vm.model, "name", $$v)
                               },
                               expression: "model.name"
+                            }
+                          })
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "b-form-group",
+                        { attrs: { label: "Description" } },
+                        [
+                          _c("b-form-input", {
+                            attrs: { type: "text" },
+                            model: {
+                              value: _vm.model.description,
+                              callback: function($$v) {
+                                _vm.$set(_vm.model, "description", $$v)
+                              },
+                              expression: "model.description"
                             }
                           })
                         ],

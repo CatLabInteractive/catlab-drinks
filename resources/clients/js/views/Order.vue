@@ -37,7 +37,11 @@
 
             <b-row>
                 <b-col>
-                    <b-table striped hover :items="items" :fields="fields" v-if="loaded">
+                    <b-table striped hover :items="items" :fields="fields" v-if="loaded" class="order-table">
+
+                        <template slot="row-details" slot-scope="row">
+                            {{row.item.description}}
+                        </template>
 
                         <template slot="name" slot-scope="row">
                             {{row.item.name}}<br />
@@ -162,6 +166,7 @@
                 items.forEach(
                     (item) => {
                         item.amount = 0;
+                        item._showDetails = true;
                     }
                 );
 
