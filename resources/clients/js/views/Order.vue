@@ -166,7 +166,7 @@
                 items.forEach(
                     (item) => {
                         item.amount = 0;
-                        item._showDetails = true;
+                        item._showDetails = !!item.description;
                     }
                 );
 
