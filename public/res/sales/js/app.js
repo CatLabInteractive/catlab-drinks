@@ -3488,6 +3488,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -58488,7 +58490,6 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    { staticClass: "order-history" },
     [
       _c(
         "h2",
@@ -58519,49 +58520,56 @@ var render = function() {
         ? _c("b-alert", { attrs: { show: "" } }, [_c("relax")], 1)
         : _vm._e(),
       _vm._v(" "),
-      _vm._l(_vm.items, function(item, index) {
-        return _c(
-          "div",
-          { staticClass: "order", class: "status " + item.status },
-          [
-            _c("h3", [_vm._v("Order #" + _vm._s(item.id))]),
-            _vm._v(" "),
-            _c("p", [_vm._v("Status: " + _vm._s(item.status))]),
-            _vm._v(" "),
-            _c(
-              "ul",
-              _vm._l(item.order.items, function(product) {
-                return _c("li", [
-                  _vm._v(
-                    _vm._s(product.amount) +
-                      " x " +
-                      _vm._s(product.menuItem.name)
-                  )
-                ])
-              }),
-              0
-            ),
-            _vm._v(" "),
-            _c("p", [
-              _vm._v("\n            Tafel: " + _vm._s(item.location)),
-              _c("br"),
-              _vm._v("\n            Besteller: " + _vm._s(item.requester)),
-              _c("br"),
-              _vm._v(
-                "\n            Totaal: €" +
-                  _vm._s(item.totalPrice.toFixed(2)) +
-                  " ("
+      _c(
+        "div",
+        { staticClass: "order-history" },
+        _vm._l(_vm.items, function(item, index) {
+          return _c(
+            "div",
+            { staticClass: "order", class: "status " + item.status },
+            [
+              _c("h3", [_vm._v("Order #" + _vm._s(item.id))]),
+              _vm._v(" "),
+              _c("p", [_vm._v("Status: " + _vm._s(item.status))]),
+              _vm._v(" "),
+              _c(
+                "ul",
+                _vm._l(item.order.items, function(product) {
+                  return _c("li", [
+                    _vm._v(
+                      _vm._s(product.amount) +
+                        " x " +
+                        _vm._s(product.menuItem.name)
+                    )
+                  ])
+                }),
+                0
               ),
-              _c("strong", [
-                _vm._v(_vm._s(Math.ceil(item.totalPrice / 0.5)) + " vakjes")
-              ]),
-              _vm._v(")\n        ")
-            ])
-          ]
-        )
-      })
+              _vm._v(" "),
+              _c("p", [
+                _vm._v("\n                Tafel: " + _vm._s(item.location)),
+                _c("br"),
+                _vm._v(
+                  "\n                Besteller: " + _vm._s(item.requester)
+                ),
+                _c("br"),
+                _vm._v(
+                  "\n                Totaal: €" +
+                    _vm._s(item.totalPrice.toFixed(2)) +
+                    " ("
+                ),
+                _c("strong", [
+                  _vm._v(_vm._s(Math.ceil(item.totalPrice / 0.5)) + " vakjes")
+                ]),
+                _vm._v(")\n            ")
+              ])
+            ]
+          )
+        }),
+        0
+      )
     ],
-    2
+    1
   )
 }
 var staticRenderFns = []

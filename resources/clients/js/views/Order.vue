@@ -35,6 +35,10 @@
 
         <div v-if="loaded && error === null">
 
+            <b-alert variant="danger" :show="warning !== null">
+                {{warning}}
+            </b-alert>
+
             <b-row>
                 <b-col>
                     <b-table striped hover :items="items" :fields="fields" v-if="loaded" class="order-table">
@@ -87,6 +91,13 @@
             </b-row>
 
         </div>
+
+        <!-- Modal Component -->
+        <b-modal ref="warningModal" title="Woops" @ok="closeModal" button-size="lg" ok-only>
+            <b-alert variant="danger" :show="warning !== null">
+                {{warning}}
+            </b-alert>
+        </b-modal>
 
     </b-container>
 
@@ -294,11 +305,13 @@
 
                 if (!this.tableNumber || this.tableNumber === '') {
                     this.warning = 'Gelieve een tafelnummer in te voeren.';
+                    this.$refs.warningModal.show();
                     return;
                 }
 
                 if (this.totals.amount === 0) {
                     this.warning = 'Gelieve minstens 1 drankje te bestellen.';
+                    this.$refs.warningModal.show();
                     return;
                 }
 
@@ -336,7 +349,12 @@
 
                 } catch (e) {
                     this.warning = e.response.data.error.message;
+                    this.$refs.warningModal.show();
                 }
+            },
+
+            async closeModal() {
+                this.$refs.warningModal.hide();
             }
 
         }

@@ -20,7 +20,7 @@
   -->
 
 <template>
-    <div class="order-history">
+    <div>
         <h2>
             Bestellingen
             <b-link class="btn btn-sm btn-info" :to="{ name: 'hq', params: { id: this.eventId } }">
@@ -35,20 +35,22 @@
             <relax></relax>
         </b-alert>
 
-        <div class="order" v-for="(item, index) in items" :class="'status ' + item.status">
+        <div class="order-history">
+            <div class="order" v-for="(item, index) in items" :class="'status ' + item.status">
 
-            <h3>Order #{{item.id}}</h3>
-            <p>Status: {{item.status}}</p>
+                <h3>Order #{{item.id}}</h3>
+                <p>Status: {{item.status}}</p>
 
-            <ul>
-                <li v-for="product in item.order.items">{{product.amount}} x {{product.menuItem.name}}</li>
-            </ul>
+                <ul>
+                    <li v-for="product in item.order.items">{{product.amount}} x {{product.menuItem.name}}</li>
+                </ul>
 
-            <p>
-                Tafel: {{item.location}}<br />
-                Besteller: {{item.requester}}<br />
-                Totaal: €{{item.totalPrice.toFixed(2)}} (<strong>{{Math.ceil(item.totalPrice / 0.5)}} vakjes</strong>)
-            </p>
+                <p>
+                    Tafel: {{item.location}}<br />
+                    Besteller: {{item.requester}}<br />
+                    Totaal: €{{item.totalPrice.toFixed(2)}} (<strong>{{Math.ceil(item.totalPrice / 0.5)}} vakjes</strong>)
+                </p>
+            </div>
         </div>
 
     </div>
