@@ -36,6 +36,7 @@ import Hello from './views/Hello'
 import Home from './views/Home'
 import Events from './views/Events'
 import Headquarters from "./views/Headquarters";
+import Sales from "./views/Sales";
 
 Vue.component(
     'live-sales',
@@ -60,6 +61,11 @@ Vue.component(
 Vue.component(
     'logout-link',
     require('./components/LogoutLink.vue').default
+);
+
+Vue.component(
+    'sales-history',
+    require('./components/SalesHistory.vue').default
 );
 
 /**
@@ -100,6 +106,12 @@ const router = new VueRouter({
             path: '/events/:id/hq',
             name: 'hq',
             component: Headquarters,
+        },
+
+        {
+            path: '/events/:id/sales',
+            name: 'sales',
+            component: Sales,
         },
     ],
 });

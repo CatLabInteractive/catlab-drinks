@@ -20,8 +20,13 @@
   -->
 
 <template>
-    <div>
-        <h2>Bestellingen <remote-order-status v-bind:eventId="eventId"></remote-order-status></h2>
+    <div class="order-history">
+        <h2>
+            Bestellingen
+            <b-link class="btn btn-sm btn-info" :to="{ name: 'hq', params: { id: this.eventId } }">
+                Bar HQ
+            </b-link>
+        </h2>
         <div class="text-center" v-if="!loaded">
             <b-spinner label="Loading data" />
         </div>
@@ -30,9 +35,11 @@
             <relax></relax>
         </b-alert>
 
-        <div class="order" v-for="(item, index) in items">
+        <div class="order" v-for="(item, index) in items" :class="'status ' + item.status">
 
             <h3>Order #{{item.id}}</h3>
+            <p>Status: {{item.status}}</p>
+
             <ul>
                 <li v-for="product in item.order.items">{{product.amount}} x {{product.menuItem.name}}</li>
             </ul>
@@ -42,17 +49,7 @@
                 Besteller: {{item.requester}}<br />
                 Totaal: €{{item.totalPrice.toFixed(2)}} (<strong>{{Math.ceil(item.totalPrice / 0.5)}} vakjes</strong>)
             </p>
-
-            <p>
-                <button class="btn btn-success" @click="acceptOrder(item)">Afgewerkt</button>
-                <button class="btn btn-danger" @click="declineOrder(item)">Niet aanvaard</button>
-            </p>
-
         </div>
-
-        <p>
-            <b-link :to="{ name: 'sales', params: { id: this.eventId } }" class="btn btn-sm btn-info">Order history</b-link>
-        </p>
 
     </div>
 
@@ -118,8 +115,9 @@
 
                 const items = (await this.orderService.index({
                     sort: '!id',
-                    status: 'pending'
+                    records: 1000
                 })).items;
+
                 items.forEach(
                     (item) => {
 
@@ -135,22 +133,6 @@
                 );
 
                 this.items = items;
-
-            },
-
-            async acceptOrder(item) {
-
-                item.status = 'processed';
-                await this.orderService.update(item.id, item);
-                this.refresh();
-
-            },
-
-            async declineOrder(item) {
-
-                item.status = 'declined';
-                await this.orderService.update(item.id, item);
-                this.refresh();
 
             }
         }

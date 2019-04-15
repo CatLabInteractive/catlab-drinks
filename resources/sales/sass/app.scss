@@ -79,3 +79,15 @@
 .order-confirm-modal li {
   font-size: 150%;
 }
+
+.order-history .order {
+  float: left;
+  width: 300px;
+  margin: 4px;
+  border: 2px solid gray;
+  padding: 10px;
+}
+
+.order.status.processed {
+  background: #bcffc8;
+}
