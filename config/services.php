@@ -49,4 +49,6 @@ return [
         'model' => \App\Models\User::class
     ],
 
+    'gtm' => 'GTM-PK32NK6'
+
 ];
