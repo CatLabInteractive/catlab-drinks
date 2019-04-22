@@ -3319,7 +3319,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 this.loaded = true;
                 _context.next = 3;
                 return this.orderService.index({
-                  sort: '!id',
+                  sort: 'id',
                   status: 'pending'
                 });
 
