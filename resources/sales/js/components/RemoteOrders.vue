@@ -117,7 +117,7 @@
                 this.loaded = true;
 
                 const items = (await this.orderService.index({
-                    sort: '!id',
+                    sort: 'id',
                     status: 'pending'
                 })).items;
                 items.forEach(
