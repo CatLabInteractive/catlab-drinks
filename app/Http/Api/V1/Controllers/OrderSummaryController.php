@@ -99,6 +99,7 @@ class OrderSummaryController extends Base\ResourceController
         $groupedQuery = clone $query;
         $groupedQuery->selectRaw('order_items.menu_item_id');
         $groupedQuery->groupBy('order_items.menu_item_id');
+        $groupedQuery->orderBy('sales_items', 'desc');
 
         $result = $query->first();
         if (!$result) {
