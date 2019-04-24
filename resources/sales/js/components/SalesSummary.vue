@@ -22,39 +22,37 @@
 <template>
     <div>
         <h2>
-            Bestellingen
+            Samenvatting
             <b-link class="btn btn-sm btn-info" :to="{ name: 'hq', params: { id: this.eventId } }">
                 Bar HQ
-            </b-link>
-
-            <b-link class="btn btn-sm btn-info" :to="{ name: 'summary', params: { id: this.eventId } }">
-                Summary
             </b-link>
         </h2>
         <div class="text-center" v-if="!loaded">
             <b-spinner label="Loading data" />
         </div>
 
-        <b-alert v-if="loaded && items.length === 0" show>
-            <relax></relax>
-        </b-alert>
+        <div class="order-summary" v-if="summary">
 
-        <div class="order-history">
-            <div class="order" v-for="(item, index) in items" :class="'status ' + item.status">
+            <table class="table">
+                <tr>
+                    <th>Item</th>
+                    <th>Amount</th>
+                    <th>Prijs</th>
+                </tr>
 
-                <h3>Order #{{item.id}}</h3>
-                <p>Status: {{item.status}}</p>
+                <tr v-for="product in summary.items.items">
+                    <td>{{product.menuItem.name}}</td>
+                    <td>{{product.amount}}</td>
+                    <td>€{{product.totalSales.toFixed(2)}}</td>
+                </tr>
 
-                <ul>
-                    <li v-for="product in item.order.items">{{product.amount}} x {{product.menuItem.name}}</li>
-                </ul>
+                <tr>
+                    <th>Total</th>
+                    <td>{{summary.amount}}</td>
+                    <td>€{{summary.totalSales.toFixed(2)}}</td>
+                </tr>
+            </table>
 
-                <p>
-                    Tafel: {{item.location}}<br />
-                    Besteller: {{item.requester}}<br />
-                    Totaal: €{{item.totalPrice.toFixed(2)}} (<strong>{{Math.ceil(item.totalPrice / 0.5)}} vakjes</strong>)
-                </p>
-            </div>
         </div>
 
     </div>
@@ -87,7 +85,7 @@
         data() {
             return {
                 loaded: false,
-                items: []
+                summary: null
             }
         },
 
@@ -119,27 +117,9 @@
 
                 this.loaded = true;
 
-                const items = (await this.orderService.index({
-                    sort: '!id',
-                    records: 1000
-                })).items;
+                this.summary = (await this.orderService.summary({
 
-                items.forEach(
-                    (item) => {
-
-                        let totalPrice = 0;
-
-                        item.order.items.forEach(
-                            (orderItem) => {
-                                totalPrice += orderItem.amount * orderItem.menuItem.price;
-                            });
-
-                        item.totalPrice = totalPrice;
-                    }
-                );
-
-                this.items = items;
-
+                }));
             }
         }
     }

@@ -63,4 +63,14 @@ class EventPolicy
     {
         return $event->user->id === $user->id;
     }
+
+    /**
+     * @param User|null $user
+     * @param Event $event
+     * @return bool
+     */
+    public function orderSummary(?User $user, Event $event)
+    {
+        return $event->user->id === $user->id;
+    }
 }
