@@ -35,9 +35,17 @@
 
         <div v-if="loaded && error === null">
 
+            <b-alert variant="danger" :show="warning !== null">
+                {{warning}}
+            </b-alert>
+
             <b-row>
                 <b-col>
-                    <b-table striped hover :items="items" :fields="fields" v-if="loaded">
+                    <b-table striped hover :items="items" :fields="fields" v-if="loaded" class="order-table">
+
+                        <template slot="row-details" slot-scope="row">
+                            {{row.item.description}}
+                        </template>
 
                         <template slot="name" slot-scope="row">
                             {{row.item.name}}<br />
@@ -83,6 +91,13 @@
             </b-row>
 
         </div>
+
+        <!-- Modal Component -->
+        <b-modal ref="warningModal" title="Woops" @ok="closeModal" button-size="lg" ok-only>
+            <b-alert variant="danger" :show="warning !== null">
+                {{warning}}
+            </b-alert>
+        </b-modal>
 
     </b-container>
 
@@ -162,6 +177,7 @@
                 items.forEach(
                     (item) => {
                         item.amount = 0;
+                        item._showDetails = !!item.description;
                     }
                 );
 
@@ -289,11 +305,13 @@
 
                 if (!this.tableNumber || this.tableNumber === '') {
                     this.warning = 'Gelieve een tafelnummer in te voeren.';
+                    this.$refs.warningModal.show();
                     return;
                 }
 
                 if (this.totals.amount === 0) {
                     this.warning = 'Gelieve minstens 1 drankje te bestellen.';
+                    this.$refs.warningModal.show();
                     return;
                 }
 
@@ -331,7 +349,12 @@
 
                 } catch (e) {
                     this.warning = e.response.data.error.message;
+                    this.$refs.warningModal.show();
                 }
+            },
+
+            async closeModal() {
+                this.$refs.warningModal.hide();
             }
 
         }

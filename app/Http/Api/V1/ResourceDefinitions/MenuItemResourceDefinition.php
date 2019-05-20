@@ -52,6 +52,12 @@ class MenuItemResourceDefinition extends ResourceDefinition
             ->writeable(true, true)
         ;
 
+        $this->field('description')
+            ->string()
+            ->visible(true)
+            ->writeable(true, true)
+        ;
+
         $this->field('price')
             ->number()
             ->required()

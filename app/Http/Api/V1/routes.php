@@ -82,6 +82,7 @@ $routes->group(
                 \App\Http\Api\V1\Controllers\EventController::setRoutes($routes);
                 \App\Http\Api\V1\Controllers\MenuController::setRoutes($routes);
                 \App\Http\Api\V1\Controllers\OrderController::setRoutes($routes);
+                \App\Http\Api\V1\Controllers\OrderSummaryController::setRoutes($routes);
 
 
             }

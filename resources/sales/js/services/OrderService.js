@@ -20,14 +20,19 @@
  */
 
 import {AbstractService} from './AbstractService';
+import $ from "jquery";
 
 export class OrderService extends AbstractService {
-
 
     constructor(eventId) {
         super();
 
+        this.eventId = eventId;
         this.indexUrl = 'events/' + eventId + '/orders';
         this.entityUrl = 'orders';
+    }
+
+    summary(parameters = {}) {
+        return this.execute('get', 'events/' + this.eventId + '/ordersummary' + "?" + $.param(parameters))
     }
 }

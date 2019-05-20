@@ -15736,3 +15736,26 @@ table.b-table.b-table-selectable > tbody > tr {
   font-size: 150%;
 }
 
+.order-history .order {
+  float: left;
+  width: 24%;
+  margin: 4px;
+  border: 2px solid gray;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.order-history .order:nth-child(4n+1) {
+  clear: both;
+}
+
+.order.status.processed {
+  background: #bcffc8;
+  border-color: green;
+}
+
+.order.status.declined {
+  background: #ffc5c5;
+  border-color: red;
+}
+

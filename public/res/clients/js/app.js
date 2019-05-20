@@ -2697,6 +2697,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
@@ -2771,6 +2786,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 12:
                 items.forEach(function (item) {
                   item.amount = 0;
+                  item._showDetails = !!item.description;
                 });
                 this.totals = {
                   isTotals: true,
@@ -2893,23 +2909,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 2:
                 if (!(!this.tableNumber || this.tableNumber === '')) {
-                  _context2.next = 5;
+                  _context2.next = 6;
                   break;
                 }
 
                 this.warning = 'Gelieve een tafelnummer in te voeren.';
+                this.$refs.warningModal.show();
                 return _context2.abrupt("return");
 
-              case 5:
+              case 6:
                 if (!(this.totals.amount === 0)) {
-                  _context2.next = 8;
+                  _context2.next = 10;
                   break;
                 }
 
                 this.warning = 'Gelieve minstens 1 drankje te bestellen.';
+                this.$refs.warningModal.show();
                 return _context2.abrupt("return");
 
-              case 8:
+              case 10:
                 data = {};
                 data.location = this.tableNumber;
                 data.requester = this.userName;
@@ -2930,12 +2948,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     });
                   }
                 });
-                _context2.prev = 13;
+                _context2.prev = 15;
                 localStorage.tableNumber = this.tableNumber;
-                _context2.next = 17;
+                _context2.next = 19;
                 return this.service.order(data);
 
-              case 17:
+              case 19:
                 order = _context2.sent;
                 this.$router.push({
                   name: 'ordersubmitted',
@@ -2944,20 +2962,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   }
                 });
                 this.reset();
-                _context2.next = 25;
+                _context2.next = 28;
                 break;
 
-              case 22:
-                _context2.prev = 22;
-                _context2.t0 = _context2["catch"](13);
+              case 24:
+                _context2.prev = 24;
+                _context2.t0 = _context2["catch"](15);
                 this.warning = _context2.t0.response.data.error.message;
+                this.$refs.warningModal.show();
 
-              case 25:
+              case 28:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, this, [[13, 22]]);
+        }, _callee2, this, [[15, 24]]);
       }));
 
       function submit() {
@@ -2965,6 +2984,30 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       return submit;
+    }(),
+    closeModal: function () {
+      var _closeModal = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                this.$refs.warningModal.hide();
+
+              case 1:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+
+      function closeModal() {
+        return _closeModal.apply(this, arguments);
+      }
+
+      return closeModal;
     }()
   }
 });
@@ -46168,6 +46211,12 @@ var render = function() {
             "div",
             [
               _c(
+                "b-alert",
+                { attrs: { variant: "danger", show: _vm.warning !== null } },
+                [_vm._v("\n            " + _vm._s(_vm.warning) + "\n        ")]
+              ),
+              _vm._v(" "),
+              _c(
                 "b-row",
                 [
                   _c(
@@ -46175,6 +46224,7 @@ var render = function() {
                     [
                       _vm.loaded
                         ? _c("b-table", {
+                            staticClass: "order-table",
                             attrs: {
                               striped: "",
                               hover: "",
@@ -46183,6 +46233,18 @@ var render = function() {
                             },
                             scopedSlots: _vm._u(
                               [
+                                {
+                                  key: "row-details",
+                                  fn: function(row) {
+                                    return [
+                                      _vm._v(
+                                        "\n                        " +
+                                          _vm._s(row.item.description) +
+                                          "\n                    "
+                                      )
+                                    ]
+                                  }
+                                },
                                 {
                                   key: "name",
                                   fn: function(row) {
@@ -46269,7 +46331,7 @@ var render = function() {
                               ],
                               null,
                               false,
-                              2227658130
+                              2603462737
                             )
                           })
                         : _vm._e()
@@ -46360,7 +46422,24 @@ var render = function() {
             ],
             1
           )
-        : _vm._e()
+        : _vm._e(),
+      _vm._v(" "),
+      _c(
+        "b-modal",
+        {
+          ref: "warningModal",
+          attrs: { title: "Woops", "button-size": "lg", "ok-only": "" },
+          on: { ok: _vm.closeModal }
+        },
+        [
+          _c(
+            "b-alert",
+            { attrs: { variant: "danger", show: _vm.warning !== null } },
+            [_vm._v("\n            " + _vm._s(_vm.warning) + "\n        ")]
+          )
+        ],
+        1
+      )
     ],
     1
   )
