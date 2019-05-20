@@ -30,6 +30,15 @@ use CatLab\Charon\Laravel\Database\Model;
  */
 class OrderItem extends Model
 {
+    public static function boot()
+    {
+        parent::boot();
+
+        self::creating(function(OrderItem $item){
+            $item->price = $item->menuItem->price;
+        });
+    }
+
     protected $fillable = [
         'amount'
     ];

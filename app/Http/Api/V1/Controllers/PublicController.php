@@ -29,6 +29,7 @@ use App\Http\Api\V1\ResourceDefinitions\MenuItemResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\OrderResourceDefinition;
 use App\Models\Event;
 use App\Models\Order;
+use App\Models\OrderItem;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Models\ResourceResponse;
