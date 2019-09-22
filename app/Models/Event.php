@@ -55,9 +55,9 @@ class Event extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user()
+    public function organisation()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Organisation::class);
     }
 
     /**

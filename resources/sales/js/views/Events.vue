@@ -110,7 +110,8 @@
     export default {
         mounted() {
 
-            this.service = new EventService();
+            console.log(window.ORGANISATION_ID);
+            this.service = new EventService(window.ORGANISATION_ID); // hacky hacky
             this.refreshEvents();
 
         },

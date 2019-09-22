@@ -46,10 +46,12 @@
                                 <span class="sr-only">-</span>
                             </button>
 
+                            <!--
                             <button class="btn btn-success btn-sm" v-on:click="increaseOrder(item, index, $event)">
                                 <i class="fa fa-plus fa-sm"></i>
                                 <span class="sr-only">+</span>
                             </button>
+                            -->
 
                         </span>
                         <span class="amount">{{item.amount}}</span>

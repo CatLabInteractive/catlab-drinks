@@ -20,19 +20,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-namespace App\Http\Controllers;
+namespace App\Models;
+
+use CatLab\Charon\Laravel\Database\Model;
 
 /**
- * Class ClientController
- * @package App\Http\Controllers
+ * Class Organisation
+ * @package App\Models
  */
-class ClientController
+class Organisation extends Model
 {
-    public function index()
+    protected $fillable = [
+        'name',
+        'payment_cash',
+        'payment_vouchers',
+        'payment_voucher_value',
+        'payment_cards',
+    ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function users()
     {
-        $organisation = \Auth::user()->organisations()->first();
-        return view('sales.index', [
-            'organisation' => $organisation
-        ]);
+        return $this->belongsToMany(User::class)->withTimestamps();
+    }
+
+    public function events()
+    {
+        return $this->hasMany(Event::class);
     }
 }

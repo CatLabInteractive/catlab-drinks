@@ -24,11 +24,11 @@ import {AbstractService} from './AbstractService';
 export class EventService extends AbstractService {
 
 
-    constructor() {
+    constructor(organisationId) {
         super();
 
         this.entityUrl = 'events';
-        this.indexUrl = this.entityUrl;
+        this.indexUrl = 'organisations/' + organisationId + '/events';
     }
 
 

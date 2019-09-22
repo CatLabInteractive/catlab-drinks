@@ -37,6 +37,10 @@
     <!-- End Google Tag Manager (noscript) -->
 @endif
 
+<script>
+    var ORGANISATION_ID = {{ $organisation->id }};
+</script>
+
 <div id="app">
     <app></app>
 </div>

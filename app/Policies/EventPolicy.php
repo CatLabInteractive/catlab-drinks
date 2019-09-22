@@ -29,7 +29,7 @@ use App\Models\User;
  * Class EventPolicy
  * @package App\Policies
  */
-class EventPolicy
+class EventPolicy extends BasePolicy
 {
     /**
      * @param User|null $user
@@ -51,17 +51,17 @@ class EventPolicy
 
     public function view(?User $user, Event $event)
     {
-        return $event->user->id === $user->id;
+        return $this->isMyEvent($user, $event);
     }
 
     public function edit(?User $user, Event $event)
     {
-        return $event->user->id === $user->id;
+        return $this->isMyEvent($user, $event);
     }
 
     public function destroy(?User $user, Event $event)
     {
-        return $event->user->id === $user->id;
+        return $this->isMyEvent($user, $event);
     }
 
     /**
@@ -71,6 +71,6 @@ class EventPolicy
      */
     public function orderSummary(?User $user, Event $event)
     {
-        return $event->user->id === $user->id;
+        return $this->isMyEvent($user, $event);
     }
 }

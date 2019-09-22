@@ -27,6 +27,24 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends \CatLab\Accounts\Client\Models\User
 {
+    /**
+     * Register any other events for your application.
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function (User $model) {
+
+            // also create an organisation with the same name
+            $organisation = new Organisation([ 'name' => $model->username ]);
+            $model->organisation()->associate($organisation);
+
+        });
+    }
+
     use Notifiable;
     use \Laravel\Passport\HasApiTokens;
 
@@ -49,10 +67,10 @@ class User extends \CatLab\Accounts\Client\Models\User
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function events()
+    public function organisations()
     {
-        return $this->hasMany(Event::class);
+        return $this->belongsToMany(Organisation::class)->withTimestamps();
     }
 }

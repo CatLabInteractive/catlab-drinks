@@ -2661,6 +2661,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -3942,7 +3944,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
-    this.service = new _services_EventService__WEBPACK_IMPORTED_MODULE_1__["EventService"]();
+    console.log(window.ORGANISATION_ID);
+    this.service = new _services_EventService__WEBPACK_IMPORTED_MODULE_1__["EventService"](window.ORGANISATION_ID); // hacky hacky
+
     this.refreshEvents();
   },
   data: function data() {
@@ -58320,25 +58324,6 @@ var render = function() {
                                 _vm._v("-")
                               ])
                             ]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "button",
-                            {
-                              staticClass: "btn btn-success btn-sm",
-                              on: {
-                                click: function($event) {
-                                  return _vm.increaseOrder(item, index, $event)
-                                }
-                              }
-                            },
-                            [
-                              _c("i", { staticClass: "fa fa-plus fa-sm" }),
-                              _vm._v(" "),
-                              _c("span", { staticClass: "sr-only" }, [
-                                _vm._v("+")
-                              ])
-                            ]
                           )
                         ]),
                         _vm._v(" "),
@@ -75506,14 +75491,14 @@ var EventService =
 function (_AbstractService) {
   _inherits(EventService, _AbstractService);
 
-  function EventService() {
+  function EventService(organisationId) {
     var _this;
 
     _classCallCheck(this, EventService);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(EventService).call(this));
     _this.entityUrl = 'events';
-    _this.indexUrl = _this.entityUrl;
+    _this.indexUrl = 'organisations/' + organisationId + '/events';
     return _this;
   }
 

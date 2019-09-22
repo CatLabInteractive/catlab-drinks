@@ -23,6 +23,8 @@
 namespace App\Http\Api\V1\Controllers;
 
 use App\Http\Api\V1\ResourceDefinitions\EventResourceDefinition;
+use App\Models\Event;
+use App\Models\Organisation;
 use App\Models\User;
 use Auth;
 use CatLab\Charon\Collections\RouteCollection;
@@ -38,7 +40,7 @@ class EventController extends Base\ResourceController
 {
     const RESOURCE_DEFINITION = EventResourceDefinition::class;
     const RESOURCE_ID = 'event';
-    const PARENT_RESOURCE_ID = 'user';
+    const PARENT_RESOURCE_ID = 'organisation';
 
     use \CatLab\Charon\Laravel\Controllers\ChildCrudController {
         beforeSaveEntity as traitBeforeSaveEntity;
@@ -50,12 +52,14 @@ class EventController extends Base\ResourceController
      */
     public static function setRoutes(RouteCollection $routes)
     {
-        $childResource = $routes->resource(
+        $childResource = $routes->childResource(
             static::RESOURCE_DEFINITION,
+            'organisations/{' . self::PARENT_RESOURCE_ID . '}/events',
             'events',
             'EventController',
             [
-                'id' => self::RESOURCE_ID
+                'id' => self::RESOURCE_ID,
+                'parentId' => self::PARENT_RESOURCE_ID
             ]
         );
 
@@ -69,8 +73,8 @@ class EventController extends Base\ResourceController
     public function getRelationship(Request $request): Relation
     {
         /** @var User $user */
-        $user = $this->getParent($request);
-        return $user->events();
+        $organisation = $this->getParent($request);
+        return $organisation->events();
     }
 
     /**
@@ -79,7 +83,8 @@ class EventController extends Base\ResourceController
      */
     public function getParent(Request $request): Model
     {
-        return User::find(Auth::id());
+        $organisationId = $request->route(self::PARENT_RESOURCE_ID);
+        return Organisation::findOrFail($organisationId);
     }
 
 

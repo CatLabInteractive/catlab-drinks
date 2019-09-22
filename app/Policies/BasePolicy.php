@@ -22,6 +22,7 @@
 
 namespace App\Policies;
 
+use App\Models\Event;
 use App\Models\User;
 
 /**
@@ -37,5 +38,19 @@ class BasePolicy
     public function isAdmin(User $user = null)
     {
         return in_array($user->id, config('admin.admin_user_ids'));
+    }
+
+    /**
+     * @param User|null $user
+     * @param Event $event
+     * @return bool
+     */
+    protected function isMyEvent(?User $user, Event $event)
+    {
+        if (!$user) {
+            return false;
+        }
+
+        return $user->organisations->contains($event->organisation);
     }
 }

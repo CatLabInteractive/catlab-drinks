@@ -31,7 +31,7 @@ use App\Models\User;
  * Class MenuItemPolicy
  * @package App\Policies
  */
-class OrderPolicy
+class OrderPolicy extends BasePolicy
 {
     /**
      * @param User|null $user
@@ -81,15 +81,5 @@ class OrderPolicy
     public function destroy(?User $user, Order $menuItem)
     {
         return $this->isMyEvent($user, $menuItem->event);
-    }
-
-    /**
-     * @param User|null $user
-     * @param Event $event
-     * @return bool
-     */
-    protected function isMyEvent(?User $user, Event $event)
-    {
-        return $event->user->id === $user->id;
     }
 }
