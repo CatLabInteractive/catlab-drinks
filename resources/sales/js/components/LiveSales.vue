@@ -101,6 +101,8 @@
     import {MenuService} from "../services/MenuService";
     import {OrderService} from "../services/OrderService";
     import {CardService} from "../nfccards/CardService";
+    import {EventService} from "../services/EventService";
+    import {OrganisationService} from "../services/OrganisationService";
 
     export default {
 
@@ -135,7 +137,21 @@
 
                 this.menuService = new MenuService(newVal);
                 this.orderService = new OrderService(newVal);
-                this.cardSErvice = new CardService(newVal);
+                this.eventService = new EventService(newVal);
+
+                this.eventService.get(newVal, { expand: 'organisation', fields: '*,organisation.*,organisation.secret' })
+                    .then(
+                        (event) => {
+                            this.event = event;
+
+                            this.cardService = new CardService();
+
+                            this.cardService
+                                .setPassword(event.organisation.secret)
+
+                            ;
+                        }
+                    );
 
                 this.refresh();
 

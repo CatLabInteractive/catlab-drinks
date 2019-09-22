@@ -1,4 +1,5 @@
-/*
+<?php
+/**
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
  * CatLab Interactive bvba, Gent, Belgium
@@ -19,23 +20,38 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-export class CardService {
+namespace App\Http\Api\V1\ResourceDefinitions;
 
+use App\Models\Organisation;
+use CatLab\Charon\Models\ResourceDefinition;
+
+/**
+ * Class OrganisationResourceDefinition
+ * @package App\Http\Api\V1\ResourceDefinitions
+ */
+class OrganisationResourceDefinition extends ResourceDefinition
+{
     /**
-     *
+     * EventResourceDefinition constructor.
+     * @throws \CatLab\Charon\Exceptions\InvalidScalarException
      */
-    private password: string = '';
+    public function __construct()
+    {
+        parent::__construct(Organisation::class);
 
-    /**
-     *
-     */
-    constructor() {
+        $this
+            ->identifier('id')
+            ->int();
 
+        $this->field('name')
+            ->string()
+            ->required()
+            ->visible(true)
+            ->writeable(true, true)
+        ;
+
+        $this->field('secret')
+            ->string()
+            ->visible(false, false);
     }
-
-    setPassword(password: string) {
-        this.password = password;
-        return this;
-    }
-
 }

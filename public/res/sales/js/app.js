@@ -2560,6 +2560,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_MenuService__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/MenuService */ "./resources/sales/js/services/MenuService.js");
 /* harmony import */ var _services_OrderService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../services/OrderService */ "./resources/sales/js/services/OrderService.js");
 /* harmony import */ var _nfccards_CardService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../nfccards/CardService */ "./resources/sales/js/nfccards/CardService.ts");
+/* harmony import */ var _services_EventService__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../services/EventService */ "./resources/sales/js/services/EventService.js");
+/* harmony import */ var _services_OrganisationService__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../services/OrganisationService */ "./resources/sales/js/services/OrganisationService.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
@@ -2699,6 +2701,8 @@ function _asyncToGenerator(fn) {
 
 
 
+
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['eventId'],
   mounted: function mounted() {},
@@ -2719,9 +2723,20 @@ function _asyncToGenerator(fn) {
   },
   watch: {
     eventId: function eventId(newVal, oldVal) {
+      var _this = this;
+
       this.menuService = new _services_MenuService__WEBPACK_IMPORTED_MODULE_1__["MenuService"](newVal);
       this.orderService = new _services_OrderService__WEBPACK_IMPORTED_MODULE_2__["OrderService"](newVal);
-      this.cardSErvice = new _nfccards_CardService__WEBPACK_IMPORTED_MODULE_3__["CardService"](newVal);
+      this.eventService = new _services_EventService__WEBPACK_IMPORTED_MODULE_4__["EventService"](newVal);
+      this.eventService.get(newVal, {
+        expand: 'organisation',
+        fields: '*,organisation.*,organisation.secret'
+      }).then(function (event) {
+        _this.event = event;
+        _this.cardService = new _nfccards_CardService__WEBPACK_IMPORTED_MODULE_3__["CardService"]();
+
+        _this.cardService.setPassword(event.organisation.secret);
+      });
       this.refresh();
     }
   },
@@ -2920,7 +2935,7 @@ function _asyncToGenerator(fn) {
       var _confirm = _asyncToGenerator(
       /*#__PURE__*/
       _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee6() {
-        var _this = this;
+        var _this2 = this;
 
         var data, order;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee6$(_context6) {
@@ -2948,7 +2963,7 @@ function _asyncToGenerator(fn) {
                 this.saved = true;
                 this.savedMessage = 'Order ' + order.id + ' saved';
                 setTimeout(function () {
-                  _this.saved = false;
+                  _this2.saved = false;
                 }, 2000);
                 _context6.next = 19;
                 break;
@@ -75630,9 +75645,19 @@ __webpack_require__.r(__webpack_exports__);
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 var CardService = /** @class */ (function () {
+    /**
+     *
+     */
     function CardService() {
-        console.log('CardService');
+        /**
+         *
+         */
+        this.password = '';
     }
+    CardService.prototype.setPassword = function (password) {
+        this.password = password;
+        return this;
+    };
     return CardService;
 }());
 
@@ -75835,23 +75860,39 @@ function () {
     }
   }, {
     key: "create",
-    value: function create(data) {
-      return this.execute('post', '/' + this.indexUrl, data);
+    value: function create(data, parameters) {
+      if (typeof parameters === 'undefined') {
+        parameters = {};
+      }
+
+      return this.execute('post', '/' + this.indexUrl + "?" + jquery__WEBPACK_IMPORTED_MODULE_1___default.a.param(parameters), data);
     }
   }, {
     key: "get",
-    value: function get(id) {
-      return this.execute('get', '/' + this.entityUrl + '/' + id);
+    value: function get(id, parameters) {
+      if (typeof parameters === 'undefined') {
+        parameters = {};
+      }
+
+      return this.execute('get', '/' + this.entityUrl + '/' + id + "?" + jquery__WEBPACK_IMPORTED_MODULE_1___default.a.param(parameters));
     }
   }, {
     key: "update",
-    value: function update(id, data) {
-      return this.execute('put', '/' + this.entityUrl + '/' + id, data);
+    value: function update(id, data, parameters) {
+      if (typeof parameters === 'undefined') {
+        parameters = {};
+      }
+
+      return this.execute('put', '/' + this.entityUrl + '/' + id + "?" + jquery__WEBPACK_IMPORTED_MODULE_1___default.a.param(parameters), data);
     }
   }, {
     key: "delete",
-    value: function _delete(id) {
-      return this.execute('delete', '/' + this.entityUrl + '/' + id);
+    value: function _delete(id, parameters) {
+      if (typeof parameters === 'undefined') {
+        parameters = {};
+      }
+
+      return this.execute('delete', '/' + this.entityUrl + '/' + id + "?" + jquery__WEBPACK_IMPORTED_MODULE_1___default.a.param(parameters));
     }
   }]);
 
@@ -76280,6 +76321,133 @@ function (_AbstractService) {
   }]);
 
   return OrderService;
+}(_AbstractService__WEBPACK_IMPORTED_MODULE_0__["AbstractService"]);
+
+/***/ }),
+
+/***/ "./resources/sales/js/services/OrganisationService.js":
+/*!************************************************************!*\
+  !*** ./resources/sales/js/services/OrganisationService.js ***!
+  \************************************************************/
+/*! exports provided: OrganisationService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "OrganisationService", function() { return OrganisationService; });
+/* harmony import */ var _AbstractService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AbstractService */ "./resources/sales/js/services/AbstractService.js");
+function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
+
+function _typeof(obj) {
+  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
+    _typeof = function _typeof(obj) {
+      return _typeof2(obj);
+    };
+  } else {
+    _typeof = function _typeof(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
+    };
+  }
+
+  return _typeof(obj);
+}
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (call && (_typeof(call) === "object" || typeof call === "function")) {
+    return call;
+  }
+
+  return _assertThisInitialized(self);
+}
+
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+function _getPrototypeOf(o) {
+  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    return o.__proto__ || Object.getPrototypeOf(o);
+  };
+  return _getPrototypeOf(o);
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) _setPrototypeOf(subClass, superClass);
+}
+
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+/*
+ * CatLab Drinks - Simple bar automation system
+ * Copyright (C) 2019 Thijs Van der Schaeghe
+ * CatLab Interactive bvba, Gent, Belgium
+ * http://www.catlab.eu/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+
+
+var OrganisationService =
+/*#__PURE__*/
+function (_AbstractService) {
+  _inherits(OrganisationService, _AbstractService);
+  /**
+   * @param organisationId
+   */
+
+
+  function OrganisationService(organisationId) {
+    var _this;
+
+    _classCallCheck(this, OrganisationService);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(OrganisationService).call(this));
+    _this.entityUrl = 'organisations';
+    _this.indexUrl = 'users/me/organisations';
+    return _this;
+  }
+
+  return OrganisationService;
 }(_AbstractService__WEBPACK_IMPORTED_MODULE_0__["AbstractService"]);
 
 /***/ }),

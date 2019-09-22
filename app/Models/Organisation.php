@@ -46,4 +46,17 @@ class Organisation extends Model
     {
         return $this->hasMany(Event::class);
     }
+
+    /**
+     * @return string
+     */
+    public function getSecret()
+    {
+        if (!$this->secret) {
+            $this->secret = str_random(32);
+            $this->save();
+        }
+
+        return $this->secret;
+    }
 }

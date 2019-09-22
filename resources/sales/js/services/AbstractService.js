@@ -90,20 +90,40 @@ export class AbstractService {
         return this.execute('get', this.indexUrl + "?" + $.param(parameters))
     }
 
-    create (data) {
-        return this.execute('post', '/' + this.indexUrl, data);
+    create (data, parameters) {
+
+        if (typeof(parameters) === 'undefined') {
+            parameters = {};
+        }
+
+        return this.execute('post', '/' + this.indexUrl + "?" + $.param(parameters), data);
     }
 
-    get (id) {
-        return this.execute('get', '/' + this.entityUrl + '/' + id);
+    get (id, parameters) {
+
+        if (typeof(parameters) === 'undefined') {
+            parameters = {};
+        }
+
+        return this.execute('get', '/' + this.entityUrl + '/' + id + "?" + $.param(parameters));
     }
 
-    update (id, data) {
-        return this.execute('put', '/' + this.entityUrl + '/' + id, data);
+    update (id, data, parameters) {
+
+        if (typeof(parameters) === 'undefined') {
+            parameters = {};
+        }
+
+        return this.execute('put', '/' + this.entityUrl + '/' + id + "?" + $.param(parameters), data);
     }
 
-    delete (id) {
-        return this.execute('delete', '/' + this.entityUrl + '/' + id);
+    delete (id, parameters) {
+
+        if (typeof(parameters) === 'undefined') {
+            parameters = {};
+        }
+
+        return this.execute('delete', '/' + this.entityUrl + '/' + id + "?" + $.param(parameters));
     }
 
 }

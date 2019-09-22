@@ -83,5 +83,10 @@ class EventResourceDefinition extends ResourceDefinition
             ->number()
             ->visible()
             ->writeable();
+
+        $this->relationship('organisation', OrganisationResourceDefinition::class)
+            ->one()
+            ->expandable()
+            ->visible();
     }
 }

@@ -19,23 +19,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-export class CardService {
+import {AbstractService} from './AbstractService';
+
+export class OrganisationService extends AbstractService {
 
     /**
-     *
+     * @param organisationId
      */
-    private password: string = '';
+    constructor(organisationId) {
+        super();
 
-    /**
-     *
-     */
-    constructor() {
-
+        this.entityUrl = 'organisations';
+        this.indexUrl = 'users/me/organisations';
     }
 
-    setPassword(password: string) {
-        this.password = password;
-        return this;
-    }
 
 }
