@@ -100,6 +100,7 @@
 
     import {MenuService} from "../services/MenuService";
     import {OrderService} from "../services/OrderService";
+    import {CardService} from "../nfccards/CardService";
 
     export default {
 
@@ -134,6 +135,7 @@
 
                 this.menuService = new MenuService(newVal);
                 this.orderService = new OrderService(newVal);
+                this.cardSErvice = new CardService(newVal);
 
                 this.refresh();
 

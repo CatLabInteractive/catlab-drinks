@@ -1,5 +1,4 @@
-<?php
-/**
+/*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
  * CatLab Interactive bvba, Gent, Belgium
@@ -20,30 +19,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-namespace App\Models;
+export class CardService {
 
-use CatLab\Charon\Laravel\Database\Model;
-
-/**
- * Class Organisation
- * @package App\Models
- */
-class Organisation extends Model
-{
-    protected $fillable = [
-        'name'
-    ];
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function users()
-    {
-        return $this->belongsToMany(User::class)->withTimestamps();
+    constructor() {
+        console.log('CardService');
     }
 
-    public function events()
-    {
-        return $this->hasMany(Event::class);
-    }
 }

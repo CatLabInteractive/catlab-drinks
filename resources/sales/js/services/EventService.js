@@ -23,7 +23,9 @@ import {AbstractService} from './AbstractService';
 
 export class EventService extends AbstractService {
 
-
+    /**
+     * @param organisationId
+     */
     constructor(organisationId) {
         super();
 

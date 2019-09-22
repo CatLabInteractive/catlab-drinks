@@ -23,7 +23,7 @@ class CreateCardTransactionsTable extends Migration
 
             $table->integer('card_sync_id')->unsigned()->nullable();
 
-            $table->unique([ 'transaction_id', 'card_id' ]);
+            $table->unique([ 'card_sync_id', 'card_id' ]);
 
             $table->integer('value');
 

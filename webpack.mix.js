@@ -17,9 +17,9 @@ mix.js('resources/swagger/swagger-ui.js', 'public/swaggerui')
     .sass('resources/swagger/swagger.scss', 'public/swaggerui');
 
 // Client
-mix.js('resources/sales/js/app.js', 'public/res/sales/js')
+mix.ts('resources/sales/js/app.js', 'public/res/sales/js')
     .sass('resources/sales/sass/app.scss', 'public/res/sales/css');
 
 // Order
-mix.js('resources/clients/js/app.js', 'public/res/clients/js')
+mix.ts('resources/clients/js/app.js', 'public/res/clients/js')
     .sass('resources/clients/sass/app.scss', 'public/res/clients/css');

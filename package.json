@@ -25,6 +25,7 @@
         "sass": "^1.17.2",
         "sass-loader": "^7.1.0",
         "swagger-ui": "^3.20.8",
+        "ts-loader": "^6.1.2",
         "vue": "^2.6.6",
         "vue-router": "^3.0.2",
         "vue-template-compiler": "^2.6.7"

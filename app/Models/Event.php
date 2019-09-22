@@ -38,7 +38,11 @@ class Event extends Model
     protected $fillable = [
         'name',
         'order_token',
-        'is_selling'
+        'is_selling',
+        'payment_cash',
+        'payment_vouchers',
+        'payment_voucher_value',
+        'payment_cards'
     ];
 
     /**
