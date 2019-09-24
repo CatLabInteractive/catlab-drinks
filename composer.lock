@@ -359,16 +359,16 @@
         },
         {
             "name": "catlabinteractive/charon-laravel",
-            "version": "v1.3.2",
+            "version": "v1.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CatLabInteractive/charon-laravel.git",
-                "reference": "a1247af91a872c2be38df84496795ff8eae58352"
+                "reference": "be37a3091beec13781487ff7df8434a2ecf3fad3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CatLabInteractive/charon-laravel/zipball/a1247af91a872c2be38df84496795ff8eae58352",
-                "reference": "a1247af91a872c2be38df84496795ff8eae58352",
+                "url": "https://api.github.com/repos/CatLabInteractive/charon-laravel/zipball/be37a3091beec13781487ff7df8434a2ecf3fad3",
+                "reference": "be37a3091beec13781487ff7df8434a2ecf3fad3",
                 "shasum": ""
             },
             "require": {
@@ -403,7 +403,7 @@
                 }
             ],
             "description": "Laravel specific libraries for Charon.",
-            "time": "2019-09-24T13:34:15+00:00"
+            "time": "2019-09-24T14:15:08+00:00"
         },
         {
             "name": "catlabinteractive/cursor-pagination",
