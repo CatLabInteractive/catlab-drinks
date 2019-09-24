@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dd7ae50b07f861a58c3bbe9a1d50010f",
+    "content-hash": "d870dc57a81ab0a15a915d3224fed1c1",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2122,16 +2122,16 @@
         },
         {
             "name": "laravel/passport",
-            "version": "v7.5.0",
+            "version": "v7.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/passport.git",
-                "reference": "663e720a6d15e8ec70bf5309f774439a110efc89"
+                "reference": "cc39dc6a36ebf5926906eb5ad3c62dba50c9bbd0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/passport/zipball/663e720a6d15e8ec70bf5309f774439a110efc89",
-                "reference": "663e720a6d15e8ec70bf5309f774439a110efc89",
+                "url": "https://api.github.com/repos/laravel/passport/zipball/cc39dc6a36ebf5926906eb5ad3c62dba50c9bbd0",
+                "reference": "cc39dc6a36ebf5926906eb5ad3c62dba50c9bbd0",
                 "shasum": ""
             },
             "require": {
@@ -2189,7 +2189,7 @@
                 "oauth",
                 "passport"
             ],
-            "time": "2019-09-24T20:59:35+00:00"
+            "time": "2019-09-10T19:55:34+00:00"
         },
         {
             "name": "laravel/slack-notification-channel",
