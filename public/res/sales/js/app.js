@@ -75768,9 +75768,12 @@ var TransactionStore = /** @class */ (function () {
         this.axios = axios;
         this.transactionIdCursor = '';
         this.offlineStore = new _OfflineStore__WEBPACK_IMPORTED_MODULE_0__["OfflineStore"]();
-        setInterval(function () {
-            _this.refresh();
-        }, 5000);
+        setTimeout(function () {
+            setInterval(function () {
+                _this.refresh();
+            }, 5000);
+        }, 2500);
+        this.refresh();
     }
     /**
      * Do we have an active internet connection?

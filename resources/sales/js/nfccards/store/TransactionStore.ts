@@ -33,12 +33,18 @@ export class TransactionStore {
     ) {
         this.offlineStore = new OfflineStore();
 
-        setInterval(
+        setTimeout(
             () => {
-                this.refresh();
+                setInterval(
+                    () => {
+                        this.refresh();
+                    },
+                    5000
+                );
             },
-            5000
+            2500
         );
+        this.refresh();
     }
 
     /**

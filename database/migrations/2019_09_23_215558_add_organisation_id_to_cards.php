@@ -16,7 +16,7 @@ class AddOrganisationIdToCards extends Migration
         Schema::table('cards', function (Blueprint $table) {
 
             $table->integer('organisation_id')->unsigned()->after('id');
-            $table->foreign('organisation_id')->references('id')->on('cards');
+            $table->foreign('organisation_id')->references('id')->on('organisations');
 
             $table->index('updated_at');
 
@@ -32,6 +32,7 @@ class AddOrganisationIdToCards extends Migration
     {
         Schema::table('cards', function (Blueprint $table) {
 
+            $table->dropIndex('cards_updated_at_index');
             $table->dropForeign('cards_organisation_id_foreign');
             $table->dropColumn('organisation_id');
 
