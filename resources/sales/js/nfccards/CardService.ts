@@ -19,6 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import {TransactionStore} from "./store/TransactionStore";
+
 export class CardService {
 
     /**
@@ -26,11 +28,13 @@ export class CardService {
      */
     private password: string = '';
 
+    private transactionStore: TransactionStore;
+
     /**
      *
      */
-    constructor() {
-
+    constructor(axios: any) {
+        this.transactionStore = new TransactionStore(axios);
     }
 
     setPassword(password: string) {

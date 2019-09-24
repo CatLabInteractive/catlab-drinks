@@ -144,7 +144,10 @@
                         (event) => {
                             this.event = event;
 
-                            this.cardService = new CardService();
+                            this.cardService = new CardService(window.axios.create({
+                                baseURL: '/api/v1',
+                                json: true
+                            }));
 
                             this.cardService
                                 .setPassword(event.organisation.secret)

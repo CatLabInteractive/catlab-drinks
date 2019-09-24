@@ -42,9 +42,20 @@ class Organisation extends Model
         return $this->belongsToMany(User::class)->withTimestamps();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function events()
     {
         return $this->hasMany(Event::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function cards()
+    {
+        return $this->hasMany(Card::class);
     }
 
     /**

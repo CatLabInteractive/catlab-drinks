@@ -22,46 +22,63 @@
 
 namespace App\Policies;
 
-use App\Models\Event;
+use App\Models\Card;
 use App\Models\Organisation;
 use App\Models\User;
 
 /**
- * Class BasePolicy
+ * Class CardPolicy
  * @package App\Policies
  */
-class BasePolicy
+class CardPolicy extends BasePolicy
 {
     /**
      * @param User|null $user
+     * @param Organisation $organisation
      * @return bool
      */
-    public function isAdmin(User $user = null)
+    public function index(?User $user, Organisation $organisation)
     {
-        return in_array($user->id, config('admin.admin_user_ids'));
-    }
-
-    /**
-     * @param User|null $user
-     * @param Event $event
-     * @return bool
-     */
-    protected function isMyEvent(?User $user, Event $event)
-    {
-        if (!$user) {
-            return false;
-        }
-
-        return $this->isMyOrganisation($user, $event->organisation);
+        return $this->isMyOrganisation($user, $organisation);
     }
 
     /**
      * @param User|null $user
      * @param Organisation $organisation
-     * @return mixed
+     * @return bool
      */
-    protected function isMyOrganisation(?User $user, Organisation $organisation)
+    public function create(?User $user, Organisation $organisation)
     {
-        return $user->organisations->contains($organisation);
+        return $this->isMyOrganisation($user, $organisation);
+    }
+
+    /**
+     * @param User|null $user
+     * @param Card $card
+     * @return bool
+     */
+    public function view(?User $user, Card $card)
+    {
+        return $this->isMyOrganisation($user, $card->organisation);
+    }
+
+    /**
+     * @param User|null $user
+     * @param Card $card
+     * @return bool
+     */
+    public function edit(?User $user, Card $card)
+    {
+        return $this->isMyOrganisation($user, $card->organisation);
+    }
+
+    /**
+     * @param User|null $user
+     * @param Card $card
+     * @return bool
+     */
+    public function destroy(?User $user, Card $card)
+    {
+        return false;
     }
 }

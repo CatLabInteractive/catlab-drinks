@@ -19,18 +19,33 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-export class Transaction {
+import {Transaction} from "../models/Transaction";
 
-    /**
-     *
-     */
-    constructor(
-        private cardUid : string,
-        private date: Date,
-        private value: number,
-        private syncId: number
-    ) {
+export class OfflineStore {
 
+    private pendingTransactions: Transaction[] = [];
+
+    private lastKnownSyncIds: { [ key: string ]: number } = {};
+
+    public addPendingTransaction(transaction: Transaction) {
+        this.pendingTransactions.push(transaction);
     }
 
+    public getPendingTransactions() {
+        let out = this.pendingTransactions;
+        this.pendingTransactions = [];
+
+        return out;
+    }
+
+    public getLastKnownSyncId(card: string) {
+        if (typeof(this.lastKnownSyncIds[card]) === 'undefined') {
+            return 0;
+        }
+        return this.lastKnownSyncIds[card];
+    }
+
+    public setLastKnownSyncId(card: string, syncId: number) {
+        this.lastKnownSyncIds[card] = syncId;
+    }
 }

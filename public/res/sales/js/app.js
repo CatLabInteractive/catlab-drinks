@@ -2733,7 +2733,10 @@ function _asyncToGenerator(fn) {
         fields: '*,organisation.*,organisation.secret'
       }).then(function (event) {
         _this.event = event;
-        _this.cardService = new _nfccards_CardService__WEBPACK_IMPORTED_MODULE_3__["CardService"]();
+        _this.cardService = new _nfccards_CardService__WEBPACK_IMPORTED_MODULE_3__["CardService"](window.axios.create({
+          baseURL: '/api/v1',
+          json: true
+        }));
 
         _this.cardService.setPassword(event.organisation.secret);
       });
@@ -75624,6 +75627,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CardService", function() { return CardService; });
+/* harmony import */ var _store_TransactionStore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./store/TransactionStore */ "./resources/sales/js/nfccards/store/TransactionStore.ts");
 /*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
@@ -75644,21 +75648,181 @@ __webpack_require__.r(__webpack_exports__);
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 var CardService = /** @class */ (function () {
     /**
      *
      */
-    function CardService() {
+    function CardService(axios) {
         /**
          *
          */
         this.password = '';
+        this.transactionStore = new _store_TransactionStore__WEBPACK_IMPORTED_MODULE_0__["TransactionStore"](axios);
     }
     CardService.prototype.setPassword = function (password) {
         this.password = password;
         return this;
     };
     return CardService;
+}());
+
+
+
+/***/ }),
+
+/***/ "./resources/sales/js/nfccards/store/OfflineStore.ts":
+/*!***********************************************************!*\
+  !*** ./resources/sales/js/nfccards/store/OfflineStore.ts ***!
+  \***********************************************************/
+/*! exports provided: OfflineStore */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "OfflineStore", function() { return OfflineStore; });
+/*
+ * CatLab Drinks - Simple bar automation system
+ * Copyright (C) 2019 Thijs Van der Schaeghe
+ * CatLab Interactive bvba, Gent, Belgium
+ * http://www.catlab.eu/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+var OfflineStore = /** @class */ (function () {
+    function OfflineStore() {
+        this.pendingTransactions = [];
+        this.lastKnownSyncIds = {};
+    }
+    OfflineStore.prototype.addPendingTransaction = function (transaction) {
+        this.pendingTransactions.push(transaction);
+    };
+    OfflineStore.prototype.getPendingTransactions = function () {
+        var out = this.pendingTransactions;
+        this.pendingTransactions = [];
+        return out;
+    };
+    OfflineStore.prototype.getLastKnownSyncId = function (card) {
+        if (typeof (this.lastKnownSyncIds[card]) === 'undefined') {
+            return 0;
+        }
+        return this.lastKnownSyncIds[card];
+    };
+    OfflineStore.prototype.setLastKnownSyncId = function (card, syncId) {
+        this.lastKnownSyncIds[card] = syncId;
+    };
+    return OfflineStore;
+}());
+
+
+
+/***/ }),
+
+/***/ "./resources/sales/js/nfccards/store/TransactionStore.ts":
+/*!***************************************************************!*\
+  !*** ./resources/sales/js/nfccards/store/TransactionStore.ts ***!
+  \***************************************************************/
+/*! exports provided: TransactionStore */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TransactionStore", function() { return TransactionStore; });
+/* harmony import */ var _OfflineStore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./OfflineStore */ "./resources/sales/js/nfccards/store/OfflineStore.ts");
+/*
+ * CatLab Drinks - Simple bar automation system
+ * Copyright (C) 2019 Thijs Van der Schaeghe
+ * CatLab Interactive bvba, Gent, Belgium
+ * http://www.catlab.eu/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+var TransactionStore = /** @class */ (function () {
+    function TransactionStore(axios) {
+        var _this = this;
+        this.axios = axios;
+        this.transactionIdCursor = '';
+        this.offlineStore = new _OfflineStore__WEBPACK_IMPORTED_MODULE_0__["OfflineStore"]();
+        setInterval(function () {
+            _this.refresh();
+        }, 5000);
+    }
+    /**
+     * Do we have an active internet connection?
+     */
+    TransactionStore.prototype.isOnline = function () {
+        return true;
+    };
+    /**
+     * @param card
+     * @return int
+     */
+    TransactionStore.prototype.getLastKnownTransactionId = function (card) {
+        return 0;
+    };
+    /**
+     *
+     */
+    TransactionStore.prototype.getPendingOnlineTransactions = function () {
+        if (!this.isOnline()) {
+            return Promise.resolve([]);
+        }
+        return new Promise(function (resolve, reject) {
+        });
+    };
+    TransactionStore.prototype.getPendingOfflineTransactions = function () {
+    };
+    TransactionStore.prototype.refresh = function () {
+        this.uploadPendingTransactions();
+        this.refreshCardTransactionCounts();
+    };
+    TransactionStore.prototype.refreshCardTransactionCounts = function () {
+        var _this = this;
+        return this.axios({
+            method: 'get',
+            url: 'organisations/1/cards?records=1000&fields=uid,transactions,updated_at&sort=updated_at&after=' + this.transactionIdCursor
+        }).then(function (response) {
+            var data = response.data;
+            if (data.meta &&
+                data.meta.pagination &&
+                data.meta.pagination.cursors) {
+                _this.transactionIdCursor = data.meta.pagination.cursors.after;
+            }
+            // update transactions
+            data.items.forEach(function (card) {
+                _this.offlineStore.setLastKnownSyncId(card.uid, card.transactions);
+            });
+        });
+    };
+    TransactionStore.prototype.uploadPendingTransactions = function () {
+        var pendingTransactions = this.offlineStore.getPendingTransactions();
+    };
+    return TransactionStore;
 }());
 
 
