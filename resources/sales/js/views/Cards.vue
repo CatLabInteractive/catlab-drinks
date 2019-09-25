@@ -29,7 +29,6 @@
         <h1>Top up cards</h1>
         <div v-if="loaded">
 
-            <h2>{{ organisation.name}}</h2>
             <b-row>
                 <b-col>
 
@@ -39,8 +38,13 @@
 
                     <div v-if="card">
 
-                        <p>Card <strong>{{ card.uid}}</strong></p>
-                        <p>Current balance: {{ card.balance }}</p>
+                        <h2>Card #<strong>{{ card.uid}}</strong></h2>
+
+                        <div v-if="card.loaded">
+                            <p>Last transaction: {{ card.getLastTransaction().toISOString()}}</p>
+                            <p>Current balance: {{ card.getBalance() }}</p>
+                        </div>
+
 
                     </div>
 

@@ -4182,6 +4182,10 @@ function _asyncToGenerator(fn) {
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -77124,8 +77128,6 @@ var render = function() {
       ? _c(
           "div",
           [
-            _c("h2", [_vm._v(_vm._s(_vm.organisation.name))]),
-            _vm._v(" "),
             _c(
               "b-row",
               [
@@ -77136,14 +77138,32 @@ var render = function() {
                   _vm._v(" "),
                   _vm.card
                     ? _c("div", [
-                        _c("p", [
-                          _vm._v("Card "),
+                        _c("h2", [
+                          _vm._v("Card #"),
                           _c("strong", [_vm._v(_vm._s(_vm.card.uid))])
                         ]),
                         _vm._v(" "),
-                        _c("p", [
-                          _vm._v("Current balance: " + _vm._s(_vm.card.balance))
-                        ])
+                        _vm.card.loaded
+                          ? _c("div", [
+                              _c("p", [
+                                _vm._v(
+                                  "Last transaction: " +
+                                    _vm._s(
+                                      _vm.card
+                                        .getLastTransaction()
+                                        .toISOString()
+                                    )
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("p", [
+                                _vm._v(
+                                  "Current balance: " +
+                                    _vm._s(_vm.card.getBalance())
+                                )
+                              ])
+                            ])
+                          : _vm._e()
                       ])
                     : _vm._e()
                 ])
@@ -93646,15 +93666,17 @@ var Card = /** @class */ (function () {
     function Card(nfcReader, uid) {
         this.nfcReader = nfcReader;
         this.uid = uid;
-        this.balance = 15;
-        this.transactionCount = 5;
+        this.balance = 0;
+        this.transactionCount = 0;
+        this.loaded = false;
         this.previousTransactions = [
-            10,
-            -5,
-            -5,
-            20,
-            -10
+            0,
+            0,
+            0,
+            0,
+            0
         ];
+        this.lastTransaction = new Date();
     }
     Card.prototype.getUid = function () {
         return this.uid;
@@ -93665,11 +93687,13 @@ var Card = /** @class */ (function () {
      */
     Card.prototype.parseNdef = function (ndefMessages) {
         if (ndefMessages.length < 2) {
+            this.loaded = true;
             return;
         }
         // the second message should contain our external data
         var ourData = ndefMessages[1].payload;
         this.parsePayload(ourData);
+        this.loaded = true;
     };
     /**
      * Get the messages that need to be written.
@@ -93683,6 +93707,12 @@ var Card = /** @class */ (function () {
         out.push(ndef__WEBPACK_IMPORTED_MODULE_0__["record"](ndef__WEBPACK_IMPORTED_MODULE_0__["TNF_EXTERNAL_TYPE"], 'eu.catlab.drinks', null, this.toByteArray(signedData)));
         return out;
     };
+    Card.prototype.getLastTransaction = function () {
+        return this.lastTransaction;
+    };
+    Card.prototype.getBalance = function () {
+        return this.balance;
+    };
     /**
      * Return this cards data in compact string format.
      */
@@ -93690,6 +93720,9 @@ var Card = /** @class */ (function () {
         var out = '';
         out += this.toBytesInt32(this.balance);
         out += this.toBytesInt32(this.transactionCount);
+        var timestamp = Math.floor(this.lastTransaction.getTime() / 1000);
+        console.log('write', timestamp);
+        out += this.toBytesInt32(timestamp);
         for (var i = 0; i < this.previousTransactions.length; i++) {
             out += this.toBytesInt32(this.previousTransactions[i]);
         }
@@ -93699,14 +93732,20 @@ var Card = /** @class */ (function () {
     Card.prototype.unserialize = function (data) {
         this.balance = this.fromBytesInt32(data.substr(0, 4));
         this.transactionCount = this.fromBytesInt32(data.substr(4, 4));
+        var timestamp = this.fromBytesInt32(data.substr(8, 4));
+        console.log('read', timestamp);
+        this.lastTransaction = new Date();
+        this.lastTransaction.setTime(timestamp * 1000);
         this.previousTransactions = [];
         for (var i = 0; i < 5; i++) {
-            this.previousTransactions.push(this.fromBytesInt32(data.substr(8 + (i * 4), 4)));
+            this.previousTransactions.push(this.fromBytesInt32(data.substr(12 + (i * 4), 4)));
         }
+        this.previousTransactions = [0, 0, 0, 0, 0];
         console.log('unserialize', {
             balance: this.balance,
             transactionCount: this.transactionCount,
-            previousTransactions: this.previousTransactions
+            previousTransactions: this.previousTransactions,
+            lastTransactino: this.lastTransaction.toString()
         });
     };
     /**

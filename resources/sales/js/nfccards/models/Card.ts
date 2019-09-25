@@ -26,17 +26,21 @@ import {NfcReader} from "../nfc/NfcReader";
 
 export class Card {
 
-    public balance: number = 15;
+    private balance: number = 0;
 
-    private transactionCount: number = 5;
+    private transactionCount: number = 0;
+
+    public loaded = false;
 
     private previousTransactions = [
-        10,
-        -5,
-        -5,
-        20,
-        -10
+        0,
+        0,
+        0,
+        0,
+        0
     ];
+
+    private lastTransaction: Date = new Date();
 
     constructor(
         private nfcReader: NfcReader,
@@ -56,12 +60,14 @@ export class Card {
     public parseNdef(ndefMessages: any) {
 
         if (ndefMessages.length < 2) {
+            this.loaded = true;
             return;
         }
 
         // the second message should contain our external data
         const ourData = ndefMessages[1].payload;
         this.parsePayload(ourData);
+        this.loaded = true;
     }
 
     /**
@@ -80,6 +86,14 @@ export class Card {
         return out;
     }
 
+    public getLastTransaction() {
+        return this.lastTransaction;
+    }
+
+    public getBalance() {
+        return this.balance;
+    }
+
     /**
      * Return this cards data in compact string format.
      */
@@ -89,6 +103,11 @@ export class Card {
 
         out += this.toBytesInt32(this.balance);
         out += this.toBytesInt32(this.transactionCount);
+
+        const timestamp = Math.floor(this.lastTransaction.getTime() / 1000);
+        console.log('write', timestamp);
+        out += this.toBytesInt32(timestamp);
+
         for (let i = 0; i < this.previousTransactions.length; i ++) {
             out += this.toBytesInt32(this.previousTransactions[i]);
         }
@@ -102,15 +121,24 @@ export class Card {
         this.balance = this.fromBytesInt32(data.substr(0, 4));
         this.transactionCount = this.fromBytesInt32(data.substr(4, 4));
 
+        const timestamp = this.fromBytesInt32(data.substr(8, 4));
+        console.log('read', timestamp);
+
+        this.lastTransaction = new Date();
+        this.lastTransaction.setTime(timestamp * 1000);
+
         this.previousTransactions = [];
         for (let i = 0; i < 5; i ++) {
-            this.previousTransactions.push(this.fromBytesInt32(data.substr(8 + (i * 4), 4)));
+            this.previousTransactions.push(this.fromBytesInt32(data.substr(12 + (i * 4), 4)));
         }
+
+        this.previousTransactions = [ 0, 0, 0, 0, 0 ];
 
         console.log('unserialize', {
             balance: this.balance,
             transactionCount: this.transactionCount,
-            previousTransactions: this.previousTransactions
+            previousTransactions: this.previousTransactions,
+            lastTransactino: this.lastTransaction.toString()
         });
     }
 
