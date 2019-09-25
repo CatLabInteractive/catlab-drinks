@@ -80,7 +80,7 @@ export class AbstractService {
         )
     }
 
-    index (parameters) {
+    async index (parameters) {
         if (typeof(parameters) === 'undefined') {
             parameters = {};
         }
@@ -90,7 +90,7 @@ export class AbstractService {
         return this.execute('get', this.indexUrl + "?" + $.param(parameters))
     }
 
-    create (data, parameters) {
+    async create (data, parameters) {
 
         if (typeof(parameters) === 'undefined') {
             parameters = {};
@@ -99,7 +99,7 @@ export class AbstractService {
         return this.execute('post', '/' + this.indexUrl + "?" + $.param(parameters), data);
     }
 
-    get (id, parameters) {
+    async get (id, parameters) {
 
         if (typeof(parameters) === 'undefined') {
             parameters = {};
@@ -108,7 +108,7 @@ export class AbstractService {
         return this.execute('get', '/' + this.entityUrl + '/' + id + "?" + $.param(parameters));
     }
 
-    update (id, data, parameters) {
+    async update (id, data, parameters) {
 
         if (typeof(parameters) === 'undefined') {
             parameters = {};
@@ -117,7 +117,7 @@ export class AbstractService {
         return this.execute('put', '/' + this.entityUrl + '/' + id + "?" + $.param(parameters), data);
     }
 
-    delete (id, parameters) {
+    async delete (id, parameters) {
 
         if (typeof(parameters) === 'undefined') {
             parameters = {};

@@ -102,7 +102,6 @@
     import {OrderService} from "../services/OrderService";
     import {CardService} from "../nfccards/CardService";
     import {EventService} from "../services/EventService";
-    import {OrganisationService} from "../services/OrganisationService";
 
     export default {
 
@@ -150,9 +149,7 @@
                             }));
 
                             this.cardService
-                                .setPassword(event.organisation.secret)
-
-                            ;
+                                .setPassword(event.organisation.secret);
                         }
                     );
 

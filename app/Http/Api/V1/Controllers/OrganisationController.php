@@ -23,14 +23,11 @@
 namespace App\Http\Api\V1\Controllers;
 
 use App\Http\Api\V1\ResourceDefinitions\OrganisationResourceDefinition;
-use App\Models\User;
 use CatLab\Charon\Collections\RouteCollection;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 
 /**
- * Class EventController
+ * Class OrganisationController
  * @package App\Http\Api\V1\Controllers
  */
 class OrganisationController extends Base\ResourceController
@@ -39,7 +36,7 @@ class OrganisationController extends Base\ResourceController
     const RESOURCE_ID = 'organisation';
     const PARENT_RESOURCE_ID = 'user';
 
-    use \CatLab\Charon\Laravel\Controllers\ChildCrudController {
+    use \CatLab\Charon\Laravel\Controllers\CrudController {
         beforeSaveEntity as traitBeforeSaveEntity;
     }
 
@@ -49,48 +46,16 @@ class OrganisationController extends Base\ResourceController
      */
     public static function setRoutes(RouteCollection $routes)
     {
-        $childResource = $routes->childResource(
-            static::RESOURCE_DEFINITION,
-            'organisations/{' . self::PARENT_RESOURCE_ID . '}/events',
-            'events',
-            'EventController',
+        $resource = $routes->resource(
+            self::RESOURCE_DEFINITION,
+            'organisations',
+            'OrganisationController',
             [
                 'id' => self::RESOURCE_ID,
-                'parentId' => self::PARENT_RESOURCE_ID
             ]
         );
 
-        $childResource->tag('organisations');
-    }
-
-    /**
-     * @param Request $request
-     * @return Relation
-     */
-    public function getRelationship(Request $request): Relation
-    {
-        /** @var User $user */
-        $user = $this->getParent($request);
-        return $user->organisations();
-    }
-
-    /**
-     * @param Request $request
-     * @return Model
-     */
-    public function getParent(Request $request): Model
-    {
-        $user = \Auth::user();
-        return $user;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getRelationshipKey(): string
-    {
-        return self::PARENT_RESOURCE_ID;
+        $resource->tag('organisations');
     }
 
     /**

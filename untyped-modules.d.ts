@@ -19,21 +19,4 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {AbstractService} from './AbstractService';
-
-export class MenuService extends AbstractService {
-
-    /**
-     * @param eventId
-     */
-    constructor(eventId) {
-        super();
-
-        this.indexUrl = 'events/' + eventId + '/menu';
-        this.entityUrl = 'menuitems';
-    }
-
-    order(data) {
-        console.log(data);
-    }
-}
+declare module 'ndef';

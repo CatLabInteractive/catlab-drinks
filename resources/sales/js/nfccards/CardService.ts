@@ -20,26 +20,62 @@
  */
 
 import {TransactionStore} from "./store/TransactionStore";
+import {NfcReader} from "./nfc/NfcReader";
+import {Eventable} from "../utils/Eventable";
+import {Card} from "./models/Card";
 
-export class CardService {
+export class CardService extends Eventable {
 
     /**
      *
      */
     private password: string = '';
 
+    /**
+     *
+     */
     private transactionStore: TransactionStore;
 
     /**
      *
      */
+    private nfcReader: NfcReader;
+
+    /**
+     *
+     */
     constructor(axios: any) {
+        super();
+
         this.transactionStore = new TransactionStore(axios);
+
+        this.nfcReader = new NfcReader();
+        //this.nfcReader.connect('http://localhost:3000')
+        this.nfcReader.connect('http://192.168.1.194:3000')
+
+        // events
+        this.nfcReader.on('card:connect', (card: Card) => {
+            this.trigger('card:connect', card);
+        });
+
+        this.nfcReader.on('card:disconnect', () => {
+            this.trigger('card:disconnect');
+        })
     }
 
+    /**
+     * @param password
+     */
     setPassword(password: string) {
         this.password = password;
+        this.nfcReader.setPassword(password);
         return this;
+    }
+
+    getTransactions(card: any) {
+
+
+
     }
 
 }

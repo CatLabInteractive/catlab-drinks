@@ -19,21 +19,42 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {AbstractService} from './AbstractService';
+export abstract class Eventable {
 
-export class MenuService extends AbstractService {
+    private events: any = {};
+
+    private index = 0;
 
     /**
-     * @param eventId
+     * @param event
+     * @param callback
      */
-    constructor(eventId) {
-        super();
+    public on(event: string, callback: (...parameters: any) => void)
+    {
+        if (typeof(this.events[event]) === 'undefined') {
+            this.events[event] = [];
+        }
 
-        this.indexUrl = 'events/' + eventId + '/menu';
-        this.entityUrl = 'menuitems';
+        const index = this.index ++;
+
+        this.events[event].push(callback);
+        return index;
     }
 
-    order(data) {
-        console.log(data);
+    /**
+     * @param event
+     * @param parameters
+     */
+    public trigger(event: string, ...parameters: any)
+    {
+        if (typeof(this.events[event]) === 'undefined') {
+            return;
+        }
+
+        this.events[event].forEach(
+            (callback: () => void) => {
+                callback.apply(this, parameters);
+            }
+        );
     }
 }

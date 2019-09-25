@@ -38,6 +38,7 @@ import Events from './views/Events'
 import Headquarters from "./views/Headquarters";
 import Sales from "./views/Sales";
 import SalesSummary from "./views/SalesSummary";
+import Cards from "./views/Cards";
 
 Vue.component(
     'live-sales',
@@ -124,6 +125,12 @@ const router = new VueRouter({
             path: '/events/:id/summary',
             name: 'summary',
             component: SalesSummary,
+        },
+
+        {
+            path: '/cards',
+            name: 'cards',
+            component: Cards,
         },
     ],
 });
