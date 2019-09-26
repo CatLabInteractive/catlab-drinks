@@ -4199,6 +4199,20 @@ function _asyncToGenerator(fn) {
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -4324,27 +4338,27 @@ function _asyncToGenerator(fn) {
 
       return hideCard;
     }(),
-    format: function () {
-      var _format = _asyncToGenerator(
+    rebuild: function () {
+      var _rebuild = _asyncToGenerator(
       /*#__PURE__*/
       _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4() {
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
-                // reset the card to non corrupted state and write.
-                console.log('Formatting card');
-                this.card.balance = 0;
-                this.card.transactionCount = 0;
-                this.card.previousTransactions = [0, 0, 0, 0, 0];
-                this.card.lastTransaction = new Date();
-                _context4.next = 7;
-                return this.card.save();
+                if (!confirm('Danger! Rebuilding will only keep all transactions that are available online. Are you sure you want to do that?')) {
+                  _context4.next = 5;
+                  break;
+                }
 
-              case 7:
-                console.log('Done');
+                console.log('Rebuilding card');
+                _context4.next = 4;
+                return this.cardService.rebuild(this.card);
 
-              case 8:
+              case 4:
+                console.log('Done rebuilding card');
+
+              case 5:
               case "end":
                 return _context4.stop();
             }
@@ -4352,11 +4366,11 @@ function _asyncToGenerator(fn) {
         }, _callee4, this);
       }));
 
-      function format() {
-        return _format.apply(this, arguments);
+      function rebuild() {
+        return _rebuild.apply(this, arguments);
       }
 
-      return format;
+      return rebuild;
     }(),
     topup: function () {
       var _topup = _asyncToGenerator(
@@ -4368,9 +4382,8 @@ function _asyncToGenerator(fn) {
             switch (_context5.prev = _context5.next) {
               case 0:
                 amount = Math.floor(this.topupAmount * 100);
-                alert(amount);
 
-              case 2:
+              case 1:
               case "end":
                 return _context5.stop();
             }
@@ -77294,7 +77307,7 @@ var render = function() {
                                         }
                                       }
                                     },
-                                    [_vm._v("Format")]
+                                    [_vm._v("Rebuild")]
                                   )
                                 ]
                               )
@@ -77303,23 +77316,41 @@ var render = function() {
                         _vm._v(" "),
                         _vm.card.loaded
                           ? _c("div", [
-                              _c("p", [
-                                _vm._v(
-                                  "Last transaction: " +
-                                    _vm._s(
-                                      _vm.card
-                                        .getLastTransaction()
-                                        .toISOString()
+                              _c("table", { staticClass: "table" }, [
+                                _c("tr", [
+                                  _c("td", [_vm._v("Balance")]),
+                                  _vm._v(" "),
+                                  _c("td", [
+                                    _vm._v(_vm._s(_vm.card.getVisibleBalance()))
+                                  ])
+                                ]),
+                                _vm._v(" "),
+                                _c("tr", [
+                                  _c("td", [_vm._v("Last transaction")]),
+                                  _vm._v(" "),
+                                  _c("td", [
+                                    _vm._v(
+                                      _vm._s(
+                                        _vm.card
+                                          .getLastTransactionDate()
+                                          .toISOString()
+                                      )
                                     )
-                                )
+                                  ])
+                                ])
                               ]),
                               _vm._v(" "),
-                              _c("p", [
-                                _vm._v(
-                                  "Current balance: " +
-                                    _vm._s(_vm.card.getBalance())
-                                )
-                              ])
+                              _c(
+                                "button",
+                                {
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.rebuild()
+                                    }
+                                  }
+                                },
+                                [_vm._v("Rebuild")]
+                              )
                             ])
                           : _vm._e()
                       ])
@@ -93720,6 +93751,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_OfflineStore__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/OfflineStore */ "./resources/sales/js/nfccards/store/OfflineStore.ts");
 /* harmony import */ var _tools_Logger__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./tools/Logger */ "./resources/sales/js/nfccards/tools/Logger.ts");
 /* harmony import */ var _exceptions_NfcWriteException__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./exceptions/NfcWriteException */ "./resources/sales/js/nfccards/exceptions/NfcWriteException.ts");
+/* harmony import */ var _exceptions_OfflineException__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./exceptions/OfflineException */ "./resources/sales/js/nfccards/exceptions/OfflineException.ts");
 /*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
@@ -93794,6 +93826,7 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 
+
 /**
  *
  */
@@ -93822,15 +93855,44 @@ var CardService = /** @class */ (function (_super) {
             _this.trigger('card:disconnect', card);
         });
         _this.nfcReader.on('card:loaded', function (card) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: 
+                    // check if there are any transactions that still need to be processed
+                    return [4 /*yield*/, this.refreshCard(card)];
+                    case 1:
+                        // check if there are any transactions that still need to be processed
+                        _a.sent();
+                        this.trigger('card:loaded', card);
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        return _this;
+    }
+    /**
+     * If connected to the internet:
+     * - load any pending transactions that might still be online
+     * - upload the card data to the server so that any missing
+     *   transactions can be processed.
+     *
+     * If not connected to the internet:
+     * do nothing.
+     * @param card
+     * @param forceWrite
+     */
+    CardService.prototype.refreshCard = function (card, forceWrite) {
+        if (forceWrite === void 0) { forceWrite = false; }
+        return __awaiter(this, void 0, void 0, function () {
             var serverCard, pendingTransactions, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.transactionStore.getCard(card.getUid())];
                     case 1:
                         serverCard = _a.sent();
-                        if (!serverCard) return [3 /*break*/, 10];
+                        if (!serverCard) return [3 /*break*/, 13];
                         pendingTransactions = serverCard.pendingTransactions.items;
-                        if (!(pendingTransactions.length > 0)) return [3 /*break*/, 8];
+                        if (!(pendingTransactions.length > 0)) return [3 /*break*/, 9];
                         _a.label = 2;
                     case 2:
                         _a.trys.push([2, 5, , 8]);
@@ -93859,21 +93921,67 @@ var CardService = /** @class */ (function (_super) {
                         _a.sent();
                         _a.label = 7;
                     case 7: return [3 /*break*/, 8];
-                    case 8: 
-                    // upload current values
-                    return [4 /*yield*/, this.transactionStore.uploadCardData(serverCard.id, card)];
+                    case 8: return [3 /*break*/, 11];
                     case 9:
-                        // upload current values
-                        _a.sent();
-                        _a.label = 10;
+                        if (!forceWrite) return [3 /*break*/, 11];
+                        // no content but still want to save?
+                        return [4 /*yield*/, card.save()];
                     case 10:
-                        this.trigger('card:loaded', card);
+                        // no content but still want to save?
+                        _a.sent();
+                        _a.label = 11;
+                    case 11: 
+                    // upload current values so that server can update its list of transactions
+                    return [4 /*yield*/, this.transactionStore.uploadCardData(serverCard.id, card)];
+                    case 12:
+                        // upload current values so that server can update its list of transactions
+                        _a.sent();
+                        _a.label = 13;
+                    case 13: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * This method is potentially dangerous.
+     * This will rebuild the card data based on the transactions that are known
+     * to the server. Transactions that have not been uploaded will thus not be
+     * taken into account. Sales might get lost and the credit provided here
+     * might be too high.
+     * @param card
+     */
+    CardService.prototype.rebuild = function (card) {
+        return __awaiter(this, void 0, void 0, function () {
+            var serverCard;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!this.transactionStore.isOnline()) {
+                            throw new _exceptions_OfflineException__WEBPACK_IMPORTED_MODULE_6__["OfflineException"]('rebuild only works with an active internet connection');
+                        }
+                        return [4 /*yield*/, this.transactionStore.getCard(card.getUid())];
+                    case 1:
+                        serverCard = _a.sent();
+                        // reset the last known sync id.
+                        this.offlineStore.setLastKnownSyncId(card.getUid(), 0);
+                        // mark all online transactions as 'pending'
+                        return [4 /*yield*/, this.transactionStore.setAllTransactionsPending(serverCard.id)];
+                    case 2:
+                        // mark all online transactions as 'pending'
+                        _a.sent();
+                        // format the card
+                        card.balance = 0;
+                        card.transactionCount = 0;
+                        card.previousTransactions = [0, 0, 0, 0, 0];
+                        card.lastTransaction = new Date();
+                        return [4 /*yield*/, this.refreshCard(card, true)];
+                    case 3:
+                        _a.sent();
                         return [2 /*return*/];
                 }
             });
-        }); });
-        return _this;
-    }
+        });
+    };
     /**
      * @param password
      */
@@ -93882,7 +93990,15 @@ var CardService = /** @class */ (function (_super) {
         this.nfcReader.setPassword(password);
         return this;
     };
+    /**
+     * @param card
+     */
     CardService.prototype.getTransactions = function (card) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/];
+            });
+        });
     };
     return CardService;
 }(_utils_Eventable__WEBPACK_IMPORTED_MODULE_2__["Eventable"]));
@@ -94105,6 +94221,63 @@ var NfcWriteException = /** @class */ (function (_super) {
 
 /***/ }),
 
+/***/ "./resources/sales/js/nfccards/exceptions/OfflineException.ts":
+/*!********************************************************************!*\
+  !*** ./resources/sales/js/nfccards/exceptions/OfflineException.ts ***!
+  \********************************************************************/
+/*! exports provided: OfflineException */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "OfflineException", function() { return OfflineException; });
+/* harmony import */ var _BaseError__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./BaseError */ "./resources/sales/js/nfccards/exceptions/BaseError.ts");
+/*
+ * CatLab Drinks - Simple bar automation system
+ * Copyright (C) 2019 Thijs Van der Schaeghe
+ * CatLab Interactive bvba, Gent, Belgium
+ * http://www.catlab.eu/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+var OfflineException = /** @class */ (function (_super) {
+    __extends(OfflineException, _super);
+    function OfflineException() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return OfflineException;
+}(_BaseError__WEBPACK_IMPORTED_MODULE_0__["BaseError"]));
+
+
+
+/***/ }),
+
 /***/ "./resources/sales/js/nfccards/exceptions/SignatureMismatch.ts":
 /*!*********************************************************************!*\
   !*** ./resources/sales/js/nfccards/exceptions/SignatureMismatch.ts ***!
@@ -94241,7 +94414,14 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 
+/**
+ *
+ */
 var Card = /** @class */ (function () {
+    /**
+     * @param nfcReader
+     * @param uid
+     */
     function Card(nfcReader, uid) {
         this.nfcReader = nfcReader;
         this.uid = uid;
@@ -94258,6 +94438,9 @@ var Card = /** @class */ (function () {
         this.lastTransaction = new Date();
         this.corrupted = false;
     }
+    /**
+     *
+     */
     Card.prototype.getUid = function () {
         return this.uid;
     };
@@ -94286,9 +94469,15 @@ var Card = /** @class */ (function () {
         out.push(ndef__WEBPACK_IMPORTED_MODULE_0__["record"](ndef__WEBPACK_IMPORTED_MODULE_0__["TNF_EXTERNAL_TYPE"], 'eu.catlab.drinks', null, this.toByteArray(signedData)));
         return out;
     };
-    Card.prototype.getLastTransaction = function () {
+    /**
+     *
+     */
+    Card.prototype.getLastTransactionDate = function () {
         return this.lastTransaction;
     };
+    /**
+     *
+     */
     Card.prototype.getBalance = function () {
         return this.balance;
     };
@@ -94307,6 +94496,9 @@ var Card = /** @class */ (function () {
         console.log('serialized ' + out.length + ' bytes');
         return out;
     };
+    /**
+     * @param data
+     */
     Card.prototype.unserialize = function (data) {
         this.balance = this.fromBytesInt32(data.substr(0, 4));
         this.transactionCount = this.fromBytesInt32(data.substr(4, 4));
@@ -94317,7 +94509,6 @@ var Card = /** @class */ (function () {
         for (var i = 0; i < 5; i++) {
             this.previousTransactions.push(this.fromBytesInt32(data.substr(12 + (i * 4), 4)));
         }
-        this.previousTransactions = [0, 0, 0, 0, 0];
         console.log('unserialize', {
             balance: this.balance,
             transactionCount: this.transactionCount,
@@ -94356,23 +94547,11 @@ var Card = /** @class */ (function () {
     Card.prototype.setCorrupted = function () {
         this.corrupted = true;
     };
-    Card.prototype.isCorrupted = function () {
-        return this.corrupted;
-    };
     /**
      *
      */
-    Card.prototype.save = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.nfcReader.write(this)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
+    Card.prototype.isCorrupted = function () {
+        return this.corrupted;
     };
     /**
      * Apply a transaction and return the transaction id.
@@ -94391,11 +94570,14 @@ var Card = /** @class */ (function () {
     Card.prototype.getPreviousTransactions = function () {
         var out = [];
         var lastNewIndex = this.transactionCount % 5;
-        for (var i = 0; i < 5; i++) {
+        for (var i = 5; i > 0; i--) {
             out.push(this.previousTransactions[(lastNewIndex + i) % 5]);
         }
         return out;
     };
+    /**
+     * Return the data that will be sent to the server.
+     */
     Card.prototype.getServerData = function () {
         return {
             transactionCount: this.transactionCount,
@@ -94403,6 +94585,27 @@ var Card = /** @class */ (function () {
             previousTransactions: this.getPreviousTransactions()
         };
     };
+    /**
+     *
+     */
+    Card.prototype.save = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.nfcReader.write(this)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Card.prototype.getVisibleBalance = function () {
+        return (this.balance / 100).toFixed(2);
+    };
+    /**
+     * @param bytes
+     */
     Card.prototype.toByteString = function (bytes) {
         var out = '';
         for (var i = 0; i < bytes.length; i++) {
@@ -94410,6 +94613,9 @@ var Card = /** @class */ (function () {
         }
         return out;
     };
+    /**
+     * @param string
+     */
     Card.prototype.toByteArray = function (string) {
         var out = [];
         for (var i = 0; i < string.length; i++) {
@@ -94417,6 +94623,9 @@ var Card = /** @class */ (function () {
         }
         return out;
     };
+    /**
+     * @param num
+     */
     Card.prototype.toBytesInt32 = function (num) {
         var ascii = '';
         for (var i = 3; i >= 0; i--) {
@@ -94425,6 +94634,9 @@ var Card = /** @class */ (function () {
         return ascii;
     };
     ;
+    /**
+     * @param numString
+     */
     Card.prototype.fromBytesInt32 = function (numString) {
         var result = 0;
         for (var i = 3; i >= 0; i--) {
@@ -94593,7 +94805,7 @@ var NfcReader = /** @class */ (function (_super) {
          *
          */
         this.socket.on('nfc:data', function (data, resolve) { return __awaiter(_this, void 0, void 0, function () {
-            var uid, e_1;
+            var uid, lastSeenSyncId, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -94609,11 +94821,19 @@ var NfcReader = /** @class */ (function (_super) {
                         return [4 /*yield*/, this.setCardData(this.currentCard, data)];
                     case 2:
                         _a.sent();
+                        lastSeenSyncId = this.offlineStore.getLastKnownSyncId(this.currentCard.getUid());
+                        if (lastSeenSyncId > this.currentCard.transactionCount) {
+                            this.currentCard.setCorrupted();
+                            this.trigger('card:corrupted', this.currentCard);
+                            return [2 /*return*/];
+                        }
+                        this.offlineStore.setLastKnownSyncId(this.currentCard.getUid(), this.currentCard.transactionCount);
                         return [3 /*break*/, 4];
                     case 3:
                         e_1 = _a.sent();
                         if (e_1 instanceof _exceptions_CorruptedCard__WEBPACK_IMPORTED_MODULE_6__["CorruptedCard"]) {
                             this.currentCard.setCorrupted();
+                            this.trigger('card:corrupted', this.currentCard);
                         }
                         else {
                             throw e_1;
@@ -95011,6 +95231,18 @@ var TransactionStore = /** @class */ (function () {
         }
         return new Promise(function (resolve, reject) {
             _this.axios.get('organisations/' + _this.organisationId + '/card-from-uid/' + card + '?markClientDate=1')
+                .then(function (response) {
+                resolve(response.data);
+            });
+        });
+    };
+    /**
+     * @param serverCard
+     */
+    TransactionStore.prototype.setAllTransactionsPending = function (serverCard) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.axios.post('cards/' + serverCard + '/reset-transactions')
                 .then(function (response) {
                 resolve(response.data);
             });

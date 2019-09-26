@@ -53,13 +53,27 @@
                         <div v-if="card.corrupted">
                             <div class="alert alert-danger" role="alert">
                                 This card is corrupted.
-                                <button v-on:click="format()">Format</button>
+                                <button v-on:click="format()">Rebuild</button>
                             </div>
                         </div>
 
                         <div v-if="card.loaded">
-                            <p>Last transaction: {{ card.getLastTransaction().toISOString()}}</p>
-                            <p>Current balance: {{ card.getBalance() }}</p>
+
+                            <table class="table">
+
+                                <tr>
+                                    <td>Balance</td>
+                                    <td>{{ card.getVisibleBalance() }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td>Last transaction</td>
+                                    <td>{{ card.getLastTransactionDate().toISOString() }}</td>
+                                </tr>
+
+                            </table>
+
+                            <button v-on:click="rebuild()">Rebuild</button>
                         </div>
 
 
@@ -155,22 +169,19 @@
                 this.card = null;
             },
 
-            async format() {
-                // reset the card to non corrupted state and write.
-                console.log('Formatting card');
+            async rebuild() {
 
-                this.card.balance = 0;
-                this.card.transactionCount = 0;
-                this.card.previousTransactions = [ 0, 0, 0, 0, 0 ];
-                this.card.lastTransaction = new Date();
-
-                await this.card.save();
-                console.log('Done');
+                if (confirm('Danger! Rebuilding will only keep all transactions that are available online. Are you sure you want to do that?')) {
+                    console.log('Rebuilding card');
+                    await this.cardService.rebuild(this.card);
+                    console.log('Done rebuilding card');
+                }
             },
 
             async topup() {
                 const amount = Math.floor(this.topupAmount * 100);
-                alert(amount);
+
+
             }
 
         }

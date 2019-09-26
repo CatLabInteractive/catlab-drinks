@@ -26,6 +26,9 @@ import {NfcReader} from "../nfc/NfcReader";
 import {InvalidMessageException} from "../exceptions/InvalidMessageException";
 import {SignatureMismatch} from "../exceptions/SignatureMismatch";
 
+/**
+ *
+ */
 export class Card {
 
     public balance: number = 0;
@@ -34,7 +37,7 @@ export class Card {
 
     public loaded = false;
 
-    private previousTransactions = [
+    public previousTransactions = [
         0,
         0,
         0,
@@ -46,6 +49,10 @@ export class Card {
 
     private corrupted: boolean;
 
+    /**
+     * @param nfcReader
+     * @param uid
+     */
     constructor(
         private nfcReader: NfcReader,
         private uid: string
@@ -53,6 +60,9 @@ export class Card {
         this.corrupted = false;
     }
 
+    /**
+     *
+     */
     public getUid() {
         return this.uid;
     }
@@ -89,10 +99,16 @@ export class Card {
         return out;
     }
 
-    public getLastTransaction() {
+    /**
+     *
+     */
+    public getLastTransactionDate() {
         return this.lastTransaction;
     }
 
+    /**
+     *
+     */
     public getBalance() {
         return this.balance;
     }
@@ -118,6 +134,9 @@ export class Card {
         return out;
     }
 
+    /**
+     * @param data
+     */
     private unserialize(data: string) {
 
         this.balance = this.fromBytesInt32(data.substr(0, 4));
@@ -132,8 +151,6 @@ export class Card {
         for (let i = 0; i < 5; i ++) {
             this.previousTransactions.push(this.fromBytesInt32(data.substr(12 + (i * 4), 4)));
         }
-
-        this.previousTransactions = [ 0, 0, 0, 0, 0 ];
 
         console.log('unserialize', {
             balance: this.balance,
@@ -176,26 +193,20 @@ export class Card {
         }
 
         this.unserialize(payloadBytestring);
-
     }
 
     /**
      *
      */
-    public setCorrupted()
-    {
+    public setCorrupted() {
         this.corrupted = true;
     }
 
-    public isCorrupted() {
-        return this.corrupted;
-    }
-
     /**
      *
      */
-    public async save() {
-        await this.nfcReader.write(this);
+    public isCorrupted() {
+        return this.corrupted;
     }
 
     /**
@@ -219,13 +230,16 @@ export class Card {
         const out: number[] = [];
 
         let lastNewIndex = this.transactionCount % 5;
-        for (let i = 0; i < 5; i ++) {
+        for (let i = 5; i > 0; i --) {
             out.push(this.previousTransactions[(lastNewIndex + i) % 5]);
         }
 
         return out;
     }
 
+    /**
+     * Return the data that will be sent to the server.
+     */
     public getServerData(): any {
         return {
             transactionCount: this.transactionCount,
@@ -234,6 +248,20 @@ export class Card {
         };
     }
 
+    /**
+     *
+     */
+    public async save() {
+        await this.nfcReader.write(this);
+    }
+
+    public getVisibleBalance() {
+        return (this.balance / 100).toFixed(2);
+    }
+
+    /**
+     * @param bytes
+     */
     private toByteString(bytes: number[]) {
         let out = '';
 
@@ -244,6 +272,9 @@ export class Card {
         return out;
     }
 
+    /**
+     * @param string
+     */
     private toByteArray(string: string) {
         const out = [];
         for (let i = 0; i < string.length; i ++) {
@@ -252,6 +283,9 @@ export class Card {
         return out;
     }
 
+    /**
+     * @param num
+     */
     private toBytesInt32(num: number) {
         var ascii='';
         for (let i=3;i>=0;i--) {
@@ -260,6 +294,9 @@ export class Card {
         return ascii;
     };
 
+    /**
+     * @param numString
+     */
     private fromBytesInt32(numString: string) {
         var result=0;
         for (let i=3;i>=0;i--) {

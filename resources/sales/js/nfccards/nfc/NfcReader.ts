@@ -110,9 +110,20 @@ export class NfcReader extends Eventable {
 
             try {
                 await this.setCardData(this.currentCard, data);
+
+                // check if our last known transaction still matches
+                const lastSeenSyncId = this.offlineStore.getLastKnownSyncId(this.currentCard.getUid());
+                if (lastSeenSyncId > this.currentCard.transactionCount) {
+                    this.currentCard.setCorrupted();
+                    this.trigger('card:corrupted', this.currentCard);
+                    return;
+                }
+                this.offlineStore.setLastKnownSyncId(this.currentCard.getUid(), this.currentCard.transactionCount);
+
             } catch (e) {
                 if (e instanceof CorruptedCard) {
                     this.currentCard.setCorrupted();
+                    this.trigger('card:corrupted', this.currentCard);
                 } else {
                     throw e;
                 }

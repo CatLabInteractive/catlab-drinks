@@ -19,8 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-export class Transaction {
+import {BaseError} from "./BaseError";
 
-
+export class OfflineException extends BaseError {
 
 }

@@ -72,6 +72,24 @@ export class TransactionStore {
     }
 
     /**
+     * @param serverCard
+     */
+    public setAllTransactionsPending(serverCard: string): Promise<any> {
+        return new Promise(
+            (resolve, reject) => {
+
+                this.axios.post('cards/' + serverCard + '/reset-transactions')
+                    .then(
+                        (response: any) => {
+                            resolve(response.data);
+                        }
+                    )
+
+            }
+        );
+    }
+
+    /**
      * Mark transactions back to pending.
      * @param transactions
      */

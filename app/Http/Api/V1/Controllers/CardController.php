@@ -84,6 +84,14 @@ class CardController extends Base\ResourceController
             ->parameters()->resource(CardDataResourceDefinition::class)
             ->returns()->one(self::RESOURCE_DEFINITION);
 
+        $childResource->post(
+            'cards/{' . self::RESOURCE_ID . '}/reset-transactions',
+            'CardController@resetTransactions'
+        )
+            ->parameters()->path(self::RESOURCE_ID)->string()->required()
+            ->returns()->one(self::RESOURCE_DEFINITION)
+            ->summary('Set all transactions on this card to \'pending\'.');
+
         $childResource->tag('cards');
     }
 
@@ -148,6 +156,31 @@ class CardController extends Base\ResourceController
         $cardData = $this->toEntity($cardDataResource, $context);
 
         // do magic.
+        $card->transaction_count = $cardData->transactionCount;
+        $card->balance = $cardData->balance;
+
+        $card->save();
+
+        $readContext = $this->getContext(Action::VIEW);
+        return new ResourceResponse($this->toResource($card, $readContext));
+    }
+
+    /**
+     * @param Request $request
+     * @param $cardId
+     * @return ResourceResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function resetTransactions(Request $request, $cardId)
+    {
+        /** @var Card $card */
+        $card = Card::findOrFail($cardId);
+        $this->authorizeEdit($request, $card);
+
+        $card->transactions()->update([
+            'card_sync_id' => null,
+            'client_date' => null
+        ]);
 
         $readContext = $this->getContext(Action::VIEW);
         return new ResourceResponse($this->toResource($card, $readContext));

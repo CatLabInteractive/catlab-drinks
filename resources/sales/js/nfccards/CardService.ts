@@ -26,6 +26,7 @@ import {Card} from "./models/Card";
 import {OfflineStore} from "./store/OfflineStore";
 import {Logger} from "./tools/Logger";
 import {NfcWriteException} from "./exceptions/NfcWriteException";
+import {OfflineException} from "./exceptions/OfflineException";
 
 /**
  *
@@ -50,12 +51,17 @@ export class CardService extends Eventable {
     /**
      *
      */
-    private offlineStore: OfflineStore;
+    private readonly offlineStore: OfflineStore;
 
     /**
      *
      */
-    private logger: Logger;
+    private readonly logger: Logger;
+
+    /**
+     *
+     */
+    private currentCard: null;
 
     /**
      *
@@ -87,44 +93,95 @@ export class CardService extends Eventable {
 
             // check if there are any transactions that still need to be processed
 
-            const serverCard = await this.transactionStore.getCard(card.getUid());
-            if (serverCard) {
-
-                // check for pending transactions
-                const pendingTransactions = serverCard.pendingTransactions.items;
-                if (pendingTransactions.length > 0) {
-
-                    // apply each transaction to the card
-                    try {
-                        pendingTransactions.forEach(
-                            (transaction: any) => {
-                                transaction.card_transaction = card.applyTransaction(transaction.value);
-                                delete transaction.card_date;
-                            }
-                        );
-
-                        // save the card
-                        await card.save();
-
-                        await this.transactionStore.updateTransactions(pendingTransactions);
-
-                    } catch (e) {
-                        if (e instanceof NfcWriteException) {
-                            // write failed? Revert and mark these transactions back as pending.
-                            // mark all these transactions as pending
-                            await this.transactionStore.markTransactionsAsPending(pendingTransactions);
-
-                        }
-                    }
-
-                }
-
-                // upload current values
-                await this.transactionStore.uploadCardData(serverCard.id, card);
-            }
+            await this.refreshCard(card);
 
             this.trigger('card:loaded', card);
         });
+    }
+
+    /**
+     * If connected to the internet:
+     * - load any pending transactions that might still be online
+     * - upload the card data to the server so that any missing
+     *   transactions can be processed.
+     *
+     * If not connected to the internet:
+     * do nothing.
+     * @param card
+     * @param forceWrite
+     */
+    async refreshCard(card: Card, forceWrite = false)
+    {
+        const serverCard = await this.transactionStore.getCard(card.getUid());
+        if (serverCard) {
+
+            // check for pending transactions
+            const pendingTransactions = serverCard.pendingTransactions.items;
+            if (pendingTransactions.length > 0) {
+
+                // apply each transaction to the card
+                try {
+                    pendingTransactions.forEach(
+                        (transaction: any) => {
+                            transaction.card_transaction = card.applyTransaction(transaction.value);
+                            delete transaction.card_date;
+                        }
+                    );
+
+                    // save the card
+                    await card.save();
+
+                    await this.transactionStore.updateTransactions(pendingTransactions);
+
+                } catch (e) {
+                    if (e instanceof NfcWriteException) {
+                        // write failed? Revert and mark these transactions back as pending.
+                        // mark all these transactions as pending
+                        await this.transactionStore.markTransactionsAsPending(pendingTransactions);
+
+                    }
+                }
+
+            } else if(forceWrite) {
+                // no content but still want to save?
+                await card.save();
+            }
+
+            // upload current values so that server can update its list of transactions
+            await this.transactionStore.uploadCardData(serverCard.id, card);
+        }
+    }
+
+    /**
+     * This method is potentially dangerous.
+     * This will rebuild the card data based on the transactions that are known
+     * to the server. Transactions that have not been uploaded will thus not be
+     * taken into account. Sales might get lost and the credit provided here
+     * might be too high.
+     * @param card
+     */
+    async rebuild(card: Card){
+
+        if (!this.transactionStore.isOnline()) {
+            throw new OfflineException('rebuild only works with an active internet connection');
+        }
+
+        // load the server card
+        const serverCard = await this.transactionStore.getCard(card.getUid());
+
+        // reset the last known sync id.
+        this.offlineStore.setLastKnownSyncId(card.getUid(), 0);
+
+        // mark all online transactions as 'pending'
+        await this.transactionStore.setAllTransactionsPending(serverCard.id);
+
+        // format the card
+        card.balance = 0;
+        card.transactionCount = 0;
+        card.previousTransactions = [ 0, 0, 0, 0, 0 ];
+        card.lastTransaction = new Date();
+
+        await this.refreshCard(card, true);
     }
 
     /**
@@ -136,7 +193,10 @@ export class CardService extends Eventable {
         return this;
     }
 
-    getTransactions(card: any) {
+    /**
+     * @param card
+     */
+    async getTransactions(card: any) {
 
 
 
