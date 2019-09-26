@@ -24,15 +24,12 @@ import {OfflineStore} from "./OfflineStore";
 
 export class TransactionStore {
 
-    private offlineStore: OfflineStore;
-
     private transactionIdCursor: string = '';
 
     constructor(
-        private axios: any
+        private axios: any,
+        private offlineStore: OfflineStore
     ) {
-        this.offlineStore = new OfflineStore();
-
         setTimeout(
             () => {
                 setInterval(

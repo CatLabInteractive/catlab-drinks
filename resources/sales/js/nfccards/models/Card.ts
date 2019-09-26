@@ -23,12 +23,13 @@
 import * as ndef from 'ndef';
 import * as CryptoJS from 'crypto-js';
 import {NfcReader} from "../nfc/NfcReader";
+import {InvalidMessageException} from "../exceptions/InvalidMessageException";
 
 export class Card {
 
     private balance: number = 0;
 
-    private transactionCount: number = 0;
+    public transactionCount: number = 0;
 
     public loaded = false;
 
@@ -42,11 +43,13 @@ export class Card {
 
     private lastTransaction: Date = new Date();
 
+    private corrupted: boolean;
+
     constructor(
         private nfcReader: NfcReader,
         private uid: string
     ) {
-
+        this.corrupted = false;
     }
 
     public getUid() {
@@ -59,9 +62,8 @@ export class Card {
      */
     public parseNdef(ndefMessages: any) {
 
-        if (ndefMessages.length < 2) {
-            this.loaded = true;
-            return;
+        if (ndefMessages.length !== 2) {
+            throw new InvalidMessageException('NDEF messages length is ' + ndefMessages.length);
         }
 
         // the second message should contain our external data
@@ -105,7 +107,6 @@ export class Card {
         out += this.toBytesInt32(this.transactionCount);
 
         const timestamp = Math.floor(this.lastTransaction.getTime() / 1000);
-        console.log('write', timestamp);
         out += this.toBytesInt32(timestamp);
 
         for (let i = 0; i < this.previousTransactions.length; i ++) {
@@ -122,7 +123,6 @@ export class Card {
         this.transactionCount = this.fromBytesInt32(data.substr(4, 4));
 
         const timestamp = this.fromBytesInt32(data.substr(8, 4));
-        console.log('read', timestamp);
 
         this.lastTransaction = new Date();
         this.lastTransaction.setTime(timestamp * 1000);
@@ -138,7 +138,7 @@ export class Card {
             balance: this.balance,
             transactionCount: this.transactionCount,
             previousTransactions: this.previousTransactions,
-            lastTransactino: this.lastTransaction.toString()
+            lastTransaction: this.lastTransaction.toString()
         });
     }
 
@@ -161,7 +161,7 @@ export class Card {
     /**
      * @param byteArray
      */
-    private parsePayload(byteArray: number[]) {
+    public parsePayload(byteArray: number[]) {
 
         const payload = byteArray.splice(0, byteArray.length - 32);
 
@@ -172,11 +172,23 @@ export class Card {
 
         if (signature !== receivedSignature) {
             console.log('Signature mismatch');
-            return;
+            throw new InvalidMessageException('Signature mismatch');
         }
 
         this.unserialize(payloadBytestring);
 
+    }
+
+    /**
+     *
+     */
+    public setCorrupted()
+    {
+        this.corrupted = true;
+    }
+
+    public isCorrupted() {
+        return this.corrupted;
     }
 
     private toByteString(bytes: number[]) {

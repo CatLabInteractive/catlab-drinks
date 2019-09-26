@@ -23,7 +23,12 @@ import {TransactionStore} from "./store/TransactionStore";
 import {NfcReader} from "./nfc/NfcReader";
 import {Eventable} from "../utils/Eventable";
 import {Card} from "./models/Card";
+import {OfflineStore} from "./store/OfflineStore";
+import {Logger} from "./tools/Logger";
 
+/**
+ *
+ */
 export class CardService extends Eventable {
 
     /**
@@ -44,14 +49,28 @@ export class CardService extends Eventable {
     /**
      *
      */
-    constructor(axios: any) {
+    private offlineStore: OfflineStore;
+
+    /**
+     *
+     */
+    private logger: Logger;
+
+    /**
+     *
+     */
+    constructor(
+        axios: any
+    ) {
         super();
 
-        this.transactionStore = new TransactionStore(axios);
+        this.offlineStore = new OfflineStore();
+        this.transactionStore = new TransactionStore(axios, this.offlineStore);
+        this.logger = new Logger();
 
-        this.nfcReader = new NfcReader();
+        this.nfcReader = new NfcReader(this.offlineStore, this.logger);
         //this.nfcReader.connect('http://localhost:3000')
-        this.nfcReader.connect('http://192.168.1.194:3000')
+        this.nfcReader.connect('http://192.168.1.194:3000');
 
         // events
         this.nfcReader.on('card:connect', (card: Card) => {

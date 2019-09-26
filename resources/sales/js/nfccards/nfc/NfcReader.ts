@@ -26,6 +26,10 @@ import * as CryptoJS from 'crypto-js';
 import * as ndef from 'ndef';
 import {Eventable} from "../../utils/Eventable";
 import {Card} from "../models/Card";
+import {OfflineStore} from "../store/OfflineStore";
+import {InvalidMessageException} from "../exceptions/InvalidMessageException";
+import {CorruptedCard} from "../exceptions/CorruptedCard";
+import {Logger} from "../tools/Logger";
 
 /**
  *
@@ -37,6 +41,13 @@ export class NfcReader extends Eventable {
     private password: string = '';
 
     private currentCard: Card | null = null;
+
+    constructor(
+        private offlineStore: OfflineStore,
+        private logger: Logger
+    ) {
+        super();
+    }
 
     bin2string(array: any) {
         var result = "";
@@ -50,12 +61,16 @@ export class NfcReader extends Eventable {
     connect(url: string) {
         this.socket = io(url);
 
+        /**
+         *
+         */
         this.socket.on('connect', () => {
-
             this.handshake();
-
         });
 
+        /**
+         *
+         */
         this.socket.on('nfc:card:connect', (data: any, resolve: any) => {
             const password = this.calculateCardPassword(data.uid);
             this.socket.emit('nfc:password', {
@@ -66,52 +81,43 @@ export class NfcReader extends Eventable {
             const card = new Card(this, data.uid);
             this.currentCard = card;
             this.trigger('card:connect', card);
+
+            this.logger.log(card.getUid(), 'connected');
         });
 
+        /**
+         *
+         */
         this.socket.on('nfc:card:disconnect', (data: any, resolve: any) => {
             this.currentCard = null;
             this.trigger('card:disconnect');
+
+            this.logger.log(data.uid, 'disconnected');
         });
 
-        this.socket.on('nfc:data', (data: any, resolve: any) => {
-
+        /**
+         *
+         */
+        this.socket.on('nfc:data', async (data: any, resolve: any) => {
             const uid = data.uid;
             if (this.currentCard === null || this.currentCard.getUid() !== uid) {
-                console.log('Current card doesnt have the same uid as the data card');
+                this.logger.log(uid, 'Current card doesnt have the same uid as the data card');
                 return;
             }
 
-            if (typeof(data.ndef) !== 'undefined') {
-                const decodedData = atob(data.ndef);
+            this.logger.log(uid, 'data received', data);
 
-                let len = decodedData.length;
-                let bytes = [];
-                for (let i = 0; i < len; i++) {
-                    bytes[i] = decodedData.charCodeAt(i);
+            try {
+                await this.setCardData(this.currentCard, data);
+            } catch (e) {
+                if (e instanceof CorruptedCard) {
+                    this.currentCard.setCorrupted();
+                } else {
+                    throw e;
                 }
-
-                const ndefDecoded = ndef.decodeMessage(bytes);
-                this.currentCard.parseNdef(ndefDecoded);
-                //console.log('ndef data received: ', ndefDecoded[0].value);
             }
 
-            // random change
-            //this.currentCard.balance += ((Math.random() / 0.5) - 1) * 1000
-
-            let message = this.currentCard.getNdefMessages();
-
-            let byteArray = ndef.encodeMessage(message);
-            const base64 = btoa(this.bin2string(byteArray));
-
-            // write some other data
-            this.socket.emit('nfc:write', {
-                uid: data.uid,
-                ndef: base64
-            }, (response: any) => {
-                console.log(response);
-            });
-
-
+            this.trigger('card:loaded', this.currentCard);
         });
 
         this.socket.on('disconnect', () => {
@@ -119,23 +125,157 @@ export class NfcReader extends Eventable {
         });
     }
 
+    /**
+     * @param card
+     * @param data
+     */
+    private async setCardData(card: Card, data: any) {
+
+        if (typeof(data.ndef) !== 'undefined') {
+
+            const bytes = this.base64ToByteArray(data.ndef);
+            const ndefDecoded = ndef.decodeMessage(bytes);
+
+            // if the ndef messsage could not be decoded, try to recover from internal state
+            try {
+                card.parseNdef(ndefDecoded);
+            } catch (e) {
+                if (e instanceof InvalidMessageException) {
+                    await this.recoverInvalidContent(card);
+                } else {
+                    throw e;
+                }
+            }
+        } else if (data.data) {
+
+            // is this a brand new card?
+            const bytes = this.base64ToByteArray(data.data);
+
+            if (bytes[0] === 0x00 && bytes[1] === 0x00 && bytes[2] === 0x00) {
+                // this is a brand new card.
+                this.logger.log(card.getUid(), 'New card detected, writing empty data.');
+                await this.write(card);
+                return;
+            }
+
+            // not a new card, try to recover the data from local data.
+            await this.recoverInvalidContent(card);
+        } else {
+            await this.recoverInvalidContent(card);
+        }
+    }
+
+    /**
+     * @param message
+     */
+    private base64ToByteArray(message: string) {
+        const decodedData = atob(message);
+
+        let len = decodedData.length;
+        let bytes = [];
+        for (let i = 0; i < len; i++) {
+            bytes[i] = decodedData.charCodeAt(i);
+        }
+        return bytes;
+    }
+
+    /**
+     * @param card
+     * @param throwException
+     */
+    public async recoverInvalidContent(card: Card, throwException = true) {
+
+        this.logger.log(card.getUid(), 'recoving failed write');
+
+        // look for existing message
+        const data = this.offlineStore.getCardState(card.getUid());
+
+        if (data) {
+            try {
+                const ndefDecoded = ndef.decodeMessage(this.base64ToByteArray(data));
+                card.parseNdef(ndefDecoded);
+
+                this.logger.log(card.getUid(), 'succesfully recovered data');
+            } catch (e) {
+                if (e instanceof InvalidMessageException) {
+                    throw new CorruptedCard("The data in memory is corrupted as well. This should never happen.");
+                } else {
+                    throw e;
+                }
+            }
+        } else if (throwException) {
+            this.logger.log(card.getUid(), "The data on the card is damaged and we could not recover it from memory.");
+            throw new CorruptedCard("The data on the card is damaged and we could not recover it from memory.");
+        }
+    }
+
+    /**
+     * @param card
+     */
+    public async write(card: Card) {
+
+        if (this.currentCard === null || this.currentCard.getUid() !== card.getUid()) {
+            this.logger.log(card.getUid(), 'Current card doesnt have the same uid as the data card');
+            return;
+        }
+
+        let message = card.getNdefMessages();
+
+        let byteArray = ndef.encodeMessage(message);
+        let base64 = btoa(this.bin2string(byteArray));
+
+        // Store the message locally in case there is a write error
+        this.offlineStore.setCardState(card.getUid(), base64);
+
+        // write some other data
+        await new Promise(
+            (resolve, reject) => {
+                this.socket.emit('nfc:write', {
+                    uid: card.getUid(),
+                    ndef: base64
+                }, (response: any) => {
+                    console.log(response);
+                });
+            }
+        );
+
+
+
+    }
+
+    /**
+     * @param password
+     */
     public setPassword(password: string) {
         this.password = password;
         return this;
     }
 
+    /**
+     * @param card
+     * @param content
+     */
     public hmac(card: Card, content: string) {
         return CryptoJS.HmacSHA256(content + card.getUid(), this.password);
     }
 
+    /**
+     *
+     */
     private handshake() {
 
     }
 
+    /**
+     *
+     */
     private reconnect() {
 
     }
 
+    /**
+     * @param uid
+     */
     private calculateCardPassword(uid: string) {
         const password = CryptoJS.SHA256(uid + this.password);
         return password.toString(CryptoJS.enc.Hex).substr(0, 8);

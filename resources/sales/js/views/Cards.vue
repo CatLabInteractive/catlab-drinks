@@ -77,10 +77,7 @@
 
             this.organisation = await this.organisationService.get(window.ORGANISATION_ID, { fields: 'id,name,secret' });
 
-            this.cardService = new CardService(window.axios.create({
-                baseURL: '/api/v1',
-                json: true
-            }));
+            this.cardService = this.$cardService;
 
             this.cardService.setPassword(this.organisation.secret);
 
@@ -117,7 +114,7 @@
                 this.transactions = await this.cardService.getTransactions(card);
                 this.card = card;
 
-                console.log(this.transactions);
+                //console.log(this.transactions);
             },
 
             async hideCard() {

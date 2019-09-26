@@ -39,6 +39,13 @@ import Headquarters from "./views/Headquarters";
 import Sales from "./views/Sales";
 import SalesSummary from "./views/SalesSummary";
 import Cards from "./views/Cards";
+import {CardService} from "./nfccards/CardService";
+
+// Bootstrap card service
+Vue.prototype.$cardService = new CardService(window.axios.create({
+    baseURL: '/api/v1',
+    json: true
+}));
 
 Vue.component(
     'live-sales',

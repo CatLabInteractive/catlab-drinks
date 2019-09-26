@@ -27,6 +27,8 @@ export class OfflineStore {
 
     private lastKnownSyncIds: { [ key: string ]: number } = {};
 
+    private cardStates: { [ key: string ] : { date: Date, body: string }} = {};
+
     public addPendingTransaction(transaction: Transaction) {
         this.pendingTransactions.push(transaction);
     }
@@ -47,5 +49,26 @@ export class OfflineStore {
 
     public setLastKnownSyncId(card: string, syncId: number) {
         this.lastKnownSyncIds[card] = syncId;
+    }
+
+    public setCardState(uid: string, byteArray: string) {
+        this.cardStates[uid] = {
+            date: new Date(),
+            body: byteArray
+        };
+    }
+
+    /**
+     * Look for a serialized card state that is still valid.
+     * @param uid
+     * @return number[]
+     */
+    public getCardState(uid: string) {
+        if (typeof(this.cardStates[uid]) !== 'undefined') {
+            if (this.cardStates[uid].date.getTime() > ((new Date()).getTime() - 60 * 15 * 1000)) {
+                return this.cardStates[uid].body;
+            }
+        }
+        return null;
     }
 }
