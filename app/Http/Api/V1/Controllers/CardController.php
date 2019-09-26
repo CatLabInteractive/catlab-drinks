@@ -22,10 +22,16 @@
 
 namespace App\Http\Api\V1\Controllers;
 
+use App\Http\Api\V1\ResourceDefinitions\CardDataResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\CardResourceDefinition;
+use App\Models\Card;
+use App\Models\CardData;
 use App\Models\Event;
 use App\Models\Organisation;
+use App\Models\Transaction;
 use CatLab\Charon\Collections\RouteCollection;
+use CatLab\Charon\Enums\Action;
+use CatLab\Charon\Laravel\Models\ResourceResponse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -61,7 +67,90 @@ class CardController extends Base\ResourceController
             ]
         );
 
+        $childResource->get(
+            'organisations/{' . self::PARENT_RESOURCE_ID . '}/card-from-uid/{uid}',
+            'CardController@viewFromUid'
+        )
+            ->parameters()->path(self::PARENT_RESOURCE_ID)->string()->required()
+            ->parameters()->path('uid')->string()->required()
+            ->parameters()->query('markClientDate')->bool()->describe('If set, remove all pending transactions after retrieving them.')
+            ->returns()->one(self::RESOURCE_DEFINITION);
+
+        $childResource->post(
+            'cards/{' . self::RESOURCE_ID . '}/card-data',
+            'CardController@updateCardData'
+        )
+            ->parameters()->path(self::RESOURCE_ID)->string()->required()
+            ->parameters()->resource(CardDataResourceDefinition::class)
+            ->returns()->one(self::RESOURCE_DEFINITION);
+
         $childResource->tag('cards');
+    }
+
+    /**
+     * @param Request $request
+     * @param $organisationId
+     * @param $cardUid
+     * @return ResourceResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function viewFromUid(Request $request, $organisationId, $cardUid)
+    {
+        $organisation = $this->getParent($request);
+
+        // Look fo card
+        $card = $organisation->cards()->where('uid', '=', $cardUid)->first();
+        if (!$card) {
+            $card = new Card();
+            $card->uid = $cardUid;
+            $card->transaction_count = 0;
+            $card->balance = 0;
+            $card->organisation()->associate($organisation);
+
+            $this->authorizeCreate($request);
+            $card->save();
+        }
+
+        $this->authorizeView($request, $card);
+
+        $context = $this->getContext(Action::VIEW);
+        $resource = $this->toResource($card, $context);
+
+        // if $markClientDate, this will effectively remove all pending transactions.
+        $markClientDate = $request->query('markClientDate');
+        if ($markClientDate) {
+            foreach ($card->getPendingTransactions() as $transaction) {
+                /** @var Transaction $transaction */
+                $transaction->client_date = new \DateTime();
+                $transaction->save();
+            }
+        }
+
+        return new ResourceResponse($resource);
+    }
+
+    /**
+     * @param Request $request
+     * @param $cardId
+     * @return ResourceResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function updateCardData(Request $request, $cardId)
+    {
+        /** @var Card $card */
+        $card = Card::findOrFail($cardId);
+        $this->authorizeEdit($request, $card);
+
+        $context = $this->getContext(Action::CREATE);
+
+        /** @var CardData $cardData */
+        $cardDataResource = $this->bodyToResource($context, CardDataResourceDefinition::class);
+        $cardData = $this->toEntity($cardDataResource, $context);
+
+        // do magic.
+
+        $readContext = $this->getContext(Action::VIEW);
+        return new ResourceResponse($this->toResource($card, $readContext));
     }
 
     /**

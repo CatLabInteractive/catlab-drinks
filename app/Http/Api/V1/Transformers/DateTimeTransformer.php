@@ -1,4 +1,5 @@
-/*
+<?php
+/**
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
  * CatLab Interactive bvba, Gent, Belgium
@@ -19,6 +20,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-export class Transaction {
+namespace App\Http\Api\V1\Transformers;
 
+/**
+ * Class DateTransformer
+ * @package App\Http\Api\V1\Transformers
+ */
+class DateTimeTransformer extends \CatLab\Charon\Transformers\DateTransformer
+{
+    protected $format = 'Y-m-dTH:i:s';
 }

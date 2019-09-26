@@ -19,6 +19,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-export class Transaction {
+import {InvalidMessageException} from "./InvalidMessageException";
+
+/**
+ *
+ */
+export class SignatureMismatch extends InvalidMessageException {
 
 }

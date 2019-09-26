@@ -19,8 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Transaction} from "../models/Transaction";
 import {OfflineStore} from "./OfflineStore";
+import {Card} from "../models/Card";
 
 export class TransactionStore {
 
@@ -28,6 +28,7 @@ export class TransactionStore {
 
     constructor(
         private axios: any,
+        private organisationId: string,
         private offlineStore: OfflineStore
     ) {
         setTimeout(
@@ -51,24 +52,90 @@ export class TransactionStore {
         return true;
     }
 
-    /**
-     * @param card
-     * @return int
-     */
-    public getLastKnownTransactionId(card: string) {
-        return 0;
-    }
-
-    /**
-     *
-     */
-    public getPendingOnlineTransactions() {
+    public getCard(card: string): Promise<any> {
         if (!this.isOnline()) {
-            return Promise.resolve([]);
+            return Promise.resolve(null);
         }
 
         return new Promise(
             (resolve, reject) => {
+
+                this.axios.get('organisations/' + this.organisationId + '/card-from-uid/' + card + '?markClientDate=1')
+                    .then(
+                        (response: any) => {
+                            resolve(response.data);
+                        }
+                    )
+
+            }
+        );
+    }
+
+    /**
+     * Mark transactions back to pending.
+     * @param transactions
+     */
+    public async markTransactionsAsPending(transactions: any[])
+    {
+        transactions.forEach(
+            (transaction: any) => {
+                transaction.card_date = null;
+            }
+        );
+
+        return this.updateTransactions(transactions);
+    }
+
+    /**
+     * @param transactions
+     */
+    public async updateTransactions(transactions: any[]) {
+        const promises: any[] = [];
+        transactions.forEach(
+            (transaction: any) => {
+                promises.push(this.updateTransaction(transaction));
+            }
+        );
+
+        await Promise.all(promises);
+    }
+
+    public async updateTransaction(transaction: any) {
+
+        await new Promise(
+            (resolve, reject) => {
+
+                this.axios({
+                    method: 'put',
+                    url: 'transactions/' + transaction.id,
+                    data: transaction
+                })
+                    .then(
+                        (response: any) => {
+                            resolve();
+                        }
+                    )
+
+            }
+        );
+
+    }
+
+    public async uploadCardData(cardId: string, card: Card)
+    {
+        await new Promise(
+            (resolve, reject) => {
+
+                this.axios({
+                    method: 'post',
+                    url: 'cards/' + cardId + '/card-data',
+                    data: card.getServerData()
+                })
+                    .then(
+                        (response: any) => {
+                            resolve();
+                        }
+                    )
 
             }
         );
@@ -88,7 +155,7 @@ export class TransactionStore {
     private refreshCardTransactionCounts() {
         return this.axios({
             method: 'get',
-            url: 'organisations/1/cards?records=1000&fields=uid,transactions,updated_at&sort=updated_at&after=' + this.transactionIdCursor
+            url: 'organisations/' + this.organisationId + '/cards?records=1000&fields=uid,transactions,updated_at&sort=updated_at&after=' + this.transactionIdCursor
         }).then(
             (response: any) => {
 

@@ -30,11 +30,29 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Card extends Model
 {
+    public static function boot()
+    {
+        parent::boot();
+
+        self::creating(function(Card $card){
+            $card->order_token = str_random(16);
+        });
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function organisation()
     {
         return $this->belongsTo(Organisation::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function getPendingTransactions() {
+        return $this->transactions()->whereNull('client_date')->get();
     }
 }

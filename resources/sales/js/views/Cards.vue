@@ -26,11 +26,21 @@
             <b-spinner label="Loading data" />
         </div>
 
-        <h1>Top up cards</h1>
+        <h1>Card management</h1>
         <div v-if="loaded">
 
             <b-row>
-                <b-col>
+                <b-col md="8">
+
+                    <h2>Topup</h2>
+                    <label for="customAmount">Custom amount</label><br />
+                    <input type="number" min="0" step="0.01" placeholder="10.00" id="customAmount" v-model="topupAmount" />
+
+                    <button class="btn btn-primary" v-on:click="topup()">Topup</button>
+
+                </b-col>
+
+                <b-col md="4">
 
                     <div v-if="card === null">
                         <p>Scan to start</p>
@@ -39,6 +49,13 @@
                     <div v-if="card">
 
                         <h2>Card #<strong>{{ card.uid}}</strong></h2>
+
+                        <div v-if="card.corrupted">
+                            <div class="alert alert-danger" role="alert">
+                                This card is corrupted.
+                                <button v-on:click="format()">Format</button>
+                            </div>
+                        </div>
 
                         <div v-if="card.loaded">
                             <p>Last transaction: {{ card.getLastTransaction().toISOString()}}</p>
@@ -87,6 +104,22 @@
                 this.showCard(card);
             });
 
+            this.cardService.on('card:loaded', (card) => {
+
+                /*
+                // increase balance
+                console.log('card loaded');
+
+                card.balance += 100;
+                console.log('adding 100 balance: new balance = ' + card.balance);
+
+                card.lastTransaction = new Date();
+
+                card.save(card);
+                 */
+
+            });
+
             this.cardService.on('card:disconnect', (card) => {
                 this.hideCard(card);
             });
@@ -97,7 +130,8 @@
                 organisation: null,
                 loaded: false,
                 card: null,
-                tarnsactions: []
+                tarnsactions: [],
+                topupAmount: 10
             }
         },
 
@@ -119,6 +153,24 @@
 
             async hideCard() {
                 this.card = null;
+            },
+
+            async format() {
+                // reset the card to non corrupted state and write.
+                console.log('Formatting card');
+
+                this.card.balance = 0;
+                this.card.transactionCount = 0;
+                this.card.previousTransactions = [ 0, 0, 0, 0, 0 ];
+                this.card.lastTransaction = new Date();
+
+                await this.card.save();
+                console.log('Done');
+            },
+
+            async topup() {
+                const amount = Math.floor(this.topupAmount * 100);
+                alert(amount);
             }
 
         }

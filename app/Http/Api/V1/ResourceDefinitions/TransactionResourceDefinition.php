@@ -22,52 +22,50 @@
 
 namespace App\Http\Api\V1\ResourceDefinitions;
 
-use App\Models\Card;
-use App\Models\Event;
+use App\Http\Api\V1\Transformers\DateTimeTransformer;
+use App\Http\Api\V1\Transformers\DateTransformer;
+use App\Models\Transaction;
 use CatLab\Charon\Models\ResourceDefinition;
-use CatLab\Charon\Transformers\ScalarTransformer;
-use CatLab\Requirements\Enums\PropertyType;
 
 /**
- * Class CardResourceDefinition
+ * Class TransactionResourceDefinition
  * @package App\Http\Api\V1\ResourceDefinitions
  */
-class CardResourceDefinition extends ResourceDefinition
+class TransactionResourceDefinition extends ResourceDefinition
 {
-    /**
-     * EventResourceDefinition constructor.
-     * @throws \CatLab\Charon\Exceptions\InvalidScalarException
-     */
     public function __construct()
     {
-        parent::__construct(Card::class);
+        parent::__construct(Transaction::class);
 
-        $this
-            ->identifier('id')
-            ->int();
+        $this->identifier('id');
 
-        $this->field('uid')
-            ->visible(true, true)
+        $this->field('type')
             ->string()
-            ->writeable(true, false);
+            ->enum([ Transaction::TYPE_SALE, Transaction::TYPE_TOPUP, Transaction::TYPE_REFUND, Transaction::TYPE_UNKNOWN ])
+            ->visible(true);
 
-        $this->relationship('organisation', OrganisationResourceDefinition::class)
-            ->one()
-            ->expandable()
-            ->visible();
+        $this->field('value')
+            ->int()
+            ->visible(true);
 
-        $this->field('transaction_count')
-            ->display('transactions')
-            ->visible(true, true);
+        $this->field('card_sync_id')
+            ->display('card_transaction')
+            ->int()
+            ->writeable(true, true)
+            ->visible(true);
 
-        $this->relationship('pendingTransactions', TransactionResourceDefinition::class)
-            ->expanded()
-            ->visible();
+        $this->field('client_date')
+            ->display('card_date')
+            ->datetime(DateTimeTransformer::class)
+            ->writeable(true, true)
+            ->visible(true);
+
+        $this->field('created_at')
+            ->datetime(DateTimeTransformer::class)
+            ->visible(true);
 
         $this->field('updated_at')
-            ->visible(true)
-            ->datetime()
-            ->sortable();
-
+            ->datetime(DateTimeTransformer::class)
+            ->visible(true);
     }
 }

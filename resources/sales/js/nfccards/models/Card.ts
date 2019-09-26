@@ -24,10 +24,11 @@ import * as ndef from 'ndef';
 import * as CryptoJS from 'crypto-js';
 import {NfcReader} from "../nfc/NfcReader";
 import {InvalidMessageException} from "../exceptions/InvalidMessageException";
+import {SignatureMismatch} from "../exceptions/SignatureMismatch";
 
 export class Card {
 
-    private balance: number = 0;
+    public balance: number = 0;
 
     public transactionCount: number = 0;
 
@@ -41,7 +42,7 @@ export class Card {
         0
     ];
 
-    private lastTransaction: Date = new Date();
+    public lastTransaction: Date = new Date();
 
     private corrupted: boolean;
 
@@ -171,8 +172,7 @@ export class Card {
         const signature = this.nfcReader.hmac(this, payloadBytestring).toString(CryptoJS.enc.Latin1);
 
         if (signature !== receivedSignature) {
-            console.log('Signature mismatch');
-            throw new InvalidMessageException('Signature mismatch');
+            throw new SignatureMismatch('Signature mismatch');
         }
 
         this.unserialize(payloadBytestring);
@@ -189,6 +189,49 @@ export class Card {
 
     public isCorrupted() {
         return this.corrupted;
+    }
+
+    /**
+     *
+     */
+    public async save() {
+        await this.nfcReader.write(this);
+    }
+
+    /**
+     * Apply a transaction and return the transaction id.
+     * @param value
+     */
+    public applyTransaction(value: number) {
+        this.transactionCount ++;
+        this.balance += value;
+
+        this.previousTransactions[this.transactionCount % 5] = value;
+        this.lastTransaction = new Date();
+
+        return this.transactionCount;
+    }
+
+    /**
+     * Get the last 5 transactions in correct order.
+     */
+    public getPreviousTransactions(): number[] {
+        const out: number[] = [];
+
+        let lastNewIndex = this.transactionCount % 5;
+        for (let i = 0; i < 5; i ++) {
+            out.push(this.previousTransactions[(lastNewIndex + i) % 5]);
+        }
+
+        return out;
+    }
+
+    public getServerData(): any {
+        return {
+            transactionCount: this.transactionCount,
+            balance: this.balance,
+            previousTransactions: this.getPreviousTransactions()
+        };
     }
 
     private toByteString(bytes: number[]) {

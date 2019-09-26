@@ -30,6 +30,7 @@ import {OfflineStore} from "../store/OfflineStore";
 import {InvalidMessageException} from "../exceptions/InvalidMessageException";
 import {CorruptedCard} from "../exceptions/CorruptedCard";
 import {Logger} from "../tools/Logger";
+import {NfcWriteException} from '../exceptions/NfcWriteException';
 
 /**
  *
@@ -139,9 +140,17 @@ export class NfcReader extends Eventable {
             // if the ndef messsage could not be decoded, try to recover from internal state
             try {
                 card.parseNdef(ndefDecoded);
+
+                // Store the original state locally to be able to revert to it on write error
+                this.offlineStore.setCardState(card.getUid(), data.ndef);
+
             } catch (e) {
                 if (e instanceof InvalidMessageException) {
                     await this.recoverInvalidContent(card);
+
+                    // in case of failed recovery, immediately write the recovered content to the card
+                    await this.write(card);
+
                 } else {
                     throw e;
                 }
@@ -224,9 +233,6 @@ export class NfcReader extends Eventable {
         let byteArray = ndef.encodeMessage(message);
         let base64 = btoa(this.bin2string(byteArray));
 
-        // Store the message locally in case there is a write error
-        this.offlineStore.setCardState(card.getUid(), base64);
-
         // write some other data
         await new Promise(
             (resolve, reject) => {
@@ -234,7 +240,15 @@ export class NfcReader extends Eventable {
                     uid: card.getUid(),
                     ndef: base64
                 }, (response: any) => {
-                    console.log(response);
+                    if (response.success) {
+
+                        // store the new state in localstorage
+                        this.offlineStore.setCardState(card.getUid(), base64);
+
+                        resolve();
+                    } else {
+                        reject(new NfcWriteException(response.error));
+                    }
                 });
             }
         );

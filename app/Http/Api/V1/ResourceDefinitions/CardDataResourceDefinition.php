@@ -1,4 +1,5 @@
-/*
+<?php
+/**
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
  * CatLab Interactive bvba, Gent, Belgium
@@ -19,6 +20,32 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-export class Transaction {
+namespace App\Http\Api\V1\ResourceDefinitions;
 
+use App\Models\CardData;
+use CatLab\Charon\Models\ResourceDefinition;
+
+/**
+ * Class CardDataResourceDefinition
+ * @package App\Http\Api\V1\ResourceDefinitions
+ */
+class CardDataResourceDefinition extends ResourceDefinition
+{
+    public function __construct()
+    {
+        parent::__construct(CardData::class);
+
+        $this->field('transactionCount')
+            ->writeable(true, false)
+            ->int();
+
+        $this->field('balance')
+            ->writeable(true, false)
+            ->int();
+
+        $this->field('previousTransactions')
+            ->array()
+            ->writeable(true, false)
+            ->int();
+    }
 }

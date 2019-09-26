@@ -4182,6 +4182,23 @@ function _asyncToGenerator(fn) {
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -4214,11 +4231,21 @@ function _asyncToGenerator(fn) {
               this.cardService.on('card:connect', function (card) {
                 _this.showCard(card);
               });
+              this.cardService.on('card:loaded', function (card) {
+                /*
+                // increase balance
+                console.log('card loaded');
+                 card.balance += 100;
+                console.log('adding 100 balance: new balance = ' + card.balance);
+                 card.lastTransaction = new Date();
+                 card.save(card);
+                 */
+              });
               this.cardService.on('card:disconnect', function (card) {
                 _this.hideCard(card);
               });
 
-            case 9:
+            case 10:
             case "end":
               return _context.stop();
           }
@@ -4237,7 +4264,8 @@ function _asyncToGenerator(fn) {
       organisation: null,
       loaded: false,
       card: null,
-      tarnsactions: []
+      tarnsactions: [],
+      topupAmount: 10
     };
   },
   watch: {},
@@ -4295,6 +4323,66 @@ function _asyncToGenerator(fn) {
       }
 
       return hideCard;
+    }(),
+    format: function () {
+      var _format = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                // reset the card to non corrupted state and write.
+                console.log('Formatting card');
+                this.card.balance = 0;
+                this.card.transactionCount = 0;
+                this.card.previousTransactions = [0, 0, 0, 0, 0];
+                this.card.lastTransaction = new Date();
+                _context4.next = 7;
+                return this.card.save();
+
+              case 7:
+                console.log('Done');
+
+              case 8:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this);
+      }));
+
+      function format() {
+        return _format.apply(this, arguments);
+      }
+
+      return format;
+    }(),
+    topup: function () {
+      var _topup = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee5() {
+        var amount;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                amount = Math.floor(this.topupAmount * 100);
+                alert(amount);
+
+              case 2:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, this);
+      }));
+
+      function topup() {
+        return _topup.apply(this, arguments);
+      }
+
+      return topup;
     }()
   }
 });
@@ -77115,7 +77203,7 @@ var render = function() {
         )
       : _vm._e(),
     _vm._v(" "),
-    _c("h1", [_vm._v("Top up cards")]),
+    _c("h1", [_vm._v("Card management")]),
     _vm._v(" "),
     _vm.loaded
       ? _c(
@@ -77124,7 +77212,56 @@ var render = function() {
             _c(
               "b-row",
               [
-                _c("b-col", [
+                _c("b-col", { attrs: { md: "8" } }, [
+                  _c("h2", [_vm._v("Topup")]),
+                  _vm._v(" "),
+                  _c("label", { attrs: { for: "customAmount" } }, [
+                    _vm._v("Custom amount")
+                  ]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.topupAmount,
+                        expression: "topupAmount"
+                      }
+                    ],
+                    attrs: {
+                      type: "number",
+                      min: "0",
+                      step: "0.01",
+                      placeholder: "10.00",
+                      id: "customAmount"
+                    },
+                    domProps: { value: _vm.topupAmount },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.topupAmount = $event.target.value
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary",
+                      on: {
+                        click: function($event) {
+                          return _vm.topup()
+                        }
+                      }
+                    },
+                    [_vm._v("Topup")]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("b-col", { attrs: { md: "4" } }, [
                   _vm.card === null
                     ? _c("div", [_c("p", [_vm._v("Scan to start")])])
                     : _vm._e(),
@@ -77135,6 +77272,34 @@ var render = function() {
                           _vm._v("Card #"),
                           _c("strong", [_vm._v(_vm._s(_vm.card.uid))])
                         ]),
+                        _vm._v(" "),
+                        _vm.card.corrupted
+                          ? _c("div", [
+                              _c(
+                                "div",
+                                {
+                                  staticClass: "alert alert-danger",
+                                  attrs: { role: "alert" }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                            This card is corrupted.\n                            "
+                                  ),
+                                  _c(
+                                    "button",
+                                    {
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.format()
+                                        }
+                                      }
+                                    },
+                                    [_vm._v("Format")]
+                                  )
+                                ]
+                              )
+                            ])
+                          : _vm._e(),
                         _vm._v(" "),
                         _vm.card.loaded
                           ? _c("div", [
@@ -92874,7 +93039,7 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(bootstrap_vue__WEBPACK_IMPORTED_
 vue__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.$cardService = new _nfccards_CardService__WEBPACK_IMPORTED_MODULE_12__["CardService"](window.axios.create({
   baseURL: '/api/v1',
   json: true
-}));
+}), window.ORGANISATION_ID);
 vue__WEBPACK_IMPORTED_MODULE_1__["default"].component('live-sales', __webpack_require__(/*! ./components/LiveSales.vue */ "./resources/sales/js/components/LiveSales.vue").default);
 vue__WEBPACK_IMPORTED_MODULE_1__["default"].component('remote-orders', __webpack_require__(/*! ./components/RemoteOrders.vue */ "./resources/sales/js/components/RemoteOrders.vue").default);
 vue__WEBPACK_IMPORTED_MODULE_1__["default"].component('relax', __webpack_require__(/*! ./components/Relax.vue */ "./resources/sales/js/components/Relax.vue").default);
@@ -93554,6 +93719,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Eventable__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Eventable */ "./resources/sales/js/utils/Eventable.ts");
 /* harmony import */ var _store_OfflineStore__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/OfflineStore */ "./resources/sales/js/nfccards/store/OfflineStore.ts");
 /* harmony import */ var _tools_Logger__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./tools/Logger */ "./resources/sales/js/nfccards/tools/Logger.ts");
+/* harmony import */ var _exceptions_NfcWriteException__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./exceptions/NfcWriteException */ "./resources/sales/js/nfccards/exceptions/NfcWriteException.ts");
 /*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
@@ -93587,6 +93753,42 @@ var __extends = (undefined && undefined.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
 
 
 
@@ -93600,14 +93802,14 @@ var CardService = /** @class */ (function (_super) {
     /**
      *
      */
-    function CardService(axios) {
+    function CardService(axios, organisationId) {
         var _this = _super.call(this) || this;
         /**
          *
          */
         _this.password = '';
         _this.offlineStore = new _store_OfflineStore__WEBPACK_IMPORTED_MODULE_3__["OfflineStore"]();
-        _this.transactionStore = new _store_TransactionStore__WEBPACK_IMPORTED_MODULE_0__["TransactionStore"](axios, _this.offlineStore);
+        _this.transactionStore = new _store_TransactionStore__WEBPACK_IMPORTED_MODULE_0__["TransactionStore"](axios, organisationId, _this.offlineStore);
         _this.logger = new _tools_Logger__WEBPACK_IMPORTED_MODULE_4__["Logger"]();
         _this.nfcReader = new _nfc_NfcReader__WEBPACK_IMPORTED_MODULE_1__["NfcReader"](_this.offlineStore, _this.logger);
         //this.nfcReader.connect('http://localhost:3000')
@@ -93616,9 +93818,60 @@ var CardService = /** @class */ (function (_super) {
         _this.nfcReader.on('card:connect', function (card) {
             _this.trigger('card:connect', card);
         });
-        _this.nfcReader.on('card:disconnect', function () {
-            _this.trigger('card:disconnect');
+        _this.nfcReader.on('card:disconnect', function (card) {
+            _this.trigger('card:disconnect', card);
         });
+        _this.nfcReader.on('card:loaded', function (card) { return __awaiter(_this, void 0, void 0, function () {
+            var serverCard, pendingTransactions, e_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.transactionStore.getCard(card.getUid())];
+                    case 1:
+                        serverCard = _a.sent();
+                        if (!serverCard) return [3 /*break*/, 10];
+                        pendingTransactions = serverCard.pendingTransactions.items;
+                        if (!(pendingTransactions.length > 0)) return [3 /*break*/, 8];
+                        _a.label = 2;
+                    case 2:
+                        _a.trys.push([2, 5, , 8]);
+                        pendingTransactions.forEach(function (transaction) {
+                            transaction.card_transaction = card.applyTransaction(transaction.value);
+                            delete transaction.card_date;
+                        });
+                        // save the card
+                        return [4 /*yield*/, card.save()];
+                    case 3:
+                        // save the card
+                        _a.sent();
+                        return [4 /*yield*/, this.transactionStore.updateTransactions(pendingTransactions)];
+                    case 4:
+                        _a.sent();
+                        return [3 /*break*/, 8];
+                    case 5:
+                        e_1 = _a.sent();
+                        if (!(e_1 instanceof _exceptions_NfcWriteException__WEBPACK_IMPORTED_MODULE_5__["NfcWriteException"])) return [3 /*break*/, 7];
+                        // write failed? Revert and mark these transactions back as pending.
+                        // mark all these transactions as pending
+                        return [4 /*yield*/, this.transactionStore.markTransactionsAsPending(pendingTransactions)];
+                    case 6:
+                        // write failed? Revert and mark these transactions back as pending.
+                        // mark all these transactions as pending
+                        _a.sent();
+                        _a.label = 7;
+                    case 7: return [3 /*break*/, 8];
+                    case 8: 
+                    // upload current values
+                    return [4 /*yield*/, this.transactionStore.uploadCardData(serverCard.id, card)];
+                    case 9:
+                        // upload current values
+                        _a.sent();
+                        _a.label = 10;
+                    case 10:
+                        this.trigger('card:loaded', card);
+                        return [2 /*return*/];
+                }
+            });
+        }); });
         return _this;
     }
     /**
@@ -93795,21 +94048,17 @@ var InvalidMessageException = /** @class */ (function (_super) {
 
 /***/ }),
 
-/***/ "./resources/sales/js/nfccards/models/Card.ts":
-/*!****************************************************!*\
-  !*** ./resources/sales/js/nfccards/models/Card.ts ***!
-  \****************************************************/
-/*! exports provided: Card */
+/***/ "./resources/sales/js/nfccards/exceptions/NfcWriteException.ts":
+/*!*********************************************************************!*\
+  !*** ./resources/sales/js/nfccards/exceptions/NfcWriteException.ts ***!
+  \*********************************************************************/
+/*! exports provided: NfcWriteException */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Card", function() { return Card; });
-/* harmony import */ var ndef__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ndef */ "./node_modules/ndef/index.js");
-/* harmony import */ var ndef__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(ndef__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var crypto_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! crypto-js */ "./node_modules/crypto-js/index.js");
-/* harmony import */ var crypto_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto_js__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _exceptions_InvalidMessageException__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../exceptions/InvalidMessageException */ "./resources/sales/js/nfccards/exceptions/InvalidMessageException.ts");
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NfcWriteException", function() { return NfcWriteException; });
+/* harmony import */ var _BaseError__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./BaseError */ "./resources/sales/js/nfccards/exceptions/BaseError.ts");
 /*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
@@ -93830,7 +94079,165 @@ __webpack_require__.r(__webpack_exports__);
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+var NfcWriteException = /** @class */ (function (_super) {
+    __extends(NfcWriteException, _super);
+    function NfcWriteException() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return NfcWriteException;
+}(_BaseError__WEBPACK_IMPORTED_MODULE_0__["BaseError"]));
+
+
+
+/***/ }),
+
+/***/ "./resources/sales/js/nfccards/exceptions/SignatureMismatch.ts":
+/*!*********************************************************************!*\
+  !*** ./resources/sales/js/nfccards/exceptions/SignatureMismatch.ts ***!
+  \*********************************************************************/
+/*! exports provided: SignatureMismatch */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SignatureMismatch", function() { return SignatureMismatch; });
+/* harmony import */ var _InvalidMessageException__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./InvalidMessageException */ "./resources/sales/js/nfccards/exceptions/InvalidMessageException.ts");
+/*
+ * CatLab Drinks - Simple bar automation system
+ * Copyright (C) 2019 Thijs Van der Schaeghe
+ * CatLab Interactive bvba, Gent, Belgium
+ * http://www.catlab.eu/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ *
+ */
+var SignatureMismatch = /** @class */ (function (_super) {
+    __extends(SignatureMismatch, _super);
+    function SignatureMismatch() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return SignatureMismatch;
+}(_InvalidMessageException__WEBPACK_IMPORTED_MODULE_0__["InvalidMessageException"]));
+
+
+
+/***/ }),
+
+/***/ "./resources/sales/js/nfccards/models/Card.ts":
+/*!****************************************************!*\
+  !*** ./resources/sales/js/nfccards/models/Card.ts ***!
+  \****************************************************/
+/*! exports provided: Card */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Card", function() { return Card; });
+/* harmony import */ var ndef__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ndef */ "./node_modules/ndef/index.js");
+/* harmony import */ var ndef__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(ndef__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var crypto_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! crypto-js */ "./node_modules/crypto-js/index.js");
+/* harmony import */ var crypto_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _exceptions_InvalidMessageException__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../exceptions/InvalidMessageException */ "./resources/sales/js/nfccards/exceptions/InvalidMessageException.ts");
+/* harmony import */ var _exceptions_SignatureMismatch__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../exceptions/SignatureMismatch */ "./resources/sales/js/nfccards/exceptions/SignatureMismatch.ts");
+/*
+ * CatLab Drinks - Simple bar automation system
+ * Copyright (C) 2019 Thijs Van der Schaeghe
+ * CatLab Interactive bvba, Gent, Belgium
+ * http://www.catlab.eu/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 // @ts-ignore
+
 
 
 
@@ -93939,8 +94346,7 @@ var Card = /** @class */ (function () {
         var payloadBytestring = this.toByteString(payload);
         var signature = this.nfcReader.hmac(this, payloadBytestring).toString(crypto_js__WEBPACK_IMPORTED_MODULE_1__["enc"].Latin1);
         if (signature !== receivedSignature) {
-            console.log('Signature mismatch');
-            throw new _exceptions_InvalidMessageException__WEBPACK_IMPORTED_MODULE_2__["InvalidMessageException"]('Signature mismatch');
+            throw new _exceptions_SignatureMismatch__WEBPACK_IMPORTED_MODULE_3__["SignatureMismatch"]('Signature mismatch');
         }
         this.unserialize(payloadBytestring);
     };
@@ -93952,6 +94358,50 @@ var Card = /** @class */ (function () {
     };
     Card.prototype.isCorrupted = function () {
         return this.corrupted;
+    };
+    /**
+     *
+     */
+    Card.prototype.save = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.nfcReader.write(this)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Apply a transaction and return the transaction id.
+     * @param value
+     */
+    Card.prototype.applyTransaction = function (value) {
+        this.transactionCount++;
+        this.balance += value;
+        this.previousTransactions[this.transactionCount % 5] = value;
+        this.lastTransaction = new Date();
+        return this.transactionCount;
+    };
+    /**
+     * Get the last 5 transactions in correct order.
+     */
+    Card.prototype.getPreviousTransactions = function () {
+        var out = [];
+        var lastNewIndex = this.transactionCount % 5;
+        for (var i = 0; i < 5; i++) {
+            out.push(this.previousTransactions[(lastNewIndex + i) % 5]);
+        }
+        return out;
+    };
+    Card.prototype.getServerData = function () {
+        return {
+            transactionCount: this.transactionCount,
+            balance: this.balance,
+            previousTransactions: this.getPreviousTransactions()
+        };
     };
     Card.prototype.toByteString = function (bytes) {
         var out = '';
@@ -94010,6 +94460,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _models_Card__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../models/Card */ "./resources/sales/js/nfccards/models/Card.ts");
 /* harmony import */ var _exceptions_InvalidMessageException__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../exceptions/InvalidMessageException */ "./resources/sales/js/nfccards/exceptions/InvalidMessageException.ts");
 /* harmony import */ var _exceptions_CorruptedCard__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../exceptions/CorruptedCard */ "./resources/sales/js/nfccards/exceptions/CorruptedCard.ts");
+/* harmony import */ var _exceptions_NfcWriteException__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../exceptions/NfcWriteException */ "./resources/sales/js/nfccards/exceptions/NfcWriteException.ts");
 /*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
@@ -94081,6 +94532,7 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 // @ts-ignore
+
 
 
 
@@ -94187,46 +94639,53 @@ var NfcReader = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!(typeof (data.ndef) !== 'undefined')) return [3 /*break*/, 7];
+                        if (!(typeof (data.ndef) !== 'undefined')) return [3 /*break*/, 8];
                         bytes = this.base64ToByteArray(data.ndef);
                         ndefDecoded = ndef__WEBPACK_IMPORTED_MODULE_2__["decodeMessage"](bytes);
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 2, , 6]);
+                        _a.trys.push([1, 2, , 7]);
                         card.parseNdef(ndefDecoded);
-                        return [3 /*break*/, 6];
+                        // Store the original state locally to be able to revert to it on write error
+                        this.offlineStore.setCardState(card.getUid(), data.ndef);
+                        return [3 /*break*/, 7];
                     case 2:
                         e_2 = _a.sent();
-                        if (!(e_2 instanceof _exceptions_InvalidMessageException__WEBPACK_IMPORTED_MODULE_5__["InvalidMessageException"])) return [3 /*break*/, 4];
+                        if (!(e_2 instanceof _exceptions_InvalidMessageException__WEBPACK_IMPORTED_MODULE_5__["InvalidMessageException"])) return [3 /*break*/, 5];
                         return [4 /*yield*/, this.recoverInvalidContent(card)];
                     case 3:
                         _a.sent();
-                        return [3 /*break*/, 5];
-                    case 4: throw e_2;
-                    case 5: return [3 /*break*/, 6];
-                    case 6: return [3 /*break*/, 13];
-                    case 7:
-                        if (!data.data) return [3 /*break*/, 11];
+                        // in case of failed recovery, immediately write the recovered content to the card
+                        return [4 /*yield*/, this.write(card)];
+                    case 4:
+                        // in case of failed recovery, immediately write the recovered content to the card
+                        _a.sent();
+                        return [3 /*break*/, 6];
+                    case 5: throw e_2;
+                    case 6: return [3 /*break*/, 7];
+                    case 7: return [3 /*break*/, 14];
+                    case 8:
+                        if (!data.data) return [3 /*break*/, 12];
                         bytes = this.base64ToByteArray(data.data);
-                        if (!(bytes[0] === 0x00 && bytes[1] === 0x00 && bytes[2] === 0x00)) return [3 /*break*/, 9];
+                        if (!(bytes[0] === 0x00 && bytes[1] === 0x00 && bytes[2] === 0x00)) return [3 /*break*/, 10];
                         // this is a brand new card.
                         this.logger.log(card.getUid(), 'New card detected, writing empty data.');
                         return [4 /*yield*/, this.write(card)];
-                    case 8:
+                    case 9:
                         _a.sent();
                         return [2 /*return*/];
-                    case 9: 
+                    case 10: 
                     // not a new card, try to recover the data from local data.
                     return [4 /*yield*/, this.recoverInvalidContent(card)];
-                    case 10:
+                    case 11:
                         // not a new card, try to recover the data from local data.
                         _a.sent();
-                        return [3 /*break*/, 13];
-                    case 11: return [4 /*yield*/, this.recoverInvalidContent(card)];
-                    case 12:
+                        return [3 /*break*/, 14];
+                    case 12: return [4 /*yield*/, this.recoverInvalidContent(card)];
+                    case 13:
                         _a.sent();
-                        _a.label = 13;
-                    case 13: return [2 /*return*/];
+                        _a.label = 14;
+                    case 14: return [2 /*return*/];
                 }
             });
         });
@@ -94294,15 +94753,20 @@ var NfcReader = /** @class */ (function (_super) {
                         message = card.getNdefMessages();
                         byteArray = ndef__WEBPACK_IMPORTED_MODULE_2__["encodeMessage"](message);
                         base64 = btoa(this.bin2string(byteArray));
-                        // Store the message locally in case there is a write error
-                        this.offlineStore.setCardState(card.getUid(), base64);
                         // write some other data
                         return [4 /*yield*/, new Promise(function (resolve, reject) {
                                 _this.socket.emit('nfc:write', {
                                     uid: card.getUid(),
                                     ndef: base64
                                 }, function (response) {
-                                    console.log(response);
+                                    if (response.success) {
+                                        // store the new state in localstorage
+                                        _this.offlineStore.setCardState(card.getUid(), base64);
+                                        resolve();
+                                    }
+                                    else {
+                                        reject(new _exceptions_NfcWriteException__WEBPACK_IMPORTED_MODULE_7__["NfcWriteException"](response.error));
+                                    }
                                 });
                             })];
                     case 1:
@@ -94381,29 +94845,54 @@ __webpack_require__.r(__webpack_exports__);
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+/**
+ *
+ */
 var OfflineStore = /** @class */ (function () {
     function OfflineStore() {
         this.pendingTransactions = [];
         this.lastKnownSyncIds = {};
         this.cardStates = {};
     }
+    /**
+     * Add a transaction that is not synced to the api yet.
+     * @param transaction
+     */
     OfflineStore.prototype.addPendingTransaction = function (transaction) {
         this.pendingTransactions.push(transaction);
     };
+    /**
+     * Get all transactions that have not been synced to the online api
+     */
     OfflineStore.prototype.getPendingTransactions = function () {
         var out = this.pendingTransactions;
         this.pendingTransactions = [];
         return out;
     };
+    /**
+     * Get the last known transaction count of a specific card.
+     * @param card
+     */
     OfflineStore.prototype.getLastKnownSyncId = function (card) {
         if (typeof (this.lastKnownSyncIds[card]) === 'undefined') {
             return 0;
         }
         return this.lastKnownSyncIds[card];
     };
+    /**
+     * Set the last known transaction count
+     * @param card
+     * @param syncId
+     */
     OfflineStore.prototype.setLastKnownSyncId = function (card, syncId) {
         this.lastKnownSyncIds[card] = syncId;
     };
+    /**
+     * Set the data that will be written to an nfc card.
+     * This is used to recover from failed writes.
+     * @param uid
+     * @param byteArray
+     */
     OfflineStore.prototype.setCardState = function (uid, byteArray) {
         this.cardStates[uid] = {
             date: new Date(),
@@ -94460,10 +94949,46 @@ __webpack_require__.r(__webpack_exports__);
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 var TransactionStore = /** @class */ (function () {
-    function TransactionStore(axios, offlineStore) {
+    function TransactionStore(axios, organisationId, offlineStore) {
         var _this = this;
         this.axios = axios;
+        this.organisationId = organisationId;
         this.offlineStore = offlineStore;
         this.transactionIdCursor = '';
         setTimeout(function () {
@@ -94479,21 +95004,96 @@ var TransactionStore = /** @class */ (function () {
     TransactionStore.prototype.isOnline = function () {
         return true;
     };
-    /**
-     * @param card
-     * @return int
-     */
-    TransactionStore.prototype.getLastKnownTransactionId = function (card) {
-        return 0;
-    };
-    /**
-     *
-     */
-    TransactionStore.prototype.getPendingOnlineTransactions = function () {
+    TransactionStore.prototype.getCard = function (card) {
+        var _this = this;
         if (!this.isOnline()) {
-            return Promise.resolve([]);
+            return Promise.resolve(null);
         }
         return new Promise(function (resolve, reject) {
+            _this.axios.get('organisations/' + _this.organisationId + '/card-from-uid/' + card + '?markClientDate=1')
+                .then(function (response) {
+                resolve(response.data);
+            });
+        });
+    };
+    /**
+     * Mark transactions back to pending.
+     * @param transactions
+     */
+    TransactionStore.prototype.markTransactionsAsPending = function (transactions) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                transactions.forEach(function (transaction) {
+                    transaction.card_date = null;
+                });
+                return [2 /*return*/, this.updateTransactions(transactions)];
+            });
+        });
+    };
+    /**
+     * @param transactions
+     */
+    TransactionStore.prototype.updateTransactions = function (transactions) {
+        return __awaiter(this, void 0, void 0, function () {
+            var promises;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        promises = [];
+                        transactions.forEach(function (transaction) {
+                            promises.push(_this.updateTransaction(transaction));
+                        });
+                        return [4 /*yield*/, Promise.all(promises)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    TransactionStore.prototype.updateTransaction = function (transaction) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, new Promise(function (resolve, reject) {
+                            _this.axios({
+                                method: 'put',
+                                url: 'transactions/' + transaction.id,
+                                data: transaction
+                            })
+                                .then(function (response) {
+                                resolve();
+                            });
+                        })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    TransactionStore.prototype.uploadCardData = function (cardId, card) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, new Promise(function (resolve, reject) {
+                            _this.axios({
+                                method: 'post',
+                                url: 'cards/' + cardId + '/card-data',
+                                data: card.getServerData()
+                            })
+                                .then(function (response) {
+                                resolve();
+                            });
+                        })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
         });
     };
     TransactionStore.prototype.getPendingOfflineTransactions = function () {
@@ -94506,7 +95106,7 @@ var TransactionStore = /** @class */ (function () {
         var _this = this;
         return this.axios({
             method: 'get',
-            url: 'organisations/1/cards?records=1000&fields=uid,transactions,updated_at&sort=updated_at&after=' + this.transactionIdCursor
+            url: 'organisations/' + this.organisationId + '/cards?records=1000&fields=uid,transactions,updated_at&sort=updated_at&after=' + this.transactionIdCursor
         }).then(function (response) {
             var data = response.data;
             if (data.meta &&

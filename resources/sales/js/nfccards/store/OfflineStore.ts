@@ -21,6 +21,9 @@
 
 import {Transaction} from "../models/Transaction";
 
+/**
+ *
+ */
 export class OfflineStore {
 
     private pendingTransactions: Transaction[] = [];
@@ -29,10 +32,17 @@ export class OfflineStore {
 
     private cardStates: { [ key: string ] : { date: Date, body: string }} = {};
 
+    /**
+     * Add a transaction that is not synced to the api yet.
+     * @param transaction
+     */
     public addPendingTransaction(transaction: Transaction) {
         this.pendingTransactions.push(transaction);
     }
 
+    /**
+     * Get all transactions that have not been synced to the online api
+     */
     public getPendingTransactions() {
         let out = this.pendingTransactions;
         this.pendingTransactions = [];
@@ -40,6 +50,10 @@ export class OfflineStore {
         return out;
     }
 
+    /**
+     * Get the last known transaction count of a specific card.
+     * @param card
+     */
     public getLastKnownSyncId(card: string) {
         if (typeof(this.lastKnownSyncIds[card]) === 'undefined') {
             return 0;
@@ -47,10 +61,21 @@ export class OfflineStore {
         return this.lastKnownSyncIds[card];
     }
 
+    /**
+     * Set the last known transaction count
+     * @param card
+     * @param syncId
+     */
     public setLastKnownSyncId(card: string, syncId: number) {
         this.lastKnownSyncIds[card] = syncId;
     }
 
+    /**
+     * Set the data that will be written to an nfc card.
+     * This is used to recover from failed writes.
+     * @param uid
+     * @param byteArray
+     */
     public setCardState(uid: string, byteArray: string) {
         this.cardStates[uid] = {
             date: new Date(),

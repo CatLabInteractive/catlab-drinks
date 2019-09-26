@@ -25,6 +25,7 @@ import {Eventable} from "../utils/Eventable";
 import {Card} from "./models/Card";
 import {OfflineStore} from "./store/OfflineStore";
 import {Logger} from "./tools/Logger";
+import {NfcWriteException} from "./exceptions/NfcWriteException";
 
 /**
  *
@@ -60,12 +61,13 @@ export class CardService extends Eventable {
      *
      */
     constructor(
-        axios: any
+        axios: any,
+        organisationId: string
     ) {
         super();
 
         this.offlineStore = new OfflineStore();
-        this.transactionStore = new TransactionStore(axios, this.offlineStore);
+        this.transactionStore = new TransactionStore(axios, organisationId, this.offlineStore);
         this.logger = new Logger();
 
         this.nfcReader = new NfcReader(this.offlineStore, this.logger);
@@ -77,9 +79,52 @@ export class CardService extends Eventable {
             this.trigger('card:connect', card);
         });
 
-        this.nfcReader.on('card:disconnect', () => {
-            this.trigger('card:disconnect');
-        })
+        this.nfcReader.on('card:disconnect', (card: Card) => {
+            this.trigger('card:disconnect', card);
+        });
+
+        this.nfcReader.on('card:loaded', async (card: Card) => {
+
+            // check if there are any transactions that still need to be processed
+
+            const serverCard = await this.transactionStore.getCard(card.getUid());
+            if (serverCard) {
+
+                // check for pending transactions
+                const pendingTransactions = serverCard.pendingTransactions.items;
+                if (pendingTransactions.length > 0) {
+
+                    // apply each transaction to the card
+                    try {
+                        pendingTransactions.forEach(
+                            (transaction: any) => {
+                                transaction.card_transaction = card.applyTransaction(transaction.value);
+                                delete transaction.card_date;
+                            }
+                        );
+
+                        // save the card
+                        await card.save();
+
+                        await this.transactionStore.updateTransactions(pendingTransactions);
+
+                    } catch (e) {
+                        if (e instanceof NfcWriteException) {
+                            // write failed? Revert and mark these transactions back as pending.
+                            // mark all these transactions as pending
+                            await this.transactionStore.markTransactionsAsPending(pendingTransactions);
+
+                        }
+                    }
+
+                }
+
+                // upload current values
+                await this.transactionStore.uploadCardData(serverCard.id, card);
+            }
+
+            this.trigger('card:loaded', card);
+        });
     }
 
     /**

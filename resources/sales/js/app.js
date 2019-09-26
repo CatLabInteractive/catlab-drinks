@@ -42,10 +42,13 @@ import Cards from "./views/Cards";
 import {CardService} from "./nfccards/CardService";
 
 // Bootstrap card service
-Vue.prototype.$cardService = new CardService(window.axios.create({
-    baseURL: '/api/v1',
-    json: true
-}));
+Vue.prototype.$cardService = new CardService(
+    window.axios.create({
+        baseURL: '/api/v1',
+        json: true
+    }),
+    window.ORGANISATION_ID
+);
 
 Vue.component(
     'live-sales',
