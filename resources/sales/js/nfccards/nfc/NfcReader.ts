@@ -59,7 +59,7 @@ export class NfcReader extends Eventable {
         return result;
     }
 
-    connect(url: string) {
+    connect(url: string, password: string) {
         this.socket = io(url);
 
         /**

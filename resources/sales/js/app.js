@@ -40,15 +40,10 @@ import Sales from "./views/Sales";
 import SalesSummary from "./views/SalesSummary";
 import Cards from "./views/Cards";
 import {CardService} from "./nfccards/CardService";
+import Settings from "./views/Settings";
+import {SettingService} from "./services/SettingService";
+import {PaymentService} from "./services/PaymentService";
 
-// Bootstrap card service
-Vue.prototype.$cardService = new CardService(
-    window.axios.create({
-        baseURL: '/api/v1',
-        json: true
-    }),
-    window.ORGANISATION_ID
-);
 
 Vue.component(
     'live-sales',
@@ -83,6 +78,16 @@ Vue.component(
 Vue.component(
     'sales-summary',
     require('./components/SalesSummary.vue').default
+);
+
+Vue.component(
+    'nfc-card-balance',
+    require('./components/NfcCardBalance.vue').default
+);
+
+Vue.component(
+    'payment-popup',
+    require('./components/PaymentPopup.vue').default
 );
 
 /**
@@ -142,6 +147,12 @@ const router = new VueRouter({
             name: 'cards',
             component: Cards,
         },
+
+        {
+            path: '/settings',
+            name: 'settings',
+            component: Settings
+        }
     ],
 });
 
@@ -152,13 +163,43 @@ const router = new VueRouter({
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-const app = new Vue({
-    el: '#app',
-    components: { App },
-    router,
-    methods: {
-        refreshToken: function() {
-            window.location.reload();
-        }
-    }
-});
+// Bootstrap card service
+Vue.prototype.$settingService = new SettingService();
+Vue.prototype.$settingService.load()
+    .then(
+        function() {
+
+            if (
+                Vue.prototype.$settingService.nfcServer
+            ) {
+                Vue.prototype.$cardService = new CardService(
+                    window.axios.create({
+                        baseURL: '/api/v1',
+                        json: true
+                    }),
+                    window.ORGANISATION_ID,
+                    Vue.prototype.$settingService.nfcServer,
+                    Vue.prototype.$settingService.nfcPassword
+                );
+            }
+
+            // Payment service
+            Vue.prototype.$paymentService = new PaymentService();
+            if (Vue.prototype.$cardService) {
+                Vue.prototype.$paymentService.setCardService(Vue.prototype.$cardService);
+            }
+
+            // and now boot the app
+            const app = new Vue({
+                el: '#app',
+                components: { App },
+                router,
+                methods: {
+                    refreshToken: function() {
+                        window.location.reload();
+                    }
+                }
+            });
+
+        }.bind(this)
+    );

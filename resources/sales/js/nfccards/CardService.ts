@@ -27,6 +27,9 @@ import {OfflineStore} from "./store/OfflineStore";
 import {Logger} from "./tools/Logger";
 import {NfcWriteException} from "./exceptions/NfcWriteException";
 import {OfflineException} from "./exceptions/OfflineException";
+import {InsufficientFunds} from "./exceptions/InsufficientFunds";
+import {NoCardFound} from "./exceptions/NoCardFound";
+import {Transaction} from "./models/Transaction";
 
 /**
  *
@@ -61,14 +64,16 @@ export class CardService extends Eventable {
     /**
      *
      */
-    private currentCard: null;
+    private currentCard: Card | null = null;
 
     /**
      *
      */
     constructor(
         axios: any,
-        organisationId: string
+        organisationId: string,
+        nfcService: string, // http://192.168.1.194:3000
+        nfcPassword: string
     ) {
         super();
 
@@ -77,8 +82,7 @@ export class CardService extends Eventable {
         this.logger = new Logger();
 
         this.nfcReader = new NfcReader(this.offlineStore, this.logger);
-        //this.nfcReader.connect('http://localhost:3000')
-        this.nfcReader.connect('http://192.168.1.194:3000');
+        this.nfcReader.connect(nfcService, nfcPassword);
 
         // events
         this.nfcReader.on('card:connect', (card: Card) => {
@@ -86,6 +90,7 @@ export class CardService extends Eventable {
         });
 
         this.nfcReader.on('card:disconnect', (card: Card) => {
+            this.currentCard = null;
             this.trigger('card:disconnect', card);
         });
 
@@ -95,7 +100,10 @@ export class CardService extends Eventable {
 
             await this.refreshCard(card);
 
+            this.currentCard = card;
+
             this.trigger('card:loaded', card);
+            this.trigger('card:balance:change', card);
         });
     }
 
@@ -191,6 +199,60 @@ export class CardService extends Eventable {
         this.password = password;
         this.nfcReader.setPassword(password);
         return this;
+    }
+
+    getCard() {
+        return this.currentCard;
+    }
+
+    async topup(topupUid: string, amount: number) {
+        const card = this.currentCard;
+        if (!card) {
+            throw new NoCardFound('No card found.');
+        }
+
+        const transaction = new Transaction(
+            card.getUid(),
+            new Date(),
+            amount,
+            null,
+            topupUid
+        );
+
+        // try to write the transaction to card
+        card.balance += amount;
+        await card.save();
+
+        // yay! save that transaction (but don't wait for upload)
+        this.offlineStore.addPendingTransaction(transaction);
+        this.trigger('card:balance:change', card);
+    }
+
+    async spend(orderUid: string, amount: number) {
+
+        const card = this.currentCard;
+        if (!card) {
+            throw new NoCardFound('No card found.');
+        }
+
+        if (card.balance < amount) {
+            throw new InsufficientFunds('Insufficient funds.');
+        }
+
+        const transaction = new Transaction(
+            card.getUid(),
+            new Date(),
+            amount,
+            orderUid
+        );
+
+        // try to write the transaction to card
+        card.balance -= amount;
+        await card.save();
+
+        // yay! save that transaction (but don't wait for upload)
+        this.offlineStore.addPendingTransaction(transaction);
+        this.trigger('card:balance:change', card);
     }
 
     /**

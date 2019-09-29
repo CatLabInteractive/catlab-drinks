@@ -21,6 +21,20 @@
 
 export class Transaction {
 
+    public date: Date;
+
+    public amount: number;
+
+    public orderUid: string | null;
+
+    public topupUid: string | null;
+
+    constructor(cardUid: string, date: Date, amount: number, orderUid: string | null = null, topupUid: string | null = null) {
+        this.date = date;
+        this.amount = amount;
+        this.orderUid = orderUid;
+        this.topupUid = topupUid;
+    }
 
 
 }

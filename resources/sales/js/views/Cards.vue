@@ -22,13 +22,19 @@
 <template>
     <b-container fluid>
 
-        <div class="text-center" v-if="!loaded">
+        <div class="text-center" v-if="loading">
             <b-spinner label="Loading data" />
         </div>
 
-        <h1>Card management</h1>
+        <div v-if="error">
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+        </div>
+
         <div v-if="loaded">
 
+            <h1>Card management</h1>
             <b-row>
                 <b-col md="8">
 
@@ -103,6 +109,14 @@
 
         async mounted() {
 
+            // do we have a card service?
+            this.error = null;
+            if (!this.$cardService) {
+                this.error = 'No NFC card service found. Please check the settings.';
+                this.loading = false;
+                return;
+            }
+
             // load event
             this.organisationService = new OrganisationService(window.ORGANISATION_ID);
 
@@ -113,6 +127,7 @@
             this.cardService.setPassword(this.organisation.secret);
 
             this.loaded = true;
+            this.loading = false;
 
             this.cardService.on('card:connect', (card) => {
                 this.showCard(card);
@@ -141,7 +156,9 @@
 
         data() {
             return {
+                error: null,
                 organisation: null,
+                loading: true,
                 loaded: false,
                 card: null,
                 tarnsactions: [],
@@ -181,7 +198,8 @@
             async topup() {
                 const amount = Math.floor(this.topupAmount * 100);
 
-
+                await this.cardService.topup('', amount);
+                alert('topup succesful');
             }
 
         }

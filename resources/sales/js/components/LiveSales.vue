@@ -260,18 +260,33 @@
                 this.warning = null;
 
                 this.$refs.confirmModal.hide();
-                this.reset();
 
                 try {
                     const data = {
                         location: 'Manual',
                         status: 'processed',
+                        paid: false,
+                        price: this.totals.price,
                         order: {
                             items: this.selectedItems
                         }
                     };
 
-                    const order = await this.orderService.create(data);
+                    let order = await this.orderService.prepare(data);
+
+                    try {
+                        await this.$paymentService.order(order);
+
+                        order.paid = true;
+                        order.status = 'processed';
+
+                    } catch (e) {
+                        order.paid = false;
+                        order.status = 'declined';
+                    }
+
+                    order = await this.orderService.create(order);
+                    this.reset();
 
                     this.saving = false;
                     this.saved = true;
@@ -288,8 +303,6 @@
                     this.saving = false;
                     this.warning = e.response.data.error.message;
                 }
-
-                this.reset();
             }
         }
     }

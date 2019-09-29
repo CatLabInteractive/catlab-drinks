@@ -18,31 +18,44 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+import localForage from "localforage";
 
-import {AbstractService} from './AbstractService';
-import $ from "jquery";
+export class SettingService {
 
-const uuidv1 = require('uuid/v1');
+    constructor() {
 
-export class OrderService extends AbstractService {
 
-    constructor(eventId) {
-        super();
 
-        this.eventId = eventId;
-        this.indexUrl = 'events/' + eventId + '/orders';
-        this.entityUrl = 'orders';
     }
 
-    summary(parameters = {}) {
-        return this.execute('get', 'events/' + this.eventId + '/ordersummary' + "?" + $.param(parameters))
+    load() {
+        return new Promise(
+            function(resolve, reject) {
+
+                localForage.getItem('settings', function(err, settings) {
+
+                    if (!settings) {
+                        settings = {};
+                    }
+
+                    this.terminalName = settings.terminalName || 'bar';
+                    this.nfcServer = settings.nfcServer || null;
+                    this.nfcPassword = settings.nfcPassword || null;
+
+                    resolve();
+
+                }.bind(this));
+
+            }.bind(this)
+        );
     }
 
-    async prepare(content) {
-        content.uuid = uuidv1();
-        return content;
+    save() {
+        localForage.setItem('settings', {
+            terminalName : this.terminalName,
+            nfcServer: this.nfcServer,
+            nfcPassword: this.nfcPassword
+        });
     }
-
 
 }
-

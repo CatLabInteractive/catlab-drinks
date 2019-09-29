@@ -30,6 +30,7 @@ use CatLab\Charon\Laravel\Database\Model;
  */
 class Order extends Model
 {
+    const STATUS_DECLINED = 'declined';
     const STATUS_PENDING = 'pending';
     const STATUS_PROCESSED = 'processed';
 

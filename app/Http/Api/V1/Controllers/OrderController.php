@@ -55,12 +55,13 @@ class OrderController extends Base\ResourceController
     {
         $childResource = $routes->childResource(
             static::RESOURCE_DEFINITION,
-            'events/{parentId}/orders',
+            'events/{' . self::PARENT_RESOURCE_ID . '}/orders',
             'orders',
             'OrderController',
             [
                 'id' => self::RESOURCE_ID,
-                'only' => [ 'index', 'view', 'store', 'edit', 'destroy' ]
+                'only' => [ 'index', 'view', 'store', 'edit', 'destroy' ],
+                'parentId' => self::PARENT_RESOURCE_ID
             ]
         );
 
@@ -84,7 +85,7 @@ class OrderController extends Base\ResourceController
      */
     public function getParent(Request $request): Model
     {
-        $eventId = $request->route('parentId');
+        $eventId = $request->route(self::PARENT_RESOURCE_ID);
         return Event::findOrFail($eventId);
     }
 
@@ -101,8 +102,8 @@ class OrderController extends Base\ResourceController
      * Called before saveEntity
      * @param \Illuminate\Database\Eloquent\Model $entity
      */
-    protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity)
+    protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
     {
-        $this->traitBeforeSaveEntity($request, $entity);
+        $this->traitBeforeSaveEntity($request, $entity, $isNew);
     }
 }

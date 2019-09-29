@@ -19,30 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {AbstractService} from './AbstractService';
-import $ from "jquery";
+import {BaseError} from "./BaseError";
 
-const uuidv1 = require('uuid/v1');
-
-export class OrderService extends AbstractService {
-
-    constructor(eventId) {
-        super();
-
-        this.eventId = eventId;
-        this.indexUrl = 'events/' + eventId + '/orders';
-        this.entityUrl = 'orders';
-    }
-
-    summary(parameters = {}) {
-        return this.execute('get', 'events/' + this.eventId + '/ordersummary' + "?" + $.param(parameters))
-    }
-
-    async prepare(content) {
-        content.uuid = uuidv1();
-        return content;
-    }
-
+export class NoCardFound extends BaseError {
 
 }
-

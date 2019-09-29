@@ -34,12 +34,16 @@
                     <b-nav-item :to="{ name: 'events' }">Events</b-nav-item>
                     <b-nav-item :to="{ name: 'cards' }">Cards</b-nav-item>
 
+                    <nfc-card-balance></nfc-card-balance>
+
                 </b-navbar-nav>
 
                 <!-- Right aligned nav items -->
                 <b-navbar-nav class="ml-auto">
 
                     <b-navbar-nav>
+
+                        <b-nav-item :to="{ name: 'settings' }">Settings</b-nav-item>
 
                         <li class="nav-item">
                             <logout-link />
@@ -71,6 +75,7 @@
         </b-navbar>
 
         <router-view></router-view>
+        <payment-popup></payment-popup>
 
     </div>
 
