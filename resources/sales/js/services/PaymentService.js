@@ -46,10 +46,6 @@ export class PaymentService extends Eventable {
     async order(order) {
 
         const price = Math.ceil(order.price * 100);
-        if (!this.cardService) {
-            // no card server, always correct.
-            return Promise.resolve(true);
-        }
 
         return new Promise(
             (resolve, reject) => {
@@ -63,10 +59,12 @@ export class PaymentService extends Eventable {
 
                 this.trigger('transaction:start', this.currentTransaction);
 
-                // Do we have a card?
-                const card = this.cardService.getCard();
-                if (card) {
-                    this.handleTransaction(card, this.currentTransaction)
+                if (this.cardService) {
+                    // Do we have a card?
+                    const card = this.cardService.getCard();
+                    if (card) {
+                        this.handleTransaction(card, this.currentTransaction)
+                    }
                 }
             }
         )

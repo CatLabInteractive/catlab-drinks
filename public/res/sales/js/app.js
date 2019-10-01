@@ -2822,7 +2822,9 @@ function _asyncToGenerator(fn) {
       }).then(function (event) {
         _this.event = event;
 
-        _this.$cardService.setPassword(event.organisation.secret);
+        if (_this.$cardService) {
+          _this.$cardService.setPassword(event.organisation.secret);
+        }
       });
       this.refresh();
     }
@@ -3298,6 +3300,7 @@ function _asyncToGenerator(fn) {
 
       _this.amount = (transaction.price / 100).toFixed(2);
       _this.transaction = transaction;
+      _this.error = transaction.error;
     });
     this.$paymentService.on('transaction:change', function (transaction) {
       console.log(transaction.error);
@@ -3307,6 +3310,8 @@ function _asyncToGenerator(fn) {
       _this.active = false;
 
       _this.$refs.paymentModal.hide();
+
+      _this.error = null;
     });
   },
   data: function data() {
@@ -80154,7 +80159,7 @@ var render = function() {
           attrs: {
             "ok-only": "",
             "button-size": "lg",
-            title: "Betaling geslaag.",
+            title: "Betaling geslaagd",
             "ok-variant": "success",
             "no-close-on-backdrop": ""
           }
@@ -80294,10 +80299,12 @@ var render = function() {
       attrs: {
         title: "Betalen",
         "button-size": "lg",
-        "hide-footer": "",
-        "no-close-on-backdrop": ""
+        "ok-only": "",
+        "no-close-on-backdrop": "",
+        "ok-variant": "danger",
+        "ok-title": "Cancel"
       },
-      on: { hide: _vm.cancel }
+      on: { ok: _vm.cancel, hide: _vm.cancel }
     },
     [
       _c("p", { staticClass: "text-center" }, [
@@ -80307,7 +80314,9 @@ var render = function() {
       ]),
       _vm._v(" "),
       _vm.error
-        ? _c("p", [_vm._v("Kaart fout: " + _vm._s(_vm.error))])
+        ? _c("p", { staticClass: "text-center alert alert-warning" }, [
+            _vm._v("Kaart fout: " + _vm._s(_vm.error))
+          ])
         : _vm._e(),
       _vm._v(" "),
       _c("p", { staticClass: "text-center" }, [
@@ -100822,15 +100831,6 @@ function (_Eventable) {
             switch (_context.prev = _context.next) {
               case 0:
                 price = Math.ceil(_order.price * 100);
-
-                if (this.cardService) {
-                  _context.next = 3;
-                  break;
-                }
-
-                return _context.abrupt("return", Promise.resolve(true));
-
-              case 3:
                 return _context.abrupt("return", new Promise(function (resolve, reject) {
                   _this2.currentTransaction = {
                     price: price,
@@ -100840,17 +100840,19 @@ function (_Eventable) {
                     reject: reject
                   };
 
-                  _this2.trigger('transaction:start', _this2.currentTransaction); // Do we have a card?
+                  _this2.trigger('transaction:start', _this2.currentTransaction);
 
+                  if (_this2.cardService) {
+                    // Do we have a card?
+                    var card = _this2.cardService.getCard();
 
-                  var card = _this2.cardService.getCard();
-
-                  if (card) {
-                    _this2.handleTransaction(card, _this2.currentTransaction);
+                    if (card) {
+                      _this2.handleTransaction(card, _this2.currentTransaction);
+                    }
                   }
                 }));
 
-              case 4:
+              case 2:
               case "end":
                 return _context.stop();
             }

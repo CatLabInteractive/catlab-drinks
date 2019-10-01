@@ -93,7 +93,7 @@
         </b-modal>
 
         <!-- Modal Component -->
-        <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling geslaag." ok-variant="success" no-close-on-backdrop>
+        <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling geslaagd" ok-variant="success" no-close-on-backdrop>
             <p class="text-center"><i class="fas fa-thumbs-up huge"></i></p>
             <p class="text-center alert alert-success">Betaling geslaagd.</p>
         </b-modal>
@@ -154,8 +154,10 @@
                         (event) => {
                             this.event = event;
 
-                            this.$cardService
-                                .setPassword(event.organisation.secret);
+                            if (this.$cardService) {
+                                this.$cardService
+                                    .setPassword(event.organisation.secret);
+                            }
                         }
                     );
 
