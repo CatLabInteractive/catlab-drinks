@@ -23,7 +23,6 @@
     <div>
         <h2>
             Bar
-
             <b-button v-if="this.eventId" size="sm" class="btn-light" :to="{ name: 'menu', params: { id: this.eventId } }">
                 <i class="fas fa-edit"></i>
                 <span class="sr-only">Menu items</span>
@@ -64,7 +63,7 @@
         <b-row>
             <b-col cols="12">
                 <div class="total">
-                    <p>Totaal: {{totals.amount}} stuks = €{{totals.price.toFixed(2)}} (<strong>{{Math.ceil(totals.price / 0.5)}} vakjes</strong>)</p>
+                    <p>Totaal: {{totals.amount}} stuks = €{{totals.price.toFixed(2)}}</p>
                 </div>
 
                 <p>
@@ -83,14 +82,26 @@
 
 
         <!-- Modal Component -->
-        <b-modal ref="confirmModal" class="order-confirm-modal" title="Bestelling bevestigen" @ok="confirm" @cancel="cancel" button-size="lg">
+        <b-modal ref="confirmModal" class="order-confirm-modal" title="Bestelling bevestigen" @ok="confirm" @cancel="cancel" button-size="lg" no-close-on-backdrop>
             <ul>
                 <li v-for="(item, index) in selectedItems">
                     {{item.amount}} x {{item.menuItem.name}}
                 </li>
             </ul>
 
-            <p class="total">Totaal: {{totals.amount}} stuks = €{{totals.price.toFixed(2)}} <strong>({{Math.ceil(totals.price / 0.5)}} vakjes)</strong></p>
+            <p class="total">Totaal: {{totals.amount}} stuks = €{{totals.price.toFixed(2)}}</p>
+        </b-modal>
+
+        <!-- Modal Component -->
+        <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling geslaag." ok-variant="success" no-close-on-backdrop>
+            <p class="text-center"><i class="fas fa-thumbs-up huge"></i></p>
+            <p class="text-center alert alert-success">Betaling geslaagd.</p>
+        </b-modal>
+
+        <!-- Modal Component -->
+        <b-modal ref="declinedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling gefaald" ok-variant="danger" no-close-on-backdrop>
+            <p class="text-center"><i class="fas fa-exclamation-triangle huge"></i></p>
+            <p class="text-center alert alert-danger">De betaling is mislukt. Geef de bestelling opnieuw in.</p>
         </b-modal>
     </div>
 
@@ -277,12 +288,19 @@
                     try {
                         await this.$paymentService.order(order);
 
+                        this.$refs.processedModal.show();
+                        setTimeout(function () {
+                            this.$refs.processedModal.hide();
+                        }.bind(this), 2000);
+
                         order.paid = true;
                         order.status = 'processed';
 
                     } catch (e) {
                         order.paid = false;
                         order.status = 'declined';
+
+                        this.$refs.declinedModal.show();
                     }
 
                     order = await this.orderService.create(order);

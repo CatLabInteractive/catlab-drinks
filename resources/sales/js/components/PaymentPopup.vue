@@ -22,18 +22,27 @@
 <template>
 
     <!-- Modal Component -->
-    <b-modal ref="paymentModal" class="order-confirm-modal" title="Betalen" @hide="cancel" button-size="lg" ok-only ok-variant="danger" ok-title="Cancel">
-        <p>Scan card to spend {{ amount }}</p>
+    <b-modal ref="paymentModal" class="payment-modal" title="Betalen" @hide="cancel" button-size="lg" hide-footer no-close-on-backdrop>
 
-        <p v-if="error">{{ error }}</p>
+        <p class="text-center">
+            Scan kaart of schrap <strong>{{Math.ceil(amount / 0.5)}} vakjes</strong>.
+        </p>
+
+        <p v-if="error" >Kaart fout: {{ error }}</p>
+
+        <p class="text-center"><button class="btn btn-success" v-on:click="cash()">{{Math.ceil(amount / 0.5)}} vakjes geschrapt</button></p>
+
     </b-modal>
 
 </template>
 <script>
     export default {
+
         mounted() {
 
+            this.active = false;
             this.$paymentService.on('transaction:start', (transaction) => {
+                this.active = true;
                 this.$refs.paymentModal.show();
 
                 this.amount = (transaction.price / 100).toFixed(2);
@@ -46,6 +55,7 @@
             });
 
             this.$paymentService.on('transaction:done', () => {
+                this.active = false;
                 this.$refs.paymentModal.hide();
             });
         },
@@ -60,11 +70,17 @@
         methods: {
             async cancel() {
 
-                console.log('Cancel transaction');
+                if (!this.active) {
+                    return;
+                }
 
                 //this.$refs.paymentModal.hide();
                 this.$paymentService.cancel();
             },
+
+            async cash() {
+                this.$paymentService.cash();
+            }
         }
     }
 </script>

@@ -2774,6 +2774,17 @@ function _asyncToGenerator(fn) {
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -3041,22 +3052,27 @@ function _asyncToGenerator(fn) {
                 return this.$paymentService.order(order);
 
               case 11:
+                this.$refs.processedModal.show();
+                setTimeout(function () {
+                  this.$refs.processedModal.hide();
+                }.bind(this), 2000);
                 order.paid = true;
                 order.status = 'processed';
-                _context6.next = 19;
+                _context6.next = 22;
                 break;
 
-              case 15:
-                _context6.prev = 15;
+              case 17:
+                _context6.prev = 17;
                 _context6.t0 = _context6["catch"](8);
                 order.paid = false;
                 order.status = 'declined';
+                this.$refs.declinedModal.show();
 
-              case 19:
-                _context6.next = 21;
+              case 22:
+                _context6.next = 24;
                 return this.orderService.create(order);
 
-              case 21:
+              case 24:
                 order = _context6.sent;
                 this.reset();
                 this.saving = false;
@@ -3065,21 +3081,21 @@ function _asyncToGenerator(fn) {
                 setTimeout(function () {
                   _this2.saved = false;
                 }, 2000);
-                _context6.next = 33;
+                _context6.next = 36;
                 break;
 
-              case 29:
-                _context6.prev = 29;
+              case 32:
+                _context6.prev = 32;
                 _context6.t1 = _context6["catch"](3);
                 this.saving = false;
                 this.warning = _context6.t1.response.data.error.message;
 
-              case 33:
+              case 36:
               case "end":
                 return _context6.stop();
             }
           }
-        }, _callee6, this, [[3, 29], [8, 15]]);
+        }, _callee6, this, [[3, 32], [8, 17]]);
       }));
 
       function confirm() {
@@ -3262,13 +3278,22 @@ function _asyncToGenerator(fn) {
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     var _this = this;
 
+    this.active = false;
     this.$paymentService.on('transaction:start', function (transaction) {
+      _this.active = true;
+
       _this.$refs.paymentModal.show();
 
       _this.amount = (transaction.price / 100).toFixed(2);
@@ -3279,6 +3304,8 @@ function _asyncToGenerator(fn) {
       _this.error = transaction.error;
     });
     this.$paymentService.on('transaction:done', function () {
+      _this.active = false;
+
       _this.$refs.paymentModal.hide();
     });
   },
@@ -3297,11 +3324,18 @@ function _asyncToGenerator(fn) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                console.log('Cancel transaction'); //this.$refs.paymentModal.hide();
+                if (this.active) {
+                  _context.next = 2;
+                  break;
+                }
 
-                this.$paymentService.cancel();
+                return _context.abrupt("return");
 
               case 2:
+                //this.$refs.paymentModal.hide();
+                this.$paymentService.cancel();
+
+              case 3:
               case "end":
                 return _context.stop();
             }
@@ -3314,6 +3348,30 @@ function _asyncToGenerator(fn) {
       }
 
       return cancel;
+    }(),
+    cash: function () {
+      var _cash = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                this.$paymentService.cash();
+
+              case 1:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function cash() {
+        return _cash.apply(this, arguments);
+      }
+
+      return cash;
     }()
   }
 });
@@ -79895,7 +79953,7 @@ var render = function() {
       _c(
         "h2",
         [
-          _vm._v("\n        Bar\n\n        "),
+          _vm._v("\n        Bar\n        "),
           this.eventId
             ? _c(
                 "b-button",
@@ -79998,15 +80056,8 @@ var render = function() {
                     "Totaal: " +
                       _vm._s(_vm.totals.amount) +
                       " stuks = €" +
-                      _vm._s(_vm.totals.price.toFixed(2)) +
-                      " ("
-                  ),
-                  _c("strong", [
-                    _vm._v(
-                      _vm._s(Math.ceil(_vm.totals.price / 0.5)) + " vakjes"
-                    )
-                  ]),
-                  _vm._v(")")
+                      _vm._s(_vm.totals.price.toFixed(2))
+                  )
                 ])
               ]),
               _vm._v(" "),
@@ -80060,7 +80111,11 @@ var render = function() {
         {
           ref: "confirmModal",
           staticClass: "order-confirm-modal",
-          attrs: { title: "Bestelling bevestigen", "button-size": "lg" },
+          attrs: {
+            title: "Bestelling bevestigen",
+            "button-size": "lg",
+            "no-close-on-backdrop": ""
+          },
           on: { ok: _vm.confirm, cancel: _vm.cancel }
         },
         [
@@ -80085,14 +80140,56 @@ var render = function() {
               "Totaal: " +
                 _vm._s(_vm.totals.amount) +
                 " stuks = €" +
-                _vm._s(_vm.totals.price.toFixed(2)) +
-                " "
-            ),
-            _c("strong", [
-              _vm._v(
-                "(" + _vm._s(Math.ceil(_vm.totals.price / 0.5)) + " vakjes)"
-              )
-            ])
+                _vm._s(_vm.totals.price.toFixed(2))
+            )
+          ])
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "b-modal",
+        {
+          ref: "processedModal",
+          staticClass: "order-confirm-modal",
+          attrs: {
+            "ok-only": "",
+            "button-size": "lg",
+            title: "Betaling geslaag.",
+            "ok-variant": "success",
+            "no-close-on-backdrop": ""
+          }
+        },
+        [
+          _c("p", { staticClass: "text-center" }, [
+            _c("i", { staticClass: "fas fa-thumbs-up huge" })
+          ]),
+          _vm._v(" "),
+          _c("p", { staticClass: "text-center alert alert-success" }, [
+            _vm._v("Betaling geslaagd.")
+          ])
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "b-modal",
+        {
+          ref: "declinedModal",
+          staticClass: "order-confirm-modal",
+          attrs: {
+            "ok-only": "",
+            "button-size": "lg",
+            title: "Betaling gefaald",
+            "ok-variant": "danger",
+            "no-close-on-backdrop": ""
+          }
+        },
+        [
+          _c("p", { staticClass: "text-center" }, [
+            _c("i", { staticClass: "fas fa-exclamation-triangle huge" })
+          ]),
+          _vm._v(" "),
+          _c("p", { staticClass: "text-center alert alert-danger" }, [
+            _vm._v("De betaling is mislukt. Geef de bestelling opnieuw in.")
           ])
         ]
       )
@@ -80193,20 +80290,40 @@ var render = function() {
     "b-modal",
     {
       ref: "paymentModal",
-      staticClass: "order-confirm-modal",
+      staticClass: "payment-modal",
       attrs: {
         title: "Betalen",
         "button-size": "lg",
-        "ok-only": "",
-        "ok-variant": "danger",
-        "ok-title": "Cancel"
+        "hide-footer": "",
+        "no-close-on-backdrop": ""
       },
       on: { hide: _vm.cancel }
     },
     [
-      _c("p", [_vm._v("Scan card to spend " + _vm._s(_vm.amount))]),
+      _c("p", { staticClass: "text-center" }, [
+        _vm._v("\n        Scan kaart of schrap "),
+        _c("strong", [_vm._v(_vm._s(Math.ceil(_vm.amount / 0.5)) + " vakjes")]),
+        _vm._v(".\n    ")
+      ]),
       _vm._v(" "),
-      _vm.error ? _c("p", [_vm._v(_vm._s(_vm.error))]) : _vm._e()
+      _vm.error
+        ? _c("p", [_vm._v("Kaart fout: " + _vm._s(_vm.error))])
+        : _vm._e(),
+      _vm._v(" "),
+      _c("p", { staticClass: "text-center" }, [
+        _c(
+          "button",
+          {
+            staticClass: "btn btn-success",
+            on: {
+              click: function($event) {
+                return _vm.cash()
+              }
+            }
+          },
+          [_vm._v(_vm._s(Math.ceil(_vm.amount / 0.5)) + " vakjes geschrapt")]
+        )
+      ])
     ]
   )
 }
@@ -97901,7 +98018,7 @@ var CardService = /** @class */ (function (_super) {
     };
     CardService.prototype.topup = function (topupUid, amount) {
         return __awaiter(this, void 0, void 0, function () {
-            var card, transaction;
+            var card, transaction, transactionNumber;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -97910,22 +98027,24 @@ var CardService = /** @class */ (function (_super) {
                             throw new _exceptions_NoCardFound__WEBPACK_IMPORTED_MODULE_8__["NoCardFound"]('No card found.');
                         }
                         transaction = new _models_Transaction__WEBPACK_IMPORTED_MODULE_9__["Transaction"](card.getUid(), new Date(), amount, null, topupUid);
-                        // try to write the transaction to card
-                        card.balance += amount;
+                        transactionNumber = card.applyTransaction(transaction.amount);
                         return [4 /*yield*/, card.save()];
                     case 1:
                         _a.sent();
                         // yay! save that transaction (but don't wait for upload)
                         this.offlineStore.addPendingTransaction(transaction);
                         this.trigger('card:balance:change', card);
-                        return [2 /*return*/];
+                        return [2 /*return*/, {
+                                uid: card.getUid(),
+                                transaction: transactionNumber
+                            }];
                 }
             });
         });
     };
     CardService.prototype.spend = function (orderUid, amount) {
         return __awaiter(this, void 0, void 0, function () {
-            var card, transaction;
+            var card, transaction, transactionNumber;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -97936,16 +98055,18 @@ var CardService = /** @class */ (function (_super) {
                         if (card.balance < amount) {
                             throw new _exceptions_InsufficientFunds__WEBPACK_IMPORTED_MODULE_7__["InsufficientFunds"]('Insufficient funds.');
                         }
-                        transaction = new _models_Transaction__WEBPACK_IMPORTED_MODULE_9__["Transaction"](card.getUid(), new Date(), amount, orderUid);
-                        // try to write the transaction to card
-                        card.balance -= amount;
+                        transaction = new _models_Transaction__WEBPACK_IMPORTED_MODULE_9__["Transaction"](card.getUid(), new Date(), 0 - amount, orderUid);
+                        transactionNumber = card.applyTransaction(transaction.amount);
                         return [4 /*yield*/, card.save()];
                     case 1:
                         _a.sent();
                         // yay! save that transaction (but don't wait for upload)
                         this.offlineStore.addPendingTransaction(transaction);
                         this.trigger('card:balance:change', card);
-                        return [2 /*return*/];
+                        return [2 /*return*/, {
+                                uid: card.getUid(),
+                                transaction: transactionNumber
+                            }];
                 }
             });
         });
@@ -100749,6 +100870,7 @@ function (_Eventable) {
       var _handleTransaction = _asyncToGenerator(
       /*#__PURE__*/
       _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2(card, transaction) {
+        var out;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
@@ -100758,14 +100880,16 @@ function (_Eventable) {
                 return this.cardService.spend(transaction.orderId, transaction.price);
 
               case 3:
+                out = _context2.sent;
+                out.paymentType = 'card';
                 this.currentTransaction = null;
-                transaction.resolve(true);
+                transaction.resolve(out);
                 this.trigger('transaction:done');
-                _context2.next = 11;
+                _context2.next = 13;
                 break;
 
-              case 8:
-                _context2.prev = 8;
+              case 10:
+                _context2.prev = 10;
                 _context2.t0 = _context2["catch"](0);
 
                 if (_context2.t0 instanceof _nfccards_exceptions_InsufficientFunds__WEBPACK_IMPORTED_MODULE_5__["InsufficientFunds"]) {
@@ -100776,15 +100900,15 @@ function (_Eventable) {
                   transaction.error = ' Nfc error, please scan again.';
                 }
 
-              case 11:
+              case 13:
                 this.trigger('transaction:change', transaction);
 
-              case 12:
+              case 14:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, this, [[0, 8]]);
+        }, _callee2, this, [[0, 10]]);
       }));
 
       function handleTransaction(_x2, _x3) {
@@ -100829,6 +100953,44 @@ function (_Eventable) {
       }
 
       return cancel;
+    }()
+  }, {
+    key: "cash",
+    value: function () {
+      var _cash = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                if (this.currentTransaction) {
+                  _context4.next = 2;
+                  break;
+                }
+
+                return _context4.abrupt("return");
+
+              case 2:
+                this.currentTransaction.resolve({
+                  paymentType: 'cash'
+                });
+                this.currentTransaction = null;
+                this.trigger('transaction:done');
+
+              case 5:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this);
+      }));
+
+      function cash() {
+        return _cash.apply(this, arguments);
+      }
+
+      return cash;
     }()
   }]);
 

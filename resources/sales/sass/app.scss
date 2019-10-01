@@ -62,7 +62,8 @@
   margin-bottom: 10px;
 }
 
-#live-orders .total {
+#live-orders .total,
+.payment-modal .total {
   border: 2px solid green;
   background: #bcffc8;
   padding: 10px;
@@ -71,9 +72,14 @@
   margin: 20px 0;
 }
 
-#live-orders .total p {
+#live-orders .total p,
+.payment-modal .total p {
   margin: 0;
   padding: 0;
+}
+
+.payment-modal p {
+    font-size: 150%;
 }
 
 .order-confirm-modal li {
@@ -101,4 +107,10 @@
 .order.status.declined {
   background: #ffc5c5;
   border-color: red;
+}
+
+.order-confirm-modal i.huge {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 100px;
 }

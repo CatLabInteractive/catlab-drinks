@@ -76,11 +76,15 @@ export class PaymentService extends Eventable {
 
         // let's spend some money
         try {
-            await this.cardService.spend(transaction.orderId, transaction.price);
+
+            const out = await this.cardService.spend(transaction.orderId, transaction.price);
+            out.paymentType = 'card';
+
             this.currentTransaction = null;
 
-            transaction.resolve(true);
+            transaction.resolve(out);
             this.trigger('transaction:done');
+
         } catch (e) {
             if (e instanceof InsufficientFunds) {
                 transaction.error = 'Insufficient funds.';
@@ -102,6 +106,18 @@ export class PaymentService extends Eventable {
 
         // close the state
         this.currentTransaction.reject(new Error('Transaction cancelled manually.'));
+
+        this.currentTransaction = null;
+        this.trigger('transaction:done');
+    }
+
+    async cash() {
+
+        if (!this.currentTransaction) {
+            return;
+        }
+
+        this.currentTransaction.resolve({ paymentType: 'cash' });
 
         this.currentTransaction = null;
         this.trigger('transaction:done');

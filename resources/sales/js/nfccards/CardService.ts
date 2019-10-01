@@ -220,12 +220,17 @@ export class CardService extends Eventable {
         );
 
         // try to write the transaction to card
-        card.balance += amount;
+        const transactionNumber = card.applyTransaction(transaction.amount);
         await card.save();
 
         // yay! save that transaction (but don't wait for upload)
         this.offlineStore.addPendingTransaction(transaction);
         this.trigger('card:balance:change', card);
+
+        return {
+            uid: card.getUid(),
+            transaction: transactionNumber
+        }
     }
 
     async spend(orderUid: string, amount: number) {
@@ -242,17 +247,21 @@ export class CardService extends Eventable {
         const transaction = new Transaction(
             card.getUid(),
             new Date(),
-            amount,
+            0 - amount,
             orderUid
         );
 
-        // try to write the transaction to card
-        card.balance -= amount;
+        const transactionNumber = card.applyTransaction(transaction.amount);
         await card.save();
 
         // yay! save that transaction (but don't wait for upload)
         this.offlineStore.addPendingTransaction(transaction);
         this.trigger('card:balance:change', card);
+
+        return {
+            uid: card.getUid(),
+            transaction: transactionNumber
+        }
     }
 
     /**
