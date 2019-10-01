@@ -21,20 +21,46 @@
 
 export class Transaction {
 
-    public date: Date;
+    static unserialize(data: any) {
+        const date = new Date();
+        date.setTime(data.timestamp);
 
-    public amount: number;
-
-    public orderUid: string | null;
-
-    public topupUid: string | null;
-
-    constructor(cardUid: string, date: Date, amount: number, orderUid: string | null = null, topupUid: string | null = null) {
-        this.date = date;
-        this.amount = amount;
-        this.orderUid = orderUid;
-        this.topupUid = topupUid;
+        return new Transaction(
+            data.cardUid,
+            date,
+            data.amount,
+            data.orderUid,
+            data.topupUid
+        )
     }
 
+    /**
+     * @param cardUid
+     * @param date
+     * @param amount
+     * @param orderUid
+     * @param topupUid
+     */
+    constructor(
+        public cardUid: string,
+        public date: Date,
+        public amount: number,
+        public orderUid: string | null = null,
+        public topupUid: string | null = null
+    ) {
 
+    }
+
+    /**
+     *
+     */
+    serialize() {
+        return {
+            cardUid: this.cardUid,
+            timestamp: this.date.getTime(),
+            amount: this.amount,
+            orderUid: this.orderUid,
+            topupUid: this.topupUid
+        }
+    }
 }
