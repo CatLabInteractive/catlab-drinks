@@ -66,6 +66,8 @@ export class CardService extends Eventable {
      */
     private currentCard: Card | null = null;
 
+    private axios: any = null;
+
     /**
      *
      */
@@ -76,6 +78,8 @@ export class CardService extends Eventable {
         nfcPassword: string
     ) {
         super();
+
+        this.axios = axios;
 
         this.offlineStore = new OfflineStore(organisationId);
         this.transactionStore = new TransactionStore(axios, organisationId, this.offlineStore);
@@ -128,6 +132,7 @@ export class CardService extends Eventable {
 
             // set interla id
             card.id = serverCard.id;
+            card.orderTokenAliases = serverCard.orderTokenAliases;
 
             // check for pending transactions
             const pendingTransactions = serverCard.pendingTransactions.items;
@@ -276,13 +281,22 @@ export class CardService extends Eventable {
         }
     }
 
+    async saveCardAliases(card: Card) {
+
+        const response = await this.axios({
+            method: 'put',
+            url: 'cards/' + card.id,
+            data: {
+                orderTokenAliases: card.orderTokenAliases
+            }
+        });
+    }
+
     /**
      * @param card
      */
     async getTransactions(card: Card) {
-
         return await this.transactionStore.getTransactions(card);
-
     }
 
 }

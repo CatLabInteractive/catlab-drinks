@@ -23,6 +23,7 @@
 namespace App\Http\Api\V1\ResourceDefinitions;
 
 use App\Models\Card;
+use App\Models\CardOrderTokenAlias;
 use App\Models\Event;
 use CatLab\Charon\Models\ResourceDefinition;
 use CatLab\Charon\Transformers\ScalarTransformer;
@@ -64,10 +65,15 @@ class CardResourceDefinition extends ResourceDefinition
             ->expanded()
             ->visible();
 
+        $this->field('orderTokenAliases')
+            ->string()
+            ->visible()
+            ->array()
+            ->writeable(true, true);
+
         $this->field('updated_at')
             ->visible(true)
             ->datetime()
             ->sortable();
-
     }
 }

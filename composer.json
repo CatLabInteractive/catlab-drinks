@@ -13,7 +13,7 @@
         "php": "^7.1.3",
         "barryvdh/laravel-cors": "^0.11.2",
         "barryvdh/laravel-ide-helper": "^2.5",
-        "catlabinteractive/charon": "^1.3.1",
+        "catlabinteractive/charon": "^1.3.2",
         "catlabinteractive/charon-laravel": "^1.3.2",
         "catlabinteractive/cursor-pagination": "^1.0.4",
         "catlabinteractive/laravel-catlab-accounts": "^1.0",

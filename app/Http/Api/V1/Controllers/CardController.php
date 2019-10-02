@@ -146,7 +146,6 @@ class CardController extends Base\ResourceController
         $cardDataResource = $this->bodyToResource($context, CardDataResourceDefinition::class);
         $cardData = $this->toEntity($cardDataResource, $context, new CardData());
 
-        // @todo check if version is latest version
         if ($card->transaction_count > $cardData->transactionCount) {
             \Log::error('Transaction count is lower than our own transaction count: ' . print_r($cardData));
             return new JsonResponse([

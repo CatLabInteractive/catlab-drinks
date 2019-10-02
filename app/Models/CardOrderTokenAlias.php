@@ -22,60 +22,36 @@
 
 namespace App\Models;
 
-use CatLab\Charon\Laravel\Database\Model;
+use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Organisation
+ * Class CardOrderTokenAlias
  * @package App\Models
  */
-class Organisation extends Model
+class CardOrderTokenAlias extends Model
 {
     protected $fillable = [
-        'name'
+        'alias'
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @var string
      */
-    public function users()
+    protected $table = 'card_order_token_aliases';
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function organisation()
     {
-        return $this->belongsToMany(User::class)->withTimestamps();
+        return $this->belongsTo(Organisation::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function events()
+    public function card()
     {
-        return $this->hasMany(Event::class);
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function cards()
-    {
-        return $this->hasMany(Card::class);
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function orderTokenAliases()
-    {
-        return $this->hasMany(CardOrderTokenAlias::class);
-    }
-
-    /**
-     * @return string
-     */
-    public function getSecret()
-    {
-        if (!$this->secret) {
-            $this->secret = str_random(32);
-            $this->save();
-        }
-
-        return $this->secret;
+        return $this->belongsTo(Card::class);
     }
 }

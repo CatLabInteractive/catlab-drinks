@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16bda1b87eb42e8114659a0c9e6a20d6",
+    "content-hash": "e78b5aa3533383cc264d162d0d55a4da",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -318,16 +318,16 @@
         },
         {
             "name": "catlabinteractive/charon",
-            "version": "v1.3.1",
+            "version": "v1.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CatLabInteractive/charon.git",
-                "reference": "98d02d5103b27aec011fc902b24ca86aa43c5bd2"
+                "reference": "a26fd77ea42c2d1ce1bc122b2dd0d0e14bd19bbd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CatLabInteractive/charon/zipball/98d02d5103b27aec011fc902b24ca86aa43c5bd2",
-                "reference": "98d02d5103b27aec011fc902b24ca86aa43c5bd2",
+                "url": "https://api.github.com/repos/CatLabInteractive/charon/zipball/a26fd77ea42c2d1ce1bc122b2dd0d0e14bd19bbd",
+                "reference": "a26fd77ea42c2d1ce1bc122b2dd0d0e14bd19bbd",
                 "shasum": ""
             },
             "require": {
@@ -355,7 +355,7 @@
                 }
             ],
             "description": "Charon is a framework for building self documented RESTfull API's.",
-            "time": "2019-09-24T12:55:17+00:00"
+            "time": "2019-10-02T22:13:43+00:00"
         },
         {
             "name": "catlabinteractive/charon-laravel",
@@ -5812,16 +5812,16 @@
         },
         {
             "name": "mockery/mockery",
-            "version": "1.2.3",
+            "version": "1.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mockery/mockery.git",
-                "reference": "4eff936d83eb809bde2c57a3cea0ee9643769031"
+                "reference": "b3453f75fd23d9fd41685f2148f4abeacabc6405"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mockery/mockery/zipball/4eff936d83eb809bde2c57a3cea0ee9643769031",
-                "reference": "4eff936d83eb809bde2c57a3cea0ee9643769031",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/b3453f75fd23d9fd41685f2148f4abeacabc6405",
+                "reference": "b3453f75fd23d9fd41685f2148f4abeacabc6405",
                 "shasum": ""
             },
             "require": {
@@ -5835,7 +5835,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.2.x-dev"
                 }
             },
             "autoload": {
@@ -5873,7 +5873,7 @@
                 "test double",
                 "testing"
             ],
-            "time": "2019-08-07T15:01:07+00:00"
+            "time": "2019-09-30T08:30:27+00:00"
         },
         {
             "name": "myclabs/deep-copy",

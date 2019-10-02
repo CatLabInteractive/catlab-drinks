@@ -65,9 +65,19 @@ class Card extends Model
      * @param $token
      * @return Card
      */
-    public static function getFromOrderTokenOrAlias($token)
+    public static function getFromOrderTokenOrAlias(Organisation $organisation, $token)
     {
-        return Card::where('order_token', '=', $token)->first();
+        $card = Card::where('order_token', '=', $token)->first();
+        if ($card) {
+            return $card;
+        }
+
+        // look for aliases
+        $alias = $organisation->orderTokenAliases()->where('alias', '=', $token)->first();
+        if ($alias) {
+            return $alias->card;
+        }
+        return null;
     }
 
     /**
@@ -86,6 +96,14 @@ class Card extends Model
     public function getPendingTransactions()
     {
         return $this->transactions()->where('has_synced', '=', 0)->get();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orderTokenAliases()
+    {
+        return $this->hasMany(CardOrderTokenAlias::class);
     }
 
     /**
@@ -200,5 +218,49 @@ class Card extends Model
             $transaction->save();
 
         }
+    }
+
+    /**
+     * @param array $items
+     */
+    public function setOrderTokenAliases(array $items)
+    {
+        $touches = [];
+        foreach ($items as $alias) {
+            // if not exists yet, create.
+            $t = $this->orderTokenAliases->where('alias', '=', $alias)->first();
+            if (!$t) {
+
+                // Was it assigned somewhere else? delete all the things!
+                CardOrderTokenAlias::where('organisation_id', '=', $this->organisation->id)
+                    ->where('alias', '=', $alias)
+                    ->delete();
+
+                $model = new CardOrderTokenAlias();
+                $model->alias = $alias;
+
+                $model->organisation()->associate($this->organisation);
+                $model->card()->associate($this);
+
+                $model->save();
+                $touches[] = $model->id;
+            } else {
+                $touches[] = $t->id;
+            }
+        }
+
+        $this->orderTokenAliases()->whereNotIn('id', $touches)->delete();
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getOrderTokenAliases()
+    {
+        return $this->orderTokenAliases()->get()->map(
+            function(CardOrderTokenAlias $v) {
+                return $v->alias;
+            }
+        );
     }
 }

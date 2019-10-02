@@ -39,6 +39,21 @@
                 <input type="number" min="0" step="0.01" placeholder="10.00" id="customAmount" v-model="topupAmount" />
 
                 <button class="btn btn-primary" v-on:click="topup()">Topup</button>
+
+                <h3>Aliases</h3>
+                <ul>
+                    <li v-for="alias in card.orderTokenAliases">{{alias}} <a href="javascript:void(0);" v-on:click="removeOrderTokenAlias(alias)" class="btn btn-danger btn-sm">x</a></li>
+
+                    <li>
+                        <input type="text" v-model="creatingOrderTokenAlias" />
+                        <button class="btn btn-primary btn-sm" v-on:click="addOrderTokenAlias">Add</button>
+                    </li>
+                </ul>
+                <button class="btn btn-primary btn-sm" v-on:click="storeServerData">
+                    <span v-if="storeState === 'storing'">Saving</span>
+                    <span v-if="storeState === 'stored'">Saved</span>
+                    <span v-if="storeState === null">Save</span>
+                </button>
             </div>
 
             <div class="col-md-6">
@@ -91,13 +106,16 @@
         data() {
             return {
                 transactions: [],
-                topupAmount: 10
+                topupAmount: 10,
+                creatingOrderTokenAlias: '',
+                storeState: null
             }
         },
 
         mounted() {
 
             this.transactions = [];
+            this.storingAlias = false;
             if (this.card) {
                 if (this.card.loaded) {
                     this.loadCard();
@@ -136,6 +154,25 @@
                 // we probably want to store this somewhere, but hey... no time.
                 await this.$cardService.topup(uniqueId, amount);
                 alert('topup succesful');
+            },
+
+            async addOrderTokenAlias() {
+                this.card.orderTokenAliases.push(this.creatingOrderTokenAlias);
+                this.creatingOrderTokenAlias = '';
+            },
+
+            async removeOrderTokenAlias(alias) {
+                const index = this.card.orderTokenAliases.indexOf(alias);
+                this.card.orderTokenAliases.splice(index, 1);
+            },
+
+            async storeServerData() {
+                this.storeState = 'storing';
+                this.$cardService.saveCardAliases(this.card);
+                this.storeState = 'stored';
+                setTimeout(() => {
+                    this.storeState = null;
+                }, 2000);
             }
         }
     }

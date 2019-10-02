@@ -51,6 +51,8 @@ export class Card extends Eventable {
 
     public lastTransaction: Date = new Date();
 
+    public orderTokenAliases: string[] = [];
+
     private corrupted: boolean;
 
     /**
@@ -261,6 +263,9 @@ export class Card extends Eventable {
         this.trigger('saved');
     }
 
+    /**
+     *
+     */
     public getVisibleBalance() {
         return VisibleAmount.toVisible(this.balance);
     }

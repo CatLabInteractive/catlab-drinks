@@ -2752,6 +2752,21 @@ function _asyncToGenerator(fn) {
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
@@ -2761,13 +2776,16 @@ var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
   data: function data() {
     return {
       transactions: [],
-      topupAmount: 10
+      topupAmount: 10,
+      creatingOrderTokenAlias: '',
+      storeState: null
     };
   },
   mounted: function mounted() {
     var _this = this;
 
     this.transactions = [];
+    this.storingAlias = false;
 
     if (this.card) {
       if (this.card.loaded) {
@@ -2874,6 +2892,88 @@ var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
       }
 
       return topup;
+    }(),
+    addOrderTokenAlias: function () {
+      var _addOrderTokenAlias = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                this.card.orderTokenAliases.push(this.creatingOrderTokenAlias);
+                this.creatingOrderTokenAlias = '';
+
+              case 2:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this);
+      }));
+
+      function addOrderTokenAlias() {
+        return _addOrderTokenAlias.apply(this, arguments);
+      }
+
+      return addOrderTokenAlias;
+    }(),
+    removeOrderTokenAlias: function () {
+      var _removeOrderTokenAlias = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee5(alias) {
+        var index;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                index = this.card.orderTokenAliases.indexOf(alias);
+                this.card.orderTokenAliases.splice(index, 1);
+
+              case 2:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, this);
+      }));
+
+      function removeOrderTokenAlias(_x) {
+        return _removeOrderTokenAlias.apply(this, arguments);
+      }
+
+      return removeOrderTokenAlias;
+    }(),
+    storeServerData: function () {
+      var _storeServerData = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee6() {
+        var _this2 = this;
+
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                this.storeState = 'storing';
+                this.$cardService.saveCardAliases(this.card);
+                this.storeState = 'stored';
+                setTimeout(function () {
+                  _this2.storeState = null;
+                }, 2000);
+
+              case 4:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, _callee6, this);
+      }));
+
+      function storeServerData() {
+        return _storeServerData.apply(this, arguments);
+      }
+
+      return storeServerData;
     }()
   }
 });
@@ -80168,6 +80268,86 @@ var render = function() {
                     }
                   },
                   [_vm._v("Topup")]
+                ),
+                _vm._v(" "),
+                _c("h3", [_vm._v("Aliases")]),
+                _vm._v(" "),
+                _c(
+                  "ul",
+                  [
+                    _vm._l(_vm.card.orderTokenAliases, function(alias) {
+                      return _c("li", [
+                        _vm._v(_vm._s(alias) + " "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "btn btn-danger btn-sm",
+                            attrs: { href: "javascript:void(0);" },
+                            on: {
+                              click: function($event) {
+                                return _vm.removeOrderTokenAlias(alias)
+                              }
+                            }
+                          },
+                          [_vm._v("x")]
+                        )
+                      ])
+                    }),
+                    _vm._v(" "),
+                    _c("li", [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.creatingOrderTokenAlias,
+                            expression: "creatingOrderTokenAlias"
+                          }
+                        ],
+                        attrs: { type: "text" },
+                        domProps: { value: _vm.creatingOrderTokenAlias },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.creatingOrderTokenAlias = $event.target.value
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-primary btn-sm",
+                          on: { click: _vm.addOrderTokenAlias }
+                        },
+                        [_vm._v("Add")]
+                      )
+                    ])
+                  ],
+                  2
+                ),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary btn-sm",
+                    on: { click: _vm.storeServerData }
+                  },
+                  [
+                    _vm.storeState === "storing"
+                      ? _c("span", [_vm._v("Saving")])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _vm.storeState === "stored"
+                      ? _c("span", [_vm._v("Saved")])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _vm.storeState === null
+                      ? _c("span", [_vm._v("Save")])
+                      : _vm._e()
+                  ]
                 )
               ]),
               _vm._v(" "),
@@ -98137,6 +98317,8 @@ var CardService = /** @class */ (function (_super) {
          *
          */
         _this.currentCard = null;
+        _this.axios = null;
+        _this.axios = axios;
         _this.offlineStore = new _store_OfflineStore__WEBPACK_IMPORTED_MODULE_3__["OfflineStore"](organisationId);
         _this.transactionStore = new _store_TransactionStore__WEBPACK_IMPORTED_MODULE_0__["TransactionStore"](axios, organisationId, _this.offlineStore);
         _this.logger = new _tools_Logger__WEBPACK_IMPORTED_MODULE_4__["Logger"]();
@@ -98195,6 +98377,7 @@ var CardService = /** @class */ (function (_super) {
                         if (!serverCard) return [3 /*break*/, 13];
                         // set interla id
                         card.id = serverCard.id;
+                        card.orderTokenAliases = serverCard.orderTokenAliases;
                         pendingTransactions = serverCard.pendingTransactions.items;
                         if (!(pendingTransactions.length > 0)) return [3 /*break*/, 9];
                         _a.label = 2;
@@ -98356,6 +98539,25 @@ var CardService = /** @class */ (function (_super) {
                                 uid: card.getUid(),
                                 transaction: transactionNumber
                             }];
+                }
+            });
+        });
+    };
+    CardService.prototype.saveCardAliases = function (card) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.axios({
+                            method: 'put',
+                            url: 'cards/' + card.id,
+                            data: {
+                                orderTokenAliases: card.orderTokenAliases
+                            }
+                        })];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/];
                 }
             });
         });
@@ -98943,6 +99145,7 @@ var Card = /** @class */ (function (_super) {
             0
         ];
         _this.lastTransaction = new Date();
+        _this.orderTokenAliases = [];
         _this.corrupted = false;
         return _this;
     }
@@ -99109,6 +99312,9 @@ var Card = /** @class */ (function (_super) {
             });
         });
     };
+    /**
+     *
+     */
     Card.prototype.getVisibleBalance = function () {
         return _tools_VisibleAmount__WEBPACK_IMPORTED_MODULE_5__["VisibleAmount"].toVisible(this.balance);
     };

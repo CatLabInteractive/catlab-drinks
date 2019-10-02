@@ -151,7 +151,7 @@ class PublicController extends ResourceController
         // Do we have a card token, so we can pay immediately?
         $cardToken = $entity->getCardToken();
         if ($cardToken) {
-            $card = Card::getFromOrderTokenOrAlias($cardToken);
+            $card = Card::getFromOrderTokenOrAlias($event->organisation, $cardToken);
             if ($card) {
 
                 try {
