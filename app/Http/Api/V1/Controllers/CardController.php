@@ -34,6 +34,7 @@ use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Laravel\Models\ResourceResponse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
@@ -130,7 +131,7 @@ class CardController extends Base\ResourceController
     /**
      * @param Request $request
      * @param $cardId
-     * @return ResourceResponse
+     * @return ResourceResponse"JsonResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function updateCardData(Request $request, $cardId)
@@ -144,6 +145,16 @@ class CardController extends Base\ResourceController
         /** @var CardData $cardData */
         $cardDataResource = $this->bodyToResource($context, CardDataResourceDefinition::class);
         $cardData = $this->toEntity($cardDataResource, $context, new CardData());
+
+        // @todo check if version is latest version
+        if ($card->transaction_count > $cardData->transactionCount) {
+            \Log::error('Transaction count is lower than our own transaction count: ' . print_r($cardData));
+            return new JsonResponse([
+                'error' => [
+                    'message' => 'Transaction count is lower than our own transaction count.'
+                ]
+            ], 402);
+        }
 
         $card->mergeFromCardData($cardData);
 
