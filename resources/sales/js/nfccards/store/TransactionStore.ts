@@ -21,6 +21,7 @@
 
 import {OfflineStore} from "./OfflineStore";
 import {Card} from "../models/Card";
+import {Transaction} from "../models/Transaction";
 
 export class TransactionStore {
 
@@ -31,18 +32,15 @@ export class TransactionStore {
         private organisationId: string,
         private offlineStore: OfflineStore
     ) {
-        setTimeout(
-            () => {
-                setInterval(
-                    () => {
-                        this.refresh();
-                    },
-                    5000
-                );
-            },
-            2500
-        );
-        this.refresh();
+
+        const refresh = async() => {
+            await this.refresh();
+            setTimeout(() => {
+                refresh();
+            }, 5000)
+        };
+
+        refresh();
     }
 
     /**
@@ -52,6 +50,9 @@ export class TransactionStore {
         return true;
     }
 
+    /**
+     * @param card
+     */
     public getCard(card: string): Promise<any> {
         if (!this.isOnline()) {
             return Promise.resolve(null);
@@ -118,6 +119,9 @@ export class TransactionStore {
         await Promise.all(promises);
     }
 
+    /**
+     * @param transaction
+     */
     public async updateTransaction(transaction: any) {
 
         await new Promise(
@@ -139,6 +143,10 @@ export class TransactionStore {
 
     }
 
+    /**
+     * @param cardId
+     * @param card
+     */
     public async uploadCardData(cardId: string, card: Card)
     {
         await new Promise(
@@ -159,17 +167,28 @@ export class TransactionStore {
         );
     }
 
-    public getPendingOfflineTransactions() {
+    /**
+     *
+     */
+    public async refresh() {
 
+        console.log('Refreshing local data');
+        try {
+            await this.uploadPendingTransactions();
+        } catch (err) {
+            console.error(err);
+        }
+
+        try {
+            await this.refreshCardTransactionCounts();
+        } catch (err) {
+            console.error(err);
+        }
     }
 
-    public refresh() {
-
-        this.uploadPendingTransactions();
-        this.refreshCardTransactionCounts();
-
-    }
-
+    /**
+     *
+     */
     private refreshCardTransactionCounts() {
         return this.axios({
             method: 'get',
@@ -197,9 +216,63 @@ export class TransactionStore {
         );
     }
 
-    private uploadPendingTransactions() {
+    /**
+     * Upload all transactions that we don't have yet.
+     */
+    private async uploadPendingTransactions() {
 
-        const pendingTransactions = this.offlineStore.getPendingTransactions();
+        const pendingTransactions = await this.offlineStore.getPendingTransactions();
+        if (pendingTransactions.length > 0) {
+            const list: any = [];
 
+            pendingTransactions.forEach(
+                (item: Transaction) => {
+
+                    let type = 'unknown';
+                    if (item.orderUid !== null) {
+                        type = 'sale';
+                    } else if (item.topupUid !== null) {
+                        type = 'topup'
+                    }
+
+                    list.push({
+                        card: item.cardUid,
+                        value: item.amount,
+                        type: type,
+                        card_transaction: item.transactionId,
+                        card_date: this.toApiDate(item.date),
+                        order_uid: item.orderUid,
+                        topup_uid: item.topupUid
+                    });
+                }
+            );
+
+            const body = {
+                items: list
+            };
+
+            await new Promise(
+                (resolve, reject) => {
+
+                    this.axios({
+                        method: 'post',
+                        url: 'organisations/' + this.organisationId + '/merge-transactions',
+                        data: body
+                    })
+                        .then(
+                            (response: any) => {
+                                this.offlineStore.removePendingTransactions(pendingTransactions);
+                                resolve();
+                            }
+                        )
+
+                }
+            );
+        }
+
+    }
+
+    private toApiDate(date: Date) {
+        return date.toISOString().split('.')[0]+"Z";
     }
 }

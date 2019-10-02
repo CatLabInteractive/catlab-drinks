@@ -23,7 +23,6 @@
 namespace App\Http\Api\V1\ResourceDefinitions;
 
 use App\Http\Api\V1\Transformers\DateTimeTransformer;
-use App\Http\Api\V1\Transformers\DateTransformer;
 use App\Models\Transaction;
 use CatLab\Charon\Models\ResourceDefinition;
 
@@ -39,20 +38,39 @@ class TransactionResourceDefinition extends ResourceDefinition
 
         $this->identifier('id');
 
-        $this->field('type')
+        $this->field('transaction_type')
+            ->display('type')
             ->string()
             ->enum([ Transaction::TYPE_SALE, Transaction::TYPE_TOPUP, Transaction::TYPE_REFUND, Transaction::TYPE_UNKNOWN ])
-            ->visible(true);
+            ->visible(true)
+            ->writeable(true, false);
 
         $this->field('value')
             ->int()
-            ->visible(true);
+            ->visible(true)
+            ->writeable(true, false)
+            ->required();
 
         $this->field('card_sync_id')
             ->display('card_transaction')
             ->int()
             ->writeable(true, true)
             ->visible(true);
+
+        $this->field('card_uid')
+            ->display('card')
+            ->string()
+            ->writeable(true, false);
+
+        $this->field('topup_uid')
+            ->writeable(true, false)
+            ->max(36)
+            ->string();
+
+        $this->field('order_uid')
+            ->writeable(true, false)
+            ->max(36)
+            ->string();
 
         $this->field('client_date')
             ->display('card_date')

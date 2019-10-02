@@ -56,4 +56,12 @@ class Transaction extends Model
     {
         return $this->belongsTo(Card::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }

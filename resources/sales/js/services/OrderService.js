@@ -39,7 +39,7 @@ export class OrderService extends AbstractService {
     }
 
     async prepare(content) {
-        content.uuid = uuidv1();
+        content.uid = uuidv1();
         return content;
     }
 

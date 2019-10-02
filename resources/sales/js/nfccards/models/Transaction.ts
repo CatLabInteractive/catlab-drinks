@@ -21,12 +21,15 @@
 
 export class Transaction {
 
+    public localStorageKey: string = '';
+
     static unserialize(data: any) {
         const date = new Date();
         date.setTime(data.timestamp);
 
         return new Transaction(
             data.cardUid,
+            data.transactionId,
             date,
             data.amount,
             data.orderUid,
@@ -36,6 +39,7 @@ export class Transaction {
 
     /**
      * @param cardUid
+     * @param transactionId
      * @param date
      * @param amount
      * @param orderUid
@@ -43,6 +47,7 @@ export class Transaction {
      */
     constructor(
         public cardUid: string,
+        public transactionId: number,
         public date: Date,
         public amount: number,
         public orderUid: string | null = null,
@@ -57,6 +62,7 @@ export class Transaction {
     serialize() {
         return {
             cardUid: this.cardUid,
+            transactionId: this.transactionId,
             timestamp: this.date.getTime(),
             amount: this.amount,
             orderUid: this.orderUid,

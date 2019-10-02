@@ -79,4 +79,13 @@ class OrganisationPolicy extends BasePolicy
     {
         return $this->isMyOrganisation($user, $organisation);
     }
+
+    /**
+     * @param User|null $user
+     * @param Organisation $organisation
+     * @return mixed
+     */
+    public function mergeTransactions(?User $user, Organisation $organisation) {
+        return $this->isMyOrganisation($user, $organisation);
+    }
 }

@@ -77,7 +77,7 @@ export class CardService extends Eventable {
     ) {
         super();
 
-        this.offlineStore = new OfflineStore();
+        this.offlineStore = new OfflineStore(organisationId);
         this.transactionStore = new TransactionStore(axios, organisationId, this.offlineStore);
         this.logger = new Logger();
 
@@ -211,20 +211,21 @@ export class CardService extends Eventable {
             throw new NoCardFound('No card found.');
         }
 
+        // try to write the transaction to card
+        const transactionNumber = card.applyTransaction(amount);
+        await card.save();
+
         const transaction = new Transaction(
             card.getUid(),
+            transactionNumber,
             new Date(),
             amount,
             null,
             topupUid
         );
 
-        // try to write the transaction to card
-        const transactionNumber = card.applyTransaction(transaction.amount);
-        await card.save();
-
         // yay! save that transaction (but don't wait for upload)
-        this.offlineStore.addPendingTransaction(transaction);
+        await this.offlineStore.addPendingTransaction(transaction);
         this.trigger('card:balance:change', card);
 
         return {
@@ -235,6 +236,7 @@ export class CardService extends Eventable {
 
     async spend(orderUid: string, amount: number) {
 
+        console.log('CardService: handling order ' + orderUid);
         const card = this.currentCard;
         if (!card) {
             throw new NoCardFound('No card found.');
@@ -244,18 +246,19 @@ export class CardService extends Eventable {
             throw new InsufficientFunds('Insufficient funds.');
         }
 
+        const transactionNumber = card.applyTransaction(0 - amount);
+        await card.save();
+
         const transaction = new Transaction(
             card.getUid(),
+            transactionNumber,
             new Date(),
             0 - amount,
             orderUid
         );
 
-        const transactionNumber = card.applyTransaction(transaction.amount);
-        await card.save();
-
         // yay! save that transaction (but don't wait for upload)
-        this.offlineStore.addPendingTransaction(transaction);
+        await this.offlineStore.addPendingTransaction(transaction);
         this.trigger('card:balance:change', card);
 
         return {

@@ -25,7 +25,12 @@ namespace App\Http\Api\V1\Controllers;
 use App\Http\Api\V1\Controllers\Base\ResourceController;
 use App\Http\Api\V1\ResourceDefinitions\TransactionResourceDefinition;
 use App\Models\Card;
+use App\Models\Organisation;
+use App\Models\Transaction;
 use CatLab\Charon\Collections\RouteCollection;
+use CatLab\Charon\Enums\Action;
+use CatLab\Charon\Laravel\Exceptions\EntityNotFoundException;
+use CatLab\Charon\Laravel\Models\ResourceResponse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -57,9 +62,17 @@ class TransactionController extends ResourceController
             'TransactionController',
             [
                 'id' => self::RESOURCE_ID,
-                'parentId' => self::PARENT_RESOURCE_ID
+                'parentId' => self::PARENT_RESOURCE_ID,
+                'only' => [
+                    'index', 'view', 'edit'
+                ]
             ]
         );
+
+        $childResource->post('organisations/{organisationId}/merge-transactions', 'TransactionController@mergeTransactions')
+            ->summary('Merges offline stored transactions')
+            ->parameters()->path('organisationId')->required()
+            ->parameters()->resource(TransactionResourceDefinition::class)->many();
 
         $childResource->tag('transactions');
     }
@@ -92,6 +105,65 @@ class TransactionController extends ResourceController
     public function getRelationshipKey(): string
     {
         return self::PARENT_RESOURCE_ID;
+    }
+
+    /**
+     * @param Request $request
+     * @param $organisationId
+     * @return ResourceResponse
+     * @throws EntityNotFoundException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function mergeTransactions(Request $request, $organisationId) {
+
+        /** @var Organisation $organisation */
+        $organisation = Organisation::findOrFail($organisationId);
+        $this->authorize('mergeTransactions', $organisation);
+
+        $writeContext = $this->getContext(Action::CREATE);
+        $resources = $this->bodyToResources($writeContext, TransactionResourceDefinition::class);
+
+        $transactions = [];
+
+        foreach ($resources as $resource) {
+
+
+            /** @var Transaction $entity */
+            $entity = $this->toEntity($resource, $writeContext);
+
+            // Load the card
+            if (!$entity->card_uid) {
+                throw new EntityNotFoundException('No card uid provided.');
+            }
+
+            /** @var Card $card */
+            $card = Card::getFromUid($organisation, $entity->card_uid);
+            if (!$card) {
+                throw new EntityNotFoundException('Card not found: ' . $entity->card_uid);
+            }
+
+            $transactionType = $entity->transaction_type;
+            $value = $entity->value;
+            $cardTransactionId = $entity->card_sync_id;
+            $clientDate = $entity->client_date;
+
+            $transaction = $card->getTransactionFromCounter($cardTransactionId);
+            $transaction->transaction_type = $transactionType;
+            $transaction->value = $value;
+            $transaction->client_date = $clientDate;
+
+            // merge transaction id
+            $transaction->order_uid = $entity->order_uid;
+            $transaction->topup_uid = $entity->topup_uid;
+
+            $transaction->save();
+            $transactions[] = $transaction;
+        }
+
+        $context = $this->getContext(Action::INDEX);
+        $resources = $this->toResources($transactions, $context);
+
+        return new ResourceResponse($resources, $context);
     }
 
     /**

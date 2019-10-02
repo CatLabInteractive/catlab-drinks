@@ -104,20 +104,10 @@ class CardController extends Base\ResourceController
      */
     public function viewFromUid(Request $request, $organisationId, $cardUid)
     {
+        /** @var Organisation $organisation */
         $organisation = $this->getParent($request);
 
-        // Look fo card
-        $card = $organisation->cards()->where('uid', '=', $cardUid)->first();
-        if (!$card) {
-            $card = new Card();
-            $card->uid = $cardUid;
-            $card->transaction_count = 0;
-            $card->balance = 0;
-            $card->organisation()->associate($organisation);
-
-            $this->authorizeCreate($request);
-            $card->save();
-        }
+        $card = Card::getFromUid($organisation, $cardUid);
 
         $this->authorizeView($request, $card);
 

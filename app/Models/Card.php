@@ -40,6 +40,28 @@ class Card extends Model
     }
 
     /**
+     * @param Organisation $organisation
+     * @param $cardUid
+     * @return Card
+     */
+    public static function getFromUid(Organisation $organisation, $cardUid)
+    {
+        // Look fo card
+        $card = $organisation->cards()->where('uid', '=', $cardUid)->first();
+        if (!$card) {
+            $card = new Card();
+            $card->uid = $cardUid;
+            $card->transaction_count = 0;
+            $card->balance = 0;
+            $card->organisation()->associate($organisation);
+
+            $card->save();
+        }
+
+        return $card;
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function organisation()
@@ -54,5 +76,22 @@ class Card extends Model
 
     public function getPendingTransactions() {
         return $this->transactions()->whereNull('client_date')->get();
+    }
+
+    /**
+     * @param $cardTransactionId
+     * @return Transaction|Model|\Illuminate\Database\Eloquent\Relations\HasMany|object|null
+     */
+    public function getTransactionFromCounter($cardTransactionId)
+    {
+        $transaction = $this->transactions()->where('card_sync_id', '=', $cardTransactionId)->first();
+        if (!$transaction) {
+            $transaction = new Transaction();
+            $transaction->card()->associate($this);
+
+            $transaction->transaction_type = Transaction::TYPE_UNKNOWN;
+            $transaction->card_sync_id = $cardTransactionId;
+        }
+        return $transaction;
     }
 }

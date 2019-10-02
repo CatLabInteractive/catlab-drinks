@@ -153,7 +153,7 @@ export class NfcReader extends Eventable {
                 card.parseNdef(ndefDecoded);
 
                 // Store the original state locally to be able to revert to it on write error
-                this.offlineStore.setCardState(card.getUid(), data.ndef);
+                await this.offlineStore.setCardState(card.getUid(), data.ndef);
 
             } catch (e) {
                 if (e instanceof InvalidMessageException) {
@@ -208,7 +208,7 @@ export class NfcReader extends Eventable {
         this.logger.log(card.getUid(), 'recoving failed write');
 
         // look for existing message
-        const data = this.offlineStore.getCardState(card.getUid());
+        const data = await this.offlineStore.getCardState(card.getUid());
 
         if (data) {
             try {

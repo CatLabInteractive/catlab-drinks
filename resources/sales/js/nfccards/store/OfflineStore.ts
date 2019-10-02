@@ -20,34 +20,89 @@
  */
 
 import {Transaction} from "../models/Transaction";
+import * as localForage from "localforage";
 
 /**
  *
  */
 export class OfflineStore {
 
-    private pendingTransactions: Transaction[] = [];
-
+    /**
+     *
+     */
     private lastKnownSyncIds: { [ key: string ]: number } = {};
 
-    private cardStates: { [ key: string ] : { date: Date, body: string }} = {};
+    private localForagePrefix = '';
+
+    constructor(
+        private organisationId: string
+    ) {
+        this.localForagePrefix = 'org_' + this.organisationId + '_';
+
+        localForage.getItem(this.localForagePrefix + '_lastKnownSyncIds', (err, value: { [ key: string ]: number }) => {
+            if (err) {
+                alert('Failed loading lastKnownSyncIds');
+                console.error(err);
+                return;
+            }
+            if (value) {
+                this.lastKnownSyncIds = value;
+            }
+        });
+    }
 
     /**
      * Add a transaction that is not synced to the api yet.
      * @param transaction
      */
     public addPendingTransaction(transaction: Transaction) {
-        this.pendingTransactions.push(transaction);
+        return new Promise(
+            (resolve, reject) => {
+                localForage.setItem(
+                    this.localForagePrefix + 'transaction_' + (new Date()).getTime(),
+                    transaction.serialize(),
+                    function(err, result) {
+                        if (err) {
+                            reject(err);
+                            return;
+                        }
+                        resolve();
+                    }
+                );
+            }
+        );
     }
 
     /**
      * Get all transactions that have not been synced to the online api
      */
-    public getPendingTransactions() {
-        let out = this.pendingTransactions;
-        this.pendingTransactions = [];
+    public async getPendingTransactions(): Promise<Transaction[]> {
+        return await new Promise(
+            (resolve, reject) => {
+                const out: Transaction[] = [];
 
-        return out;
+                localForage.iterate((value, key, iterationNumber) => {
+                    if (this.keyStartsWith(key, 'transaction_')) {
+                        const transaction = Transaction.unserialize(value);
+                        transaction.localStorageKey = key;
+                        out.push(transaction);
+                    }
+                }).then(
+                    () => {
+                        resolve(out);
+                    }
+                );
+            }
+        );
+    }
+
+    /**
+     * @param key
+     * @param check
+     */
+    private keyStartsWith(key: string, check: string) {
+        const fullCheck = this.localForagePrefix + check;
+        return key.substr(0, fullCheck.length) === fullCheck
     }
 
     /**
@@ -68,6 +123,9 @@ export class OfflineStore {
      */
     public setLastKnownSyncId(card: string, syncId: number) {
         this.lastKnownSyncIds[card] = syncId;
+
+        // store in localstorage
+        localForage.setItem(this.localForagePrefix + 'lastKnownSyncIds', this.lastKnownSyncIds);
     }
 
     /**
@@ -76,11 +134,12 @@ export class OfflineStore {
      * @param uid
      * @param byteArray
      */
-    public setCardState(uid: string, byteArray: string) {
-        this.cardStates[uid] = {
+    public async setCardState(uid: string, byteArray: string) {
+
+        await localForage.setItem(this.localForagePrefix + 'card_state_' + uid, {
             date: new Date(),
             body: byteArray
-        };
+        });
     }
 
     /**
@@ -88,12 +147,25 @@ export class OfflineStore {
      * @param uid
      * @return number[]
      */
-    public getCardState(uid: string) {
-        if (typeof(this.cardStates[uid]) !== 'undefined') {
-            if (this.cardStates[uid].date.getTime() > ((new Date()).getTime() - 60 * 15 * 1000)) {
-                return this.cardStates[uid].body;
-            }
+    public async getCardState(uid: string) {
+
+        const cardState: any = await localForage.getItem(this.localForagePrefix + 'card_state_' + uid);
+        if (!cardState) {
+            return null;
         }
+
+        if (cardState.date.getTime() > ((new Date()).getTime() - 60 * 15 * 1000)) {
+            return cardState.body;
+        }
+
         return null;
+    }
+
+    public removePendingTransactions(pendingTransactions: Transaction[]) {
+        pendingTransactions.forEach(
+            (transaction: Transaction) => {
+                localForage.removeItem(transaction.localStorageKey);
+            }
+        );
     }
 }

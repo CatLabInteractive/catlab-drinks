@@ -28,5 +28,5 @@ namespace App\Http\Api\V1\Transformers;
  */
 class DateTimeTransformer extends \CatLab\Charon\Transformers\DateTransformer
 {
-    protected $format = 'Y-m-dTH:i:s';
+    protected $format = \DateTimeInterface::ISO8601;
 }
