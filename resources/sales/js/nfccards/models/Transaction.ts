@@ -19,17 +19,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import {VisibleAmount} from "../tools/VisibleAmount";
+
 export class Transaction {
 
     public localStorageKey: string = '';
 
     static unserialize(data: any) {
-        const date = new Date();
-        date.setTime(data.timestamp);
+        let date = null;
+
+        if (data.timestamp) {
+            date = new Date();
+            date.setTime(data.timestamp);
+        }
 
         return new Transaction(
             data.cardUid,
             data.transactionId,
+            data.type,
             date,
             data.amount,
             data.orderUid,
@@ -40,6 +47,7 @@ export class Transaction {
     /**
      * @param cardUid
      * @param transactionId
+     * @param type
      * @param date
      * @param amount
      * @param orderUid
@@ -48,12 +56,20 @@ export class Transaction {
     constructor(
         public cardUid: string,
         public transactionId: number,
-        public date: Date,
+        public type: string,
+        public date: Date | null,
         public amount: number,
         public orderUid: string | null = null,
         public topupUid: string | null = null
     ) {
 
+    }
+
+    /**
+     * @return string
+     */
+    public getVisibleAmount() {
+        return VisibleAmount.toVisible(this.amount);
     }
 
     /**
@@ -63,7 +79,8 @@ export class Transaction {
         return {
             cardUid: this.cardUid,
             transactionId: this.transactionId,
-            timestamp: this.date.getTime(),
+            type: this.type,
+            timestamp: this.date ? this.date.getTime() : null,
             amount: this.amount,
             orderUid: this.orderUid,
             topupUid: this.topupUid

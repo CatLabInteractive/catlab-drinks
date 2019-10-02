@@ -75,12 +75,12 @@ class Card extends Model
     }
 
     public function getPendingTransactions() {
-        return $this->transactions()->whereNull('client_date')->get();
+        return $this->transactions()->where('has_synced', '=', 0)->get();
     }
 
     /**
      * @param $cardTransactionId
-     * @return Transaction|Model|\Illuminate\Database\Eloquent\Relations\HasMany|object|null
+     * @return Transaction
      */
     public function getTransactionFromCounter($cardTransactionId)
     {
@@ -93,5 +93,56 @@ class Card extends Model
             $transaction->card_sync_id = $cardTransactionId;
         }
         return $transaction;
+    }
+
+    /**
+     * Overflow transaction is where we store transactions that we don't know anything about.
+     */
+    public function getOverflowTransaction()
+    {
+        $transaction = $this->getTransactionFromCounter(Transaction::ID_OVERFLOW);
+        $transaction->transaction_type = Transaction::TYPE_OVERFLOW;
+        $transaction->client_date = new \DateTime();
+        $transaction->has_synced = true;
+
+        return $transaction;
+    }
+
+    /**
+     * @param CardData $cardData
+     */
+    public function mergeFromCardData(CardData $cardData)
+    {
+        // do magic.
+        $this->transaction_count = $cardData->transactionCount;
+        $this->balance = $cardData->balance;
+
+        $this->save();
+
+        // check if we already know about the last 5 transactions
+        $lastTransactions = $cardData->previousTransactions;
+
+        for ($i = 0; $i < count($lastTransactions); $i ++) {
+
+            $transactionId = $this->transaction_count - $i;
+            if ($transactionId < 1) {
+                break;
+            }
+
+            // check if we have this
+            $transaction = $this->getTransactionFromCounter($transactionId);
+            $transaction->has_synced = true;
+            $transaction->value = $lastTransactions[$i];
+
+            $transaction->save();
+        }
+
+        // now check if the balance is correct
+        $transactionBalance = $this->transactions()->sum('value');
+        if ($transactionBalance !== $this->balance) {
+            $overflowTransaction = $this->getOverflowTransaction();
+            $overflowTransaction->value -= $transactionBalance - $this->balance;
+            $overflowTransaction->save();
+        }
     }
 }

@@ -102,6 +102,7 @@ export class CardService extends Eventable {
 
             this.currentCard = card;
 
+            card.trigger('loaded');
             this.trigger('card:loaded', card);
             this.trigger('card:balance:change', card);
         });
@@ -120,8 +121,13 @@ export class CardService extends Eventable {
      */
     async refreshCard(card: Card, forceWrite = false)
     {
+        const now = new Date();
+
         const serverCard = await this.transactionStore.getCard(card.getUid());
         if (serverCard) {
+
+            // set interla id
+            card.id = serverCard.id;
 
             // check for pending transactions
             const pendingTransactions = serverCard.pendingTransactions.items;
@@ -132,7 +138,8 @@ export class CardService extends Eventable {
                     pendingTransactions.forEach(
                         (transaction: any) => {
                             transaction.card_transaction = card.applyTransaction(transaction.value);
-                            delete transaction.card_date;
+                            transaction.has_synced = true;
+                            transaction.card_date = this.transactionStore.toApiDate(now);
                         }
                     );
 
@@ -218,6 +225,7 @@ export class CardService extends Eventable {
         const transaction = new Transaction(
             card.getUid(),
             transactionNumber,
+            'topup',
             new Date(),
             amount,
             null,
@@ -252,6 +260,7 @@ export class CardService extends Eventable {
         const transaction = new Transaction(
             card.getUid(),
             transactionNumber,
+            'sale',
             new Date(),
             0 - amount,
             orderUid
@@ -270,9 +279,9 @@ export class CardService extends Eventable {
     /**
      * @param card
      */
-    async getTransactions(card: any) {
+    async getTransactions(card: Card) {
 
-
+        return await this.transactionStore.getTransactions(card);
 
     }
 

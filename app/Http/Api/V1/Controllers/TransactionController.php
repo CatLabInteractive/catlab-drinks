@@ -22,11 +22,13 @@
 
 namespace App\Http\Api\V1\Controllers;
 
+use App\Exceptions\TransactionMergeException;
 use App\Http\Api\V1\Controllers\Base\ResourceController;
 use App\Http\Api\V1\ResourceDefinitions\TransactionResourceDefinition;
 use App\Models\Card;
 use App\Models\Organisation;
 use App\Models\Transaction;
+use App\Tools\TransactionMerger;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Laravel\Exceptions\EntityNotFoundException;
@@ -123,42 +125,16 @@ class TransactionController extends ResourceController
         $writeContext = $this->getContext(Action::CREATE);
         $resources = $this->bodyToResources($writeContext, TransactionResourceDefinition::class);
 
-        $transactions = [];
+        $transactionMerger = new TransactionMerger($organisation);
 
+        $entities = [];
         foreach ($resources as $resource) {
-
-
             /** @var Transaction $entity */
             $entity = $this->toEntity($resource, $writeContext);
-
-            // Load the card
-            if (!$entity->card_uid) {
-                throw new EntityNotFoundException('No card uid provided.');
-            }
-
-            /** @var Card $card */
-            $card = Card::getFromUid($organisation, $entity->card_uid);
-            if (!$card) {
-                throw new EntityNotFoundException('Card not found: ' . $entity->card_uid);
-            }
-
-            $transactionType = $entity->transaction_type;
-            $value = $entity->value;
-            $cardTransactionId = $entity->card_sync_id;
-            $clientDate = $entity->client_date;
-
-            $transaction = $card->getTransactionFromCounter($cardTransactionId);
-            $transaction->transaction_type = $transactionType;
-            $transaction->value = $value;
-            $transaction->client_date = $clientDate;
-
-            // merge transaction id
-            $transaction->order_uid = $entity->order_uid;
-            $transaction->topup_uid = $entity->topup_uid;
-
-            $transaction->save();
-            $transactions[] = $transaction;
+            $entities[] = $entity;
         }
+
+        $transactions = $transactionMerger->mergeTransactions($entities);
 
         $context = $this->getContext(Action::INDEX);
         $resources = $this->toResources($transactions, $context);

@@ -2625,6 +2625,261 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/sales/js/components/Card.vue?vue&type=script&lang=js&":
+/*!***************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--5-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/sales/js/components/Card.vue?vue&type=script&lang=js& ***!
+  \***************************************************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
+
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+        args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
+
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
+
+      _next(undefined);
+    });
+  };
+} //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['card'],
+  data: function data() {
+    return {
+      transactions: [],
+      topupAmount: 10
+    };
+  },
+  mounted: function mounted() {
+    var _this = this;
+
+    this.transactions = [];
+
+    if (this.card) {
+      if (this.card.loaded) {
+        this.loadCard();
+      } else {
+        this.card.on('loaded', function () {
+          _this.loadCard();
+        });
+      }
+    }
+  },
+  methods: {
+    loadCard: function () {
+      var _loadCard = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return this.$cardService.getTransactions(this.card);
+
+              case 2:
+                this.transactions = _context.sent;
+                console.log(this.transactions);
+
+              case 4:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function loadCard() {
+        return _loadCard.apply(this, arguments);
+      }
+
+      return loadCard;
+    }(),
+    rebuild: function () {
+      var _rebuild = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                if (!confirm('Danger! Rebuilding will only keep all transactions that are available online. Are you sure you want to do that?')) {
+                  _context2.next = 5;
+                  break;
+                }
+
+                console.log('Rebuilding card');
+                _context2.next = 4;
+                return this.$cardService.rebuild(this.card);
+
+              case 4:
+                console.log('Done rebuilding card');
+
+              case 5:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function rebuild() {
+        return _rebuild.apply(this, arguments);
+      }
+
+      return rebuild;
+    }(),
+    topup: function () {
+      var _topup = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+        var amount, uniqueId;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                amount = Math.floor(this.topupAmount * 100);
+                uniqueId = uuidv1(); // we probably want to store this somewhere, but hey... no time.
+
+                _context3.next = 4;
+                return this.$cardService.topup(uniqueId, amount);
+
+              case 4:
+                alert('topup succesful');
+
+              case 5:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+
+      function topup() {
+        return _topup.apply(this, arguments);
+      }
+
+      return topup;
+    }()
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/sales/js/components/LiveSales.vue?vue&type=script&lang=js&":
 /*!********************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--5-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/sales/js/components/LiveSales.vue?vue&type=script&lang=js& ***!
@@ -4370,8 +4625,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _services_OrganisationService__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/OrganisationService */ "./resources/sales/js/services/OrganisationService.js");
-/* harmony import */ var _nfccards_CardService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../nfccards/CardService */ "./resources/sales/js/nfccards/CardService.ts");
-/* harmony import */ var _nfccards_models_Card__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../nfccards/models/Card */ "./resources/sales/js/nfccards/models/Card.ts");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
@@ -4462,50 +4715,6 @@ function _asyncToGenerator(fn) {
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
 
 
 
@@ -4547,18 +4756,13 @@ function _asyncToGenerator(fn) {
               this.cardService.setPassword(this.organisation.secret);
               this.loaded = true;
               this.loading = false;
+
+              if (this.cardService.getCard()) {
+                this.showCard(this.cardService.getCard());
+              }
+
               this.cardService.on('card:connect', function (card) {
                 _this.showCard(card);
-              });
-              this.cardService.on('card:loaded', function (card) {
-                /*
-                // increase balance
-                console.log('card loaded');
-                 card.balance += 100;
-                console.log('adding 100 balance: new balance = ' + card.balance);
-                 card.lastTransaction = new Date();
-                 card.save(card);
-                 */
               });
               this.cardService.on('card:disconnect', function (card) {
                 _this.hideCard(card);
@@ -4584,9 +4788,7 @@ function _asyncToGenerator(fn) {
       organisation: null,
       loading: true,
       loaded: false,
-      card: null,
-      tarnsactions: [],
-      topupAmount: 10
+      card: null
     };
   },
   watch: {},
@@ -4599,15 +4801,10 @@ function _asyncToGenerator(fn) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                _context2.next = 2;
-                return this.cardService.getTransactions(card);
-
-              case 2:
-                this.transactions = _context2.sent;
                 this.card = card;
               //console.log(this.transactions);
 
-              case 4:
+              case 1:
               case "end":
                 return _context2.stop();
             }
@@ -4644,70 +4841,6 @@ function _asyncToGenerator(fn) {
       }
 
       return hideCard;
-    }(),
-    rebuild: function () {
-      var _rebuild = _asyncToGenerator(
-      /*#__PURE__*/
-      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4() {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
-          while (1) {
-            switch (_context4.prev = _context4.next) {
-              case 0:
-                if (!confirm('Danger! Rebuilding will only keep all transactions that are available online. Are you sure you want to do that?')) {
-                  _context4.next = 5;
-                  break;
-                }
-
-                console.log('Rebuilding card');
-                _context4.next = 4;
-                return this.cardService.rebuild(this.card);
-
-              case 4:
-                console.log('Done rebuilding card');
-
-              case 5:
-              case "end":
-                return _context4.stop();
-            }
-          }
-        }, _callee4, this);
-      }));
-
-      function rebuild() {
-        return _rebuild.apply(this, arguments);
-      }
-
-      return rebuild;
-    }(),
-    topup: function () {
-      var _topup = _asyncToGenerator(
-      /*#__PURE__*/
-      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee5() {
-        var amount;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee5$(_context5) {
-          while (1) {
-            switch (_context5.prev = _context5.next) {
-              case 0:
-                amount = Math.floor(this.topupAmount * 100);
-                _context5.next = 3;
-                return this.cardService.topup('', amount);
-
-              case 3:
-                alert('topup succesful');
-
-              case 4:
-              case "end":
-                return _context5.stop();
-            }
-          }
-        }, _callee5, this);
-      }));
-
-      function topup() {
-        return _topup.apply(this, arguments);
-      }
-
-      return topup;
     }()
   }
 });
@@ -79937,6 +80070,177 @@ var __assign=function(){return(__assign=Object.assign||function(e){for(var a,s=1
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/sales/js/components/Card.vue?vue&type=template&id=5f377e5e&":
+/*!*************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/sales/js/components/Card.vue?vue&type=template&id=5f377e5e& ***!
+  \*************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.card
+    ? _c("div", [
+        _c("h2", [
+          _vm._v("Card #"),
+          _c("strong", [_vm._v(_vm._s(_vm.card.uid))])
+        ]),
+        _vm._v(" "),
+        _vm.card.corrupted
+          ? _c("div", [
+              _c(
+                "div",
+                { staticClass: "alert alert-danger", attrs: { role: "alert" } },
+                [
+                  _vm._v("\n            This card is corrupted.\n            "),
+                  _c(
+                    "button",
+                    {
+                      on: {
+                        click: function($event) {
+                          return _vm.format()
+                        }
+                      }
+                    },
+                    [_vm._v("Rebuild")]
+                  )
+                ]
+              )
+            ])
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.card.loaded
+          ? _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-md-6" }, [
+                _c("h2", [_vm._v("Topup")]),
+                _vm._v(" "),
+                _c("label", { attrs: { for: "customAmount" } }, [
+                  _vm._v("Custom amount")
+                ]),
+                _c("br"),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.topupAmount,
+                      expression: "topupAmount"
+                    }
+                  ],
+                  attrs: {
+                    type: "number",
+                    min: "0",
+                    step: "0.01",
+                    placeholder: "10.00",
+                    id: "customAmount"
+                  },
+                  domProps: { value: _vm.topupAmount },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.topupAmount = $event.target.value
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary",
+                    on: {
+                      click: function($event) {
+                        return _vm.topup()
+                      }
+                    }
+                  },
+                  [_vm._v("Topup")]
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-md-6" }, [
+                _c("table", { staticClass: "table" }, [
+                  _c("tr", [
+                    _c("td", [_vm._v("Balance")]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(_vm.card.getVisibleBalance()))])
+                  ]),
+                  _vm._v(" "),
+                  _c("tr", [
+                    _c("td", [_vm._v("Last transaction")]),
+                    _vm._v(" "),
+                    _c("td", [
+                      _vm._v(
+                        _vm._s(_vm.card.getLastTransactionDate().toISOString())
+                      )
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("h3", [_vm._v("Transactions")]),
+                _vm._v(" "),
+                _c(
+                  "table",
+                  { staticClass: "table" },
+                  _vm._l(this.transactions, function(transaction) {
+                    return _c("tr", [
+                      _c("td", [_vm._v(_vm._s(transaction.transactionId))]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v(_vm._s(transaction.getVisibleAmount()))
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(transaction.type))]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v(
+                          _vm._s(
+                            transaction.date
+                              ? transaction.date.toISOString()
+                              : ""
+                          )
+                        )
+                      ])
+                    ])
+                  }),
+                  0
+                ),
+                _vm._v(" "),
+                _c("p", [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-danger btn-sm",
+                      on: {
+                        click: function($event) {
+                          return _vm.rebuild()
+                        }
+                      }
+                    },
+                    [_vm._v("Rebuild")]
+                  )
+                ])
+              ])
+            ])
+          : _vm._e()
+      ])
+    : _vm._e()
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/sales/js/components/LiveSales.vue?vue&type=template&id=28f1f722&":
 /*!******************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/sales/js/components/LiveSales.vue?vue&type=template&id=28f1f722& ***!
@@ -80907,151 +81211,17 @@ var render = function() {
       : _vm._e(),
     _vm._v(" "),
     _vm.loaded
-      ? _c(
-          "div",
-          [
-            _c("h1", [_vm._v("Card management")]),
-            _vm._v(" "),
-            _c(
-              "b-row",
-              [
-                _c("b-col", { attrs: { md: "8" } }, [
-                  _c("h2", [_vm._v("Topup")]),
-                  _vm._v(" "),
-                  _c("label", { attrs: { for: "customAmount" } }, [
-                    _vm._v("Custom amount")
-                  ]),
-                  _c("br"),
-                  _vm._v(" "),
-                  _c("input", {
-                    directives: [
-                      {
-                        name: "model",
-                        rawName: "v-model",
-                        value: _vm.topupAmount,
-                        expression: "topupAmount"
-                      }
-                    ],
-                    attrs: {
-                      type: "number",
-                      min: "0",
-                      step: "0.01",
-                      placeholder: "10.00",
-                      id: "customAmount"
-                    },
-                    domProps: { value: _vm.topupAmount },
-                    on: {
-                      input: function($event) {
-                        if ($event.target.composing) {
-                          return
-                        }
-                        _vm.topupAmount = $event.target.value
-                      }
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c(
-                    "button",
-                    {
-                      staticClass: "btn btn-primary",
-                      on: {
-                        click: function($event) {
-                          return _vm.topup()
-                        }
-                      }
-                    },
-                    [_vm._v("Topup")]
-                  )
-                ]),
-                _vm._v(" "),
-                _c("b-col", { attrs: { md: "4" } }, [
-                  _vm.card === null
-                    ? _c("div", [_c("p", [_vm._v("Scan to start")])])
-                    : _vm._e(),
-                  _vm._v(" "),
-                  _vm.card
-                    ? _c("div", [
-                        _c("h2", [
-                          _vm._v("Card #"),
-                          _c("strong", [_vm._v(_vm._s(_vm.card.uid))])
-                        ]),
-                        _vm._v(" "),
-                        _vm.card.corrupted
-                          ? _c("div", [
-                              _c(
-                                "div",
-                                {
-                                  staticClass: "alert alert-danger",
-                                  attrs: { role: "alert" }
-                                },
-                                [
-                                  _vm._v(
-                                    "\n                            This card is corrupted.\n                            "
-                                  ),
-                                  _c(
-                                    "button",
-                                    {
-                                      on: {
-                                        click: function($event) {
-                                          return _vm.format()
-                                        }
-                                      }
-                                    },
-                                    [_vm._v("Rebuild")]
-                                  )
-                                ]
-                              )
-                            ])
-                          : _vm._e(),
-                        _vm._v(" "),
-                        _vm.card.loaded
-                          ? _c("div", [
-                              _c("table", { staticClass: "table" }, [
-                                _c("tr", [
-                                  _c("td", [_vm._v("Balance")]),
-                                  _vm._v(" "),
-                                  _c("td", [
-                                    _vm._v(_vm._s(_vm.card.getVisibleBalance()))
-                                  ])
-                                ]),
-                                _vm._v(" "),
-                                _c("tr", [
-                                  _c("td", [_vm._v("Last transaction")]),
-                                  _vm._v(" "),
-                                  _c("td", [
-                                    _vm._v(
-                                      _vm._s(
-                                        _vm.card
-                                          .getLastTransactionDate()
-                                          .toISOString()
-                                      )
-                                    )
-                                  ])
-                                ])
-                              ]),
-                              _vm._v(" "),
-                              _c(
-                                "button",
-                                {
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.rebuild()
-                                    }
-                                  }
-                                },
-                                [_vm._v("Rebuild")]
-                              )
-                            ])
-                          : _vm._e()
-                      ])
-                    : _vm._e()
-                ])
-              ],
-              1
-            )
-          ],
-          1
-        )
+      ? _c("div", [
+          _c("h1", [_vm._v("Card management")]),
+          _vm._v(" "),
+          _vm.card === null
+            ? _c("div", [_c("p", [_vm._v("Scan to start")])])
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.card
+            ? _c("div", [_c("card", { attrs: { card: _vm.card } })], 1)
+            : _vm._e()
+        ])
       : _vm._e()
   ])
 }
@@ -96936,6 +97106,7 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].component('sales-history', __webpack
 vue__WEBPACK_IMPORTED_MODULE_1__["default"].component('sales-summary', __webpack_require__(/*! ./components/SalesSummary.vue */ "./resources/sales/js/components/SalesSummary.vue").default);
 vue__WEBPACK_IMPORTED_MODULE_1__["default"].component('nfc-card-balance', __webpack_require__(/*! ./components/NfcCardBalance.vue */ "./resources/sales/js/components/NfcCardBalance.vue").default);
 vue__WEBPACK_IMPORTED_MODULE_1__["default"].component('payment-popup', __webpack_require__(/*! ./components/PaymentPopup.vue */ "./resources/sales/js/components/PaymentPopup.vue").default);
+vue__WEBPACK_IMPORTED_MODULE_1__["default"].component('card', __webpack_require__(/*! ./components/Card.vue */ "./resources/sales/js/components/Card.vue").default);
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -97130,6 +97301,75 @@ axios.get('/api/v1/users/me').then(function (response) {
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     encrypted: true
 // });
+
+/***/ }),
+
+/***/ "./resources/sales/js/components/Card.vue":
+/*!************************************************!*\
+  !*** ./resources/sales/js/components/Card.vue ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Card_vue_vue_type_template_id_5f377e5e___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Card.vue?vue&type=template&id=5f377e5e& */ "./resources/sales/js/components/Card.vue?vue&type=template&id=5f377e5e&");
+/* harmony import */ var _Card_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Card.vue?vue&type=script&lang=js& */ "./resources/sales/js/components/Card.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _Card_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Card_vue_vue_type_template_id_5f377e5e___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _Card_vue_vue_type_template_id_5f377e5e___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/sales/js/components/Card.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/sales/js/components/Card.vue?vue&type=script&lang=js&":
+/*!*************************************************************************!*\
+  !*** ./resources/sales/js/components/Card.vue?vue&type=script&lang=js& ***!
+  \*************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_5_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Card_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/babel-loader/lib??ref--5-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./Card.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/sales/js/components/Card.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_5_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Card_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/sales/js/components/Card.vue?vue&type=template&id=5f377e5e&":
+/*!*******************************************************************************!*\
+  !*** ./resources/sales/js/components/Card.vue?vue&type=template&id=5f377e5e& ***!
+  \*******************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Card_vue_vue_type_template_id_5f377e5e___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./Card.vue?vue&type=template&id=5f377e5e& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/sales/js/components/Card.vue?vue&type=template&id=5f377e5e&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Card_vue_vue_type_template_id_5f377e5e___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Card_vue_vue_type_template_id_5f377e5e___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
 
 /***/ }),
 
@@ -97894,6 +98134,7 @@ var CardService = /** @class */ (function (_super) {
                         // check if there are any transactions that still need to be processed
                         _a.sent();
                         this.currentCard = card;
+                        card.trigger('loaded');
                         this.trigger('card:loaded', card);
                         this.trigger('card:balance:change', card);
                         return [2 /*return*/];
@@ -97916,13 +98157,18 @@ var CardService = /** @class */ (function (_super) {
     CardService.prototype.refreshCard = function (card, forceWrite) {
         if (forceWrite === void 0) { forceWrite = false; }
         return __awaiter(this, void 0, void 0, function () {
-            var serverCard, pendingTransactions, e_1;
+            var now, serverCard, pendingTransactions, e_1;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.transactionStore.getCard(card.getUid())];
+                    case 0:
+                        now = new Date();
+                        return [4 /*yield*/, this.transactionStore.getCard(card.getUid())];
                     case 1:
                         serverCard = _a.sent();
                         if (!serverCard) return [3 /*break*/, 13];
+                        // set interla id
+                        card.id = serverCard.id;
                         pendingTransactions = serverCard.pendingTransactions.items;
                         if (!(pendingTransactions.length > 0)) return [3 /*break*/, 9];
                         _a.label = 2;
@@ -97930,7 +98176,8 @@ var CardService = /** @class */ (function (_super) {
                         _a.trys.push([2, 5, , 8]);
                         pendingTransactions.forEach(function (transaction) {
                             transaction.card_transaction = card.applyTransaction(transaction.value);
-                            delete transaction.card_date;
+                            transaction.has_synced = true;
+                            transaction.card_date = _this.transactionStore.toApiDate(now);
                         });
                         // save the card
                         return [4 /*yield*/, card.save()];
@@ -98039,7 +98286,7 @@ var CardService = /** @class */ (function (_super) {
                         return [4 /*yield*/, card.save()];
                     case 1:
                         _a.sent();
-                        transaction = new _models_Transaction__WEBPACK_IMPORTED_MODULE_9__["Transaction"](card.getUid(), transactionNumber, new Date(), amount, null, topupUid);
+                        transaction = new _models_Transaction__WEBPACK_IMPORTED_MODULE_9__["Transaction"](card.getUid(), transactionNumber, 'topup', new Date(), amount, null, topupUid);
                         // yay! save that transaction (but don't wait for upload)
                         return [4 /*yield*/, this.offlineStore.addPendingTransaction(transaction)];
                     case 2:
@@ -98072,7 +98319,7 @@ var CardService = /** @class */ (function (_super) {
                         return [4 /*yield*/, card.save()];
                     case 1:
                         _a.sent();
-                        transaction = new _models_Transaction__WEBPACK_IMPORTED_MODULE_9__["Transaction"](card.getUid(), transactionNumber, new Date(), 0 - amount, orderUid);
+                        transaction = new _models_Transaction__WEBPACK_IMPORTED_MODULE_9__["Transaction"](card.getUid(), transactionNumber, 'sale', new Date(), 0 - amount, orderUid);
                         // yay! save that transaction (but don't wait for upload)
                         return [4 /*yield*/, this.offlineStore.addPendingTransaction(transaction)];
                     case 2:
@@ -98093,7 +98340,10 @@ var CardService = /** @class */ (function (_super) {
     CardService.prototype.getTransactions = function (card) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.transactionStore.getTransactions(card)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
             });
         });
     };
@@ -98565,6 +98815,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var crypto_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(crypto_js__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _exceptions_InvalidMessageException__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../exceptions/InvalidMessageException */ "./resources/sales/js/nfccards/exceptions/InvalidMessageException.ts");
 /* harmony import */ var _exceptions_SignatureMismatch__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../exceptions/SignatureMismatch */ "./resources/sales/js/nfccards/exceptions/SignatureMismatch.ts");
+/* harmony import */ var _utils_Eventable__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../utils/Eventable */ "./resources/sales/js/utils/Eventable.ts");
+/* harmony import */ var _tools_VisibleAmount__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../tools/VisibleAmount */ "./resources/sales/js/nfccards/tools/VisibleAmount.ts");
 /*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
@@ -98585,6 +98837,19 @@ __webpack_require__.r(__webpack_exports__);
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -98625,29 +98890,35 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 
+
+
 /**
  *
  */
-var Card = /** @class */ (function () {
+var Card = /** @class */ (function (_super) {
+    __extends(Card, _super);
     /**
      * @param nfcReader
      * @param uid
      */
     function Card(nfcReader, uid) {
-        this.nfcReader = nfcReader;
-        this.uid = uid;
-        this.balance = 0;
-        this.transactionCount = 0;
-        this.loaded = false;
-        this.previousTransactions = [
+        var _this = _super.call(this) || this;
+        _this.nfcReader = nfcReader;
+        _this.uid = uid;
+        _this.id = null;
+        _this.balance = 0;
+        _this.transactionCount = 0;
+        _this.loaded = false;
+        _this.previousTransactions = [
             0,
             0,
             0,
             0,
             0
         ];
-        this.lastTransaction = new Date();
-        this.corrupted = false;
+        _this.lastTransaction = new Date();
+        _this.corrupted = false;
+        return _this;
     }
     /**
      *
@@ -98806,13 +99077,14 @@ var Card = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.nfcReader.write(this)];
                     case 1:
                         _a.sent();
+                        this.trigger('saved');
                         return [2 /*return*/];
                 }
             });
         });
     };
     Card.prototype.getVisibleBalance = function () {
-        return (this.balance / 100).toFixed(2);
+        return _tools_VisibleAmount__WEBPACK_IMPORTED_MODULE_5__["VisibleAmount"].toVisible(this.balance);
     };
     /**
      * @param bytes
@@ -98857,7 +99129,7 @@ var Card = /** @class */ (function () {
     };
     ;
     return Card;
-}());
+}(_utils_Eventable__WEBPACK_IMPORTED_MODULE_4__["Eventable"]));
 
 
 
@@ -98873,6 +99145,7 @@ var Card = /** @class */ (function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Transaction", function() { return Transaction; });
+/* harmony import */ var _tools_VisibleAmount__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../tools/VisibleAmount */ "./resources/sales/js/nfccards/tools/VisibleAmount.ts");
 /*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
@@ -98893,20 +99166,23 @@ __webpack_require__.r(__webpack_exports__);
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 var Transaction = /** @class */ (function () {
     /**
      * @param cardUid
      * @param transactionId
+     * @param type
      * @param date
      * @param amount
      * @param orderUid
      * @param topupUid
      */
-    function Transaction(cardUid, transactionId, date, amount, orderUid, topupUid) {
+    function Transaction(cardUid, transactionId, type, date, amount, orderUid, topupUid) {
         if (orderUid === void 0) { orderUid = null; }
         if (topupUid === void 0) { topupUid = null; }
         this.cardUid = cardUid;
         this.transactionId = transactionId;
+        this.type = type;
         this.date = date;
         this.amount = amount;
         this.orderUid = orderUid;
@@ -98914,9 +99190,18 @@ var Transaction = /** @class */ (function () {
         this.localStorageKey = '';
     }
     Transaction.unserialize = function (data) {
-        var date = new Date();
-        date.setTime(data.timestamp);
-        return new Transaction(data.cardUid, data.transactionId, date, data.amount, data.orderUid, data.topupUid);
+        var date = null;
+        if (data.timestamp) {
+            date = new Date();
+            date.setTime(data.timestamp);
+        }
+        return new Transaction(data.cardUid, data.transactionId, data.type, date, data.amount, data.orderUid, data.topupUid);
+    };
+    /**
+     * @return string
+     */
+    Transaction.prototype.getVisibleAmount = function () {
+        return _tools_VisibleAmount__WEBPACK_IMPORTED_MODULE_0__["VisibleAmount"].toVisible(this.amount);
     };
     /**
      *
@@ -98925,7 +99210,8 @@ var Transaction = /** @class */ (function () {
         return {
             cardUid: this.cardUid,
             transactionId: this.transactionId,
-            timestamp: this.date.getTime(),
+            type: this.type,
+            timestamp: this.date ? this.date.getTime() : null,
             amount: this.amount,
             orderUid: this.orderUid,
             topupUid: this.topupUid
@@ -99559,6 +99845,7 @@ var OfflineStore = /** @class */ (function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TransactionStore", function() { return TransactionStore; });
+/* harmony import */ var _models_Transaction__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/Transaction */ "./resources/sales/js/nfccards/models/Transaction.ts");
 /*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
@@ -99614,6 +99901,7 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+
 var TransactionStore = /** @class */ (function () {
     function TransactionStore(axios, organisationId, offlineStore) {
         var _this = this;
@@ -99651,7 +99939,7 @@ var TransactionStore = /** @class */ (function () {
             return Promise.resolve(null);
         }
         return new Promise(function (resolve, reject) {
-            _this.axios.get('organisations/' + _this.organisationId + '/card-from-uid/' + card + '?markClientDate=1')
+            _this.axios.get('organisations/' + _this.organisationId + '/card-from-uid/' + card + '?markSynced=1')
                 .then(function (response) {
                 resolve(response.data);
             });
@@ -99677,7 +99965,7 @@ var TransactionStore = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 transactions.forEach(function (transaction) {
-                    transaction.card_date = null;
+                    transaction.has_synced = false;
                 });
                 return [2 /*return*/, this.updateTransactions(transactions)];
             });
@@ -99868,7 +100156,32 @@ var TransactionStore = /** @class */ (function () {
         });
     };
     TransactionStore.prototype.toApiDate = function (date) {
-        return date.toISOString().split('.')[0] + "Z";
+        if (date) {
+            return date.toISOString().split('.')[0] + "Z";
+        }
+        return null;
+    };
+    TransactionStore.prototype.getTransactions = function (card) {
+        return __awaiter(this, void 0, void 0, function () {
+            var transactions, out;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.axios.get('cards/' + card.id + '/transactions?records=1000&sort=!card_transaction')];
+                    case 1:
+                        transactions = _a.sent();
+                        out = [];
+                        transactions.data.items.forEach(function (item) {
+                            var date = null;
+                            if (item.card_date) {
+                                date = new Date(Date.parse(item.card_date));
+                            }
+                            var transaction = new _models_Transaction__WEBPACK_IMPORTED_MODULE_0__["Transaction"](card.getUid(), item.card_transaction, item.type, date, item.value, item.orderUid, item.topupUid);
+                            out.push(transaction);
+                        });
+                        return [2 /*return*/, out];
+                }
+            });
+        });
     };
     return TransactionStore;
 }());
@@ -99920,6 +100233,49 @@ var Logger = /** @class */ (function () {
         }
     };
     return Logger;
+}());
+
+
+
+/***/ }),
+
+/***/ "./resources/sales/js/nfccards/tools/VisibleAmount.ts":
+/*!************************************************************!*\
+  !*** ./resources/sales/js/nfccards/tools/VisibleAmount.ts ***!
+  \************************************************************/
+/*! exports provided: VisibleAmount */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "VisibleAmount", function() { return VisibleAmount; });
+/*
+ * CatLab Drinks - Simple bar automation system
+ * Copyright (C) 2019 Thijs Van der Schaeghe
+ * CatLab Interactive bvba, Gent, Belgium
+ * http://www.catlab.eu/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+var VisibleAmount = /** @class */ (function () {
+    function VisibleAmount() {
+    }
+    VisibleAmount.toVisible = function (amount) {
+        return (amount / 100).toFixed(2);
+    };
+    return VisibleAmount;
 }());
 
 

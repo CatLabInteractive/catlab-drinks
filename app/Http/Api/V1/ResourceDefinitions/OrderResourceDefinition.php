@@ -37,6 +37,13 @@ class OrderResourceDefinition extends ResourceDefinition
 
         $this->identifier('id');
 
+        $this->field('uid')
+            ->string()
+            ->required()
+            ->max(36)
+            ->visible(true)
+            ->writeable(true);
+
         $this->field('location')
             ->string()
             ->required()

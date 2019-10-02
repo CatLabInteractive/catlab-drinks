@@ -61,7 +61,7 @@ export class TransactionStore {
         return new Promise(
             (resolve, reject) => {
 
-                this.axios.get('organisations/' + this.organisationId + '/card-from-uid/' + card + '?markClientDate=1')
+                this.axios.get('organisations/' + this.organisationId + '/card-from-uid/' + card + '?markSynced=1')
                     .then(
                         (response: any) => {
                             resolve(response.data);
@@ -98,7 +98,7 @@ export class TransactionStore {
     {
         transactions.forEach(
             (transaction: any) => {
-                transaction.card_date = null;
+                transaction.has_synced = false;
             }
         );
 
@@ -272,7 +272,38 @@ export class TransactionStore {
 
     }
 
-    private toApiDate(date: Date) {
-        return date.toISOString().split('.')[0]+"Z";
+    public toApiDate(date: Date | null) {
+        if (date) {
+            return date.toISOString().split('.')[0]+"Z";
+        }
+        return null;
+    }
+
+    async getTransactions(card: Card) {
+
+        const transactions = await this.axios.get('cards/' + card.id + '/transactions?records=1000&sort=!card_transaction');
+
+        const out: Transaction[] = [];
+        transactions.data.items.forEach(
+            (item: any) => {
+                let date = null;
+                if (item.card_date) {
+                    date = new Date(Date.parse(item.card_date));
+                }
+
+                const transaction = new Transaction(
+                    card.getUid(),
+                    item.card_transaction,
+                    item.type,
+                    date,
+                    item.value,
+                    item.orderUid,
+                    item.topupUid
+                );
+                out.push(transaction);
+            }
+        );
+
+        return out;
     }
 }

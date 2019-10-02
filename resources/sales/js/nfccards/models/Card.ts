@@ -25,11 +25,15 @@ import * as CryptoJS from 'crypto-js';
 import {NfcReader} from "../nfc/NfcReader";
 import {InvalidMessageException} from "../exceptions/InvalidMessageException";
 import {SignatureMismatch} from "../exceptions/SignatureMismatch";
+import {Eventable} from "../../utils/Eventable";
+import {VisibleAmount} from "../tools/VisibleAmount";
 
 /**
  *
  */
-export class Card {
+export class Card extends Eventable {
+
+    public id: number | null = null;
 
     public balance: number = 0;
 
@@ -57,6 +61,7 @@ export class Card {
         private nfcReader: NfcReader,
         private uid: string
     ) {
+        super();
         this.corrupted = false;
     }
 
@@ -253,10 +258,11 @@ export class Card {
      */
     public async save() {
         await this.nfcReader.write(this);
+        this.trigger('saved');
     }
 
     public getVisibleBalance() {
-        return (this.balance / 100).toFixed(2);
+        return VisibleAmount.toVisible(this.balance);
     }
 
     /**

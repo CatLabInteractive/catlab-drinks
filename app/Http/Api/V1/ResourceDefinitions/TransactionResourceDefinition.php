@@ -38,11 +38,18 @@ class TransactionResourceDefinition extends ResourceDefinition
 
         $this->identifier('id');
 
+        // the readable 'type' attribute (can have 'unknown' transactions)
         $this->field('transaction_type')
             ->display('type')
             ->string()
             ->enum([ Transaction::TYPE_SALE, Transaction::TYPE_TOPUP, Transaction::TYPE_REFUND, Transaction::TYPE_UNKNOWN ])
-            ->visible(true)
+            ->visible(true);
+
+        // the writeable 'type' attribute
+        $this->field('transaction_type')
+            ->display('type')
+            ->string()
+            ->enum([ Transaction::TYPE_SALE, Transaction::TYPE_TOPUP, Transaction::TYPE_REFUND ])
             ->writeable(true, false);
 
         $this->field('value')
@@ -53,6 +60,7 @@ class TransactionResourceDefinition extends ResourceDefinition
 
         $this->field('card_sync_id')
             ->display('card_transaction')
+            ->sortable()
             ->int()
             ->writeable(true, true)
             ->visible(true);
@@ -62,14 +70,20 @@ class TransactionResourceDefinition extends ResourceDefinition
             ->string()
             ->writeable(true, false);
 
+        $this->field('has_synced')
+            ->writeable(true, true)
+            ->visible(true);
+
         $this->field('topup_uid')
             ->writeable(true, false)
             ->max(36)
+            ->visible(true)
             ->string();
 
         $this->field('order_uid')
             ->writeable(true, false)
             ->max(36)
+            ->visible(true)
             ->string();
 
         $this->field('client_date')

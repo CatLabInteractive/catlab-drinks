@@ -30,6 +30,23 @@ use CatLab\Charon\Laravel\Database\Model;
  */
 class Order extends Model
 {
+    public static function boot()
+    {
+        parent::boot();
+
+        self::created(function(Order $order){
+
+            // look for any transactions that could be linked
+            $transactions = Transaction::where('order_uid', '=', $order->uid)->get();
+            foreach ($transactions as $transaction) {
+                /** @var Transaction $transaction */
+                $transaction->order()->associate($order);
+                $transaction->save();
+            }
+
+        });
+    }
+
     const STATUS_DECLINED = 'declined';
     const STATUS_PENDING = 'pending';
     const STATUS_PROCESSED = 'processed';

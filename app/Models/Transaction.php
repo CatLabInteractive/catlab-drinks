@@ -22,6 +22,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\TransactionMergeException;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -30,6 +31,24 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Transaction extends Model
 {
+    /**
+     *
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        self::saving(function(Transaction $transaction){
+            // Look for any orders that might have registered already
+            if ($transaction->order_uid) {
+                $order = Order::where('uid', '=', $transaction->order_uid)->first();
+                if ($order) {
+                    $transaction->order()->associate($order);
+                }
+            }
+        });
+    }
+
     protected $table = 'card_transactions';
 
     protected $dates = [
@@ -42,6 +61,10 @@ class Transaction extends Model
     const TYPE_TOPUP = 'topup';
     const TYPE_REFUND = 'refund';
     const TYPE_UNKNOWN = 'unknown';
+    const TYPE_OVERFLOW = 'overflow';
+
+    // the id that will be used as an overflow transaction
+    const ID_OVERFLOW = -1;
 
     protected $fillable = [
         'transaction_type',
@@ -63,5 +86,37 @@ class Transaction extends Model
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * @param Transaction $entity
+     */
+    public function mergeFromTransaction(Transaction $entity)
+    {
+        // is this transaction expected?
+        if ($this->transaction_type !== Transaction::TYPE_UNKNOWN) {
+            // we can't merge this, check if the values are correct
+            if ($this->value !== $entity->value) {
+                throw new TransactionMergeException("Failed merging transaction: value does not match.");
+            }
+
+            return;
+        }
+
+        $this->transaction_type = $entity->transaction_type;
+        $this->client_date = $entity->client_date;
+        $this->value = $entity->value;
+
+        // merge transaction id
+        $this->order_uid = $entity->order_uid;
+        $this->topup_uid = $entity->topup_uid;
     }
 }

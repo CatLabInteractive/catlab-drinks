@@ -115,11 +115,11 @@ class CardController extends Base\ResourceController
         $resource = $this->toResource($card, $context);
 
         // if $markClientDate, this will effectively remove all pending transactions.
-        $markClientDate = $request->query('markClientDate');
+        $markClientDate = $request->query('markSynced');
         if ($markClientDate) {
             foreach ($card->getPendingTransactions() as $transaction) {
                 /** @var Transaction $transaction */
-                $transaction->client_date = new \DateTime();
+                $transaction->has_synced = true;
                 $transaction->save();
             }
         }
@@ -139,17 +139,16 @@ class CardController extends Base\ResourceController
         $card = Card::findOrFail($cardId);
         $this->authorizeEdit($request, $card);
 
+        // store the old balance
+        $oldBalance = $card->transactions()->sum('value');
+
         $context = $this->getContext(Action::CREATE);
 
         /** @var CardData $cardData */
         $cardDataResource = $this->bodyToResource($context, CardDataResourceDefinition::class);
-        $cardData = $this->toEntity($cardDataResource, $context);
+        $cardData = $this->toEntity($cardDataResource, $context, new CardData());
 
-        // do magic.
-        $card->transaction_count = $cardData->transactionCount;
-        $card->balance = $cardData->balance;
-
-        $card->save();
+        $card->mergeFromCardData($cardData);
 
         $readContext = $this->getContext(Action::VIEW);
         return new ResourceResponse($this->toResource($card, $readContext));
@@ -169,7 +168,8 @@ class CardController extends Base\ResourceController
 
         $card->transactions()->update([
             'card_sync_id' => null,
-            'client_date' => null
+            'client_date' => null,
+            'has_synced' => null
         ]);
 
         $readContext = $this->getContext(Action::VIEW);

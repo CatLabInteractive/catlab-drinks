@@ -35,58 +35,16 @@
         <div v-if="loaded">
 
             <h1>Card management</h1>
-            <b-row>
-                <b-col md="8">
 
-                    <h2>Topup</h2>
-                    <label for="customAmount">Custom amount</label><br />
-                    <input type="number" min="0" step="0.01" placeholder="10.00" id="customAmount" v-model="topupAmount" />
+            <div v-if="card === null">
+                <p>Scan to start</p>
+            </div>
 
-                    <button class="btn btn-primary" v-on:click="topup()">Topup</button>
+            <div v-if="card">
 
-                </b-col>
+                <card :card="card"></card>
 
-                <b-col md="4">
-
-                    <div v-if="card === null">
-                        <p>Scan to start</p>
-                    </div>
-
-                    <div v-if="card">
-
-                        <h2>Card #<strong>{{ card.uid}}</strong></h2>
-
-                        <div v-if="card.corrupted">
-                            <div class="alert alert-danger" role="alert">
-                                This card is corrupted.
-                                <button v-on:click="format()">Rebuild</button>
-                            </div>
-                        </div>
-
-                        <div v-if="card.loaded">
-
-                            <table class="table">
-
-                                <tr>
-                                    <td>Balance</td>
-                                    <td>{{ card.getVisibleBalance() }}</td>
-                                </tr>
-
-                                <tr>
-                                    <td>Last transaction</td>
-                                    <td>{{ card.getLastTransactionDate().toISOString() }}</td>
-                                </tr>
-
-                            </table>
-
-                            <button v-on:click="rebuild()">Rebuild</button>
-                        </div>
-
-
-                    </div>
-
-                </b-col>
-            </b-row>
+            </div>
 
         </div>
 
@@ -97,8 +55,6 @@
 <script>
 
     import {OrganisationService} from "../services/OrganisationService";
-    import {CardService} from "../nfccards/CardService";
-    import {Card} from "../nfccards/models/Card";
 
     export default {
 
@@ -129,24 +85,12 @@
             this.loaded = true;
             this.loading = false;
 
+            if (this.cardService.getCard()) {
+                this.showCard(this.cardService.getCard());
+            }
+
             this.cardService.on('card:connect', (card) => {
                 this.showCard(card);
-            });
-
-            this.cardService.on('card:loaded', (card) => {
-
-                /*
-                // increase balance
-                console.log('card loaded');
-
-                card.balance += 100;
-                console.log('adding 100 balance: new balance = ' + card.balance);
-
-                card.lastTransaction = new Date();
-
-                card.save(card);
-                 */
-
             });
 
             this.cardService.on('card:disconnect', (card) => {
@@ -160,9 +104,7 @@
                 organisation: null,
                 loading: true,
                 loaded: false,
-                card: null,
-                tarnsactions: [],
-                topupAmount: 10
+                card: null
             }
         },
 
@@ -176,7 +118,6 @@
 
             async showCard(card) {
 
-                this.transactions = await this.cardService.getTransactions(card);
                 this.card = card;
 
                 //console.log(this.transactions);
@@ -184,22 +125,6 @@
 
             async hideCard() {
                 this.card = null;
-            },
-
-            async rebuild() {
-
-                if (confirm('Danger! Rebuilding will only keep all transactions that are available online. Are you sure you want to do that?')) {
-                    console.log('Rebuilding card');
-                    await this.cardService.rebuild(this.card);
-                    console.log('Done rebuilding card');
-                }
-            },
-
-            async topup() {
-                const amount = Math.floor(this.topupAmount * 100);
-
-                await this.cardService.topup('', amount);
-                alert('topup succesful');
             }
 
         }
