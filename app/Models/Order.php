@@ -30,6 +30,8 @@ use CatLab\Charon\Laravel\Database\Model;
  */
 class Order extends Model
 {
+    private $cardTransactions;
+
     public static function boot()
     {
         parent::boot();
@@ -45,6 +47,28 @@ class Order extends Model
             }
 
         });
+
+        self::updating(function(Order $order) {
+
+            $originalStatus = $order->getOriginal('status');
+            $newStatus = $order->status;
+
+            if (
+                $originalStatus !== $newStatus &&
+                $newStatus === self::STATUS_DECLINED
+            ) {
+
+                // do we have a card attached?
+                $transactions = $order->cardTransactions()->get();
+                if (count($transactions) === 1) {
+                    // refund this transaction
+                    /** @var Card $card */
+                    $card = $transactions[0]->card;
+                    $card->refund($order);
+                }
+
+            }
+        });
     }
 
     const STATUS_DECLINED = 'declined';
@@ -55,6 +79,11 @@ class Order extends Model
      * @var string
      */
     protected $table = 'orders';
+
+    /**
+     * @var string
+     */
+    protected $cardToken;
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -70,5 +99,40 @@ class Order extends Model
     public function event()
     {
         return $this->belongsTo(Event::class);
+    }
+
+    /**
+     * @param $token
+     * @return Order
+     */
+    public function setCardToken($token)
+    {
+        $this->cardToken = $token;
+        return $this;
+    }
+
+    public function getCardToken()
+    {
+        return $this->cardToken;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalCost()
+    {
+        $price = 0;
+        foreach ($this->order as $order) {
+            $price += $order->amount * $order->menuItem->price;
+        }
+        return $price;
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function cardTransactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

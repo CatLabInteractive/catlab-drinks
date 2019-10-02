@@ -122,6 +122,15 @@
                 this.userName = localStorage.userName;
             }
 
+            // order token
+            this.cardToken = null;
+            if (this.$route.query.card) {
+                this.cardToken = this.$route.query.card;
+                localStorage.cardToken = this.cardToken;
+            } else if (typeof(localStorage.cardToken) !== 'undefined') {
+                this.cardToken = localStorage.cardToken;
+            }
+
             // Look for name
             if (typeof(localStorage.tableNumber) !== 'undefined') {
                 this.tableNumber = localStorage.tableNumber;
@@ -318,6 +327,7 @@
                 const data = {};
                 data.location = this.tableNumber;
                 data.requester = this.userName;
+                data.cardToken = this.cardToken;
                 data.order = {
                     items: []
                 };

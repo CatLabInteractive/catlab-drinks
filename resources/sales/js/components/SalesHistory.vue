@@ -49,6 +49,8 @@
                     <li v-for="product in item.order.items">{{product.amount}} x {{product.menuItem.name}}</li>
                 </ul>
 
+                <p v-if="item.paid"><i class="fas fa-check-square"></i> Online betaald</p>
+
                 <p>
                     Tafel: {{item.location}}<br />
                     Besteller: {{item.requester}}<br />

@@ -139,9 +139,6 @@ class CardController extends Base\ResourceController
         $card = Card::findOrFail($cardId);
         $this->authorizeEdit($request, $card);
 
-        // store the old balance
-        $oldBalance = $card->transactions()->sum('value');
-
         $context = $this->getContext(Action::CREATE);
 
         /** @var CardData $cardData */

@@ -22,6 +22,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\InsufficientFundsException;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -52,13 +53,21 @@ class Card extends Model
             $card = new Card();
             $card->uid = $cardUid;
             $card->transaction_count = 0;
-            $card->balance = 0;
             $card->organisation()->associate($organisation);
 
             $card->save();
         }
 
         return $card;
+    }
+
+    /**
+     * @param $token
+     * @return Card
+     */
+    public static function getFromOrderTokenOrAlias($token)
+    {
+        return Card::where('order_token', '=', $token)->first();
     }
 
     /**
@@ -74,7 +83,8 @@ class Card extends Model
         return $this->hasMany(Transaction::class);
     }
 
-    public function getPendingTransactions() {
+    public function getPendingTransactions()
+    {
         return $this->transactions()->where('has_synced', '=', 0)->get();
     }
 
@@ -109,13 +119,20 @@ class Card extends Model
     }
 
     /**
+     * @return int
+     */
+    public function getBalance()
+    {
+        return $this->transactions()->sum('value');
+    }
+
+    /**
      * @param CardData $cardData
      */
     public function mergeFromCardData(CardData $cardData)
     {
         // do magic.
         $this->transaction_count = $cardData->transactionCount;
-        $this->balance = $cardData->balance;
 
         $this->save();
 
@@ -138,11 +155,50 @@ class Card extends Model
         }
 
         // now check if the balance is correct
-        $transactionBalance = $this->transactions()->sum('value');
-        if ($transactionBalance !== $this->balance) {
+        $transactionBalance = $this->getBalance();
+        if ($transactionBalance !== $cardData->balance) {
             $overflowTransaction = $this->getOverflowTransaction();
-            $overflowTransaction->value -= $transactionBalance - $this->balance;
+            $overflowTransaction->value -= $transactionBalance - $cardData->balance;
             $overflowTransaction->save();
+        }
+    }
+
+    /**
+     * @param Order $order
+     * @throws InsufficientFundsException
+     */
+    public function spend(Order $order)
+    {
+        $totalPrice = ceil($order->getTotalCost() * 100);
+
+        if ($this->getBalance() < $totalPrice) {
+            throw new InsufficientFundsException('Insufficient funds.');
+        }
+
+        $transaction = new Transaction();
+        $transaction->card()->associate($this);
+        $transaction->transaction_type = Transaction::TYPE_SALE;
+        $transaction->has_synced = false;
+        $transaction->value = 0 - $totalPrice;
+        $transaction->order_uid = $order->uid;
+
+        $transaction->save();
+    }
+
+    public function refund(Order $order)
+    {
+        // first check if we actually have to do a refond
+        $currentSum = $order->cardTransactions()->sum('value');
+        if (abs($currentSum) > 0) {
+
+            $transaction = new Transaction();
+            $transaction->card()->associate($this);
+            $transaction->transaction_type = Transaction::TYPE_REFUND;
+            $transaction->has_synced = false;
+            $transaction->value = 0 - $currentSum;
+
+            $transaction->save();
+
         }
     }
 }

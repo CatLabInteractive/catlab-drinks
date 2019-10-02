@@ -4002,6 +4002,9 @@ function _asyncToGenerator(fn) {
 //
 //
 //
+//
+//
+//
 
 
 
@@ -4192,6 +4195,8 @@ function _asyncToGenerator(fn) {
     });
   };
 } //
+//
+//
 //
 //
 //
@@ -80805,6 +80810,20 @@ var render = function() {
             _vm._v(")\n        ")
           ]),
           _vm._v(" "),
+          item.paid
+            ? _c("p", { staticClass: "alert alert-success" }, [
+                _c("i", { staticClass: "fas fa-check-square" }),
+                _vm._v(" Online betaald")
+              ])
+            : _vm._e(),
+          _vm._v(" "),
+          !item.paid
+            ? _c("p", { staticClass: "alert alert-danger" }, [
+                _c("i", { staticClass: "fas fa-times" }),
+                _vm._v(" Nog niet betaald")
+              ])
+            : _vm._e(),
+          _vm._v(" "),
           _c("p", [
             _c(
               "button",
@@ -80950,6 +80969,13 @@ var render = function() {
                 }),
                 0
               ),
+              _vm._v(" "),
+              item.paid
+                ? _c("p", [
+                    _c("i", { staticClass: "fas fa-check-square" }),
+                    _vm._v(" Online betaald")
+                  ])
+                : _vm._e(),
               _vm._v(" "),
               _c("p", [
                 _vm._v("\n                Tafel: " + _vm._s(item.location)),

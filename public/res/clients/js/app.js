@@ -2755,6 +2755,16 @@ function _asyncToGenerator(fn) {
       localStorage.userName = this.userName;
     } else if (typeof localStorage.userName !== 'undefined') {
       this.userName = localStorage.userName;
+    } // order token
+
+
+    this.cardToken = null;
+
+    if (this.$route.query.card) {
+      this.cardToken = this.$route.query.card;
+      localStorage.cardToken = this.cardToken;
+    } else if (typeof localStorage.cardToken !== 'undefined') {
+      this.cardToken = localStorage.cardToken;
     } // Look for name
 
 
@@ -2963,6 +2973,7 @@ function _asyncToGenerator(fn) {
                 data = {};
                 data.location = this.tableNumber;
                 data.requester = this.userName;
+                data.cardToken = this.cardToken;
                 data.order = {
                   items: []
                 };
@@ -2980,12 +2991,12 @@ function _asyncToGenerator(fn) {
                     });
                   }
                 });
-                _context2.prev = 15;
+                _context2.prev = 16;
                 localStorage.tableNumber = this.tableNumber;
-                _context2.next = 19;
+                _context2.next = 20;
                 return this.service.order(data);
 
-              case 19:
+              case 20:
                 order = _context2.sent;
                 this.$router.push({
                   name: 'ordersubmitted',
@@ -2994,21 +3005,21 @@ function _asyncToGenerator(fn) {
                   }
                 });
                 this.reset();
-                _context2.next = 28;
+                _context2.next = 29;
                 break;
 
-              case 24:
-                _context2.prev = 24;
-                _context2.t0 = _context2["catch"](15);
+              case 25:
+                _context2.prev = 25;
+                _context2.t0 = _context2["catch"](16);
                 this.warning = _context2.t0.response.data.error.message;
                 this.$refs.warningModal.show();
 
-              case 28:
+              case 29:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, this, [[15, 24]]);
+        }, _callee2, this, [[16, 25]]);
       }));
 
       function submit() {

@@ -43,6 +43,9 @@
                 Totaal: €{{item.totalPrice.toFixed(2)}} (<strong>{{Math.ceil(item.totalPrice / 0.5)}} vakjes</strong>)
             </p>
 
+            <p v-if="item.paid" class="alert alert-success"><i class="fas fa-check-square"></i> Online betaald</p>
+            <p v-if="!item.paid" class="alert alert-danger"><i class="fas fa-times"></i> Nog niet betaald</p>
+
             <p>
                 <button class="btn btn-success" @click="acceptOrder(item)">Afgewerkt</button>
                 <button class="btn btn-danger" @click="declineOrder(item)">Niet aanvaard</button>

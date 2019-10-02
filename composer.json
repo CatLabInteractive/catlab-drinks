@@ -22,7 +22,8 @@
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.7.*",
         "laravel/passport": "^7.1",
-        "laravel/tinker": "^1.0"
+        "laravel/tinker": "^1.0",
+        "ramsey/uuid": "^3.8"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

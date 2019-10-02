@@ -22,18 +22,22 @@
 
 namespace App\Http\Api\V1\Controllers;
 
-use App\Factories\EntityFactory;
+use App\Exceptions\InsufficientFundsException;
 use App\Factories\OrderEntityFactory;
 use App\Http\Api\V1\Controllers\Base\ResourceController;
 use App\Http\Api\V1\ResourceDefinitions\MenuItemResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\OrderResourceDefinition;
+use App\Models\Card;
 use App\Models\Event;
 use App\Models\Order;
 use App\Models\OrderItem;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
-use CatLab\Charon\Models\ResourceResponse;
+use CatLab\Charon\Exceptions\InvalidContextAction;
+use CatLab\Charon\Exceptions\InvalidEntityException;
+use CatLab\Charon\Laravel\Models\ResourceResponse;
 use Illuminate\Http\JsonResponse;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Class PublicController
@@ -75,7 +79,11 @@ class PublicController extends ResourceController
     /**
      * Get all available menu items.
      * @return ResourceResponse
-     * @throws \CatLab\Charon\Exceptions\InvalidEntityException
+     * @throws InvalidContextAction
+     * @throws InvalidEntityException
+     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\IterableExpected
      */
     public function menu()
     {
@@ -101,7 +109,13 @@ class PublicController extends ResourceController
 
     /**
      *
-     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
+     * @return ResourceResponse|JsonResponse
+     * @throws InvalidContextAction
+     * @throws InvalidEntityException
+     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\IterableExpected
+     * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
      */
     public function order()
     {
@@ -131,8 +145,29 @@ class PublicController extends ResourceController
             new OrderEntityFactory($event)
         );
 
-        $entity->event()->associate($event);
+        $entity->uid = Uuid::uuid1();
+        $entity->paid = false;
 
+        // Do we have a card token, so we can pay immediately?
+        $cardToken = $entity->getCardToken();
+        if ($cardToken) {
+            $card = Card::getFromOrderTokenOrAlias($cardToken);
+            if ($card) {
+
+                try {
+                    $card->spend($entity);
+                    $entity->paid = true;
+                } catch (InsufficientFundsException $e) {
+                    return new JsonResponse([
+                        'error' => [
+                            'message' => 'Je hebt onvoldoende saldo op je kaart staan. Herlaad je kaart.'
+                        ]
+                    ], 402);
+                }
+            }
+        }
+
+        $entity->event()->associate($event);
         $entity->status = Order::STATUS_PENDING;
 
         $entity->saveRecursively();

@@ -55,6 +55,10 @@ class OrderResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->writeable(true, true);
 
+        $this->field('cardToken')
+            ->string()
+            ->writeable(true, true);
+
         $this->relationship('order', OrderItemResourceDefinition::class)
             ->many()
             ->expanded()
@@ -66,5 +70,9 @@ class OrderResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->filterable()
             ->writeable(true, true);
+
+        $this->field('paid')
+            ->bool()
+            ->visible(true);
     }
 }
