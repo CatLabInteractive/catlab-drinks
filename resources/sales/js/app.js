@@ -44,7 +44,6 @@ import Settings from "./views/Settings";
 import {SettingService} from "./services/SettingService";
 import {PaymentService} from "./services/PaymentService";
 
-
 Vue.component(
     'live-sales',
     require('./components/LiveSales.vue').default

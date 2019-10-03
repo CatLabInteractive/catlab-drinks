@@ -20,6 +20,9 @@ mix.js('resources/swagger/swagger-ui.js', 'public/swaggerui')
 mix.ts('resources/sales/js/app.js', 'public/res/sales/js')
     .sass('resources/sales/sass/app.scss', 'public/res/sales/css');
 
+// Qr
+mix.ts('resources/sales/js/qrGenerator.js', 'public/res/sales/js');
+
 // Order
 mix.ts('resources/clients/js/app.js', 'public/res/clients/js')
     .sass('resources/clients/sass/app.scss', 'public/res/clients/css');

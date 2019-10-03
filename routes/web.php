@@ -31,6 +31,9 @@ Route::get('/order/{orderId}/{any?}', 'OrderController@view')
 
 Route::get('/topup/{cardId}', 'TopupController@topup');
 
+Route::get('/qr-generator', 'QrGenerator@generator');
+Route::get('/qr-generator/code', 'QrGenerator@code');
+
 //Auth::routes();
 \CatLab\Accounts\Client\Controllers\LoginController::setRoutes();
 

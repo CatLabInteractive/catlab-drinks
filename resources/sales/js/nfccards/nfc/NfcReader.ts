@@ -59,7 +59,7 @@ export class NfcReader extends Eventable {
         return result;
     }
 
-    connect(url: string, password: string) {
+    connect(url: string, password: string, handleHandshake = true) {
         this.socket = io(url);
 
         /**
@@ -73,16 +73,21 @@ export class NfcReader extends Eventable {
          *
          */
         this.socket.on('nfc:card:connect', (data: any, resolve: any) => {
-            const password = this.calculateCardPassword(data.uid);
-            this.socket.emit('nfc:password', {
-                uid: data.uid,
-                password: password
-            });
 
             const card = new Card(this, data.uid);
-            this.currentCard = card;
-            this.trigger('card:connect', card);
+            if (handleHandshake) {
 
+                const password = this.calculateCardPassword(data.uid);
+                this.socket.emit('nfc:password', {
+                    uid: data.uid,
+                    password: password
+                });
+
+                this.currentCard = card;
+
+            }
+
+            this.trigger('card:connect', card);
             this.logger.log(card.getUid(), 'connected');
         });
 

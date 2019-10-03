@@ -99574,8 +99574,9 @@ var NfcReader = /** @class */ (function (_super) {
         }
         return result;
     };
-    NfcReader.prototype.connect = function (url, password) {
+    NfcReader.prototype.connect = function (url, password, handleHandshake) {
         var _this = this;
+        if (handleHandshake === void 0) { handleHandshake = true; }
         this.socket = socket_io_client__WEBPACK_IMPORTED_MODULE_0__(url);
         /**
          *
@@ -99587,13 +99588,15 @@ var NfcReader = /** @class */ (function (_super) {
          *
          */
         this.socket.on('nfc:card:connect', function (data, resolve) {
-            var password = _this.calculateCardPassword(data.uid);
-            _this.socket.emit('nfc:password', {
-                uid: data.uid,
-                password: password
-            });
             var card = new _models_Card__WEBPACK_IMPORTED_MODULE_4__["Card"](_this, data.uid);
-            _this.currentCard = card;
+            if (handleHandshake) {
+                var password_1 = _this.calculateCardPassword(data.uid);
+                _this.socket.emit('nfc:password', {
+                    uid: data.uid,
+                    password: password_1
+                });
+                _this.currentCard = card;
+            }
             _this.trigger('card:connect', card);
             _this.logger.log(card.getUid(), 'connected');
         });
