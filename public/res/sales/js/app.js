@@ -80993,7 +80993,7 @@ var render = function() {
           item.paid
             ? _c("p", { staticClass: "alert alert-success" }, [
                 _c("i", { staticClass: "fas fa-check-square" }),
-                _vm._v(" Online betaald")
+                _vm._v(" Betaald")
               ])
             : _vm._e(),
           _vm._v(" "),
@@ -81153,7 +81153,7 @@ var render = function() {
               item.paid
                 ? _c("p", [
                     _c("i", { staticClass: "fas fa-check-square" }),
-                    _vm._v(" Online betaald")
+                    _vm._v(" Betaald")
                   ])
                 : _vm._e(),
               _vm._v(" "),
