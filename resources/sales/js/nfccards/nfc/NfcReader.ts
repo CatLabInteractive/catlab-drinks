@@ -66,7 +66,9 @@ export class NfcReader extends Eventable {
          *
          */
         this.socket.on('connect', () => {
-            this.handshake();
+            this.socket.emit('hello', { password: password}, (response: any) => {
+                console.log('Response from nfc reader hello: ', response);
+            });
         });
 
         /**
@@ -288,13 +290,6 @@ export class NfcReader extends Eventable {
      */
     public hmac(card: Card, content: string) {
         return CryptoJS.HmacSHA256(content + card.getUid(), this.password);
-    }
-
-    /**
-     *
-     */
-    private handshake() {
-
     }
 
     /**

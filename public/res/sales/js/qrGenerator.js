@@ -21461,7 +21461,9 @@ var NfcReader = /** @class */ (function (_super) {
          *
          */
         this.socket.on('connect', function () {
-            _this.handshake();
+            _this.socket.emit('hello', { password: password }, function (response) {
+                console.log('Response from nfc reader hello: ', response);
+            });
         });
         /**
          *
@@ -21705,11 +21707,6 @@ var NfcReader = /** @class */ (function (_super) {
      */
     NfcReader.prototype.hmac = function (card, content) {
         return crypto_js__WEBPACK_IMPORTED_MODULE_1__["HmacSHA256"](content + card.getUid(), this.password);
-    };
-    /**
-     *
-     */
-    NfcReader.prototype.handshake = function () {
     };
     /**
      *
