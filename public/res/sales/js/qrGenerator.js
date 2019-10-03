@@ -20743,10 +20743,18 @@ __webpack_require__.r(__webpack_exports__);
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+/**
+ *
+ */
 var BaseError = /** @class */ (function () {
     function BaseError(message) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        this.message = message;
         // @ts-ignore
-        Error.apply(this, arguments);
+        Error.apply(this, args);
     }
     return BaseError;
 }());
@@ -21671,7 +21679,8 @@ var NfcReader = /** @class */ (function (_super) {
                                         resolve();
                                     }
                                     else {
-                                        reject(new _exceptions_NfcWriteException__WEBPACK_IMPORTED_MODULE_7__["NfcWriteException"](response.error));
+                                        console.log(response.error.error.name);
+                                        reject(new _exceptions_NfcWriteException__WEBPACK_IMPORTED_MODULE_7__["NfcWriteException"](response.error.error.name));
                                     }
                                 });
                             })];

@@ -173,11 +173,17 @@ class CardController extends Base\ResourceController
         $card = Card::findOrFail($cardId);
         $this->authorizeEdit($request, $card);
 
-        $card->transactions()->update([
-            'card_sync_id' => null,
-            'client_date' => null,
-            'has_synced' => null
-        ]);
+        $card->transaction_count = 0;
+        $card->save();
+
+        $card
+            ->transactions()
+            ->where('card_sync_id', '>=', 0)
+            ->update([
+                'card_sync_id' => null,
+                'client_date' => null,
+                'has_synced' => false
+            ]);
 
         $readContext = $this->getContext(Action::VIEW);
         return new ResourceResponse($this->toResource($card, $readContext));

@@ -27,7 +27,7 @@
         <div v-if="card.corrupted">
             <div class="alert alert-danger" role="alert">
                 This card is corrupted.
-                <button v-on:click="format()">Rebuild</button>
+                <button v-on:click="rebuild()">Rebuild</button>
             </div>
         </div>
 
@@ -49,11 +49,11 @@
                         <button class="btn btn-primary btn-sm" v-on:click="addOrderTokenAlias">Add</button>
                     </li>
                 </ul>
-                <button class="btn btn-primary btn-sm" v-on:click="storeServerData">
+
+                <p>
                     <span v-if="storeState === 'storing'">Saving</span>
                     <span v-if="storeState === 'stored'">Saved</span>
-                    <span v-if="storeState === null">Save</span>
-                </button>
+                </p>
             </div>
 
             <div class="col-md-6">
@@ -140,9 +140,15 @@
             async rebuild() {
 
                 if (confirm('Danger! Rebuilding will only keep all transactions that are available online. Are you sure you want to do that?')) {
-                    console.log('Rebuilding card');
-                    await this.$cardService.rebuild(this.card);
-                    console.log('Done rebuilding card');
+
+                    try {
+                        console.log('Rebuilding card');
+                        await this.$cardService.rebuild(this.card);
+                        console.log('Done rebuilding card');
+                    } catch (e) {
+                        console.error(e);
+                        alert('Rebuild error: ' + e.message);
+                    }
                 }
             },
 
@@ -159,11 +165,15 @@
             async addOrderTokenAlias() {
                 this.card.orderTokenAliases.push(this.creatingOrderTokenAlias);
                 this.creatingOrderTokenAlias = '';
+
+                this.storeServerData();
             },
 
             async removeOrderTokenAlias(alias) {
                 const index = this.card.orderTokenAliases.indexOf(alias);
                 this.card.orderTokenAliases.splice(index, 1);
+
+                this.storeServerData();
             },
 
             async storeServerData() {

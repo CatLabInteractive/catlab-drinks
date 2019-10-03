@@ -2836,23 +2836,32 @@ var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
             switch (_context2.prev = _context2.next) {
               case 0:
                 if (!confirm('Danger! Rebuilding will only keep all transactions that are available online. Are you sure you want to do that?')) {
-                  _context2.next = 5;
+                  _context2.next = 12;
                   break;
                 }
 
+                _context2.prev = 1;
                 console.log('Rebuilding card');
-                _context2.next = 4;
+                _context2.next = 5;
                 return this.$cardService.rebuild(this.card);
 
-              case 4:
-                console.log('Done rebuilding card');
-
               case 5:
+                console.log('Done rebuilding card');
+                _context2.next = 12;
+                break;
+
+              case 8:
+                _context2.prev = 8;
+                _context2.t0 = _context2["catch"](1);
+                console.error(_context2.t0);
+                alert('Rebuild error: ' + _context2.t0.message);
+
+              case 12:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, this);
+        }, _callee2, this, [[1, 8]]);
       }));
 
       function rebuild() {
@@ -2903,8 +2912,9 @@ var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
               case 0:
                 this.card.orderTokenAliases.push(this.creatingOrderTokenAlias);
                 this.creatingOrderTokenAlias = '';
+                this.storeServerData();
 
-              case 2:
+              case 3:
               case "end":
                 return _context4.stop();
             }
@@ -2929,8 +2939,9 @@ var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
               case 0:
                 index = this.card.orderTokenAliases.indexOf(alias);
                 this.card.orderTokenAliases.splice(index, 1);
+                this.storeServerData();
 
-              case 2:
+              case 3:
               case "end":
                 return _context5.stop();
             }
@@ -80209,7 +80220,7 @@ var render = function() {
                     {
                       on: {
                         click: function($event) {
-                          return _vm.format()
+                          return _vm.rebuild()
                         }
                       }
                     },
@@ -80329,26 +80340,15 @@ var render = function() {
                   2
                 ),
                 _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-primary btn-sm",
-                    on: { click: _vm.storeServerData }
-                  },
-                  [
-                    _vm.storeState === "storing"
-                      ? _c("span", [_vm._v("Saving")])
-                      : _vm._e(),
-                    _vm._v(" "),
-                    _vm.storeState === "stored"
-                      ? _c("span", [_vm._v("Saved")])
-                      : _vm._e(),
-                    _vm._v(" "),
-                    _vm.storeState === null
-                      ? _c("span", [_vm._v("Save")])
-                      : _vm._e()
-                  ]
-                )
+                _c("p", [
+                  _vm.storeState === "storing"
+                    ? _c("span", [_vm._v("Saving")])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.storeState === "stored"
+                    ? _c("span", [_vm._v("Saved")])
+                    : _vm._e()
+                ])
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "col-md-6" }, [
@@ -98612,10 +98612,18 @@ __webpack_require__.r(__webpack_exports__);
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+/**
+ *
+ */
 var BaseError = /** @class */ (function () {
     function BaseError(message) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        this.message = message;
         // @ts-ignore
-        Error.apply(this, arguments);
+        Error.apply(this, args);
     }
     return BaseError;
 }());
@@ -99800,7 +99808,8 @@ var NfcReader = /** @class */ (function (_super) {
                                         resolve();
                                     }
                                     else {
-                                        reject(new _exceptions_NfcWriteException__WEBPACK_IMPORTED_MODULE_7__["NfcWriteException"](response.error));
+                                        console.log(response.error.error.name);
+                                        reject(new _exceptions_NfcWriteException__WEBPACK_IMPORTED_MODULE_7__["NfcWriteException"](response.error.error.name));
                                     }
                                 });
                             })];

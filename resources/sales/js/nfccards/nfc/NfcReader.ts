@@ -263,7 +263,8 @@ export class NfcReader extends Eventable {
 
                         resolve();
                     } else {
-                        reject(new NfcWriteException(response.error));
+                        console.log(response.error.error.name);
+                        reject(new NfcWriteException(response.error.error.name));
                     }
                 });
             }

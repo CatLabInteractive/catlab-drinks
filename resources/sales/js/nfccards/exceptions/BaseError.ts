@@ -19,10 +19,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ *
+ */
 export class BaseError {
-    constructor (message: string) {
+    constructor (
+        public message: string,
+        ...args: any[]
+    ) {
         // @ts-ignore
-        Error.apply(this, arguments);
+        Error.apply(this, args);
     }
 }
 
