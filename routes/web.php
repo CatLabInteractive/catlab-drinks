@@ -21,14 +21,15 @@ Route::get('/docs/oauth2', 'DocumentController@oauth2Redirect');
  */
 Route::get('/sales/{any?}', 'ClientController@index')
     ->where('any', '.*')
-    ->middleware('auth')
-;
+    ->middleware('auth');
 
 /*
  * Order panel
  */
 Route::get('/order/{orderId}/{any?}', 'OrderController@view')
     ->where('any', '.*');
+
+Route::get('/topup/{cardId}', 'TopupController@topup');
 
 //Auth::routes();
 \CatLab\Accounts\Client\Controllers\LoginController::setRoutes();
