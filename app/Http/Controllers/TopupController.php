@@ -22,6 +22,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Card;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 /**
  * Class TopupController
  * @package App\Http\Api\V1\Controllers
@@ -34,6 +37,18 @@ class TopupController extends Controller
      */
     public function topup($cardUid)
     {
+        $cards = Card::where('uid', '=', $cardUid);
+        if ($cards->count() === 0) {
+            throw new ModelNotFoundException('Card not found.');
+        }
+
+        if ($cards->count() > 1) {
+            throw new ModelNotFoundException('Duplicate of card found. Topup is not supported.');
+        }
+
+        /** @var Card $card */
+        $card = $cards->first();
+
         return view('topup/topup');
     }
 }
