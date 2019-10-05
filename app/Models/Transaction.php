@@ -46,6 +46,13 @@ class Transaction extends Model
                     $transaction->order()->associate($order);
                 }
             }
+
+            if ($transaction->topup_uid) {
+                $topup = Topup::where('uid', '=', $transaction->topup_uid)->first();
+                if ($topup) {
+                    $transaction->topup()->associate($topup);
+                }
+            }
         });
     }
 
@@ -94,6 +101,14 @@ class Transaction extends Model
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function topup()
+    {
+        return $this->belongsTo(Topup::class);
     }
 
     /**

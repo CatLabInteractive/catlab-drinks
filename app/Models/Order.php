@@ -32,6 +32,9 @@ class Order extends Model
 {
     private $cardTransactions;
 
+    /**
+     *
+     */
     public static function boot()
     {
         parent::boot();
@@ -134,5 +137,14 @@ class Order extends Model
     public function cardTransactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    /**
+     * Return the amount of card credits that this order is worth.
+     * @return float
+     */
+    public function getCardCost()
+    {
+        return ceil($this->getTotalCost() * 100);
     }
 }

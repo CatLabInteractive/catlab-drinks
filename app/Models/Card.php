@@ -88,11 +88,17 @@ class Card extends Model
         return $this->belongsTo(Organisation::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
     public function getPendingTransactions()
     {
         return $this->transactions()->where('has_synced', '=', 0)->get();
@@ -187,7 +193,7 @@ class Card extends Model
      */
     public function spend(Order $order)
     {
-        $totalPrice = ceil($order->getTotalCost() * 100);
+        $totalPrice = $order->getCardCost();
 
         if ($this->getBalance() < $totalPrice) {
             throw new InsufficientFundsException('Insufficient funds.');
@@ -203,9 +209,12 @@ class Card extends Model
         $transaction->save();
     }
 
+    /**
+     * @param Order $order
+     */
     public function refund(Order $order)
     {
-        // first check if we actually have to do a refond
+        // first check if we actually have to do a refund
         $currentSum = $order->cardTransactions()->sum('value');
         if (abs($currentSum) > 0) {
 
@@ -214,6 +223,45 @@ class Card extends Model
             $transaction->transaction_type = Transaction::TYPE_REFUND;
             $transaction->has_synced = false;
             $transaction->value = 0 - $currentSum;
+            $transaction->order_uid = $order->uid;
+
+            $transaction->save();
+
+        }
+    }
+
+    /**
+     * @param Topup $topup
+     */
+    public function topup(Topup $topup)
+    {
+        $amount = $topup->getCardCredits();
+
+        $transaction = new Transaction();
+        $transaction->card()->associate($this);
+        $transaction->transaction_type = Transaction::TYPE_TOPUP;
+        $transaction->has_synced = false;
+        $transaction->value = $amount;
+        $transaction->topup_uid = $topup->uid;
+
+        $transaction->save();
+    }
+
+    /**
+     * @param Topup $topup
+     */
+    public function cancelTopup(Topup $topup)
+    {
+        // first check if we actually have to do a refund
+        $currentSum = $topup->cardTransactions()->sum('value');
+        if (abs($currentSum) > 0) {
+
+            $transaction = new Transaction();
+            $transaction->card()->associate($this);
+            $transaction->transaction_type = Transaction::TYPE_REFUND;
+            $transaction->has_synced = false;
+            $transaction->value = 0 - $currentSum;
+            $transaction->topup_uid = $topup->uid;
 
             $transaction->save();
 

@@ -29,7 +29,9 @@ Route::get('/sales/{any?}', 'ClientController@index')
 Route::get('/order/{orderId}/{any?}', 'OrderController@view')
     ->where('any', '.*');
 
-Route::get('/topup/{cardId}', 'TopupController@topup');
+Route::get('/topup/{cardId}', 'TopupController@topupForm');
+Route::post('/topup/{cardId}', 'TopupController@processTopup');
+Route::get('/topup/{cardId}/{orderId}', 'TopupController@status');
 
 Route::get('/qr-generator', 'QrGenerator@generator');
 Route::get('/qr-generator/code', 'QrGenerator@code');
