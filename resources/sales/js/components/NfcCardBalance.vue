@@ -22,7 +22,11 @@
 <template>
 
     <form class="form-inline">
-    <span v-if="balance !== null" class="btn btn-sm btn-warning">Balance: {{ balance }}</span>
+
+        <span v-if="connected === true" class="btn btn-sm btn-success">NFC</span>
+        <span v-if="connected === false" class="btn btn-sm btn-danger">NFC</span>
+
+        &nbsp;<span v-if="balance !== null" class="btn btn-sm btn-warning">Balance: {{ balance }}</span>
     </form>
 
 </template>
@@ -33,6 +37,12 @@
             if (!this.$cardService) {
                 return;
             }
+
+            this.connected = this.$cardService.isConnected();
+            this.$cardService.on('connection:change', function(isOnline) {
+                //console.log('is online', isOnline);
+                this.connected = isOnline;
+            }.bind(this));
 
             this.$cardService.on('card:balance:change', function(card) {
                 this.balance = card.getVisibleBalance();
@@ -47,7 +57,8 @@
         data() {
             return {
                 visible: false,
-                balance: null
+                balance: null,
+                connected: null
             };
         }
     }

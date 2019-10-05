@@ -21444,6 +21444,8 @@ var NfcReader = /** @class */ (function (_super) {
         _this.logger = logger;
         _this.password = '';
         _this.currentCard = null;
+        _this.executeHandshake = false;
+        _this.nfcReaderPassword = '';
         return _this;
     }
     NfcReader.prototype.bin2string = function (array) {
@@ -21457,20 +21459,14 @@ var NfcReader = /** @class */ (function (_super) {
         var _this = this;
         if (handleHandshake === void 0) { handleHandshake = true; }
         this.socket = socket_io_client__WEBPACK_IMPORTED_MODULE_0__(url);
-        /**
-         *
-         */
-        this.socket.on('connect', function () {
-            _this.socket.emit('hello', { password: password }, function (response) {
-                console.log('Response from nfc reader hello: ', response);
-            });
-        });
+        this.executeHandshake = handleHandshake;
+        this.nfcReaderPassword = password;
         /**
          *
          */
         this.socket.on('nfc:card:connect', function (data, resolve) {
             var card = new _models_Card__WEBPACK_IMPORTED_MODULE_4__["Card"](_this, data.uid);
-            if (handleHandshake) {
+            if (_this.executeHandshake) {
                 var password_1 = _this.calculateCardPassword(data.uid);
                 _this.socket.emit('nfc:password', {
                     uid: data.uid,
@@ -21533,8 +21529,43 @@ var NfcReader = /** @class */ (function (_super) {
                 }
             });
         }); });
+        this.socket.on('connect', function () { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.handshake()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
         this.socket.on('disconnect', function () {
+            _this.trigger('connection:change', false);
             _this.reconnect();
+        });
+        this.socket.on('reconnect', function () { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.handshake()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+    };
+    NfcReader.prototype.handshake = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                this.socket.emit('hello', { password: this.nfcReaderPassword }, function (response) {
+                    console.log('Response from nfc reader hello: ', response);
+                    if (response.success) {
+                        _this.trigger('connection:change', true);
+                    }
+                });
+                return [2 /*return*/];
+            });
         });
     };
     /**

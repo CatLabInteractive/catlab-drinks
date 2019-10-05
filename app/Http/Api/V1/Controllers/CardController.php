@@ -221,10 +221,12 @@ class CardController extends Base\ResourceController
 
     /**
      * Called before saveEntity
+     * @param Request $request
      * @param \Illuminate\Database\Eloquent\Model $entity
+     * @param $isNew
      */
-    protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity)
+    protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
     {
-        $this->traitBeforeSaveEntity($request, $entity);
+        $this->traitBeforeSaveEntity($request, $entity, $isNew);
     }
 }

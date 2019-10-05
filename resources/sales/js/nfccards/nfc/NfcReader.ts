@@ -43,11 +43,17 @@ export class NfcReader extends Eventable {
 
     private currentCard: Card | null = null;
 
+    private executeHandshake: boolean;
+
+    private nfcReaderPassword: string;
+
     constructor(
         private offlineStore: OfflineStore,
         private logger: Logger
     ) {
         super();
+        this.executeHandshake = false;
+        this.nfcReaderPassword = '';
     }
 
     bin2string(array: any) {
@@ -61,15 +67,9 @@ export class NfcReader extends Eventable {
 
     connect(url: string, password: string, handleHandshake = true) {
         this.socket = io(url);
+        this.executeHandshake = handleHandshake;
 
-        /**
-         *
-         */
-        this.socket.on('connect', () => {
-            this.socket.emit('hello', { password: password}, (response: any) => {
-                console.log('Response from nfc reader hello: ', response);
-            });
-        });
+        this.nfcReaderPassword = password;
 
         /**
          *
@@ -77,7 +77,7 @@ export class NfcReader extends Eventable {
         this.socket.on('nfc:card:connect', (data: any, resolve: any) => {
 
             const card = new Card(this, data.uid);
-            if (handleHandshake) {
+            if (this.executeHandshake) {
 
                 const password = this.calculateCardPassword(data.uid);
                 this.socket.emit('nfc:password', {
@@ -139,8 +139,27 @@ export class NfcReader extends Eventable {
             this.trigger('card:loaded', this.currentCard);
         });
 
+        this.socket.on('connect', async () => {
+            await this.handshake();
+        });
+
         this.socket.on('disconnect', () => {
+            this.trigger('connection:change', false);
             this.reconnect();
+        });
+
+        this.socket.on('reconnect', async () => {
+            await this.handshake();
+        });
+    }
+
+    private async handshake()
+    {
+        this.socket.emit('hello', { password: this.nfcReaderPassword }, (response: any) => {
+            console.log('Response from nfc reader hello: ', response);
+            if (response.success) {
+                this.trigger('connection:change', true);
+            }
         });
     }
 

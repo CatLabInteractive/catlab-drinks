@@ -104,7 +104,7 @@ class EventController extends Base\ResourceController
      */
     protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
     {
-        $this->traitBeforeSaveEntity($request, $entity);
+        $this->traitBeforeSaveEntity($request, $entity, $isNew);
 
         if ($isNew) {
             $entity->order_token = str_random(32);

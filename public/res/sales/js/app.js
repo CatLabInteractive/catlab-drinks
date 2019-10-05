@@ -3545,12 +3545,21 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     if (!this.$cardService) {
       return;
     }
 
+    this.connected = this.$cardService.isConnected();
+    this.$cardService.on('connection:change', function (isOnline) {
+      //console.log('is online', isOnline);
+      this.connected = isOnline;
+    }.bind(this));
     this.$cardService.on('card:balance:change', function (card) {
       this.balance = card.getVisibleBalance();
     }.bind(this));
@@ -3561,7 +3570,8 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       visible: false,
-      balance: null
+      balance: null,
+      connected: null
     };
   }
 });
@@ -80774,6 +80784,14 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("form", { staticClass: "form-inline" }, [
+    _vm.connected === true
+      ? _c("span", { staticClass: "btn btn-sm btn-success" }, [_vm._v("NFC")])
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.connected === false
+      ? _c("span", { staticClass: "btn btn-sm btn-danger" }, [_vm._v("NFC")])
+      : _vm._e(),
+    _vm._v("\n\n     "),
     _vm.balance !== null
       ? _c("span", { staticClass: "btn btn-sm btn-warning" }, [
           _vm._v("Balance: " + _vm._s(_vm.balance))
@@ -98340,12 +98358,17 @@ var CardService = /** @class */ (function (_super) {
          *
          */
         _this.currentCard = null;
+        _this.connected = false;
         _this.axios = null;
         _this.axios = axios;
         _this.offlineStore = new _store_OfflineStore__WEBPACK_IMPORTED_MODULE_3__["OfflineStore"](organisationId);
         _this.transactionStore = new _store_TransactionStore__WEBPACK_IMPORTED_MODULE_0__["TransactionStore"](axios, organisationId, _this.offlineStore);
         _this.logger = new _tools_Logger__WEBPACK_IMPORTED_MODULE_4__["Logger"]();
         _this.nfcReader = new _nfc_NfcReader__WEBPACK_IMPORTED_MODULE_1__["NfcReader"](_this.offlineStore, _this.logger);
+        _this.nfcReader.on('connection:change', function (connection) {
+            _this.connected = connection;
+            _this.trigger('connection:change', connection);
+        });
         _this.nfcReader.connect(nfcService, nfcPassword);
         // events
         _this.nfcReader.on('card:connect', function (card) {
@@ -98374,6 +98397,12 @@ var CardService = /** @class */ (function (_super) {
         }); });
         return _this;
     }
+    /**
+     *
+     */
+    CardService.prototype.isConnected = function () {
+        return this.connected;
+    };
     /**
      * If connected to the internet:
      * - load any pending transactions that might still be online
@@ -99596,6 +99625,8 @@ var NfcReader = /** @class */ (function (_super) {
         _this.logger = logger;
         _this.password = '';
         _this.currentCard = null;
+        _this.executeHandshake = false;
+        _this.nfcReaderPassword = '';
         return _this;
     }
     NfcReader.prototype.bin2string = function (array) {
@@ -99609,20 +99640,14 @@ var NfcReader = /** @class */ (function (_super) {
         var _this = this;
         if (handleHandshake === void 0) { handleHandshake = true; }
         this.socket = socket_io_client__WEBPACK_IMPORTED_MODULE_0__(url);
-        /**
-         *
-         */
-        this.socket.on('connect', function () {
-            _this.socket.emit('hello', { password: password }, function (response) {
-                console.log('Response from nfc reader hello: ', response);
-            });
-        });
+        this.executeHandshake = handleHandshake;
+        this.nfcReaderPassword = password;
         /**
          *
          */
         this.socket.on('nfc:card:connect', function (data, resolve) {
             var card = new _models_Card__WEBPACK_IMPORTED_MODULE_4__["Card"](_this, data.uid);
-            if (handleHandshake) {
+            if (_this.executeHandshake) {
                 var password_1 = _this.calculateCardPassword(data.uid);
                 _this.socket.emit('nfc:password', {
                     uid: data.uid,
@@ -99685,8 +99710,43 @@ var NfcReader = /** @class */ (function (_super) {
                 }
             });
         }); });
+        this.socket.on('connect', function () { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.handshake()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
         this.socket.on('disconnect', function () {
+            _this.trigger('connection:change', false);
             _this.reconnect();
+        });
+        this.socket.on('reconnect', function () { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.handshake()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+    };
+    NfcReader.prototype.handshake = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                this.socket.emit('hello', { password: this.nfcReaderPassword }, function (response) {
+                    console.log('Response from nfc reader hello: ', response);
+                    if (response.success) {
+                        _this.trigger('connection:change', true);
+                    }
+                });
+                return [2 /*return*/];
+            });
         });
     };
     /**

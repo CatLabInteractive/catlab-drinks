@@ -66,6 +66,8 @@ export class CardService extends Eventable {
      */
     private currentCard: Card | null = null;
 
+    private connected:boolean = false;
+
     private axios: any = null;
 
     /**
@@ -86,6 +88,11 @@ export class CardService extends Eventable {
         this.logger = new Logger();
 
         this.nfcReader = new NfcReader(this.offlineStore, this.logger);
+        this.nfcReader.on('connection:change', (connection: boolean) => {
+            this.connected = connection;
+            this.trigger('connection:change', connection);
+        });
+
         this.nfcReader.connect(nfcService, nfcPassword);
 
         // events
@@ -110,6 +117,14 @@ export class CardService extends Eventable {
             this.trigger('card:loaded', card);
             this.trigger('card:balance:change', card);
         });
+    }
+
+    /**
+     *
+     */
+    public isConnected()
+    {
+        return this.connected;
     }
 
     /**
