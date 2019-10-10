@@ -147,7 +147,7 @@ class Card extends Model
      */
     public function getBalance()
     {
-        return $this->transactions()->sum('value');
+        return intval($this->transactions()->sum('value'));
     }
 
     /**
@@ -195,7 +195,8 @@ class Card extends Model
     {
         $totalPrice = $order->getCardCost();
 
-        if ($this->getBalance() < $totalPrice) {
+        $balance = $this->getBalance();
+        if ($balance < $totalPrice) {
             throw new InsufficientFundsException('Insufficient funds.');
         }
 

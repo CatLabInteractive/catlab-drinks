@@ -61,6 +61,11 @@
                 <table class="table">
 
                     <tr>
+                        <td>ID</td>
+                        <td>{{ card.id }}</td>
+                    </tr>
+
+                    <tr>
                         <td>Balance</td>
                         <td>{{ card.getVisibleBalance() }}</td>
                     </tr>

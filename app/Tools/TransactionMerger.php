@@ -124,8 +124,17 @@ class TransactionMerger
         $transaction->has_synced = true;
 
         try {
-
             $transaction->mergeFromTransaction($entity);
+
+            // Is this transaction new and is the card transaction count lower than this transaction?
+            if (!$transaction->exists && $card->transaction_count < $transaction->card_sync_id) {
+                // This transaction isn't included in the last state we know about.
+                // So when correcting the balance (using the offset transaction), we should
+                // not take this value into account. That's why we now change the balance we've loaded
+                // when starting the merge.
+                $card->original_balance += $transaction->value;
+            }
+
             $transaction->save();
             return $transaction;
 
