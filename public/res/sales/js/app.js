@@ -2772,6 +2772,32 @@ function _asyncToGenerator(fn) {
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
@@ -2782,8 +2808,10 @@ var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
     return {
       transactions: [],
       topupAmount: 10,
+      topupAmountString: '',
       creatingOrderTokenAlias: '',
-      storeState: null
+      storeState: null,
+      defaultAmounts: [5, 10, 15, 20, 25, 30, 35, 45, 50, 75, 100]
     };
   },
   mounted: function mounted() {
@@ -2816,7 +2844,7 @@ var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
 
               case 2:
                 this.transactions = _context.sent;
-                console.log(this.transactions);
+                this.resetTopupAmount();
 
               case 4:
               case "end":
@@ -2879,21 +2907,14 @@ var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
       var _topup = _asyncToGenerator(
       /*#__PURE__*/
       _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
-        var amount, uniqueId;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                amount = Math.floor(this.topupAmount * 100);
-                uniqueId = uuidv1(); // we probably want to store this somewhere, but hey... no time.
+                this.topupAmount = parseFloat(this.topupAmountString);
+                this.$refs.confirmModal.show();
 
-                _context3.next = 4;
-                return this.$cardService.topup(uniqueId, amount);
-
-              case 4:
-                alert('topup succesful');
-
-              case 5:
+              case 2:
               case "end":
                 return _context3.stop();
             }
@@ -2971,13 +2992,16 @@ var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
             switch (_context6.prev = _context6.next) {
               case 0:
                 this.storeState = 'storing';
-                this.$cardService.saveCardAliases(this.card);
+                _context6.next = 3;
+                return this.$cardService.saveCardAliases(this.card);
+
+              case 3:
                 this.storeState = 'stored';
                 setTimeout(function () {
                   _this2.storeState = null;
                 }, 2000);
 
-              case 4:
+              case 5:
               case "end":
                 return _context6.stop();
             }
@@ -2990,7 +3014,101 @@ var uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
       }
 
       return storeServerData;
-    }()
+    }(),
+    topupForAmount: function () {
+      var _topupForAmount = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee7(amount) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee7$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                this.topupAmount = amount;
+                this.$refs.confirmModal.show();
+
+              case 2:
+              case "end":
+                return _context7.stop();
+            }
+          }
+        }, _callee7, this);
+      }));
+
+      function topupForAmount(_x2) {
+        return _topupForAmount.apply(this, arguments);
+      }
+
+      return topupForAmount;
+    }(),
+    confirmTopup: function () {
+      var _confirmTopup = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee8() {
+        var amount, uniqueId;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee8$(_context8) {
+          while (1) {
+            switch (_context8.prev = _context8.next) {
+              case 0:
+                this.$refs.confirmModal.hide();
+                amount = Math.floor(this.topupAmount * 100);
+                uniqueId = uuidv1(); // we probably want to store this somewhere, but hey... no time.
+
+                _context8.prev = 3;
+                _context8.next = 6;
+                return this.$cardService.topup(uniqueId, amount);
+
+              case 6:
+                _context8.next = 11;
+                break;
+
+              case 8:
+                _context8.prev = 8;
+                _context8.t0 = _context8["catch"](3);
+                alert(_context8.t0.message);
+
+              case 11:
+              case "end":
+                return _context8.stop();
+            }
+          }
+        }, _callee8, this, [[3, 8]]);
+      }));
+
+      function confirmTopup() {
+        return _confirmTopup.apply(this, arguments);
+      }
+
+      return confirmTopup;
+    }(),
+    cancelTopup: function () {
+      var _cancelTopup = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee9() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee9$(_context9) {
+          while (1) {
+            switch (_context9.prev = _context9.next) {
+              case 0:
+                this.$refs.confirmModal.hide();
+                this.resetTopupAmount();
+
+              case 2:
+              case "end":
+                return _context9.stop();
+            }
+          }
+        }, _callee9, this);
+      }));
+
+      function cancelTopup() {
+        return _cancelTopup.apply(this, arguments);
+      }
+
+      return cancelTopup;
+    }(),
+    resetTopupAmount: function resetTopupAmount() {
+      this.topupAmount = 10;
+      this.topupAmountString = '10.00';
+    }
   }
 });
 
@@ -80240,227 +80358,338 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _vm.card
-    ? _c("div", [
-        _c("h2", [
-          _vm._v("Card #"),
-          _c("strong", [_vm._v(_vm._s(_vm.card.uid))])
-        ]),
-        _vm._v(" "),
-        _vm.card.corrupted
-          ? _c("div", [
-              _c(
-                "div",
-                { staticClass: "alert alert-danger", attrs: { role: "alert" } },
-                [
-                  _vm._v("\n            This card is corrupted.\n            "),
+    ? _c(
+        "div",
+        [
+          _c("h2", [
+            _vm._v("Card #"),
+            _c("strong", [_vm._v(_vm._s(_vm.card.uid))])
+          ]),
+          _vm._v(" "),
+          _vm.card.corrupted
+            ? _c("div", [
+                _c(
+                  "div",
+                  {
+                    staticClass: "alert alert-danger",
+                    attrs: { role: "alert" }
+                  },
+                  [
+                    _vm._v(
+                      "\n            This card is corrupted.\n            "
+                    ),
+                    _c(
+                      "button",
+                      {
+                        on: {
+                          click: function($event) {
+                            return _vm.rebuild()
+                          }
+                        }
+                      },
+                      [_vm._v("Rebuild")]
+                    )
+                  ]
+                )
+              ])
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.card.loaded
+            ? _c("div", { staticClass: "row" }, [
+                _c("div", { staticClass: "col-md-6" }, [
+                  _c("h2", [_vm._v("Topup")]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "topup-amounts" },
+                    _vm._l(_vm.defaultAmounts, function(amount) {
+                      return _c(
+                        "div",
+                        {
+                          staticClass: "amount",
+                          on: {
+                            click: function($event) {
+                              return _vm.topupForAmount(amount)
+                            }
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                    €" +
+                              _vm._s(amount.toFixed(2)) +
+                              "\n                "
+                          )
+                        ]
+                      )
+                    }),
+                    0
+                  ),
+                  _vm._v(" "),
+                  _c("div", { staticStyle: { clear: "both" } }),
+                  _vm._v(" "),
+                  _c("h3", [_vm._v("Custom amount")]),
+                  _vm._v(" "),
+                  _c("label", { attrs: { for: "customAmount" } }, [
+                    _vm._v("Custom amount")
+                  ]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.topupAmountString,
+                        expression: "topupAmountString"
+                      }
+                    ],
+                    attrs: {
+                      type: "number",
+                      step: "0.01",
+                      placeholder: "10.00",
+                      id: "customAmount"
+                    },
+                    domProps: { value: _vm.topupAmountString },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.topupAmountString = $event.target.value
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
                   _c(
                     "button",
                     {
+                      staticClass: "btn btn-primary",
                       on: {
                         click: function($event) {
-                          return _vm.rebuild()
+                          return _vm.topup()
                         }
                       }
                     },
-                    [_vm._v("Rebuild")]
-                  )
-                ]
-              )
-            ])
-          : _vm._e(),
-        _vm._v(" "),
-        _vm.card.loaded
-          ? _c("div", { staticClass: "row" }, [
-              _c("div", { staticClass: "col-md-6" }, [
-                _c("h2", [_vm._v("Topup")]),
-                _vm._v(" "),
-                _c("label", { attrs: { for: "customAmount" } }, [
-                  _vm._v("Custom amount")
-                ]),
-                _c("br"),
-                _vm._v(" "),
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.topupAmount,
-                      expression: "topupAmount"
-                    }
-                  ],
-                  attrs: {
-                    type: "number",
-                    min: "0",
-                    step: "0.01",
-                    placeholder: "10.00",
-                    id: "customAmount"
-                  },
-                  domProps: { value: _vm.topupAmount },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.topupAmount = $event.target.value
-                    }
-                  }
-                }),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-primary",
-                    on: {
-                      click: function($event) {
-                        return _vm.topup()
-                      }
-                    }
-                  },
-                  [_vm._v("Topup")]
-                ),
-                _vm._v(" "),
-                _c("h3", [_vm._v("Aliases")]),
-                _vm._v(" "),
-                _c(
-                  "ul",
-                  [
-                    _vm._l(_vm.card.orderTokenAliases, function(alias) {
-                      return _c("li", [
-                        _vm._v(_vm._s(alias) + " "),
-                        _c(
-                          "a",
-                          {
-                            staticClass: "btn btn-danger btn-sm",
-                            attrs: { href: "javascript:void(0);" },
-                            on: {
-                              click: function($event) {
-                                return _vm.removeOrderTokenAlias(alias)
+                    [_vm._v("Topup")]
+                  ),
+                  _vm._v(" "),
+                  _c("h3", [_vm._v("Aliases")]),
+                  _vm._v(" "),
+                  _c(
+                    "ul",
+                    [
+                      _vm._l(_vm.card.orderTokenAliases, function(alias) {
+                        return _c("li", [
+                          _vm._v(_vm._s(alias) + " "),
+                          _c(
+                            "a",
+                            {
+                              staticClass: "btn btn-danger btn-sm",
+                              attrs: { href: "javascript:void(0);" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.removeOrderTokenAlias(alias)
+                                }
                               }
-                            }
-                          },
-                          [_vm._v("x")]
-                        )
-                      ])
-                    }),
-                    _vm._v(" "),
-                    _c("li", [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.creatingOrderTokenAlias,
-                            expression: "creatingOrderTokenAlias"
-                          }
-                        ],
-                        attrs: { type: "text" },
-                        domProps: { value: _vm.creatingOrderTokenAlias },
-                        on: {
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
-                            }
-                            _vm.creatingOrderTokenAlias = $event.target.value
-                          }
-                        }
+                            },
+                            [_vm._v("x")]
+                          )
+                        ])
                       }),
                       _vm._v(" "),
-                      _c(
-                        "button",
-                        {
-                          staticClass: "btn btn-primary btn-sm",
-                          on: { click: _vm.addOrderTokenAlias }
-                        },
-                        [_vm._v("Add")]
-                      )
-                    ])
-                  ],
-                  2
-                ),
-                _vm._v(" "),
-                _c("p", [
-                  _vm.storeState === "storing"
-                    ? _c("span", [_vm._v("Saving")])
-                    : _vm._e(),
+                      _c("li", [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.creatingOrderTokenAlias,
+                              expression: "creatingOrderTokenAlias"
+                            }
+                          ],
+                          attrs: { type: "text" },
+                          domProps: { value: _vm.creatingOrderTokenAlias },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.creatingOrderTokenAlias = $event.target.value
+                            }
+                          }
+                        }),
+                        _vm._v(" "),
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-primary btn-sm",
+                            on: { click: _vm.addOrderTokenAlias }
+                          },
+                          [_vm._v("Add")]
+                        )
+                      ])
+                    ],
+                    2
+                  ),
                   _vm._v(" "),
-                  _vm.storeState === "stored"
-                    ? _c("span", [_vm._v("Saved")])
-                    : _vm._e()
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-md-6" }, [
-                _c("table", { staticClass: "table" }, [
-                  _c("tr", [
-                    _c("td", [_vm._v("ID")]),
+                  _c("p", [
+                    _vm.storeState === "storing"
+                      ? _c("span", [_vm._v("Saving")])
+                      : _vm._e(),
                     _vm._v(" "),
-                    _c("td", [_vm._v(_vm._s(_vm.card.id))])
-                  ]),
-                  _vm._v(" "),
-                  _c("tr", [
-                    _c("td", [_vm._v("Balance")]),
-                    _vm._v(" "),
-                    _c("td", [_vm._v(_vm._s(_vm.card.getVisibleBalance()))])
-                  ]),
-                  _vm._v(" "),
-                  _c("tr", [
-                    _c("td", [_vm._v("Last transaction")]),
-                    _vm._v(" "),
-                    _c("td", [
-                      _vm._v(
-                        _vm._s(_vm.card.getLastTransactionDate().toISOString())
-                      )
-                    ])
+                    _vm.storeState === "stored"
+                      ? _c("span", [_vm._v("Saved")])
+                      : _vm._e()
                   ])
                 ]),
                 _vm._v(" "),
-                _c("h3", [_vm._v("Transactions")]),
-                _vm._v(" "),
-                _c(
-                  "table",
-                  { staticClass: "table" },
-                  _vm._l(this.transactions, function(transaction) {
-                    return _c("tr", [
-                      _c("td", [_vm._v(_vm._s(transaction.transactionId))]),
+                _c("div", { staticClass: "col-md-6" }, [
+                  _c("table", { staticClass: "table" }, [
+                    _c("tr", [
+                      _c("td", [_vm._v("ID")]),
                       _vm._v(" "),
-                      _c("td", [
-                        _vm._v(_vm._s(transaction.getVisibleAmount()))
-                      ]),
+                      _c("td", [_vm._v(_vm._s(_vm.card.id))])
+                    ]),
+                    _vm._v(" "),
+                    _c("tr", [
+                      _c("td", [_vm._v("Balance")]),
                       _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(transaction.type))]),
+                      _c("td", [_vm._v(_vm._s(_vm.card.getVisibleBalance()))])
+                    ]),
+                    _vm._v(" "),
+                    _c("tr", [
+                      _c("td", [_vm._v("Last transaction")]),
                       _vm._v(" "),
                       _c("td", [
                         _vm._v(
                           _vm._s(
-                            transaction.date
-                              ? transaction.date.toISOString()
-                              : ""
+                            _vm.card.getLastTransactionDate().toISOString()
                           )
                         )
                       ])
                     ])
-                  }),
-                  0
-                ),
-                _vm._v(" "),
-                _c("p", [
+                  ]),
+                  _vm._v(" "),
+                  _c("h3", [_vm._v("Transactions")]),
+                  _vm._v(" "),
                   _c(
-                    "button",
-                    {
-                      staticClass: "btn btn-danger btn-sm",
-                      on: {
-                        click: function($event) {
-                          return _vm.rebuild()
+                    "table",
+                    { staticClass: "table" },
+                    _vm._l(this.transactions, function(transaction) {
+                      return _c("tr", [
+                        _c("td", [_vm._v(_vm._s(transaction.transactionId))]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _vm._v(_vm._s(transaction.getVisibleAmount()))
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(transaction.type))]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _vm._v(
+                            _vm._s(
+                              transaction.date
+                                ? transaction.date.toISOString()
+                                : ""
+                            )
+                          )
+                        ])
+                      ])
+                    }),
+                    0
+                  ),
+                  _vm._v(" "),
+                  _c("p", [
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-danger btn-sm",
+                        on: {
+                          click: function($event) {
+                            return _vm.rebuild()
+                          }
                         }
-                      }
-                    },
-                    [_vm._v("Rebuild")]
-                  )
+                      },
+                      [_vm._v("Rebuild")]
+                    )
+                  ])
                 ])
               ])
-            ])
-          : _vm._e()
-      ])
+            : _vm._e(),
+          _vm._v(" "),
+          _c(
+            "b-modal",
+            {
+              ref: "confirmModal",
+              staticClass: "order-confirm-modal",
+              attrs: {
+                title: "Topup bevestigen",
+                "button-size": "lg",
+                "no-close-on-backdrop": ""
+              },
+              on: { ok: _vm.confirmTopup, cancel: _vm.cancelTopup }
+            },
+            [
+              _c("p", [
+                _vm._v("Ben je zeker dat je voor "),
+                _c("strong", [
+                  _vm._v("€" + _vm._s(_vm.topupAmount.toFixed(2)))
+                ]),
+                _vm._v(" wilt herladen?")
+              ])
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "b-modal",
+            {
+              ref: "processedModal",
+              staticClass: "order-confirm-modal",
+              attrs: {
+                "ok-only": "",
+                "button-size": "lg",
+                title: "Betaling geslaagd",
+                "ok-variant": "success",
+                "no-close-on-backdrop": ""
+              }
+            },
+            [
+              _c("p", { staticClass: "text-center" }, [
+                _c("i", { staticClass: "fas fa-thumbs-up huge" })
+              ]),
+              _vm._v(" "),
+              _c("p", { staticClass: "text-center alert alert-success" }, [
+                _vm._v("Betaling geslaagd.")
+              ])
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "b-modal",
+            {
+              ref: "declinedModal",
+              staticClass: "order-confirm-modal",
+              attrs: {
+                "ok-only": "",
+                "button-size": "lg",
+                title: "Betaling gefaald",
+                "ok-variant": "danger",
+                "no-close-on-backdrop": ""
+              }
+            },
+            [
+              _c("p", { staticClass: "text-center" }, [
+                _c("i", { staticClass: "fas fa-exclamation-triangle huge" })
+              ]),
+              _vm._v(" "),
+              _c("p", { staticClass: "text-center alert alert-danger" }, [
+                _vm._v("De betaling is mislukt. Geef de bestelling opnieuw in.")
+              ])
+            ]
+          )
+        ],
+        1
+      )
     : _vm._e()
 }
 var staticRenderFns = []

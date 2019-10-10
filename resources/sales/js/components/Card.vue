@@ -35,8 +35,17 @@
 
             <div class="col-md-6">
                 <h2>Topup</h2>
+                <div class="topup-amounts">
+                    <div v-for="amount in defaultAmounts" v-on:click="topupForAmount(amount)" class="amount">
+                        €{{ amount.toFixed(2) }}
+                    </div>
+                </div>
+
+                <div style="clear: both;"></div>
+
+                <h3>Custom amount</h3>
                 <label for="customAmount">Custom amount</label><br />
-                <input type="number" min="0" step="0.01" placeholder="10.00" id="customAmount" v-model="topupAmount" />
+                <input type="number" step="0.01" placeholder="10.00" id="customAmount" v-model="topupAmountString" />
 
                 <button class="btn btn-primary" v-on:click="topup()">Topup</button>
 
@@ -95,6 +104,23 @@
 
             </div>
         </div>
+
+        <!-- Modal Component -->
+        <b-modal ref="confirmModal" class="order-confirm-modal" title="Topup bevestigen" @ok="confirmTopup" @cancel="cancelTopup" button-size="lg" no-close-on-backdrop>
+            <p>Ben je zeker dat je voor <strong>€{{ topupAmount.toFixed(2) }}</strong> wilt herladen?</p>
+        </b-modal>
+
+        <!-- Modal Component -->
+        <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling geslaagd" ok-variant="success" no-close-on-backdrop>
+            <p class="text-center"><i class="fas fa-thumbs-up huge"></i></p>
+            <p class="text-center alert alert-success">Betaling geslaagd.</p>
+        </b-modal>
+
+        <!-- Modal Component -->
+        <b-modal ref="declinedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling gefaald" ok-variant="danger" no-close-on-backdrop>
+            <p class="text-center"><i class="fas fa-exclamation-triangle huge"></i></p>
+            <p class="text-center alert alert-danger">De betaling is mislukt. Geef de bestelling opnieuw in.</p>
+        </b-modal>
     </div>
 
 </template>
@@ -112,8 +138,22 @@
             return {
                 transactions: [],
                 topupAmount: 10,
+                topupAmountString: '',
                 creatingOrderTokenAlias: '',
-                storeState: null
+                storeState: null,
+                defaultAmounts: [
+                    5,
+                    10,
+                    15,
+                    20,
+                    25,
+                    30,
+                    35,
+                    45,
+                    50,
+                    75,
+                    100
+                ]
             }
         },
 
@@ -138,7 +178,7 @@
             async loadCard() {
 
                 this.transactions = await this.$cardService.getTransactions(this.card);
-                console.log(this.transactions);
+                this.resetTopupAmount();
 
             },
 
@@ -158,13 +198,10 @@
             },
 
             async topup() {
-                const amount = Math.floor(this.topupAmount * 100);
 
-                const uniqueId = uuidv1();
+                this.topupAmount = parseFloat(this.topupAmountString);
+                this.$refs.confirmModal.show();
 
-                // we probably want to store this somewhere, but hey... no time.
-                await this.$cardService.topup(uniqueId, amount);
-                alert('topup succesful');
             },
 
             async addOrderTokenAlias() {
@@ -183,11 +220,41 @@
 
             async storeServerData() {
                 this.storeState = 'storing';
-                this.$cardService.saveCardAliases(this.card);
+                await this.$cardService.saveCardAliases(this.card);
                 this.storeState = 'stored';
                 setTimeout(() => {
                     this.storeState = null;
                 }, 2000);
+            },
+
+            async topupForAmount(amount) {
+                this.topupAmount = amount;
+                this.$refs.confirmModal.show();
+            },
+
+            async confirmTopup() {
+
+                this.$refs.confirmModal.hide();
+
+                const amount = Math.floor(this.topupAmount * 100);
+                const uniqueId = uuidv1();
+
+                // we probably want to store this somewhere, but hey... no time.
+                try {
+                    await this.$cardService.topup(uniqueId, amount);
+                } catch (e) {
+                    alert(e.message);
+                }
+            },
+
+            async cancelTopup() {
+                this.$refs.confirmModal.hide();
+                this.resetTopupAmount();
+            },
+
+            resetTopupAmount() {
+                this.topupAmount = 10;
+                this.topupAmountString = '10.00';
             }
         }
     }
