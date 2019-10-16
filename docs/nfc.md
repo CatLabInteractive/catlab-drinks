@@ -79,3 +79,12 @@ online in order for the topup to be applied.
 In case remote orders are also possible, the above situation might lead to negative balances on cards. That's why, with 
 remote orders available, it is much more important to make sure that all bars have a connection to the system at all times. 
 In those cases setting up a local network server that runs the CatLab Drinks software, might be desirable.
+
+Remote orders
+-------------
+While the cards UUID is enough for a topup, it is not random enough to be reliable for remote orders. Therefor, for each 
+card known to the system, an `order token` is generated for each card. This order token can then be injected into a third
+party system that allows users to order drinks straight from there table.
+
+Alternatively, a card MAY also be assigned `aliases`, which is an external identifier from a separate application that is
+used to link the cards owner to the card.
