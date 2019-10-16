@@ -55,6 +55,7 @@ export class AbstractService {
                 if (status === 403) {
                     console.log({403:error});
                     alert(error.message);
+                    window.location = window.location.origin;
                 }
 
                 return Promise.reject(error)
@@ -126,4 +127,7 @@ export class AbstractService {
         return this.execute('delete', '/' + this.entityUrl + '/' + id + "?" + $.param(parameters));
     }
 
+    destroy() {
+
+    }
 }

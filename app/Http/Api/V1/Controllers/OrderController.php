@@ -26,12 +26,17 @@ use App\Http\Api\V1\ResourceDefinitions\EventResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\MenuItemResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\OrderResourceDefinition;
 use App\Models\Event;
+use App\Models\Order;
 use App\Models\User;
 use Auth;
 use CatLab\Charon\Collections\RouteCollection;
+use CatLab\Charon\Enums\Action;
+use CatLab\Charon\Library\ResourceDefinitionLibrary;
+use CatLab\Requirements\Exceptions\ResourceValidationException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class EventController
@@ -53,19 +58,78 @@ class OrderController extends Base\ResourceController
      */
     public static function setRoutes(RouteCollection $routes)
     {
+        $parentPath = 'events/{' . self::PARENT_RESOURCE_ID . '}/orders';
+
         $childResource = $routes->childResource(
             static::RESOURCE_DEFINITION,
-            'events/{' . self::PARENT_RESOURCE_ID . '}/orders',
+            $parentPath,
             'orders',
             'OrderController',
             [
                 'id' => self::RESOURCE_ID,
-                'only' => [ 'index', 'view', 'store', 'edit', 'destroy' ],
+                'only' => [ 'index', 'view', 'edit', 'destroy' ],
                 'parentId' => self::PARENT_RESOURCE_ID
             ]
         );
 
+        $childResource->post($parentPath, 'OrderController@store')
+            ->summary(function () {
+                $entityName = ResourceDefinitionLibrary::make(static::RESOURCE_DEFINITION)
+                    ->getEntityName(false);
+
+                return 'Create a new ' . $entityName;
+            })
+            ->parameters()->resource(static::RESOURCE_DEFINITION)->many()->required()
+            ->parameters()->path(self::PARENT_RESOURCE_ID)->string()->required()
+            ->returns()->statusCode(200)->many(static::RESOURCE_DEFINITION);
+
         $childResource->tag('orders');
+    }
+
+    /**
+     * Create a new entity
+     * @param Request $request
+     * @return Response
+     * @throws \CatLab\Requirements\Exceptions\RequirementValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function store(Request $request)
+    {
+        $this->request = $request;
+
+        $this->authorizeCreate($request);
+
+        $writeContext = $this->getContext(Action::CREATE);
+        $readContext = $this->getContext(Action::INDEX);
+
+        $inputResources = $this->bodyToResources($writeContext);
+        $resources = $this->getResourceTransformer()->getResourceFactory()->createResourceCollection();
+
+        foreach ($inputResources as $inputResource) {
+
+            try {
+                $inputResource->validate($writeContext);
+            } catch (ResourceValidationException $e) {
+                return $this->getValidationErrorResponse($e);
+            }
+
+            $entity = $this->toEntity($inputResource, $writeContext);
+
+            // Look for unique identifier duplicate
+            $existing = Order::where('uid', '=', $entity->uid)->first();
+            if ($existing) {
+                $resources[] = $this->toResource($existing, $readContext);
+                continue;
+            }
+
+            // Save the entity
+            $this->saveEntity($request, $entity);
+
+            $resources[] = $this->toResource($entity, $readContext);
+        }
+
+        // Turn back into a resource
+        return $this->getResourceResponse($resources, $readContext);
     }
 
     /**

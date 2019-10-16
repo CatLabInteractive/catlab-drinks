@@ -19,15 +19,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {AbstractService} from './AbstractService';
 import $ from "jquery";
+import {AbstractOfflineQueue} from "./AbstractOfflineQueue";
 
 const uuidv1 = require('uuid/v1');
 
-export class OrderService extends AbstractService {
+export class OrderService extends AbstractOfflineQueue {
 
     constructor(eventId) {
-        super();
+        super('event_' + eventId);
 
         this.eventId = eventId;
         this.indexUrl = 'events/' + eventId + '/orders';

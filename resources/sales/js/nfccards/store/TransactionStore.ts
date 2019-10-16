@@ -172,7 +172,7 @@ export class TransactionStore {
      */
     public async refresh() {
 
-        console.log('Refreshing local data');
+        //console.log('Refreshing local data');
         try {
             await this.uploadPendingTransactions();
         } catch (err) {

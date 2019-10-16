@@ -125,6 +125,22 @@
 
         },
 
+        destroyed() {
+
+            if (this.orderService) {
+                this.orderService.destroy();
+            }
+
+            if (this.menuService) {
+                this.menuService.destroy();
+            }
+
+            if (this.eventService) {
+                this.eventService.destroy();
+            }
+
+        },
+
         data() {
             return {
                 loaded: false,
@@ -145,9 +161,23 @@
 
             eventId(newVal, oldVal) {
 
+                if (this.orderService) {
+                    this.orderService.destroy();
+                }
+
+                if (this.menuService) {
+                    this.menuService.destroy();
+                }
+
+                if (this.eventService) {
+                    this.eventService.destroy();
+                }
+
                 this.menuService = new MenuService(newVal);
                 this.orderService = new OrderService(newVal);
                 this.eventService = new EventService(newVal);
+
+                this.orderService.startPeriodicUpload();
 
                 this.eventService.get(newVal, { expand: 'organisation', fields: '*,organisation.*,organisation.secret' })
                     .then(
@@ -310,7 +340,7 @@
 
                     this.saving = false;
                     this.saved = true;
-                    this.savedMessage = 'Order ' + order.id + ' saved';
+                    this.savedMessage = 'Order saved';
 
                     setTimeout(
                         () => {
