@@ -76,6 +76,6 @@ Note that offline bars might cause unexpected situations where cards that were t
 new balance yet (as the bar doesn't know about the topup). In those cases the client will need to go to a bar that is 
 online in order for the topup to be applied.
 
-In case remote orders are also possible, the above sitaution might lead to negative balances on cards. That's why, with 
+In case remote orders are also possible, the above situation might lead to negative balances on cards. That's why, with 
 remote orders available, it is much more important to make sure that all bars have a connection to the system at all times. 
 In those cases setting up a local network server that runs the CatLab Drinks software, might be desirable.
