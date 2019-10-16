@@ -87,4 +87,6 @@ card known to the system, an `order token` is generated for each card. This orde
 party system that allows users to order drinks straight from there table.
 
 Alternatively, a card MAY also be assigned `aliases`, which is an external identifier from a separate application that is
-used to link the cards owner to the card.
+used to link the cards owner to the card. When this external application loads the order page with this alias as `card` 
+query parameter, the order will be paid from that cards' balance. (For example, orders made through 
+`http://drinks.catlab.eu/order/iYkyGWx4grX6HLY9HqmnUNo4Pseavubi?card=abcdef` will be charged to card with alias `abcdef`).
