@@ -4,6 +4,11 @@ Simple cash register webapp with support for NFC topup cards.
 
 Online at [http://drinks.catlab.eu](http://drinks.catlab.eu).
 
+Documentation
+-------------
+We have a tiny bit of documentation [in the docs folder](https://github.com/catlab-drinks/catlab-drinks/tree/master/docs).
+But don't expect too much from us.
+
 Todo
 ----
 - Currently the project implements a vendor specific single sign on system which
