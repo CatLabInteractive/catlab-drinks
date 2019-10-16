@@ -2,8 +2,8 @@
 
 return [
 
-    'title' => 'Charon powered API',
-    'description' => 'Project skeleton for Charon powered API projects',
+    'title' => 'CatLab Drinks',
+    'description' => 'Simple cash register app with support for NFC topup cards.',
     'contact' => [
         'name' => 'CatLab Interactive',
         'url' => 'https://www.catlab.eu',

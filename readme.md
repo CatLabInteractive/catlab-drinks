@@ -1,28 +1,21 @@
-# Laravel Charon REST API project
-[![Build Status](https://travis-ci.org/CatLabInteractive/laravel-charon.svg?branch=master)](https://travis-ci.org/CatLabInteractive/laravel-charon)
+CatLab Drinks app
+=================
+Simple cash register app with support for NFC topup cards.
 
-This project is built using
-* https://github.com/laravel/laravel
-* https://github.com/CatLabInteractive/charon
+Todo
+----
+- Currently the project implements a vendor specific single sign on system which
+needs to be removed and replaced by the default Laravel authentication. So yea, that will happen one day.
 
-What does this project include?
-===============================
-Laravel skeleton for a project:
-- Laravel 5.7
-- Laravel passport with oauth2 implicit configuration
-- Charon resource transformer
+- Also there is no documentation so... yea... that.
 
-Installation
-============
-* `composer create-project catlabinteractive/laravel-charon api`
-* Copy `.env.example` to `.env`
-* Make sure to set APP_URL in your .env file **before you continue**, 
-this will make sure the swagger oauth2 client is setup correctly. Also 
-set your database credentials etc
-* Run `php artisan key:generate`
-* Run `php artisan migrate`
-* Run `php artisan passport:keys` to get api access tokens.
+- Also the project is half english and half dutch and was, so translations and nationalization should be solved as well.
 
-Getting started
-===============
-Navigate to your-project/docs to load the swagger documentation.
+NFC cashless topup
+-----------------
+In order to use the NFC topup system you need to connect an acr122u card reader and install a [specific service](https://github.com/catlab-drinks/nfc-socketio) 
+to handle the communication with the card reader.
+
+Why is this here?
+-----------------
+I know it's a bit early to release this, but hopefully it will improve over time.

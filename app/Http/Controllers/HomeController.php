@@ -52,7 +52,7 @@ class HomeController extends Controller
      */
     public function welcome()
     {
-        return redirect(action('ClientController@index'));
-        //return view('welcome');
+        //return redirect(action('ClientController@index'));
+        return view('welcome');
     }
 }

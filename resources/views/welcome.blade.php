@@ -9,59 +9,7 @@
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet" type="text/css">
 
-        <!-- Styles -->
-        <style>
-            html, body {
-                background-color: #fff;
-                color: #636b6f;
-                font-family: 'Nunito', sans-serif;
-                font-weight: 200;
-                height: 100vh;
-                margin: 0;
-            }
-
-            .full-height {
-                height: 100vh;
-            }
-
-            .flex-center {
-                align-items: center;
-                display: flex;
-                justify-content: center;
-            }
-
-            .position-ref {
-                position: relative;
-            }
-
-            .top-right {
-                position: absolute;
-                right: 10px;
-                top: 18px;
-            }
-
-            .content {
-                text-align: center;
-            }
-
-            .title {
-                font-size: 84px;
-            }
-
-            .links > a {
-                color: #636b6f;
-                padding: 0 25px;
-                font-size: 13px;
-                font-weight: 600;
-                letter-spacing: .1rem;
-                text-decoration: none;
-                text-transform: uppercase;
-            }
-
-            .m-b-md {
-                margin-bottom: 30px;
-            }
-        </style>
+        <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
         @include('blocks.favicon')
 
@@ -84,32 +32,87 @@
         <!-- End Google Tag Manager (noscript) -->
     @endif
 
-        <div class="flex-center position-ref full-height">
-            @if (Route::has('login'))
-                <div class="top-right links">
-                    <a href="{{ url('/docs') }}">API Docs</a>
-                    @auth
-                        <a href="{{ url('/home') }}">Home</a>
-                    @else
-                        <a href="{{ route('login') }}">Login</a>
-
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}">Register</a>
-                        @endif
-                    @endauth
-                </div>
-            @endif
-
-            <div class="content">
-                <div class="title m-b-md">
-                    Charon/Laravel
-                </div>
-
-                <div class="links">
-                    <a href="http://charon.catlab.eu">Charon Documentation</a>
-                    <a href="https://laravel.com/docs">Laravel Documentation</a>
-                </div>
+    <header>
+        <div class="navbar navbar-dark bg-dark shadow-sm">
+            <div class="container d-flex justify-content-between">
+                <a href="#" class="navbar-brand d-flex align-items-center">
+                    <strong>CatLab Drinks</strong>
+                </a>
             </div>
         </div>
+    </header>
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-md-12">
+
+                <h1>CatLab Drinks</h1>
+                <p>Eenvoudig kassasysteem (met ontoegankelijke handleiding) voor evenementen.</p>
+
+                <h2>Wat is CatLab Drinks?</h2>
+
+                <h3>Doel</h3>
+                <p>
+                    CatLab Drinks wilt een opensource kassasysteem zijn voor kleinschalige evenementen. Het project
+                    probeert een oplossing te bieden voor:
+                </p>
+
+                <ul>
+                    <li>Rekenfouten met papieren drankkaarten aan de bar vermijden</li>
+                    <li>Bijhouden hoeveel en aan welke bar er verkocht wordt</li>
+                    <li>Bezoekers aan tafeltjes toelaten om hun bestelling via eigen smartphone door te sturen</li>
+                    <li>Mogelijkheid tot gebruik van digitale drankkaarten (NFC NTAG213 tags)</li>
+                    <li>Het systeem moet blijven werken, ook als de internetverbinding even wegvalt</li>
+                </ul>
+
+                <div class="alert alert-warning">
+                    De software wordt zonder enige vorm van garantie beschikbaar gesteld. Zorg steeds voor
+                    een backup plan voor als het foutloopt.
+                </div>
+
+                <p>
+                    <a href="{{ action('ClientController@index') }}" class="btn btn-primary">Open CatLab Drinks</a>
+                </p>
+
+                <h3>Achtergrond</h3>
+                <p>
+                    CatLab drinks is oorspronkelijk ontwikkeld voor gebruik tijdens de quizzen van <a href="https://www.quizfabriek.be">De Quizfabriek</a>.
+                    Op deze quizzen brengt elke ploeg een tablet of smartphone mee waarop de antwoorden worden ingegeven.
+                    Met CatLab Drinks kunnen ploegen tijdens de quiz hun bestelling naar de bar sturen, die meteen in
+                    actie schiet en de bestelling aan tafel brengt.
+                    Door voor elke quizploeg een digitale drankkaart te voorzien en die drankkaart te linken aan het
+                    quizsysteem wordt de bestelling tevens meteen betaald, waardoor er geen fouten kunnen gebeuren bij het
+                    afrekenen. Bestellen aan de bar zelf blijft ook mogelijk door de digitale drankkaart te scannen.
+                </p>
+
+                <h2>Opzetten</h2>
+                <h3>Account aanmaken</h3>
+                <p>
+                    Als je een account aanmaakt kom je op het evenementen overzicht. Elke evenement heeft een eigen
+                    prijslijst die je kan aanpassen door op de naam van het evenement te klikken. Zodra je de prijslijst
+                    opgemaakt hebt kan je naar <code>Bar HQ</code> gaan. Dit scherm wordt gebruikt aan de bar.
+                    De bar kan 'open' of 'gesloten' zijn. Hiermee kan je 'remote bestellingen' (dus bestellingen aan
+                    tafel) aan of uit zetten (dit kan handig zijn tijdens bijvoorbeeld de pauze, waarbij er niet aan
+                    tafel besteld wordt).
+                </p>
+
+                <h3>Digitale drankkaarten</h3>
+                <p>
+                    Om digitale drankkaarten te gebruiken heb je voor elke bar een acr122u kaartlezer nodig (andere toestellen
+                    werken mogelijk ook) en voor elke bezoeker een NTAG213 chip nodig. (Wij voorzien 1 kaart per quizploeg
+                    zodat we elke kaart aan een quizploeg kunnen hangen.)
+                    De communicatie tussen de kaartlezer en de browser gebeurt over een socket.io verbinding. Daarvoor
+                    dien je een <a href="https://github.com/catlab-drinks/nfc-socketio">service te installeren</a>. Wij
+                    gebruiken een Raspberry pi, maar de service kan ook op bv een laptop draaien.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
     </body>
 </html>
