@@ -53,6 +53,24 @@
 
                 <p>Source code beschikbaar op <a href="https://github.com/catlab-drinks/catlab-drinks">GitHub</a>.</p>
 
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Screenshots</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6"><img class="img-fluid" src="/images/screenshot1.png" /></div>
+            <div class="col-md-6"><img class="img-fluid" src="/images/screenshot2.png" /></div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+
                 <h2>Wat is CatLab Drinks?</h2>
 
                 <h3>Doel</h3>
