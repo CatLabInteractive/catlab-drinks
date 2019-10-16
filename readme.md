@@ -1,6 +1,6 @@
 CatLab Drinks app
 =================
-Simple cash register webapp with support for NFC topup cards.
+Simple cash register webapp with support for NFC topup cards / cashless topup payments.
 
 Online at [http://drinks.catlab.eu](http://drinks.catlab.eu).
 
