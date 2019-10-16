@@ -51,6 +51,8 @@
                 <h1>CatLab Drinks</h1>
                 <p>Eenvoudig kassasysteem (met ontoegankelijke handleiding) voor evenementen.</p>
 
+                <p>Source code beschikbaar op <a href="https://github.com/catlab-drinks/catlab-drinks">GitHub</a>.</p>
+
                 <h2>Wat is CatLab Drinks?</h2>
 
                 <h3>Doel</h3>
