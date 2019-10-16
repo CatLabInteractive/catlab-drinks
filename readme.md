@@ -13,6 +13,8 @@ needs to be removed and replaced by the default Laravel authentication. So yea, 
 
 - Also the project is half english and half dutch and was, so translations and nationalization should be solved as well.
 
+- Add tests. This project has NOT enjoyed test driven development.
+
 NFC cashless topup
 -----------------
 In order to use the NFC topup system you need to connect an acr122u card reader and install a [specific service](https://github.com/catlab-drinks/nfc-socketio) 
