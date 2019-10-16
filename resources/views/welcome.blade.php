@@ -49,23 +49,10 @@
             <div class="col-md-12">
 
                 <h1>CatLab Drinks</h1>
-                <p>Eenvoudig kassasysteem (met ontoegankelijke handleiding) voor evenementen.</p>
-
-                <p>Source code beschikbaar op <a href="https://github.com/catlab-drinks/catlab-drinks">GitHub</a>.</p>
+                <p>Eenvoudig kassasysteem (met ontoegankelijke handleiding) voor evenementen. Source code beschikbaar op <a href="https://github.com/catlab-drinks/catlab-drinks">GitHub</a>.</p>
 
             </div>
 
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Screenshots</h2>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6"><img class="img-fluid" src="/images/screenshot1.png" /></div>
-            <div class="col-md-6"><img class="img-fluid" src="/images/screenshot2.png" /></div>
         </div>
 
         <div class="row">
@@ -95,10 +82,26 @@
                 <p>
                     <a href="{{ action('ClientController@index') }}" class="btn btn-primary">Open CatLab Drinks</a>
                 </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Screenshots</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6"><img class="img-fluid" src="/images/screenshot1.png" /></div>
+            <div class="col-md-6"><img class="img-fluid" src="/images/screenshot2.png" /></div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
 
                 <h3>Achtergrond</h3>
                 <p>
-                    CatLab drinks is oorspronkelijk ontwikkeld voor gebruik tijdens de quizzen van <a href="https://www.quizfabriek.be">De Quizfabriek</a>.
+                    CatLab drinks is ontwikkeld voor gebruik tijdens de quizzen van <a href="https://www.quizfabriek.be">De Quizfabriek</a>.
                     Op deze quizzen brengt elke ploeg een tablet of smartphone mee waarop de antwoorden worden ingegeven.
                     Met CatLab Drinks kunnen ploegen tijdens de quiz hun bestelling naar de bar sturen, die meteen in
                     actie schiet en de bestelling aan tafel brengt.
