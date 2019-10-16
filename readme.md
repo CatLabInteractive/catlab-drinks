@@ -2,6 +2,8 @@ CatLab Drinks app
 =================
 Simple cash register app with support for NFC topup cards.
 
+Online at [http://drinks.catlab.eu](http://drinks.catlab.eu).
+
 Todo
 ----
 - Currently the project implements a vendor specific single sign on system which
