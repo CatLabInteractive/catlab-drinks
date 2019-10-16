@@ -49,7 +49,10 @@
             <div class="col-md-12">
 
                 <h1>CatLab Drinks</h1>
-                <p>Eenvoudig kassasysteem (met ontoegankelijke handleiding) voor evenementen. Source code beschikbaar op <a href="https://github.com/catlab-drinks/catlab-drinks">GitHub</a>.</p>
+                <p>
+                    Eenvoudig kassasysteem (met ontoegankelijke handleiding) voor evenementen. Source code
+                    beschikbaar op <a href="https://github.com/catlab-drinks/catlab-drinks">GitHub</a>.
+                </p>
 
             </div>
 
