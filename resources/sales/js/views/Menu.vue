@@ -32,7 +32,7 @@
             <b-col>
                 <b-table striped hover :items="items" :fields="fields" v-if="loaded">
 
-                    <template slot="actions" slot-scope="row">
+                    <template v-slot:cell(actions)="row">
                         <b-button size="sm" class="" @click="edit(row.item, row.index)">
                             <i class="fas fa-edit"></i>
                             <span class="sr-only">Edit</span>
@@ -43,7 +43,7 @@
                         </b-button>
                     </template>
 
-                    <template slot="is_selling" slot-scope="row">
+                    <template v-slot:cell(is_selling)="row">
                         <b-button v-if="!row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)" class="btn-danger">
                             Not selling
                         </b-button>

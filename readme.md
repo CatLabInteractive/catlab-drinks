@@ -20,6 +20,10 @@ needs to be removed and replaced by the default Laravel authentication. So yea, 
 
 - Add tests. This project has NOT enjoyed test driven development.
 
+Setup
+-----
+Run ```npm install``` to install all dependencies and then run ```npm run production``` to compile the resources.
+
 NFC cashless topup
 -----------------
 In order to use the NFC topup system you need to connect an acr122u card reader and install a [specific service](https://github.com/catlab-drinks/nfc-socketio) 

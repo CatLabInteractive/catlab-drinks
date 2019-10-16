@@ -43,22 +43,22 @@
                 <b-col>
                     <b-table striped hover :items="items" :fields="fields" v-if="loaded" class="order-table">
 
-                        <template slot="row-details" slot-scope="row">
+                        <template v-slot:cell(row-details)="row">
                             {{row.item.description}}
                         </template>
 
-                        <template slot="name" slot-scope="row">
+                        <template v-slot:cell(name)="row">
                             {{row.item.name}}<br />
                             <span class="price">€{{row.item.price.toFixed(2)}}</span>
                         </template>
 
-                        <template slot="amount" slot-scope="row">
+                        <template v-slot:cell(amount)="row">
 
                             <span class="amount">{{row.item.amount}}</span>
 
                         </template>
 
-                        <template slot="actions" slot-scope="row">
+                        <template v-slot:cell(actions)="row">
 
                             <span v-if="!row.item.isTotals">
                                 <b-button variant="danger small" @click="down(row.item)" size="sm"><i class="fa fa-minus"></i></b-button>

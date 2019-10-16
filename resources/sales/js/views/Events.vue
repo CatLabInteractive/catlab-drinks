@@ -32,11 +32,11 @@
             <b-col>
                 <b-table striped hover :items="items" :fields="fields" v-if="loaded">
 
-                    <template slot="name" slot-scope="row">
+                    <template v-slot:cell(name)="row">
                         <router-link :to="{ name: 'menu', params: { id: row.item.id } }">{{ row.item.name }}</router-link>
                     </template>
 
-                    <template slot="actions" slot-scope="row">
+                    <template v-slot:cell(actions)="row">
                         <b-button size="sm" class="btn-info" :to="{ name: 'menu', params: { id: row.item.id } }">
                             <i class="fas fa-scroll"></i>
                             <span class="sr-only">Menu items</span>
@@ -60,7 +60,7 @@
 
                     </template>
 
-                    <template slot="is_selling" slot-scope="row">
+                    <template v-slot:cell(is_selling)="row">
 
                         <b-link class="btn btn-sm btn-info" :to="{ name: 'hq', params: { id: row.item.id } }">
                             Bar HQ
