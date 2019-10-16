@@ -1,8 +1,8 @@
 NFC topup cards
 ===============
 The goal of the NFC topup cards is to sell digital topup cards that can be used to purchase drinks at the bar 
-and to allow people to order drinks from the remote app. Ordered drinks should be paid automatically, so waiters 
-don't have to walk around with NFC readers.
+and to allow people to order drinks from the remote app. Remotely ordered drinks should be paid automatically, 
+so waiters don't have to walk around with NFC readers.
 
 NTAG213
 -------
