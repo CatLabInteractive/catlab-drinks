@@ -72,7 +72,7 @@ unknown to the system. This might occur when one of the bars goes offline for a 
 'unknown' transactions will be created in the database, that are then merged with the known transactions once the offline 
 bar goes online again.
 
-Note that offline bars MIGHT cause unpexected situations where cards that were topped up remotely don't show the 
+Note that offline bars MIGHT cause unexpected situations where cards that were topped up remotely don't show the 
 new balance yet (as the bar doesn't know about the topup). In those cases the client will need to go to a bar that is 
 online in order for the topup to be applied.
 
