@@ -126,6 +126,10 @@
 
                 <h3>Digitale drankkaarten</h3>
                 <p>
+                    CatLab drinks implementeert een closed loop RFIC/NFC betaalsysteem.
+                </p>
+
+                <p>
                     Om digitale drankkaarten te gebruiken heb je voor elke bar een acr122u kaartlezer nodig (andere toestellen
                     werken mogelijk ook) en voor elke bezoeker een NTAG213 chip nodig. (Wij voorzien 1 kaart per quizploeg
                     zodat we elke kaart aan een quizploeg kunnen hangen.)
