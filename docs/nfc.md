@@ -82,7 +82,7 @@ In those cases setting up a local network server that runs the CatLab Drinks sof
 
 Remote orders
 -------------
-While the cards UUID is enough for a topup, it is not random enough to be reliable for remote orders. Therefor, for each 
+While the cards UID is enough for a topup, it is not random enough to be reliable for remote orders. Therefor, for each 
 card known to the system, an `order token` is generated for each card. This order token can then be injected into a third
 party system that allows users to order drinks straight from there table.
 
