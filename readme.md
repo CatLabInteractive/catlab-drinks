@@ -9,20 +9,27 @@ Documentation
 We have a tiny bit of documentation [in the docs folder](https://github.com/catlab-drinks/catlab-drinks/tree/master/docs).
 But don't expect too much from us.
 
-Todo
-----
-- Currently the project implements a vendor specific single sign on system which
-needs to be removed and replaced by the default Laravel authentication. So yea, that will happen one day.
-
-- Also there is no documentation so... yea... that.
-
-- Also the project is half english and half dutch and was, so translations and nationalization should be solved as well.
-
-- Add tests. This project has NOT enjoyed test driven development.
-
 Setup
 -----
+Run ```composer install``` to download all required php libraries. Copy ```.env.example``` to ```.env``` and fill in the database
+credentials. Finally, run ```php artisan migrate``` to initialize the database.
+
 Run ```npm install``` to install all dependencies and then run ```npm run production``` to compile the resources.
+
+You should now be able to register an account on the website.
+
+Deploy scripts
+--------------
+There are two buildscripts in /build that you might want to use to deploy on production servers.
+
+We run ```prepare.sh``` on our buildserver, then push the whole project over sftp and finally run ```upgrade.sh``` on 
+the production server. There are cleaner ways to handle deploys, so feel free to use your own system.
+
+Todo
+----
+- There is hardly any documentation.
+- Also the project is half english and half dutch and was, so translations and nationalization should be solved as well.
+- Add tests. This project has NOT enjoyed test driven development.
 
 NFC cashless topup
 -----------------
