@@ -36,7 +36,12 @@ Route::get('/topup/{cardId}/{orderId}', 'TopupController@status');
 Route::get('/qr-generator', 'QrGenerator@generator');
 Route::get('/qr-generator/code', 'QrGenerator@code');
 
-//Auth::routes();
-\CatLab\Accounts\Client\Controllers\LoginController::setRoutes();
+// Do we have catlab client id? (my own personal single sign on service)
+if (config('services.catlab.client_id')) {
+    \CatLab\Accounts\Client\Controllers\LoginController::setRoutes();
+} else {
+    // Not set? Use default laravel authentication.
+    Auth::routes();
+}
 
 Route::get('/home', 'HomeController@index')->name('home');

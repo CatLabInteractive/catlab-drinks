@@ -28,7 +28,7 @@ class MakeUniqueCardUidLinkedToOrg extends Migration
      */
     public function down()
     {
-        Schema::table('org', function (Blueprint $table) {
+        Schema::table('cards', function (Blueprint $table) {
             $table->dropUnique('cards_uid_organisation_id_unique');
             $table->unique(['uid']);
         });

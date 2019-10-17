@@ -22,11 +22,24 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 
-class User extends \CatLab\Accounts\Client\Models\User
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+
+/**
+ * Class User
+ * @package App\Models
+ */
+class User extends Model implements
+    AuthenticatableContract,
+    AuthorizableContract
 {
+    use Authenticatable, Authorizable;
+
     /**
      * Register any other events for your application.
      *
@@ -39,8 +52,8 @@ class User extends \CatLab\Accounts\Client\Models\User
         static::created(function (User $model) {
 
             // also create an organisation with the same name
-            $organisation = new Organisation([ 'name' => $model->username ]);
-            $model->organisation()->associate($organisation);
+            $organisation = new Organisation([ 'name' => $model->name ]);
+            $model->organisations()->save($organisation);
 
         });
     }
