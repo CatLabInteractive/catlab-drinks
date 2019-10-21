@@ -27,14 +27,23 @@
 
         <b-row>
             <b-col>
-                <h3>We hebben je bestelling ontvangen!</h3>
-                <p>Wacht even, we komen er aan!</p>
 
-                <p>
-                    <b-button class="btn-success" :to="{ name: 'order' }">
-                        Nieuwe bestelling
-                    </b-button>
-                </p>
+                <b-modal ref="successModal" title="We komen eraan!" @ok="closeModal" button-size="lg" ok-only>
+                    <b-alert variant="success" :show="true">
+
+                        <h3>We hebben je bestelling ontvangen!</h3>
+                        <p>Wacht even, we komen er aan!</p>
+
+                        <p>
+                            <b-button class="btn-success" :to="{ name: 'order' }">
+                                Nieuwe bestelling
+                            </b-button>
+                        </p>
+
+                    </b-alert>
+                </b-modal>
+
+
             </b-col>
         </b-row>
 
@@ -48,6 +57,7 @@
         mounted() {
 
             window.scrollTo(0,0);
+            this.$refs.successModal.show();
 
         },
 

@@ -29,9 +29,11 @@
             <b-spinner label="Loading data" />
         </div>
 
+        <!--
         <b-alert variant="danger" :show="error !== null">
             {{error}}
         </b-alert>
+        -->
 
         <div v-if="loaded && error === null">
 
@@ -61,8 +63,8 @@
                         <template v-slot:cell(actions)="row">
 
                             <span v-if="!row.item.isTotals">
-                                <b-button variant="danger small" @click="down(row.item)" size="sm"><i class="fa fa-minus"></i></b-button>
-                                <b-button variant="success small" @click="up(row.item)" size="sm"><i class="fa fa-plus"></i></b-button>
+                                <b-button variant="danger small" @click="down(row.item)" ><i class="fa fa-minus"></i></b-button>
+                                <b-button variant="success small" @click="up(row.item)" ><i class="fa fa-plus"></i></b-button>
                             </span>
 
                         </template>
@@ -82,20 +84,39 @@
 
             <b-row>
                 <b-col>
+                    <!--
                     <b-alert variant="danger" :show="warning !== null">
                         {{warning}}
                     </b-alert>
+                    -->
 
-                    <p><b-btn type="submit" variant="success" @click="submit()">Bestellen</b-btn></p>
+                    <p><b-btn type="submit" variant="success" @click="submit()" size="lg">Bestellen</b-btn></p>
                 </b-col>
             </b-row>
 
         </div>
 
         <!-- Modal Component -->
-        <b-modal ref="warningModal" title="Woops" @ok="closeModal" button-size="lg" ok-only>
+        <b-modal ref="warningModal" title="Woops" @ok="closeModal" button-size="lg" ok-only no-close-on-esc no-close-on-backdrop hide-header-close ok-variant="danger">
             <b-alert variant="danger" :show="warning !== null">
                 {{warning}}
+            </b-alert>
+        </b-modal>
+
+        <!-- Modal Component -->
+        <b-modal ref="confirmModal" title="Bevestig bestelling" @ok="confirmOrder" button-size="lg" no-close-on-esc no-close-on-backdrop hide-header-close ok-variant="success" cancel-variant="danger">
+            <ul v-if="orderData">
+                <li v-for="item in orderData.order.items">
+                    {{ item.amount}} x {{ item.name}}
+                </li>
+            </ul>
+
+            <p>Uw tafelnummer: {{ tableNumber }}</p>
+        </b-modal>
+
+        <b-modal ref="successModal" title="We komen eraan!" @ok="closeModal" button-size="lg" ok-only ok-title="Nieuwe bestelling" ok-variant="success" no-close-on-esc no-close-on-backdrop>
+            <b-alert variant="success" :show="true">
+                We hebben je bestelling ontvangen (#{{orderId}}). Je bestelling staat in onze wachtlijst, we komen er zo snel mogelijk aan.
             </b-alert>
         </b-modal>
 
@@ -145,6 +166,8 @@
                 saving: false,
                 saved: false,
                 toggling: null,
+                orderId: null,
+                orderData: null,
                 items: [],
                 fields: [
                     {
@@ -343,28 +366,40 @@
                                 menuItem: {
                                     id: item.id
                                 },
-                                amount: item.amount
+                                amount: item.amount,
+                                name: item.name
                             });
                         }
                     }
                 );
 
+                this.orderData = data;
+                this.$refs.confirmModal.show();
+            },
+
+            async confirmOrder() {
+
                 try {
                     localStorage.tableNumber = this.tableNumber;
 
-                    const order = await this.service.order(data);
+                    const order = await this.service.order(this.orderData);
 
-                    this.$router.push({ name: 'ordersubmitted', params: { id: order.id  } });
+                    this.orderId = order.id;
+
+                    //this.$router.push({ name: 'ordersubmitted', params: { id: order.id  } });
+                    this.$refs.successModal.show();
                     this.reset();
 
                 } catch (e) {
                     this.warning = e.response.data.error.message;
                     this.$refs.warningModal.show();
                 }
+
             },
 
             async closeModal() {
                 this.$refs.warningModal.hide();
+                this.$refs.successModal.hide();
             }
 
         }
