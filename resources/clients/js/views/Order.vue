@@ -29,11 +29,9 @@
             <b-spinner label="Loading data" />
         </div>
 
-        <!--
         <b-alert variant="danger" :show="error !== null">
             {{error}}
         </b-alert>
-        -->
 
         <div v-if="loaded && error === null">
 

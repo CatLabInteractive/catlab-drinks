@@ -94,7 +94,7 @@ class PublicController extends ResourceController
         if (!$event->isOpen()) {
             return new JsonResponse([
                 'error' => [
-                    'message' => 'De bar aanvaardt momenteel geen bestellingen.'
+                    'message' => 'De bar aanvaardt op dit moment geen bestellingen. Bestel je drankje aan de bar of wacht tot de pauze voorbij is.'
                 ]
             ], 423);
         }
