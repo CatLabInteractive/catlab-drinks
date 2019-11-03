@@ -201,6 +201,8 @@
                         console.log('Rebuilding card');
                         await this.$cardService.rebuild(this.card);
                         console.log('Done rebuilding card');
+
+                        alert('Card is rebuilt from online data.');
                     } catch (e) {
                         console.error(e);
                         alert('Rebuild error: ' + e.message);
