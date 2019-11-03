@@ -27,6 +27,7 @@ require('./bootstrap');
 import Vue from "vue";
 import VueRouter from "vue-router";
 import BootstrapVue from "bootstrap-vue";
+import moment from 'moment'
 
 Vue.use(VueRouter);
 Vue.use(BootstrapVue);
@@ -43,6 +44,7 @@ import {CardService} from "./nfccards/CardService";
 import Settings from "./views/Settings";
 import {SettingService} from "./services/SettingService";
 import {PaymentService} from "./services/PaymentService";
+import {OrganisationService} from "./services/OrganisationService";
 
 Vue.component(
     'live-sales',
@@ -93,6 +95,12 @@ Vue.component(
     'card',
     require('./components/Card.vue').default
 );
+
+Vue.filter('formatDate', function(value) {
+    if (value) {
+        return moment(String(value)).format('DD/MM/YYYY hh:mm:ss');
+    }
+});
 
 /**
  * The following block of code may be used to automatically register your
@@ -169,6 +177,8 @@ const router = new VueRouter({
 
 // Bootstrap card service
 Vue.prototype.$settingService = new SettingService();
+Vue.prototype.$organisationService = new OrganisationService();
+
 Vue.prototype.$settingService.load()
     .then(
         function() {
@@ -185,6 +195,13 @@ Vue.prototype.$settingService.load()
                     Vue.prototype.$settingService.nfcServer,
                     Vue.prototype.$settingService.nfcPassword
                 );
+
+                Vue.prototype.$organisationService.get(ORGANISATION_ID, { fields: '*,secret'})
+                    .then(
+                        (organisation) => {
+                            Vue.prototype.$cardService.setPassword(organisation.secret);
+                        }
+                    );
             }
 
             // Payment service

@@ -271,6 +271,7 @@ export class CardService extends Eventable {
 
         // yay! save that transaction (but don't wait for upload)
         await this.offlineStore.addPendingTransaction(transaction);
+
         this.trigger('card:balance:change', card);
 
         return {

@@ -125,7 +125,7 @@
             </b-alert>
         </b-modal>
 
-        <b-modal ref="processingOrderModal" title="Even watchen"  no-close-on-esc no-close-on-backdrop hide-footer hide-header>
+        <b-modal ref="processingOrderModal" title="Even wachten" no-close-on-esc no-close-on-backdrop hide-footer hide-header>
             <div class="text-center">
                 <b-spinner />
             </div>

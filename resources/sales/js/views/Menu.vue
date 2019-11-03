@@ -23,7 +23,13 @@
 
     <b-container fluid>
 
-        <h1>Menu</h1>
+        <h2>
+            Menu
+            <b-link class="btn btn-sm btn-info" :to="{ name: 'hq', params: { id: eventId } }">
+                Bar HQ
+            </b-link>
+        </h2>
+
         <div class="text-center" v-if="!loaded">
             <b-spinner label="Loading data" />
         </div>
@@ -96,7 +102,8 @@
     export default {
         mounted() {
 
-            this.service = new MenuService(this.$route.params.id);
+            this.eventId = this.$route.params.id;
+            this.service = new MenuService(this.eventId);
             this.refresh();
 
         },
@@ -104,7 +111,9 @@
         watch: {
             '$route' (to, from) {
                 // react to route changes...
-                this.service = new MenuService(to.params.id);
+                this.eventId = to.params.id;
+
+                this.service = new MenuService(this.eventId);
                 this.refresh();
             }
         },
@@ -112,6 +121,7 @@
         data() {
             return {
                 loaded: false,
+                eventId: null,
                 saving: false,
                 saved: false,
                 toggling: null,

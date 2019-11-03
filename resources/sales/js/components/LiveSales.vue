@@ -22,7 +22,7 @@
 <template>
     <div>
         <h2>
-            Bar
+            Menu
             <b-button v-if="this.eventId" size="sm" class="btn-light" :to="{ name: 'menu', params: { id: this.eventId } }">
                 <i class="fas fa-edit"></i>
                 <span class="sr-only">Menu items</span>
@@ -37,7 +37,7 @@
 
                 <div class="live-orders">
                     <div v-for="(item, index) in items" class="product" v-on:click="increaseOrder(item, index, $event)">
-                        <span class="name">{{ item.name}}</span>
+                        <span class="name">{{item.name}}</span>
                         <span class="buttons">
 
                             <button class="btn btn-danger btn-sm" v-on:click="decreaseOrder(item, index, $event)">
@@ -111,7 +111,6 @@
 
     import {MenuService} from "../services/MenuService";
     import {OrderService} from "../services/OrderService";
-    import {CardService} from "../nfccards/CardService";
     import {EventService} from "../services/EventService";
 
     export default {
@@ -178,18 +177,6 @@
                 this.eventService = new EventService(newVal);
 
                 this.orderService.startPeriodicUpload();
-
-                this.eventService.get(newVal, { expand: 'organisation', fields: '*,organisation.*,organisation.secret' })
-                    .then(
-                        (event) => {
-                            this.event = event;
-
-                            if (this.$cardService) {
-                                this.$cardService
-                                    .setPassword(event.organisation.secret);
-                            }
-                        }
-                    );
 
                 this.refresh();
 

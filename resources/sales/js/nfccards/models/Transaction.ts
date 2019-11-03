@@ -25,6 +25,8 @@ export class Transaction {
 
     public localStorageKey: string = '';
 
+    public uploaded = false;
+
     static unserialize(data: any) {
         let date = null;
 

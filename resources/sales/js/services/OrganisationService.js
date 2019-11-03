@@ -23,10 +23,7 @@ import {AbstractService} from './AbstractService';
 
 export class OrganisationService extends AbstractService {
 
-    /**
-     * @param organisationId
-     */
-    constructor(organisationId) {
+    constructor() {
         super();
 
         this.entityUrl = 'organisations';

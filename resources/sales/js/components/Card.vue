@@ -33,7 +33,7 @@
 
         <div v-if="card.loaded" class="row">
 
-            <div class="col-md-6">
+            <div class="col-md-8">
                 <h2>Topup</h2>
                 <div class="topup-amounts">
                     <div v-for="amount in defaultAmounts" v-on:click="topupForAmount(amount)" class="amount">
@@ -65,7 +65,7 @@
                 </p>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
 
                 <table class="table">
 
@@ -81,7 +81,7 @@
 
                     <tr>
                         <td>Last transaction</td>
-                        <td>{{ card.getLastTransactionDate().toISOString() }}</td>
+                        <td>{{ card.getLastTransactionDate() | formatDate }}</td>
                     </tr>
 
                 </table>
@@ -94,7 +94,10 @@
                         <td>{{ transaction.transactionId }}</td>
                         <td>{{ transaction.getVisibleAmount() }}</td>
                         <td>{{ transaction.type }}</td>
-                        <td>{{ transaction.date ? transaction.date.toISOString() : '' }}</td>
+                        <td>{{ transaction.date ? transaction.date : null | formatDate }}</td>
+                        <td>
+                            <span v-if="!transaction.uploaded">Not uploaded yet</span>
+                        </td>
 
                     </tr>
 
@@ -111,15 +114,22 @@
         </b-modal>
 
         <!-- Modal Component -->
+        <b-modal ref="processingModal" title="Even wachten" no-close-on-esc no-close-on-backdrop hide-footer hide-header>
+            <div class="text-center">
+                <b-spinner />
+            </div>
+        </b-modal>
+
+        <!-- Modal Component -->
         <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling geslaagd" ok-variant="success" no-close-on-backdrop>
             <p class="text-center"><i class="fas fa-thumbs-up huge"></i></p>
-            <p class="text-center alert alert-success">Betaling geslaagd.</p>
+            <p class="text-center alert alert-success">Topup geslaagd.</p>
         </b-modal>
 
         <!-- Modal Component -->
         <b-modal ref="declinedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling gefaald" ok-variant="danger" no-close-on-backdrop>
             <p class="text-center"><i class="fas fa-exclamation-triangle huge"></i></p>
-            <p class="text-center alert alert-danger">De betaling is mislukt. Geef de bestelling opnieuw in.</p>
+            <p class="text-center alert alert-danger">Topup gefaald: {{ error }}</p>
         </b-modal>
     </div>
 
@@ -141,6 +151,7 @@
                 topupAmountString: '',
                 creatingOrderTokenAlias: '',
                 storeState: null,
+                error: null,
                 defaultAmounts: [
                     5,
                     10,
@@ -235,15 +246,35 @@
             async confirmTopup() {
 
                 this.$refs.confirmModal.hide();
+                this.error = null;
 
                 const amount = Math.floor(this.topupAmount * 100);
                 const uniqueId = uuidv1();
 
                 // we probably want to store this somewhere, but hey... no time.
                 try {
+                    this.$refs.processingModal.show();
+
+                    // do the actual topup
                     await this.$cardService.topup(uniqueId, amount);
+
+                    // reload last transactions (as otherwise it might be confusing)
+                    this.transactions = await this.$cardService.getTransactions(this.card);
+                    console.log(this.transactions);
+
+                    this.$refs.processingModal.hide();
+
+                    this.$refs.processedModal.show();
+                    setTimeout(() => {
+                        this.$refs.processedModal.hide();
+                    }, 5000);
+
                 } catch (e) {
-                    alert(e.message);
+                    this.$refs.processingModal.hide();
+
+                    this.error = e.message;
+                    this.$refs.declinedModal.show();
+                    //alert(e.message);
                 }
             },
 

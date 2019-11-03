@@ -74,13 +74,7 @@
             }
 
             // load event
-            this.organisationService = new OrganisationService(window.ORGANISATION_ID);
-
-            this.organisation = await this.organisationService.get(window.ORGANISATION_ID, { fields: 'id,name,secret' });
-
             this.cardService = this.$cardService;
-
-            this.cardService.setPassword(this.organisation.secret);
 
             this.loaded = true;
             this.loading = false;

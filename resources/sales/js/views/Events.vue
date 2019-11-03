@@ -33,26 +33,31 @@
                 <b-table striped hover :items="items" :fields="fields" v-if="loaded">
 
                     <template v-slot:cell(name)="row">
-                        <router-link :to="{ name: 'menu', params: { id: row.item.id } }">{{ row.item.name }}</router-link>
+                        <router-link :to="{ name: 'hq', params: { id: row.item.id } }">{{ row.item.name }}</router-link>
                     </template>
 
                     <template v-slot:cell(actions)="row">
-                        <b-button size="sm" class="btn-info" :to="{ name: 'menu', params: { id: row.item.id } }">
+                        <b-button size="sm" class="btn-info" :to="{ name: 'menu', params: { id: row.item.id } }" title="Menu items">
                             <i class="fas fa-scroll"></i>
                             <span class="sr-only">Menu items</span>
                         </b-button>
 
-                        <b-link class="btn btn-sm btn-success" :href="row.item.order_url" target="_blank">
+                        <b-link class="btn btn-sm btn-info" :to="{ name: 'summary', params: { id: row.item.id } }" title="Sales overview">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="sr-only">Sales overview</span>
+                        </b-link>
+
+                        <b-link class="btn btn-sm btn-success" :href="row.item.order_url" target="_blank" title="Client panel">
                             <i class="fas fa-user"></i>
                             <span class="sr-only">Client panel</span>
                         </b-link>
 
-                        <b-button size="sm" class="" @click="edit(row.item, row.index)">
+                        <b-button size="sm" class="" @click="edit(row.item, row.index)" title="Edit">
                             <i class="fas fa-edit"></i>
                             <span class="sr-only">Edit</span>
                         </b-button>
 
-                        <b-button size="sm" @click="remove(row.item)" class="btn-danger">
+                        <b-button size="sm" @click="remove(row.item)" class="btn-danger" title="Remove">
                             <i class="fas fa-trash"></i>
                             <span class="sr-only">Delete</span>
                         </b-button>
@@ -61,10 +66,6 @@
                     </template>
 
                     <template v-slot:cell(is_selling)="row">
-
-                        <b-link class="btn btn-sm btn-info" :to="{ name: 'hq', params: { id: row.item.id } }">
-                            Bar HQ
-                        </b-link>
 
                         <b-button v-if="!row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)" class="btn-danger">
                             Closed
