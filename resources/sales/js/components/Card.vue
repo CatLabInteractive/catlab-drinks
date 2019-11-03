@@ -31,7 +31,7 @@
             </div>
         </div>
 
-        <div v-if="card.loaded" class="row">
+        <div v-if="card.ready" class="row">
 
             <div class="col-md-8">
                 <h2>Topup</h2>
@@ -146,6 +146,7 @@
 
         data() {
             return {
+                canTopup: false,
                 transactions: [],
                 topupAmount: 10,
                 topupAmountString: '',

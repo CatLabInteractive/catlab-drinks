@@ -41,6 +41,13 @@ export class Card extends Eventable {
 
     public loaded = false;
 
+    /**
+     * 'ready' is service specific property that notes
+     * that this card is prepared and ready for use
+     * (slightly different from 'loaded' which just means that the card data is fetched from the card)
+     */
+    public ready = false;
+
     public previousTransactions = [
         0,
         0,
@@ -261,6 +268,14 @@ export class Card extends Eventable {
     public async save() {
         await this.nfcReader.write(this);
         this.trigger('saved');
+    }
+
+    /**
+     * Notify listeners that this card is ready for use.
+     */
+    public setReady() {
+        this.ready = true;
+        this.trigger('ready');
     }
 
     /**

@@ -125,7 +125,7 @@ export class CardService extends Eventable {
             if (this.currentCard === card) {
                 this.isCardLoaded = true;
 
-                card.trigger('loaded');
+                card.setReady();
                 this.trigger('card:loaded', card);
                 this.trigger('card:balance:change', card);
             }
@@ -242,6 +242,10 @@ export class CardService extends Eventable {
     }
 
     getCard() {
+        if (!this.isCardLoaded) {
+            return null;
+        }
+
         return this.currentCard;
     }
 
@@ -271,6 +275,9 @@ export class CardService extends Eventable {
 
         // yay! save that transaction (but don't wait for upload)
         await this.offlineStore.addPendingTransaction(transaction);
+
+        // and refresh the card.
+        await this.refreshCard(card);
 
         this.trigger('card:balance:change', card);
 
