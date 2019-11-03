@@ -23,7 +23,9 @@
 namespace App\Http\Api\V1\ResourceDefinitions;
 
 use App\Http\Api\V1\Transformers\DateTimeTransformer;
+use App\Models\Card;
 use App\Models\Transaction;
+use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Models\ResourceDefinition;
 
 /**
@@ -99,5 +101,10 @@ class TransactionResourceDefinition extends ResourceDefinition
         $this->field('updated_at')
             ->datetime(DateTimeTransformer::class)
             ->visible(true);
+
+        $this->relationship('card', CardResourceDefinition::class)
+            ->visible(false, false)
+            ->one()
+            ->expandable(Action::INDEX);
     }
 }

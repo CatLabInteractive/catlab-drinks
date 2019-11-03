@@ -22,12 +22,9 @@
 
 namespace App\Http\Api\V1\ResourceDefinitions;
 
+use App\Http\Api\V1\Transformers\DateTimeTransformer;
 use App\Models\Card;
-use App\Models\CardOrderTokenAlias;
-use App\Models\Event;
 use CatLab\Charon\Models\ResourceDefinition;
-use CatLab\Charon\Transformers\ScalarTransformer;
-use CatLab\Requirements\Enums\PropertyType;
 
 /**
  * Class CardResourceDefinition
@@ -72,8 +69,8 @@ class CardResourceDefinition extends ResourceDefinition
             ->writeable(true, true);
 
         $this->field('updated_at')
-            ->visible(true)
-            ->datetime()
+            ->visible()
+            ->datetime(DateTimeTransformer::class)
             ->sortable();
     }
 }

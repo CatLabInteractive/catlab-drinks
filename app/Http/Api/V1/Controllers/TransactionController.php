@@ -115,6 +115,7 @@ class TransactionController extends ResourceController
      * @return ResourceResponse
      * @throws EntityNotFoundException
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Throwable
      */
     public function mergeTransactions(Request $request, $organisationId) {
 
@@ -137,6 +138,9 @@ class TransactionController extends ResourceController
         $transactions = $transactionMerger->mergeTransactions($entities);
 
         $context = $this->getContext(Action::INDEX);
+        $context->expandField('card');
+        $context->showField('*');
+        $context->showField('card');
         $resources = $this->toResources($transactions, $context);
 
         return new ResourceResponse($resources, $context);

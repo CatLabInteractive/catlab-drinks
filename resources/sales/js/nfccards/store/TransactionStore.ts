@@ -192,7 +192,7 @@ export class TransactionStore {
     private refreshCardTransactionCounts() {
         return this.axios({
             method: 'get',
-            url: 'organisations/' + this.organisationId + '/cards?records=1000&fields=uid,transactions,updated_at&sort=updated_at&after=' + this.transactionIdCursor
+            url: 'organisations/' + this.organisationId + '/cards?records=100000&fields=uid,transactions,updated_at&sort=updated_at&after=' + this.transactionIdCursor
         }).then(
             (response: any) => {
 
@@ -261,6 +261,27 @@ export class TransactionStore {
                     })
                         .then(
                             (response: any) => {
+
+                                // only remove the transactions that were returned from the server.
+                                const stored = response.data.items;
+
+                                const storedTransactions = pendingTransactions.filter(
+                                    (transaction: Transaction) => {
+                                        // check if we have a stored transaction on the same card.
+                                        for (let i = 0; i < stored.length; i ++) {
+                                            if (
+                                                stored[i].card.uid === transaction.cardUid &&
+                                                stored[i].card_transaction === transaction.transactionId
+                                            ) {
+                                                return true;
+                                            }
+                                        }
+                                        return false;
+                                    }
+                                );
+
+                                //console.log('Removing transactions', storedTransactions);
+
                                 this.offlineStore.removePendingTransactions(pendingTransactions);
                                 resolve();
                             }

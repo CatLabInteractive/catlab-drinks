@@ -43,12 +43,18 @@ class Card extends Model
     /**
      * @param Organisation $organisation
      * @param $cardUid
+     * @param bool $lockForUpdate
      * @return Card
      */
-    public static function getFromUid(Organisation $organisation, $cardUid)
+    public static function getFromUid(Organisation $organisation, $cardUid, $lockForUpdate = false)
     {
         // Look fo card
-        $card = $organisation->cards()->where('uid', '=', $cardUid)->first();
+        $card = $organisation->cards()->where('uid', '=', $cardUid);
+        if ($lockForUpdate) {
+            $card->lockForUpdate();
+        }
+        $card = $card->first();
+
         if (!$card) {
             $card = new Card();
             $card->uid = $cardUid;
@@ -114,11 +120,18 @@ class Card extends Model
 
     /**
      * @param $cardTransactionId
+     * @param bool $lockForUpdate
      * @return Transaction
      */
-    public function getTransactionFromCounter($cardTransactionId)
+    public function getTransactionFromCounter($cardTransactionId, $lockForUpdate = false)
     {
-        $transaction = $this->transactions()->where('card_sync_id', '=', $cardTransactionId)->first();
+        $transaction = $this->transactions()->where('card_sync_id', '=', $cardTransactionId);
+        if ($cardTransactionId) {
+            $transaction->lockForUpdate();
+        }
+
+        $transaction = $transaction->first();
+
         if (!$transaction) {
             $transaction = new Transaction();
             $transaction->card()->associate($this);
@@ -126,6 +139,7 @@ class Card extends Model
             $transaction->transaction_type = Transaction::TYPE_UNKNOWN;
             $transaction->card_sync_id = $cardTransactionId;
         }
+
         return $transaction;
     }
 

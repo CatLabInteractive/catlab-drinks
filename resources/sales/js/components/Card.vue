@@ -174,10 +174,10 @@
             this.transactions = [];
             this.storingAlias = false;
             if (this.card) {
-                if (this.card.loaded) {
+                if (this.card.ready) {
                     this.loadCard();
                 } else {
-                    this.card.on('loaded', () => {
+                    this.card.on('ready', () => {
                         this.loadCard();
                     });
                 }
@@ -263,7 +263,6 @@
 
                     // reload last transactions (as otherwise it might be confusing)
                     this.transactions = await this.$cardService.getTransactions(this.card);
-                    console.log(this.transactions);
 
                     this.$refs.processingModal.hide();
 

@@ -28,6 +28,7 @@ use App\Models\Card;
 use App\Models\Organisation;
 use App\Models\Transaction;
 use CatLab\Charon\Laravel\Exceptions\EntityNotFoundException;
+use DB;
 
 /**
  * Class TransactionMerger
@@ -60,19 +61,24 @@ class TransactionMerger
      * @param Transaction[] $entities
      * @return array
      * @throws EntityNotFoundException
+     * @throws \Throwable
      */
     public function mergeTransactions(array $entities)
     {
         $transactions = [];
-        foreach ($entities as $entity) {
-            $transaction = $this->mergeTransaction($entity);
-            if ($transaction) {
-                $transactions[] = $transaction;
-            }
-        }
+        DB::transaction(function () use ($entities, &$transactions) {
 
-        // now fix the saldo
-        $this->fixBalances();
+            foreach ($entities as $entity) {
+                $transaction = $this->mergeTransaction($entity);
+                if ($transaction) {
+                    $transactions[] = $transaction;
+                }
+            }
+
+            // now fix the saldo
+            $this->fixBalances();
+
+        }, 5);
 
         return $transactions;
     }
@@ -120,7 +126,7 @@ class TransactionMerger
         $card = $this->getCard($entity->card_uid);
         $cardTransactionId = $entity->card_sync_id;
 
-        $transaction = $card->getTransactionFromCounter($cardTransactionId);
+        $transaction = $card->getTransactionFromCounter($cardTransactionId, true);
         $transaction->has_synced = true;
 
         try {
@@ -155,12 +161,12 @@ class TransactionMerger
         $key = $this->getKey($uid);
         if (!isset($this->cards[$key])) {
 
-            $card = Card::getFromUid($this->organisation, $uid);
+            $card = Card::getFromUid($this->organisation, $uid, true);
             if (!$card) {
                 throw new EntityNotFoundException('Card not found: ' . $uid);
             }
 
-            $card->original_balance = $card->transactions()->sum('value');
+            $card->original_balance = $card->transactions()->lockForUpdate()->sum('value');
             $this->cards[$key] = $card;
         }
 
