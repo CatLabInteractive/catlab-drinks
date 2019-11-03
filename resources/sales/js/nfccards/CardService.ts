@@ -349,8 +349,12 @@ export class CardService extends Eventable {
     /**
      * @param card
      */
-    async getTransactions(card: Card) {
-        return await this.transactionStore.getTransactions(card);
+    async getTransactions(card: Card | null = null) {
+        if (card === null) {
+            return await this.transactionStore.getAllTransactions();
+        } else {
+            return await this.transactionStore.getTransactions(card);
+        }
     }
 
 }

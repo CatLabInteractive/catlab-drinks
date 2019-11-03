@@ -103,7 +103,7 @@ class TransactionResourceDefinition extends ResourceDefinition
             ->visible(true);
 
         $this->relationship('card', CardResourceDefinition::class)
-            ->visible(false, false)
+            ->visible(true)
             ->one()
             ->expandable(Action::INDEX);
 

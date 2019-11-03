@@ -45,6 +45,7 @@ import Settings from "./views/Settings";
 import {SettingService} from "./services/SettingService";
 import {PaymentService} from "./services/PaymentService";
 import {OrganisationService} from "./services/OrganisationService";
+import Transactions from "./views/Transactions";
 
 Vue.component(
     'live-sales',
@@ -99,6 +100,11 @@ Vue.component(
 Vue.component(
     'card',
     require('./components/Card.vue').default
+);
+
+Vue.component(
+    'transactions-table',
+    require('./components/TransactionsTable.vue').default
 );
 
 Vue.filter('formatDate', function(value) {
@@ -169,6 +175,12 @@ const router = new VueRouter({
             path: '/settings',
             name: 'settings',
             component: Settings
+        },
+
+        {
+            path: '/transactions',
+            name: 'transactions',
+            component: Transactions
         }
     ],
 });

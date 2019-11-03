@@ -31,6 +31,8 @@ export class Transaction {
 
     public topup: any = null;
 
+    public id: number | null = null;
+
     static unserialize(data: any) {
         let date = null;
 

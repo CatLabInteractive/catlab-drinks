@@ -45,6 +45,16 @@ class TransactionPolicy extends BasePolicy
 
     /**
      * @param User|null $user
+     * @param Organisation $organisation
+     * @return mixed
+     */
+    public function organisationIndex(?User $user, Organisation $organisation)
+    {
+        return $this->isMyOrganisation($user, $organisation);
+    }
+
+    /**
+     * @param User|null $user
      * @param Card $card
      * @return bool
      */

@@ -71,8 +71,15 @@ class TransactionController extends ResourceController
             ]
         );
 
+
         $childResource->post('organisations/{organisationId}/merge-transactions', 'TransactionController@mergeTransactions')
             ->summary('Merges offline stored transactions')
+            ->parameters()->path('organisationId')->required()
+            ->parameters()->resource(TransactionResourceDefinition::class)->many();
+
+
+        $childResource->get('organisations/{organisationId}/transactions', 'TransactionController@getFromOrganisation')
+            ->summary('Return all transactions happening in the organisation')
             ->parameters()->path('organisationId')->required()
             ->parameters()->resource(TransactionResourceDefinition::class)->many();
 
@@ -144,6 +151,24 @@ class TransactionController extends ResourceController
         $resources = $this->toResources($transactions, $context);
 
         return new ResourceResponse($resources, $context);
+    }
+
+    /**
+     * @param $organisationId
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function getFromOrganisation($organisationId)
+    {
+        $organisation = Organisation::findOrFail($organisationId);
+
+        $this->authorizeCrudRequest('organisationIndex', null, $organisation);
+
+        $context = $this->getContext(Action::INDEX);
+
+        $models = $this->getModels($organisation->transactions(), $context);
+        $resources = $this->toResources($models, $context);
+
+        return $this->getResourceResponse($resources, $context);
     }
 
     /**

@@ -92,6 +92,8 @@
                 </table>
 
                 <h3>Transactions</h3>
+                <transactions-table v-if="loaded" :card="card" />
+
                 <table class="table">
 
                     <tr v-for="transaction in this.transactions">
@@ -117,7 +119,7 @@
 
         <!-- Modal Component -->
         <b-modal ref="confirmModal" class="order-confirm-modal" title="Topup bevestigen" @ok="confirmTopup" @cancel="cancelTopup" button-size="lg" no-close-on-backdrop>
-            <p>Ben je zeker dat je voor <strong>€{{ topupAmount.toFixed(2) }}</strong> wilt herladen?</p>
+            <p>Are you sure you want to topup for <strong>€{{ topupAmount.toFixed(2) }}</strong>?</p>
         </b-modal>
 
         <!-- Modal Component -->
@@ -128,26 +130,15 @@
         </b-modal>
 
         <!-- Modal Component -->
-        <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling geslaagd" ok-variant="success" no-close-on-backdrop>
+        <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Topup succesful" ok-variant="success" no-close-on-backdrop>
             <p class="text-center"><i class="fas fa-thumbs-up huge"></i></p>
-            <p class="text-center alert alert-success">Topup geslaagd.</p>
+            <p class="text-center alert alert-success">Topup succesful.</p>
         </b-modal>
 
         <!-- Modal Component -->
-        <b-modal ref="declinedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling gefaald" ok-variant="danger" no-close-on-backdrop>
+        <b-modal ref="declinedModal" class="order-confirm-modal" ok-only button-size="lg" title="Topup failed" ok-variant="danger" no-close-on-backdrop>
             <p class="text-center"><i class="fas fa-exclamation-triangle huge"></i></p>
-            <p class="text-center alert alert-danger">Topup gefaald: {{ error }}</p>
-        </b-modal>
-
-        <!-- Modal Component -->
-        <b-modal ref="orderModal" title="Order details" ok-only>
-
-            <div v-if="orderDetails">
-
-                <order-details :order="orderDetails"></order-details>
-
-            </div>
-
+            <p class="text-center alert alert-danger">Topup failed: {{ error }}</p>
         </b-modal>
     </div>
 
@@ -165,6 +156,7 @@
         data() {
             return {
                 canTopup: false,
+                loaded: false,
                 transactions: [],
                 topupAmount: 10,
                 topupAmountString: '',
@@ -208,7 +200,9 @@
 
             async loadCard() {
 
-                this.transactions = await this.$cardService.getTransactions(this.card);
+                this.loaded = true;
+
+                //this.transactions = await this.$cardService.getTransactions(this.card);
                 this.resetTopupAmount();
 
             },

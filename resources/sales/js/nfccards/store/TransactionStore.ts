@@ -301,13 +301,28 @@ export class TransactionStore {
     }
 
     /**
+     *
+     */
+    async getAllTransactions() {
+        const transactions = await this.axios.get('organisations/' + this.organisationId + '/transactions?records=1000&sort=!id&expand=order,topup,card&fields=*,order,topup');
+        return this.mapTransactions(transactions);
+    }
+
+    /**
      * Get all transactions (uploaded & offline) for a specific card.
      * @param card
      */
     async getTransactions(card: Card) {
 
-        const transactions = await this.axios.get('cards/' + card.id + '/transactions?records=1000&sort=!card_transaction&expand=order,topup&fields=*,order,topup');
+        const transactions = await this.axios.get('cards/' + card.id + '/transactions?records=1000&sort=!card_transaction&expand=order,topup,card&fields=*,order,topup');
+        return this.mapTransactions(transactions);
 
+    }
+
+    /**
+     * @param transactions
+     */
+    private mapTransactions(transactions: any) {
         const out: Transaction[] = [];
         transactions.data.items.forEach(
             (item: any) => {
@@ -317,7 +332,7 @@ export class TransactionStore {
                 }
 
                 const transaction = new Transaction(
-                    card.getUid(),
+                    item.card.uid,
                     item.card_transaction,
                     item.type,
                     date,
@@ -325,6 +340,8 @@ export class TransactionStore {
                     item.orderUid,
                     item.topupUid
                 );
+
+                transaction.id = item.id;
                 transaction.uploaded = true;
 
                 if (item.order) {

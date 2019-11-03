@@ -34,7 +34,13 @@
 
         <div v-if="loaded">
 
-            <h1>Card management</h1>
+            <h1>
+                Topup Cards
+                <b-link class="btn btn-sm btn-info" :to="{ name: 'transactions' }">
+                    Transactions
+                </b-link>
+            </h1>
+
 
             <div v-if="card === null">
                 <p>Scan to start</p>

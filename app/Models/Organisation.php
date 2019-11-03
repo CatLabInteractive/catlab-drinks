@@ -59,6 +59,14 @@ class Organisation extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function transactions()
+    {
+        return $this->hasManyThrough(Transaction::class, Card::class);
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function orderTokenAliases()
