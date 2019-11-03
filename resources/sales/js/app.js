@@ -92,6 +92,11 @@ Vue.component(
 );
 
 Vue.component(
+    'order-details',
+    require('./components/OrderDetails.vue').default
+);
+
+Vue.component(
     'card',
     require('./components/Card.vue').default
 );

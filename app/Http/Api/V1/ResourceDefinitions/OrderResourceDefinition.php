@@ -22,6 +22,7 @@
 
 namespace App\Http\Api\V1\ResourceDefinitions;
 
+use App\Http\Api\V1\Transformers\DateTimeTransformer;
 use App\Models\Order;
 use CatLab\Charon\Models\ResourceDefinition;
 
@@ -43,6 +44,11 @@ class OrderResourceDefinition extends ResourceDefinition
             ->max(36)
             ->visible(true)
             ->writeable(true);
+
+        $this->field('created_at')
+            ->display('date')
+            ->datetime(DateTimeTransformer::class)
+            ->visible(true);
 
         $this->field('location')
             ->string()

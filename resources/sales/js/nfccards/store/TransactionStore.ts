@@ -306,7 +306,7 @@ export class TransactionStore {
      */
     async getTransactions(card: Card) {
 
-        const transactions = await this.axios.get('cards/' + card.id + '/transactions?records=1000&sort=!card_transaction');
+        const transactions = await this.axios.get('cards/' + card.id + '/transactions?records=1000&sort=!card_transaction&expand=order,topup&fields=*,order,topup');
 
         const out: Transaction[] = [];
         transactions.data.items.forEach(
@@ -326,17 +326,16 @@ export class TransactionStore {
                     item.topupUid
                 );
                 transaction.uploaded = true;
-                out.push(transaction);
-            }
-        );
 
-        // now add any local pending transactions we might have.
-        const pendingTransactions = await this.offlineStore.getPendingTransactions();
-        pendingTransactions.forEach(
-            (transaction: Transaction) => {
-                if (transaction.cardUid === card.getUid()) {
-                    out.unshift(transaction);
+                if (item.order) {
+                    transaction.order = item.order;
                 }
+
+                if (item.topup) {
+                    transaction.topup = item.topup;
+                }
+
+                out.push(transaction);
             }
         );
 

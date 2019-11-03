@@ -22,7 +22,7 @@
 <template>
     <div>
         <h2>
-            Bestellingen
+            Orders
             <b-link class="btn btn-sm btn-info" :to="{ name: 'hq', params: { id: this.eventId } }">
                 Bar HQ
             </b-link>
@@ -42,20 +42,8 @@
         <div class="order-history">
             <div class="order" v-for="(item, index) in items" :class="'status ' + item.status">
 
-                <h3>Order #{{item.id}}</h3>
-                <p>Status: {{item.status}}</p>
+                <order-details :order="item"></order-details>
 
-                <ul>
-                    <li v-for="product in item.order.items">{{product.amount}} x {{product.menuItem.name}}</li>
-                </ul>
-
-                <p v-if="item.paid"><i class="fas fa-check-square"></i> Betaald</p>
-
-                <p>
-                    Tafel: {{item.location}}<br />
-                    Besteller: {{item.requester}}<br />
-                    Totaal: €{{item.totalPrice.toFixed(2)}} (<strong>{{Math.ceil(item.totalPrice / 0.5)}} vakjes</strong>)
-                </p>
             </div>
         </div>
 
@@ -116,32 +104,13 @@
         },
 
         methods: {
-
             async refresh() {
-
                 this.loaded = true;
 
-                const items = (await this.orderService.index({
+                this.items = (await this.orderService.index({
                     sort: '!id',
                     records: 1000
                 })).items;
-
-                items.forEach(
-                    (item) => {
-
-                        let totalPrice = 0;
-
-                        item.order.items.forEach(
-                            (orderItem) => {
-                                totalPrice += orderItem.amount * orderItem.menuItem.price;
-                            });
-
-                        item.totalPrice = totalPrice;
-                    }
-                );
-
-                this.items = items;
-
             }
         }
     }

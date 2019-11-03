@@ -37,10 +37,16 @@
                     </template>
 
                     <template v-slot:cell(actions)="row">
-                        <b-button size="sm" class="btn-info" :to="{ name: 'menu', params: { id: row.item.id } }" title="Menu items">
+
+                        <b-button size="sm" class="btn-info" :to="{ name: 'menu', params: { id: row.item.id } }" title="Edit menu">
                             <i class="fas fa-scroll"></i>
-                            <span class="sr-only">Menu items</span>
+                            <span class="sr-only">Edit menu</span>
                         </b-button>
+
+                        <b-link class="btn btn-sm btn-info" :to="{ name: 'hq', params: { id: row.item.id } }" title="Bar HQ">
+                            <i class="fas fa-glass-martini"></i>
+                            <span class="sr-only">Bar HQ</span>
+                        </b-link>
 
                         <b-link class="btn btn-sm btn-info" :to="{ name: 'summary', params: { id: row.item.id } }" title="Sales overview">
                             <i class="fas fa-chart-line"></i>
@@ -131,11 +137,11 @@
                     },
                     {
                         key: 'name',
-                        label: 'Event name',
+                        label: 'Event',
                     },
                     {
                         key: 'is_selling',
-                        label: 'Status',
+                        label: 'Remote orders',
                         class: 'text-center'
                     },
                     {

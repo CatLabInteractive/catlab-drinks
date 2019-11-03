@@ -106,5 +106,15 @@ class TransactionResourceDefinition extends ResourceDefinition
             ->visible(false, false)
             ->one()
             ->expandable(Action::INDEX);
+
+        $this->relationship('order', OrderResourceDefinition::class)
+            ->visible()
+            ->one()
+            ->expandable(Action::INDEX);
+
+        $this->relationship('topup', TopupResourceDefinition::class)
+            ->visible()
+            ->one()
+            ->expandable(Action::INDEX);
     }
 }

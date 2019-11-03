@@ -27,6 +27,10 @@ export class Transaction {
 
     public uploaded = false;
 
+    public order: any = null;
+
+    public topup: any = null;
+
     static unserialize(data: any) {
         let date = null;
 

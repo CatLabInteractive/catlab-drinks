@@ -92,12 +92,14 @@
                     <tr v-for="transaction in this.transactions">
 
                         <td>{{ transaction.transactionId }}</td>
-                        <td>{{ transaction.getVisibleAmount() }}</td>
-                        <td>{{ transaction.type }}</td>
-                        <td>{{ transaction.date ? transaction.date : null | formatDate }}</td>
                         <td>
-                            <span v-if="!transaction.uploaded">Not uploaded yet</span>
+                            <span v-if="transaction.order">
+                                <a href="javascript:void(0)" class="btn btn-sm btn-info" v-on:click="showOrder(transaction.order)">Sale {{transaction.order.id}}</a>
+                            </span>
+                            <span v-else>{{ transaction.type }}</span>
                         </td>
+                        <td>{{ transaction.getVisibleAmount() }}</td>
+                        <td>{{ transaction.date ? transaction.date : null | formatDate }}</td>
 
                     </tr>
 
@@ -131,6 +133,17 @@
             <p class="text-center"><i class="fas fa-exclamation-triangle huge"></i></p>
             <p class="text-center alert alert-danger">Topup gefaald: {{ error }}</p>
         </b-modal>
+
+        <!-- Modal Component -->
+        <b-modal ref="orderModal" title="Order details" ok-only>
+
+            <div v-if="orderDetails">
+
+                <order-details :order="orderDetails"></order-details>
+
+            </div>
+
+        </b-modal>
     </div>
 
 </template>
@@ -153,6 +166,7 @@
                 creatingOrderTokenAlias: '',
                 storeState: null,
                 error: null,
+                orderDetails: null,
                 defaultAmounts: [
                     5,
                     10,
@@ -288,6 +302,13 @@
             resetTopupAmount() {
                 this.topupAmount = 10;
                 this.topupAmountString = '10.00';
+            },
+
+            showOrder(order) {
+                console.log(order);
+
+                this.orderDetails = order;
+                this.$refs.orderModal.show();
             }
         }
     }
