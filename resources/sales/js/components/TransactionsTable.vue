@@ -22,25 +22,25 @@
 <template>
 
     <div>
-        <table class="table">
 
-            <tr v-for="transaction in this.transactions">
+        <b-table striped hover :items="transactions" :fields="fields" v-if="transactions.length > 0">
 
-                <td v-if="!card">{{ transaction.id }}</td>
-                <td v-if="!card">{{ transaction.cardUid }}</td>
-                <td>{{ transaction.transactionId }}</td>
-                <td>
-                    <span v-if="transaction.order">
-                        <a href="javascript:void(0)" class="btn btn-sm btn-info" v-on:click="showOrder(transaction.order)">Order #{{transaction.order.id}}</a>
-                    </span>
-                    <span v-else>{{ transaction.type }}</span>
-                </td>
-                <td>{{ transaction.getVisibleAmount() }}</td>
-                <td>{{ transaction.date ? transaction.date : null | formatDate }}</td>
+            <template v-slot:cell(order)="row">
+                <span v-if="row.item.order">
+                    <a href="javascript:void(0)" class="btn btn-sm btn-info" v-on:click="showOrder(row.item.order)">Order #{{row.item.order.id}}</a>
+                </span>
+                <span v-else>{{ row.item.type }}</span>
+            </template>
 
-            </tr>
+            <template v-slot:cell(amount)="row">
+                {{row.item.getVisibleAmount()}}
+            </template>
 
-        </table>
+            <template v-slot:cell(date)="row">
+                {{row.item.date | formatDate}}
+            </template>
+
+        </b-table>
 
         <!-- Modal Component -->
         <b-modal ref="orderModal" title="Order details" ok-only>
@@ -72,12 +72,24 @@
             return {
                 transactions: [],
                 orderDetails: null,
+                fields: []
             }
         },
 
         methods: {
 
             async refresh() {
+
+                if (!this.card) {
+                    this.fields = [
+                        'id',
+                        'cardUid'
+                    ];
+                } else {
+                    this.fields = [];
+                }
+
+                this.fields.push('transactionId', 'order', 'amount', 'date');
 
                 this.transactions = await this.$cardService.getTransactions(this.card);
 
