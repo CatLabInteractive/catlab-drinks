@@ -103,19 +103,32 @@
 
         <!-- Modal Component -->
         <b-modal ref="confirmModal" title="Bevestig bestelling" @ok="confirmOrder" button-size="lg" no-close-on-esc no-close-on-backdrop hide-header-close ok-variant="success" cancel-variant="danger">
-            <ul v-if="orderData">
-                <li v-for="item in orderData.order.items">
-                    {{ item.amount}} x {{ item.name}}
-                </li>
-            </ul>
 
-            <p>Uw tafelnummer: {{ tableNumber }}</p>
+            <div v-if="loadingOrder" class="text-center">
+                <b-spinner />
+            </div>
+
+            <div v-if="!loadingOrder">
+                <ul v-if="orderData">
+                    <li v-for="item in orderData.order.items">
+                        {{ item.amount}} x {{ item.name}}
+                    </li>
+                </ul>
+
+                <p>Uw tafelnummer: {{ tableNumber }}</p>
+            </div>
         </b-modal>
 
         <b-modal ref="successModal" title="We komen eraan!" @ok="closeModal" button-size="lg" ok-only ok-title="Nieuwe bestelling" ok-variant="success" no-close-on-esc no-close-on-backdrop>
             <b-alert variant="success" :show="true">
                 We hebben je bestelling ontvangen (#{{orderId}}). Je bestelling staat in onze wachtlijst, we komen er zo snel mogelijk aan.
             </b-alert>
+        </b-modal>
+
+        <b-modal ref="processingOrderModal" title="Even watchen"  no-close-on-esc no-close-on-backdrop hide-footer hide-header>
+            <div class="text-center">
+                <b-spinner />
+            </div>
         </b-modal>
 
     </b-container>
@@ -187,7 +200,8 @@
                 model: {},
                 tableNumber: '',
                 warning: null,
-                error:  null
+                error:  null,
+                loadingOrder: false
             }
         },
 
@@ -223,6 +237,7 @@
                 this.items.push(this.totals);
 
                 this.loaded = true;
+                this.loadingOrder = false;
 
                 this.recoverStoredOrder();
             },
@@ -345,6 +360,8 @@
                     return;
                 }
 
+                this.loadingOrder = false;
+
                 const data = {};
                 data.location = this.tableNumber;
                 data.requester = this.userName;
@@ -377,10 +394,14 @@
 
             async confirmOrder() {
 
+                this.$refs.processingOrderModal.show();
                 try {
                     localStorage.tableNumber = this.tableNumber;
 
                     const order = await this.service.order(this.orderData);
+                    this.$refs.processingOrderModal.hide();
+
+                    this.loadingOrder = false;
 
                     this.orderId = order.id;
 
@@ -389,6 +410,8 @@
                     this.reset();
 
                 } catch (e) {
+                    this.$refs.processingOrderModal.hide();
+
                     this.warning = e.response.data.error.message;
                     this.$refs.warningModal.show();
                 }
