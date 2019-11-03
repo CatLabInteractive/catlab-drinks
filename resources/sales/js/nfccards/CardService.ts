@@ -114,6 +114,12 @@ export class CardService extends Eventable {
 
         this.nfcReader.on('card:loaded', async (card: Card) => {
 
+            // don't handle corrupt cards.
+            if (card.isCorrupted()) {
+                this.trigger('card:corrupt', card);
+                return;
+            }
+
             this.currentCard = card;
             this.isCardLoaded = false;
 

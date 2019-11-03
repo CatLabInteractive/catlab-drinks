@@ -31,13 +31,14 @@
                 Summary
             </b-link>
         </h2>
-        <div class="text-center" v-if="!loaded">
+
+        <div class="text-center" v-if="!loaded && items.length === 0">
             <b-spinner label="Loading data" />
         </div>
 
-        <b-alert v-if="loaded && items.length === 0" show>
-            <relax></relax>
-        </b-alert>
+        <div class="text-center" v-if="loaded && items.length === 0">
+            <p>There don't seem to be any orders, sir...</p>
+        </div>
 
         <div class="order-history">
             <div class="order" v-for="(item, index) in items" :class="'status ' + item.status">
@@ -105,12 +106,14 @@
 
         methods: {
             async refresh() {
-                this.loaded = true;
+                this.loaded = false;
 
                 this.items = (await this.orderService.index({
                     sort: '!id',
                     records: 1000
                 })).items;
+
+                this.loaded = true;
             }
         }
     }

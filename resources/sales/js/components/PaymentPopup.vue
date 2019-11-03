@@ -22,19 +22,19 @@
 <template>
 
     <!-- Modal Component -->
-    <b-modal ref="paymentModal" class="payment-modal" title="Betalen" @ok="cancel" @hide="cancel" button-size="lg" ok-only no-close-on-backdrop ok-variant="danger" ok-title="Cancel">
+    <b-modal ref="paymentModal" class="payment-modal" title="Payment" @ok="cancel" @hide="cancel" button-size="lg" ok-only no-close-on-backdrop ok-variant="danger" ok-title="Cancel">
 
         <div v-if="loading" class="text-center">
             <b-spinner />
         </div>
         <div v-if="!loading">
             <p class="text-center">
-                Scan kaart of schrap <strong>{{Math.ceil(amount / 0.5)}} vakjes</strong>.
+                Scan card or collect <strong>{{Math.ceil(amount / 0.5)}} vouchers</strong>.
             </p>
 
-            <p v-if="error" class="text-center alert alert-warning">Kaart fout: {{ error }}</p>
+            <p v-if="error" class="text-center alert alert-warning">Card error: {{ error }}</p>
 
-            <p class="text-center"><button class="btn btn-success" v-on:click="cash()">{{Math.ceil(amount / 0.5)}} vakjes geschrapt</button></p>
+            <p class="text-center"><button class="btn btn-success" v-on:click="cash()">{{Math.ceil(amount / 0.5)}} vouchers collected</button></p>
         </div>
 
     </b-modal>

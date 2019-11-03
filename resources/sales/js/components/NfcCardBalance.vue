@@ -50,9 +50,13 @@
                 this.loading = true;
             }.bind(this));
 
+            this.$cardService.on('card:corrupt', function(card) {
+                this.corrupt = card.isCorrupted();
+                this.loading = false;
+            }.bind(this));
+
             this.$cardService.on('card:balance:change', function(card) {
                 this.balance = card.getVisibleBalance();
-                this.corrupt = card.isCorrupted();
                 this.loading = false;
             }.bind(this));
 

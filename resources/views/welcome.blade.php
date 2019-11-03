@@ -48,10 +48,11 @@
 
             <div class="col-md-12">
 
+                <br />
                 <h1>CatLab Drinks</h1>
                 <p>
-                    Eenvoudig kassasysteem (met ontoegankelijke handleiding) voor evenementen. Source code
-                    beschikbaar op <a href="https://github.com/catlab-drinks/catlab-drinks">GitHub</a>.
+                    Simple open source cash register system for events / quizzes / parties. Source code available at
+                    <a href="https://github.com/catlab-drinks/catlab-drinks">GitHub</a>.
                 </p>
 
             </div>
@@ -61,25 +62,29 @@
         <div class="row">
             <div class="col-md-12">
 
-                <h2>Wat is CatLab Drinks?</h2>
+                <h2>What is CatLab Drinks?</h2>
 
-                <h3>Doel</h3>
+                <h3>Goal</h3>
                 <p>
-                    CatLab Drinks wilt een opensource kassasysteem zijn voor kleinschalige evenementen. Het project
-                    probeert een oplossing te bieden voor:
+                    CatLab Drinks aims to be an open source cash register system for small events. The project tries to
+                    provide a solution for:
                 </p>
 
                 <ul>
-                    <li>Rekenfouten met papieren drankkaarten aan de bar vermijden</li>
-                    <li>Bijhouden hoeveel en aan welke bar er verkocht wordt</li>
-                    <li>Bezoekers aan tafeltjes toelaten om hun bestelling via eigen smartphone door te sturen</li>
-                    <li>Mogelijkheid tot gebruik van digitale drankkaarten (NFC NTAG213 tags)</li>
-                    <li>Het systeem moet blijven werken, ook als de internetverbinding even wegvalt</li>
+                    <li>Avoid calculation errors with vouchers / payments / order totals</li>
+                    <li>Keep track of all sales & locations</li>
+                    <li>Allow attendeeds to place orders from their own smartphone</li>
+                    <li>Optionally, allow the user of NFC topup cards (NFC NTAG 213 tags)</li>
+                    <li>All systems should stay opperational even in offline scenarios</li>
+
                 </ul>
 
                 <div class="alert alert-warning">
-                    De software wordt zonder enige vorm van garantie beschikbaar gesteld. Zorg steeds voor
-                    een backup plan voor als het foutloopt.
+                    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+                    BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+                    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+                    DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+                    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 </div>
 
                 <p>
@@ -102,40 +107,38 @@
         <div class="row">
             <div class="col-md-12">
 
-                <h3>Achtergrond</h3>
+                <h3>Background</h3>
                 <p>
-                    CatLab drinks is ontwikkeld voor gebruik tijdens de quizzen van <a href="https://www.quizfabriek.be">De Quizfabriek</a>.
-                    Op deze quizzen brengt elke ploeg een tablet of smartphone mee waarop de antwoorden worden ingegeven.
-                    Met CatLab Drinks kunnen ploegen tijdens de quiz hun bestelling naar de bar sturen, die meteen in
-                    actie schiet en de bestelling aan tafel brengt.
-                    Door voor elke quizploeg een digitale drankkaart te voorzien en die drankkaart te linken aan het
-                    quizsysteem wordt de bestelling tevens meteen betaald, waardoor er geen fouten kunnen gebeuren bij het
-                    afrekenen. Bestellen aan de bar zelf blijft ook mogelijk door de digitale drankkaart te scannen.
+                    CatLab Drinks is developed for use during the quiz events of <a href="https://www.quizfabriek.be">De Quizfabriek</a>.
+                    At these quizzes all attending teams must bring a tablet or smartphone to answer the quiz questions.
+                    Using CatLab Drinks we have given the attendees the ability to send drink orders straight to the bar.
+                    By giving each quiz team their own NFC topup card, and linking that card to the team in our internal
+                    system, these orders are paid immediately and no money has to change hands. If a team prefers to order
+                    drinks at the bar, he can still use the NFC topup card to pay for his drinks at the bar.
                 </p>
 
-                <h2>Opzetten</h2>
-                <h3>Account aanmaken</h3>
+                <h2>Setup</h2>
+                <h3>Create an account</h3>
                 <p>
-                    Als je een account aanmaakt kom je op het evenementen overzicht. Elke evenement heeft een eigen
-                    prijslijst die je kan aanpassen door op de naam van het evenement te klikken. Zodra je de prijslijst
-                    opgemaakt hebt kan je naar <code>Bar HQ</code> gaan. Dit scherm wordt gebruikt aan de bar.
-                    De bar kan 'open' of 'gesloten' zijn. Hiermee kan je 'remote bestellingen' (dus bestellingen aan
-                    tafel) aan of uit zetten (dit kan handig zijn tijdens bijvoorbeeld de pauze, waarbij er niet aan
-                    tafel besteld wordt).
+                    After you've created an account you arrive at the <code>events</code> overview. Each event has its own
+                    price list (<code>menu</code>) which you can change by clicking the <code>menu</code> icon. When you're done with
+                    setting the correct prices for each item, you can op the <code>Bar HQ</code> by clicking on the
+                    event name. This screen should be used at the bars. At this screen you can <code>open</code> or <code>close</code>
+                    remote orders by clicking the status button. (It might be handy to close down remote orders
+                    during very busy times.)
                 </p>
 
-                <h3>Digitale drankkaarten</h3>
+                <h3>Digital NFC topup cards</h3>
                 <p>
-                    CatLab drinks implementeert een closed loop RFIC/NFC betaalsysteem.
+                    CatLab drinks implements a closed loop RFIC/NFC payment system.
                 </p>
 
                 <p>
-                    Om digitale drankkaarten te gebruiken heb je voor elke bar een acr122u kaartlezer nodig (andere toestellen
-                    werken mogelijk ook) en voor elke bezoeker een NTAG213 chip nodig. (Wij voorzien 1 kaart per quizploeg
-                    zodat we elke kaart aan een quizploeg kunnen hangen.)
-                    De communicatie tussen de kaartlezer en de browser gebeurt over een socket.io verbinding. Daarvoor
-                    dien je een <a href="https://github.com/catlab-drinks/nfc-socketio">service te installeren</a>. Wij
-                    gebruiken een Raspberry pi, maar de service kan ook op bv een laptop draaien.
+                    To use the NFC topup cards you will need an acr122u card reader for each bar or cash register
+                    (other readers might work too, but have not been tested) and for each team / attendee you'll need an
+                    NTAG213 NFC chip. Communication between the card reader and the browser happens over a socket.io
+                    connection, so you will need to <a href="https://github.com/catlab-drinks/nfc-socketio">install a separate service</a>
+                    for that to work. We use a Raspberry Pi, but you can also run the service on a laptop.
                 </p>
 
             </div>

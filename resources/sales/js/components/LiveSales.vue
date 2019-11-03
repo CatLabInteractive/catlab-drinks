@@ -63,11 +63,11 @@
         <b-row>
             <b-col cols="12">
                 <div class="total">
-                    <p>Totaal: {{totals.amount}} stuks = €{{totals.price.toFixed(2)}}</p>
+                    <p>Total: {{totals.amount}} items = €{{totals.price.toFixed(2)}}</p>
                 </div>
 
                 <p>
-                    <button class="btn btn-success btn-lg" v-on:click="submit">Bevestigen</button>
+                    <button class="btn btn-success btn-lg" v-on:click="submit">Confirm</button>
 
                     <b-alert v-if="saving" variant="none" show>Saving</b-alert>
                     <b-alert v-if="saved" variant="none" :show="2">{{ savedMessage }}</b-alert>
@@ -82,26 +82,26 @@
 
 
         <!-- Modal Component -->
-        <b-modal ref="confirmModal" class="order-confirm-modal" title="Bestelling bevestigen" @ok="confirm" @cancel="cancel" button-size="lg" no-close-on-backdrop>
+        <b-modal ref="confirmModal" class="order-confirm-modal" title="Confirm order" @ok="confirm" @cancel="cancel" button-size="lg" no-close-on-backdrop>
             <ul>
                 <li v-for="(item, index) in selectedItems">
                     {{item.amount}} x {{item.menuItem.name}}
                 </li>
             </ul>
 
-            <p class="total">Totaal: {{totals.amount}} stuks = €{{totals.price.toFixed(2)}}</p>
+            <p class="total">Total: {{totals.amount}} items = €{{totals.price.toFixed(2)}}</p>
         </b-modal>
 
         <!-- Modal Component -->
         <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling geslaagd" ok-variant="success" no-close-on-backdrop>
             <p class="text-center"><i class="fas fa-thumbs-up huge"></i></p>
-            <p class="text-center alert alert-success">Betaling geslaagd.</p>
+            <p class="text-center alert alert-success">Payment succesful.</p>
         </b-modal>
 
         <!-- Modal Component -->
-        <b-modal ref="declinedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling gefaald" ok-variant="danger" no-close-on-backdrop>
+        <b-modal ref="declinedModal" class="order-confirm-modal" ok-only button-size="lg" title="Payment failed" ok-variant="danger" no-close-on-backdrop>
             <p class="text-center"><i class="fas fa-exclamation-triangle huge"></i></p>
-            <p class="text-center alert alert-danger">De betaling is mislukt. Geef de bestelling opnieuw in.</p>
+            <p class="text-center alert alert-danger">Payment has failed. Please re-enter the order.</p>
         </b-modal>
     </div>
 

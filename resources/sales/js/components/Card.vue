@@ -25,9 +25,14 @@
 
         <h2>Card #<strong>{{ card.uid }}</strong></h2>
         <div v-if="card.corrupted">
-            <div class="alert alert-danger" role="alert">
-                This card is corrupted.
-                <button v-on:click="rebuild()">Rebuild</button>
+            <div class="alert alert-danger col-lg-6" role="alert">
+                <p>
+                    This card is corrupted, it might belong to a different organisation. If you are sure the card
+                    should be correct, you can try to rebuild the card data from the available online data.
+                    Note that if you have bars that are opperating online, you might lose transactions
+                    and the balance might not be correct after rebuilding.
+                </p>
+                <button v-on:click="rebuild()" class="btn btn-danger">Rebuild</button>
             </div>
         </div>
 
@@ -94,7 +99,7 @@
                         <td>{{ transaction.transactionId }}</td>
                         <td>
                             <span v-if="transaction.order">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-info" v-on:click="showOrder(transaction.order)">Sale {{transaction.order.id}}</a>
+                                <a href="javascript:void(0)" class="btn btn-sm btn-info" v-on:click="showOrder(transaction.order)">Order #{{transaction.order.id}}</a>
                             </span>
                             <span v-else>{{ transaction.type }}</span>
                         </td>
