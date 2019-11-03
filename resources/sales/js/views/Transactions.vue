@@ -26,7 +26,7 @@
         <b-row>
             <b-col cols="12" id="order-history">
 
-                <h3>Transactions</h3>
+                <h3>All transactions</h3>
                 <transactions-table />
 
             </b-col>
