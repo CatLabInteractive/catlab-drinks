@@ -24,13 +24,18 @@
     <!-- Modal Component -->
     <b-modal ref="paymentModal" class="payment-modal" title="Betalen" @ok="cancel" @hide="cancel" button-size="lg" ok-only no-close-on-backdrop ok-variant="danger" ok-title="Cancel">
 
-        <p class="text-center">
-            Scan kaart of schrap <strong>{{Math.ceil(amount / 0.5)}} vakjes</strong>.
-        </p>
+        <div v-if="loading" class="text-center">
+            <b-spinner />
+        </div>
+        <div v-if="!loading">
+            <p class="text-center">
+                Scan kaart of schrap <strong>{{Math.ceil(amount / 0.5)}} vakjes</strong>.
+            </p>
 
-        <p v-if="error" class="text-center alert alert-warning">Kaart fout: {{ error }}</p>
+            <p v-if="error" class="text-center alert alert-warning">Kaart fout: {{ error }}</p>
 
-        <p class="text-center"><button class="btn btn-success" v-on:click="cash()">{{Math.ceil(amount / 0.5)}} vakjes geschrapt</button></p>
+            <p class="text-center"><button class="btn btn-success" v-on:click="cash()">{{Math.ceil(amount / 0.5)}} vakjes geschrapt</button></p>
+        </div>
 
     </b-modal>
 
@@ -48,24 +53,28 @@
                 this.amount = (transaction.price / 100).toFixed(2);
                 this.transaction = transaction;
                 this.error = transaction.error;
+                this.loading = transaction.loading;
             });
 
             this.$paymentService.on('transaction:change', (transaction) => {
-                console.log(transaction.error);
+                //console.log(transaction.error);
                 this.error = transaction.error;
+                this.loading = transaction.loading;
             });
 
             this.$paymentService.on('transaction:done', () => {
                 this.active = false;
                 this.$refs.paymentModal.hide();
                 this.error = null;
+                this.loading = false;
             });
         },
 
         data() {
             return {
                 amount: 0,
-                error: null
+                error: null,
+                loading: false
             };
         },
 

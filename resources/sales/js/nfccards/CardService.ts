@@ -30,6 +30,7 @@ import {OfflineException} from "./exceptions/OfflineException";
 import {InsufficientFunds} from "./exceptions/InsufficientFunds";
 import {NoCardFound} from "./exceptions/NoCardFound";
 import {Transaction} from "./models/Transaction";
+import {CorruptedCard} from "./exceptions/CorruptedCard";
 
 /**
  *
@@ -65,6 +66,11 @@ export class CardService extends Eventable {
      *
      */
     private currentCard: Card | null = null;
+
+    /**
+     *
+     */
+    private isCardLoaded = false;
 
     private connected:boolean = false;
 
@@ -102,20 +108,27 @@ export class CardService extends Eventable {
 
         this.nfcReader.on('card:disconnect', (card: Card) => {
             this.currentCard = null;
+            this.isCardLoaded = false;
             this.trigger('card:disconnect', card);
         });
 
         this.nfcReader.on('card:loaded', async (card: Card) => {
 
-            // check if there are any transactions that still need to be processed
+            this.currentCard = card;
+            this.isCardLoaded = false;
 
+            // check if there are any transactions that still need to be processed
             await this.refreshCard(card);
 
-            this.currentCard = card;
+            // check if we still have a card (it might be disconnected by now)
+            // if so, apply triggers.
+            if (this.currentCard === card) {
+                this.isCardLoaded = true;
 
-            card.trigger('loaded');
-            this.trigger('card:loaded', card);
-            this.trigger('card:balance:change', card);
+                card.trigger('loaded');
+                this.trigger('card:loaded', card);
+                this.trigger('card:balance:change', card);
+            }
         });
     }
 
@@ -232,8 +245,12 @@ export class CardService extends Eventable {
         return this.currentCard;
     }
 
+    /**
+     * @param topupUid
+     * @param amount
+     */
     async topup(topupUid: string, amount: number) {
-        const card = this.currentCard;
+        const card = this.getCard();
         if (!card) {
             throw new NoCardFound('No card found.');
         }
@@ -262,12 +279,20 @@ export class CardService extends Eventable {
         }
     }
 
+    /**
+     * @param orderUid
+     * @param amount
+     */
     async spend(orderUid: string, amount: number) {
 
-        console.log('CardService: handling order ' + orderUid);
-        const card = this.currentCard;
+        //console.log('CardService: handling order ' + orderUid);
+        const card = this.getCard();
         if (!card) {
             throw new NoCardFound('No card found.');
+        }
+
+        if (card.isCorrupted()) {
+            throw new CorruptedCard('Card data is corrupt or not linked to this organisation.');
         }
 
         if (card.balance < amount) {

@@ -24,6 +24,7 @@ import {Card} from "../nfccards/models/Card";
 import {NoCardFound} from "../nfccards/exceptions/NoCardFound";
 import {NfcWriteException} from "../nfccards/exceptions/NfcWriteException";
 import {InsufficientFunds} from "../nfccards/exceptions/InsufficientFunds";
+import {CorruptedCard} from "../nfccards/exceptions/CorruptedCard";
 
 export class PaymentService extends Eventable {
 
@@ -35,6 +36,13 @@ export class PaymentService extends Eventable {
         this.cardService = cardService;
 
         this.currentTransaction = null;
+
+        // list for card connect event so that we can show a spinner
+        this.cardService.on('card:connect', (card) => {
+            if (this.currentTransaction) {
+                this.onCardConnect(card, this.currentTransaction);
+            }
+        });
 
         this.cardService.on('card:loaded', (card) => {
             if (this.currentTransaction) {
@@ -53,6 +61,7 @@ export class PaymentService extends Eventable {
                     price: price,
                     orderId: order.uid,
                     error: null,
+                    loading: false,
                     resolve: resolve,
                     reject: reject
                 };
@@ -70,9 +79,18 @@ export class PaymentService extends Eventable {
         )
     }
 
+    async onCardConnect(card, transaction) {
+        this.currentTransaction.loading = true;
+        this.trigger('transaction:change', transaction);
+    }
+
     async handleTransaction(card, transaction) {
 
         // let's spend some money
+
+        // set transaction state to 'loading' so that we can display a nice little spinner
+        this.currentTransaction.loading = true;
+
         try {
 
             const out = await this.cardService.spend(transaction.orderId, transaction.price);
@@ -89,7 +107,9 @@ export class PaymentService extends Eventable {
             } else if (e instanceof NoCardFound) {
                 transaction.error = 'No card found, please represent card.';
             } else if (e instanceof NfcWriteException) {
-                transaction.error =' Nfc error, please scan again.';
+                transaction.error = 'Nfc error, please scan again.';
+            } else if (e instanceof CorruptedCard) {
+                transaction.error = 'The card is corrupt or does not belong to this organisation. Please contact support.';
             }
         }
 

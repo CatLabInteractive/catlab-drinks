@@ -26,7 +26,9 @@
         <span v-if="connected === true" class="btn btn-sm btn-success">NFC</span>
         <span v-if="connected === false" class="btn btn-sm btn-danger">NFC</span>
 
-        &nbsp;<span v-if="balance !== null" class="btn btn-sm btn-warning">Balance: {{ balance }}</span>
+        &nbsp;<span v-if="!corrupt && balance !== null" class="btn btn-sm btn-warning">Balance: {{ balance }}</span>
+        <span v-if="corrupt" class="btn btn-sm btn-danger">Corrupt card, contact support</span>
+        <b-spinner v-if="loading" small />
     </form>
 
 </template>
@@ -44,12 +46,20 @@
                 this.connected = isOnline;
             }.bind(this));
 
+            this.$cardService.on('card:connect', function(card) {
+                this.loading = true;
+            }.bind(this));
+
             this.$cardService.on('card:balance:change', function(card) {
                 this.balance = card.getVisibleBalance();
+                this.corrupt = card.isCorrupted();
+                this.loading = false;
             }.bind(this));
 
             this.$cardService.on('card:disconnect', function(card) {
                 this.balance = null;
+                this.corrupt = false;
+                this.loading = false;
             }.bind(this));
 
         },
@@ -58,7 +68,9 @@
             return {
                 visible: false,
                 balance: null,
-                connected: null
+                connected: null,
+                corrupt: false,
+                loading: false
             };
         }
     }
