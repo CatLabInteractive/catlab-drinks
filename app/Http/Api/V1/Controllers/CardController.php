@@ -136,15 +136,16 @@ class CardController extends Base\ResourceController
      */
     public function updateCardData(Request $request, $cardId)
     {
-        /** @var Card $card */
-        $card = Card::findOrFail($cardId);
-        $this->authorizeEdit($request, $card);
-
+        // @todo add locking here.
         $context = $this->getContext(Action::CREATE);
 
         /** @var CardData $cardData */
         $cardDataResource = $this->bodyToResource($context, CardDataResourceDefinition::class);
         $cardData = $this->toEntity($cardDataResource, $context, new CardData());
+
+        /** @var Card $card */
+        $card = Card::findOrFail($cardId);
+        $this->authorizeEdit($request, $card);
 
         if ($card->transaction_count > $cardData->transactionCount) {
             \Log::error('Transaction count is lower than our own transaction count: ' . print_r($cardData));
