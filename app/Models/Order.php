@@ -147,4 +147,27 @@ class Order extends Model
     {
         return ceil($this->getTotalCost() * 100);
     }
+
+    /**
+     * @return int
+     */
+    public function getDiscountFactor()
+    {
+        $discount = $this->discount_percentage;
+        if ($discount === null) {
+            return 1;
+        }
+
+        $discountFactor = $discount / 100;
+
+        if ($discountFactor < 0) {
+            return 1;
+        }
+
+        if ($discountFactor > 1) {
+            return 0;
+        }
+
+        return 1 - $discountFactor;
+    }
 }

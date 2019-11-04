@@ -37,18 +37,21 @@
                 <tr>
                     <th>Item</th>
                     <th>Amount</th>
-                    <th>Prijs</th>
+                    <th>Price</th>
+                    <th>Total</th>
                 </tr>
 
                 <tr v-for="product in summary.items.items">
                     <td>{{product.menuItem.name}}</td>
                     <td>{{product.amount}}</td>
+                    <td>€{{product.price.toFixed(2)}}</td>
                     <td>€{{product.totalSales.toFixed(2)}}</td>
                 </tr>
 
                 <tr>
                     <th>Total</th>
                     <td>{{summary.amount}}</td>
+                    <td>&nbsp;</td>
                     <td>€{{summary.totalSales.toFixed(2)}}</td>
                 </tr>
             </table>

@@ -50,6 +50,11 @@
                     <td>{{order.requester}}</td>
                 </tr>
 
+                <tr v-if="order.discount > 0">
+                    <td>Discount</td>
+                    <td>{{ order.discount }}%</td>
+                </tr>
+
                 <tr>
                     <td>Total</td>
                     <td>{{totalPrice.toFixed(2)}}</td>
@@ -111,15 +116,12 @@
 
         methods: {
             recalculateTotals() {
-
-                console.log(this.order);
-
                 // calculate the prices
                 let totalPrice = 0;
 
                 this.order.order.items.forEach(
                     (orderItem) => {
-                        totalPrice += orderItem.amount * orderItem.menuItem.price;
+                        totalPrice += orderItem.amount * orderItem.price;
                     });
 
                 this.totalPrice = totalPrice;

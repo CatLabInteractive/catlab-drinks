@@ -46,4 +46,9 @@ class CardData
      * @var int[]
      */
     public $previousTransactions;
+
+    /**
+     * @var int
+     */
+    public $discount_percentage;
 }

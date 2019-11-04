@@ -305,7 +305,7 @@
                     let order = await this.orderService.prepare(data);
 
                     try {
-                        await this.$paymentService.order(order);
+                        let paymentData = await this.$paymentService.order(order);
 
                         this.$refs.processedModal.show();
                         setTimeout(function () {
@@ -314,6 +314,8 @@
 
                         order.paid = true;
                         order.status = 'processed';
+                        order.discount = paymentData.discount;
+                        order.price = paymentData.amount / 100;
 
                     } catch (e) {
                         order.paid = false;

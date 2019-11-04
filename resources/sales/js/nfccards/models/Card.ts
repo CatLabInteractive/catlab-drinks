@@ -27,6 +27,7 @@ import {InvalidMessageException} from "../exceptions/InvalidMessageException";
 import {SignatureMismatch} from "../exceptions/SignatureMismatch";
 import {Eventable} from "../../utils/Eventable";
 import {VisibleAmount} from "../tools/VisibleAmount";
+import {CardValidationException} from "../exceptions/CardValidationException";
 
 /**
  *
@@ -59,6 +60,11 @@ export class Card extends Eventable {
     public lastTransaction: Date = new Date();
 
     public orderTokenAliases: string[] = [];
+
+    /**
+     * Discount percentage (min 0 max 100)
+     */
+    public discountPercentage = 0;
 
     private corrupted: boolean;
 
@@ -144,6 +150,9 @@ export class Card extends Eventable {
             out += this.toBytesInt32(this.previousTransactions[i]);
         }
 
+        // discount
+        out += this.toBytesInt8(this.discountPercentage);
+
         console.log('serialized ' + out.length + ' bytes');
         return out;
     }
@@ -166,11 +175,18 @@ export class Card extends Eventable {
             this.previousTransactions.push(this.fromBytesInt32(data.substr(12 + (i * 4), 4)));
         }
 
+        // monday november 4th, 12:50am.
+        // first addition that needs to be backwards compatible, without having any released versions.
+        if (data.length > 32) {
+            this.discountPercentage = this.fromBytesInt8(data.substr(32, 1));
+        }
+
         console.log('unserialize', {
             balance: this.balance,
             transactionCount: this.transactionCount,
             previousTransactions: this.previousTransactions,
-            lastTransaction: this.lastTransaction.toString()
+            lastTransaction: this.lastTransaction.toString(),
+            discountPercentage: this.discountPercentage
         });
     }
 
@@ -258,7 +274,8 @@ export class Card extends Eventable {
         return {
             transactionCount: this.transactionCount,
             balance: this.balance,
-            previousTransactions: this.getPreviousTransactions()
+            previousTransactions: this.getPreviousTransactions(),
+            discount: this.discountPercentage
         };
     }
 
@@ -286,6 +303,15 @@ export class Card extends Eventable {
     }
 
     /**
+     *
+     */
+    public validate() {
+        if (this.discountPercentage < 0 || this.discountPercentage > 100) {
+            throw new CardValidationException('Discount percentage must be between 0 and 100');
+        }
+    }
+
+    /**
      * @param bytes
      */
     private toByteString(bytes: number[]) {
@@ -307,6 +333,14 @@ export class Card extends Eventable {
             out.push(string.charCodeAt(i));
         }
         return out;
+    }
+
+    private toBytesInt8(num: number) {
+        return String.fromCharCode(num);
+    }
+
+    private fromBytesInt8(numString: string) {
+        return numString.charCodeAt(0);
     }
 
     /**

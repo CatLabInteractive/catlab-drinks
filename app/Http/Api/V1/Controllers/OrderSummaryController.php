@@ -22,24 +22,16 @@
 
 namespace App\Http\Api\V1\Controllers;
 
-use App\Http\Api\V1\ResourceDefinitions\EventResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\OrderSummaryResourceDefinition;
-use App\Http\Api\V1\Transformers\DateTransformer;
 use App\Models\Event;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderSummary;
 use App\Models\OrderSummaryItem;
-use App\Models\User;
-use Auth;
 use Carbon\Carbon;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Laravel\Models\ResourceResponse;
-use DB;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Http\Request;
 
 /**
  * Class EventController
@@ -75,6 +67,12 @@ class OrderSummaryController extends Base\ResourceController
     /**
      * @param Event $event
      * @return ResourceResponse
+     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
+     * @throws \CatLab\Charon\Exceptions\InvalidEntityException
+     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\IterableExpected
+     * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function getSummary(Event $event)
@@ -97,8 +95,10 @@ class OrderSummaryController extends Base\ResourceController
         ;
 
         $groupedQuery = clone $query;
+        $groupedQuery->selectRaw('order_items.price');
         $groupedQuery->selectRaw('order_items.menu_item_id');
         $groupedQuery->groupBy('order_items.menu_item_id');
+        $groupedQuery->groupBy('order_items.price');
         $groupedQuery->orderBy('sales_items', 'desc');
         $groupedQuery->orderBy('order_items.menu_item_id', 'asc');
 
@@ -122,6 +122,7 @@ class OrderSummaryController extends Base\ResourceController
             $orderItem->totalSales = floatval($item->sales_total);
             $orderItem->startDate = Carbon::parse($item->first_sale_date);
             $orderItem->endDate = Carbon::parse($item->last_sale_date);
+            $orderItem->price = floatval($item->price);
 
             $orderSummary->items[] = $orderItem;
         }

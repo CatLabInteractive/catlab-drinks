@@ -171,6 +171,7 @@ class Card extends Model
     {
         // do magic.
         $this->transaction_count = $cardData->transactionCount;
+        $this->discount_percentage = $cardData->discount_percentage;
 
         $this->save();
 
@@ -207,10 +208,11 @@ class Card extends Model
      */
     public function spend(Order $order)
     {
-        $totalPrice = $order->getCardCost();
+        $order->discount_percentage = $this->discount_percentage;
+        $totalPrice = ceil($order->getCardCost() * $order->getDiscountFactor());
 
         $balance = $this->getBalance();
-        if ($balance < $totalPrice) {
+        if ($totalPrice > 0 && $balance < $totalPrice) {
             throw new InsufficientFundsException('Insufficient funds.');
         }
 

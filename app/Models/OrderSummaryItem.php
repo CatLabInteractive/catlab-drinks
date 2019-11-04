@@ -34,4 +34,9 @@ class OrderSummaryItem
      * @var DateTime
      */
     public $endDate;
+
+    /**
+     * @var float
+     */
+    public $price;
 }

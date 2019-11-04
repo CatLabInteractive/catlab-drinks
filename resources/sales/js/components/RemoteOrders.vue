@@ -134,7 +134,7 @@
 
                         item.order.items.forEach(
                             (orderItem) => {
-                                totalPrice += orderItem.amount * orderItem.menuItem.price;
+                                totalPrice += orderItem.amount * orderItem.price;
                             });
 
                         item.totalPrice = totalPrice;

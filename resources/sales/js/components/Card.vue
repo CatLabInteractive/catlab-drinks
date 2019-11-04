@@ -64,6 +64,12 @@
                     </li>
                 </ul>
 
+                <h3>Discount</h3>
+                <p>
+                    Card gives <input type="number" step="1" min="0.0" max="100.0" v-model="card.discountPercentage" />% at all sales.
+                    <button class="btn btn-primary btn-sm" v-on:click="saveCardData">Save</button>
+                </p>
+
                 <p>
                     <span v-if="storeState === 'storing'">Saving</span>
                     <span v-if="storeState === 'stored'">Saved</span>
@@ -144,6 +150,8 @@
 
 </template>
 <script>
+
+    import {CardValidationException} from "../nfccards/exceptions/CardValidationException";
 
     const uuidv1 = require('uuid/v1');
 
@@ -296,6 +304,32 @@
             async cancelTopup() {
                 this.$refs.confirmModal.hide();
                 this.resetTopupAmount();
+            },
+
+            async saveCardData() {
+                this.storeState = 'storing';
+
+                try {
+                    await this.card.validate();
+                } catch (e) {
+                    if (e instanceof CardValidationException) {
+                        alert('Validation error: ' + e.message);
+                    } else {
+                        throw e;
+                    }
+                }
+
+                // first on the card
+                await this.card.save();
+
+                // then online
+                await this.$cardService.uploadCardData(this.card);
+
+                this.storeState = 'stored';
+
+                setTimeout(() => {
+                    this.storeState = null;
+                }, 2000);
             },
 
             resetTopupAmount() {

@@ -41,6 +41,10 @@ class OrderItemResourceDefinition extends ResourceDefinition
             ->writeable(true, true)
             ->visible(true, true);
 
+        $this->field('price')
+            ->number()
+            ->visible(true, true);
+
         $this->relationship('menuItem', MenuItemResourceDefinition::class)
             ->one()
             ->linkable(true, true)

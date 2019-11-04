@@ -62,6 +62,7 @@ export class PaymentService extends Eventable {
                     orderId: order.uid,
                     error: null,
                     loading: false,
+                    discount: 0,
                     resolve: resolve,
                     reject: reject
                 };
@@ -93,7 +94,10 @@ export class PaymentService extends Eventable {
 
         try {
 
-            const out = await this.cardService.spend(transaction.orderId, transaction.price);
+            let price = transaction.price;
+
+            const out = await this.cardService.spend(transaction.orderId, price);
+            this.currentTransaction.loading = false;
             out.paymentType = 'card';
 
             this.currentTransaction = null;
@@ -102,6 +106,7 @@ export class PaymentService extends Eventable {
             this.trigger('transaction:done');
 
         } catch (e) {
+            this.currentTransaction.loading = false;
             if (e instanceof InsufficientFunds) {
                 transaction.error = 'Insufficient funds.';
             } else if (e instanceof NoCardFound) {

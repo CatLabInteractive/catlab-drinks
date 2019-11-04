@@ -202,8 +202,16 @@ export class CardService extends Eventable {
             }
 
             // upload current values so that server can update its list of transactions
-            await this.transactionStore.uploadCardData(serverCard.id, card);
+            await this.uploadCardData(card);
         }
+    }
+
+    async uploadCardData(card: Card) {
+        if (!card.id) {
+            throw 'Card without id cannot be uploaded to server.';
+        }
+
+        await this.transactionStore.uploadCardData(card.id.toString(), card);
     }
 
     /**
@@ -309,7 +317,15 @@ export class CardService extends Eventable {
             throw new CorruptedCard('Card data is corrupt or not linked to this organisation.');
         }
 
-        if (card.balance < amount) {
+        // discount time!
+        const discount = card.discountPercentage;
+        if (amount === 1) {
+            amount = 0;
+        } else {
+            amount = Math.ceil(amount * (1 - (discount / 100)));
+        }
+
+        if (amount > 0 && card.balance < amount) {
             throw new InsufficientFunds('Insufficient funds.');
         }
 
@@ -322,7 +338,9 @@ export class CardService extends Eventable {
             'sale',
             new Date(),
             0 - amount,
-            orderUid
+            orderUid,
+            null,
+            discount
         );
 
         // yay! save that transaction (but don't wait for upload)
@@ -331,7 +349,9 @@ export class CardService extends Eventable {
 
         return {
             uid: card.getUid(),
-            transaction: transactionNumber
+            transaction: transactionNumber,
+            discount: discount,
+            amount: amount
         }
     }
 

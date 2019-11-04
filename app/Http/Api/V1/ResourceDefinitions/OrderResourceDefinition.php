@@ -45,11 +45,6 @@ class OrderResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->writeable(true);
 
-        $this->field('created_at')
-            ->display('date')
-            ->datetime(DateTimeTransformer::class)
-            ->visible(true);
-
         $this->field('location')
             ->string()
             ->required()
@@ -79,6 +74,19 @@ class OrderResourceDefinition extends ResourceDefinition
 
         $this->field('paid')
             ->bool()
+            ->visible(true);
+
+        $this->field('discount_percentage')
+            ->display('discount')
+            ->number()
+            ->min(0)
+            ->max(100)
+            ->visible(true)
+            ->writeable(true, false);
+
+        $this->field('created_at')
+            ->display('date')
+            ->datetime(DateTimeTransformer::class)
             ->visible(true);
     }
 }

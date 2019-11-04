@@ -60,6 +60,7 @@ export class Transaction {
      * @param amount
      * @param orderUid
      * @param topupUid
+     * @param discount
      */
     constructor(
         public cardUid: string,
@@ -68,7 +69,8 @@ export class Transaction {
         public date: Date | null,
         public amount: number,
         public orderUid: string | null = null,
-        public topupUid: string | null = null
+        public topupUid: string | null = null,
+        public discount: number = 0
     ) {
 
     }

@@ -47,5 +47,12 @@ class CardDataResourceDefinition extends ResourceDefinition
             ->array()
             ->writeable(true, false)
             ->int();
+
+        $this->field('discount_percentage')
+            ->display('discount')
+            ->number()
+            ->min(0)
+            ->max(100)
+            ->writeable(true, true);
     }
 }

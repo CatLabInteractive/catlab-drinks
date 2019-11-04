@@ -23,6 +23,9 @@ class OrderSummaryItemResourceDefinition extends ResourceDefinition
         $this->field('amount')
             ->visible(true);
 
+        $this->field('price')
+            ->visible(true);
+
         $this->field('totalSales')
             ->visible(true);
 

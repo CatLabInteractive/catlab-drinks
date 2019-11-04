@@ -1,5 +1,4 @@
-<?php
-/**
+/*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
  * CatLab Interactive bvba, Gent, Belgium
@@ -20,42 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-namespace App\Models;
+import {BaseError} from "./BaseError";
 
-use CatLab\Charon\Laravel\Database\Model;
+export class CardValidationException extends BaseError {
 
-/**
- * Class OrderItem
- * @package App\Models
- */
-class OrderItem extends Model
-{
-    public static function boot()
-    {
-        parent::boot();
-
-        self::creating(function(OrderItem $item){
-            $item->price = $item->menuItem->price * $item->order->getDiscountFactor();
-        });
-    }
-
-    protected $fillable = [
-        'amount'
-    ];
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function menuItem()
-    {
-        return $this->belongsTo(MenuItem::class);
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function order()
-    {
-        return $this->belongsTo(Order::class);
-    }
 }
