@@ -34,8 +34,10 @@ class OrderItem extends Model
     {
         parent::boot();
 
-        self::creating(function(OrderItem $item){
-            $item->price = $item->menuItem->price * $item->order->getDiscountFactor();
+        self::creating(function(OrderItem $item) {
+            if ($item->price === null) { // this shouldn't happen anymore.
+                $item->price = $item->menuItem->price * $item->order->getDiscountFactor();
+            }
         });
     }
 

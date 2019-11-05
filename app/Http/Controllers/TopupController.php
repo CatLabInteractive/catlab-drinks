@@ -143,12 +143,12 @@ class TopupController extends Controller
         ]);
 
         //dd($response->isSuccessful() && $response->isPaid());
-        $succesfull = $response->isSuccessful();
+        $successful = $response->isSuccessful();
         if ($response instanceof CompletePurchaseResponse) {
-            $succesfull = $succesfull && $response->isPaid();
+            $successful = $successful && $response->isPaid();
         }
 
-        if ($succesfull) {
+        if ($successful) {
             $topup->success($response->getData());
         } elseif ($response->isCancelled()) {
             $topup->cancel($response->getData());

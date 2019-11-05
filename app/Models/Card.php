@@ -70,6 +70,7 @@ class Card extends Model
     }
 
     /**
+     * @param Organisation $organisation
      * @param $token
      * @return Card
      */
@@ -128,7 +129,7 @@ class Card extends Model
     public function getTransactionFromCounter($cardTransactionId, $lockForUpdate = false)
     {
         $transaction = $this->transactions()->where('card_sync_id', '=', $cardTransactionId);
-        if ($cardTransactionId) {
+        if ($lockForUpdate) {
             $transaction->lockForUpdate();
         }
 
@@ -176,7 +177,7 @@ class Card extends Model
     public function spend(Order $order)
     {
         $order->discount_percentage = $this->discount_percentage;
-        $totalPrice = ceil($order->getCardCost() * $order->getDiscountFactor());
+        $totalPrice = ceil($order->getCurrentCardCost() * $order->getDiscountFactor());
 
         $balance = $this->getBalance();
         if ($totalPrice > 0 && $balance < $totalPrice) {
@@ -195,23 +196,28 @@ class Card extends Model
 
     /**
      * @param Order $order
+     * @throws \Throwable
      */
     public function refund(Order $order)
     {
         // first check if we actually have to do a refund
-        $currentSum = $order->cardTransactions()->sum('value');
-        if (abs($currentSum) > 0) {
+        DB::transaction(function() use ($order) {
 
-            $transaction = new Transaction();
-            $transaction->card()->associate($this);
-            $transaction->transaction_type = Transaction::TYPE_REFUND;
-            $transaction->has_synced = false;
-            $transaction->value = 0 - $currentSum;
-            $transaction->order_uid = $order->uid;
+            $currentSum = $order->cardTransactions()->lockForUpdate()->sum('value');
+            if (abs($currentSum) > 0) {
 
-            $transaction->save();
+                $transaction = new Transaction();
+                $transaction->card()->associate($this);
+                $transaction->transaction_type = Transaction::TYPE_REFUND;
+                $transaction->has_synced = false;
+                $transaction->value = 0 - $currentSum;
+                $transaction->order_uid = $order->uid;
 
-        }
+                $transaction->save();
+
+            }
+
+        }, 5);
     }
 
     /**
@@ -233,23 +239,28 @@ class Card extends Model
 
     /**
      * @param Topup $topup
+     * @throws \Throwable
      */
     public function cancelTopup(Topup $topup)
     {
-        // first check if we actually have to do a refund
-        $currentSum = $topup->cardTransactions()->sum('value');
-        if (abs($currentSum) > 0) {
+        DB::transaction(function() use ($topup) {
 
-            $transaction = new Transaction();
-            $transaction->card()->associate($this);
-            $transaction->transaction_type = Transaction::TYPE_REFUND;
-            $transaction->has_synced = false;
-            $transaction->value = 0 - $currentSum;
-            $transaction->topup_uid = $topup->uid;
+            // first check if we actually have to do a refund
+            $currentSum = $topup->cardTransactions()->lockForUpdate()->sum('value');
+            if (abs($currentSum) > 0) {
 
-            $transaction->save();
+                $transaction = new Transaction();
+                $transaction->card()->associate($this);
+                $transaction->transaction_type = Transaction::TYPE_REFUND;
+                $transaction->has_synced = false;
+                $transaction->value = 0 - $currentSum;
+                $transaction->topup_uid = $topup->uid;
 
-        }
+                $transaction->save();
+
+            }
+
+        }, 5);
     }
 
     /**

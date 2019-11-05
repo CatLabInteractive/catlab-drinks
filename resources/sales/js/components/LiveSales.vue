@@ -95,7 +95,7 @@
         <!-- Modal Component -->
         <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling geslaagd" ok-variant="success" no-close-on-backdrop>
             <p class="text-center"><i class="fas fa-thumbs-up huge"></i></p>
-            <p class="text-center alert alert-success">Payment succesful.</p>
+            <p class="text-center alert alert-success">Payment successful.</p>
         </b-modal>
 
         <!-- Modal Component -->
@@ -181,7 +181,6 @@
                 this.refresh();
 
             }
-
         },
 
         methods: {
@@ -265,7 +264,8 @@
                                     id: item.id,
                                     name: item.name
                                 },
-                                amount: item.amount
+                                amount: item.amount,
+                                price: item.price
                             });
                             totalAmount += item.amount;
                         }
@@ -297,6 +297,7 @@
                         status: 'processed',
                         paid: false,
                         price: this.totals.price,
+                        discount: 0,
                         order: {
                             items: this.selectedItems
                         }
@@ -312,10 +313,7 @@
                             this.$refs.processedModal.hide();
                         }.bind(this), 2000);
 
-                        order.paid = true;
                         order.status = 'processed';
-                        order.discount = paymentData.discount;
-                        order.price = paymentData.amount / 100;
 
                     } catch (e) {
                         order.paid = false;

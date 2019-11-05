@@ -37,11 +37,7 @@ export class AbstractOfflineQueue extends AbstractService {
     }
 
     startPeriodicUpload() {
-        this.timeout = setTimeout(
-            () => {
-                this.uploadQueue();
-            }, 30000
-        );
+        this.uploadQueue();
     }
 
     async create (data, parameters) {

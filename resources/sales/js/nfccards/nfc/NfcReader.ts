@@ -241,7 +241,7 @@ export class NfcReader extends Eventable {
                 const ndefDecoded = ndef.decodeMessage(this.base64ToByteArray(data));
                 card.parseNdef(ndefDecoded);
 
-                this.logger.log(card.getUid(), 'succesfully recovered data');
+                this.logger.log(card.getUid(), 'successfully recovered data');
             } catch (e) {
                 if (e instanceof InvalidMessageException) {
                     throw new CorruptedCard("The data in memory is corrupted as well. This should never happen.");

@@ -51,8 +51,50 @@ export class PaymentService extends Eventable {
         });
     }
 
-    async order(order) {
+    /**
+     * @param order
+     * @param acceptCurrentCard
+     * @returns any
+     */
+    async order(order, acceptCurrentCard = true) {
 
+        // handle the actual payment
+        let paymentData = await this.handleOrder(order, true);
+
+        // mark order as paid
+        order.paid = true;
+
+        // apply any discount that might have been assigned based on card data.
+        // warning: discount is a percentage (int) between 0 and 100
+        if (typeof(paymentData.discount) !== 'undefined') {
+            order.discount = paymentData.discount;
+        }
+
+        // update the total order price
+        if (typeof(paymentData.amount) !== 'undefined') {
+            order.price = paymentData.amount / 100;
+        }
+
+        // update the price of all items in the order
+        let discountFactor = 1 - (paymentData.discount / 100);
+
+        // apply the discount to all order items too
+        order.order.items.forEach(
+            (orderItem) => {
+                orderItem.price *= discountFactor;
+            }
+        );
+
+        return paymentData;
+    }
+
+    /**
+     * Helper method to keep the order code more clear.
+     * @param order
+     * @param acceptCurrentCard
+     * @returns {Promise<void>}
+     */
+    async handleOrder(order, acceptCurrentCard = true) {
         const price = Math.ceil(order.price * 100);
 
         return new Promise(
@@ -69,8 +111,7 @@ export class PaymentService extends Eventable {
 
                 this.trigger('transaction:start', this.currentTransaction);
 
-                if (this.cardService) {
-                    // Do we have a card?
+                if (this.cardService && acceptCurrentCard) {
                     const card = this.cardService.getCard();
                     if (card) {
                         this.handleTransaction(card, this.currentTransaction)
@@ -140,7 +181,10 @@ export class PaymentService extends Eventable {
             return;
         }
 
-        this.currentTransaction.resolve({ paymentType: 'cash' });
+        this.currentTransaction.resolve({
+            paymentType: 'cash',
+            discount: 0
+        });
 
         this.currentTransaction = null;
         this.trigger('transaction:done');

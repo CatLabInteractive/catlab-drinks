@@ -136,9 +136,9 @@
         </b-modal>
 
         <!-- Modal Component -->
-        <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Topup succesful" ok-variant="success" no-close-on-backdrop>
+        <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Topup successful" ok-variant="success" no-close-on-backdrop>
             <p class="text-center"><i class="fas fa-thumbs-up huge"></i></p>
-            <p class="text-center alert alert-success">Topup succesful.</p>
+            <p class="text-center alert alert-success">Topup successful.</p>
         </b-modal>
 
         <!-- Modal Component -->

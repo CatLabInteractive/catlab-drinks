@@ -148,6 +148,10 @@ class PublicController extends ResourceController
         $entity->uid = Uuid::uuid1();
         $entity->paid = false;
 
+        foreach ($entity->order as $orderItem) {
+            $orderItem->price = $orderItem->menuItem->price;
+        }
+
         // Do we have a card token, so we can pay immediately?
         $cardToken = $entity->getCardToken();
         if ($cardToken) {
@@ -157,6 +161,12 @@ class PublicController extends ResourceController
                 try {
                     $card->spend($entity);
                     $entity->paid = true;
+
+                    // update the items in the order to make sure they have the correct price.
+                    foreach ($entity->order as $orderItem) {
+                        $orderItem->price *= $entity->getDiscountFactor();
+                    }
+
                 } catch (InsufficientFundsException $e) {
                     return new JsonResponse([
                         'error' => [

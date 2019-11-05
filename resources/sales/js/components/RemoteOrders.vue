@@ -21,7 +21,7 @@
 
 <template>
     <div>
-        <h2>Bestellingen <remote-order-status v-bind:eventId="eventId"></remote-order-status></h2>
+        <h2>Remote orders <remote-order-status v-bind:eventId="eventId"></remote-order-status></h2>
         <div class="text-center" v-if="!loaded">
             <b-spinner label="Loading data" />
         </div>
@@ -38,17 +38,17 @@
             </ul>
 
             <p>
-                Tafel: {{item.location}}<br />
-                Besteller: {{item.requester}}<br />
-                Totaal: €{{item.totalPrice.toFixed(2)}} (<strong>{{Math.ceil(item.totalPrice / 0.5)}} vakjes</strong>)
+                Table: {{item.location}}<br />
+                Client: {{item.requester}}<br />
+                Total: €{{item.totalPrice.toFixed(2)}} (<strong>{{Math.ceil(item.totalPrice / 0.5)}} vakjes</strong>)
             </p>
 
-            <p v-if="item.paid" class="alert alert-success"><i class="fas fa-check-square"></i> Betaald</p>
-            <p v-if="!item.paid" class="alert alert-danger"><i class="fas fa-times"></i> Nog niet betaald</p>
+            <p v-if="item.paid" class="alert alert-success"><i class="fas fa-check-square"></i> Paid</p>
+            <p v-if="!item.paid" class="alert alert-danger"><i class="fas fa-times"></i> Not paid yet</p>
 
             <p>
-                <button class="btn btn-success" @click="acceptOrder(item)">Afgewerkt</button>
-                <button class="btn btn-danger" @click="declineOrder(item)">Niet aanvaard</button>
+                <button class="btn btn-success" @click="acceptOrder(item)">Completed</button>
+                <button class="btn btn-danger" @click="declineOrder(item)">Not accepted</button>
             </p>
 
         </div>
@@ -60,6 +60,25 @@
                 Summary
             </b-link>
         </p>
+
+        <!-- Modal Component -->
+        <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Order accepted" ok-variant="success" no-close-on-backdrop>
+            <p class="text-center"><i class="fas fa-thumbs-up huge"></i></p>
+            <div class="text-center alert alert-success">
+                <span v-if="currentOrder">Payment successful, deliver order at <strong>table {{currentOrder.location}}</strong>.</span>
+            </div>
+        </b-modal>
+
+        <b-modal ref="confirmDecline" class="order-confirm-modal" title="Confirm declined order" @ok="confirmDeclined" @cancel="cancelDecline" button-size="lg" no-close-on-backdrop ok-title="Decline order" cancel-title="Cancel" ok-variant="danger">
+            <div class="alert alert-danger">
+                Are you sure you want to decline order <span v-if="currentOrder">#{{currentOrder.id}}</span>?<br />
+                <span v-if="currentOrder && currentOrder.paid">The paid amount will be refunded.<br /></span>
+            </div>
+
+            <div class="alert alert-danger">
+                <strong>The client will not be notified, so go over to them and let them know why their order was declined.</strong>
+            </div>
+        </b-modal>
 
     </div>
 
@@ -91,6 +110,7 @@
         data() {
             return {
                 loaded: false,
+                currentOrder: null,
                 items: []
             }
         },
@@ -145,20 +165,48 @@
 
             },
 
-            async acceptOrder(item) {
+            /**
+             * @param order
+             * @returns {Promise<void>}
+             */
+            async acceptOrder(order) {
 
-                item.status = 'processed';
-                await this.orderService.update(item.id, item);
+                this.currentOrder = order;
+
+                // not paid? We need to get paid first!
+                if (!order.paid) {
+                    let paymentData = await this.$paymentService.order(order, false);
+                }
+
+                order.status = 'processed';
+                await this.orderService.update(order.id, order);
+
+                this.$refs.processedModal.show();
+                setTimeout(function () {
+                    this.$refs.processedModal.hide();
+                }.bind(this), 2000);
+
                 this.refresh();
-
             },
 
-            async declineOrder(item) {
+            async declineOrder(order) {
+                this.currentOrder = order;
+                this.$refs.confirmDecline.show();
+            },
 
-                item.status = 'declined';
-                await this.orderService.update(item.id, item);
+            async cancelDecline() {
+                this.currentOrder = null;
+            },
+
+            async confirmDeclined() {
+
+                this.$refs.confirmDecline.hide();
+
+                this.currentOrder.status = 'declined';
+                await this.orderService.update(this.currentOrder.id, this.currentOrder);
+
+                this.currentOrder = null;
                 this.refresh();
-
             }
         }
     }

@@ -23,6 +23,7 @@
 namespace App\Models;
 
 use CatLab\Charon\Laravel\Database\Model;
+use DB;
 
 /**
  * Class Order
@@ -30,8 +31,6 @@ use CatLab\Charon\Laravel\Database\Model;
  */
 class Order extends Model
 {
-    private $cardTransactions;
-
     /**
      *
      */
@@ -120,14 +119,26 @@ class Order extends Model
     }
 
     /**
+     * Get the total cost according to the current menu price, without any
+     * discount included.
      * @return float
      */
-    public function getTotalCost()
+    public function getCurrentOrderValue()
     {
         $price = 0;
         foreach ($this->order as $order) {
             $price += $order->amount * $order->menuItem->price;
         }
+        return $price;
+    }
+
+    /**
+     * Return the actually paid price of this order.
+     */
+    public function getPrice()
+    {
+        $price = $this->order()->sum(DB::raw('order_items.amount * order_items.price'));
+
         return $price;
     }
 
@@ -143,9 +154,9 @@ class Order extends Model
      * Return the amount of card credits that this order is worth.
      * @return float
      */
-    public function getCardCost()
+    public function getCurrentCardCost()
     {
-        return ceil($this->getTotalCost() * 100);
+        return ceil($this->getCurrentOrderValue() * 100);
     }
 
     /**
