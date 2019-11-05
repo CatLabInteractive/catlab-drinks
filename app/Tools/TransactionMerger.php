@@ -22,7 +22,6 @@
 
 namespace App\Tools;
 
-
 use App\Exceptions\TransactionMergeException;
 use App\Models\Card;
 use App\Models\Organisation;

@@ -49,14 +49,6 @@ class CardResourceDefinition extends ResourceDefinition
             ->string()
             ->writeable(true, false);
 
-        $this->field('discount_percentage')
-            ->display('discount')
-            ->number()
-            ->min(0)
-            ->max(100)
-            ->visible(true, true)
-            ->writeable(true, true);
-
         $this->relationship('organisation', OrganisationResourceDefinition::class)
             ->one()
             ->expandable()
@@ -74,6 +66,14 @@ class CardResourceDefinition extends ResourceDefinition
             ->string()
             ->visible()
             ->array()
+            ->writeable(true, true);
+
+        $this->field('discount_percentage')
+            ->display('discount')
+            ->number()
+            ->min(0)
+            ->max(100)
+            ->visible(true, true)
             ->writeable(true, true);
 
         $this->field('updated_at')

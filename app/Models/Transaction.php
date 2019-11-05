@@ -126,12 +126,23 @@ class Transaction extends Model
             return;
         }
 
-        $this->transaction_type = $entity->transaction_type;
-        $this->client_date = $entity->client_date;
+        if ($entity->transaction_type) {
+            $this->transaction_type = $entity->transaction_type;
+        }
+
+        if ($entity->client_date) {
+            $this->client_date = $entity->client_date;
+        }
+
         $this->value = $entity->value;
 
         // merge transaction id
-        $this->order_uid = $entity->order_uid;
-        $this->topup_uid = $entity->topup_uid;
+        if ($entity->order_uid) {
+            $this->order_uid = $entity->order_uid;
+        }
+
+        if ($entity->topup_uid) {
+            $this->topup_uid = $entity->topup_uid;
+        }
     }
 }

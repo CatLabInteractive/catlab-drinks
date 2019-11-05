@@ -22,6 +22,7 @@
 
 namespace App\Http\Api\V1\Controllers;
 
+use App\Exceptions\TransactionCountException;
 use App\Http\Api\V1\ResourceDefinitions\CardDataResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\CardResourceDefinition;
 use App\Models\Card;
@@ -29,6 +30,7 @@ use App\Models\CardData;
 use App\Models\Event;
 use App\Models\Organisation;
 use App\Models\Transaction;
+use App\Tools\CardDataMerger;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Laravel\Models\ResourceResponse;
@@ -131,12 +133,12 @@ class CardController extends Base\ResourceController
     /**
      * @param Request $request
      * @param $cardId
-     * @return ResourceResponse"JsonResponse
+     * @return ResourceResponse|JsonResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Throwable
      */
     public function updateCardData(Request $request, $cardId)
     {
-        // @todo add locking here.
         $context = $this->getContext(Action::CREATE);
 
         /** @var CardData $cardData */
@@ -147,7 +149,10 @@ class CardController extends Base\ResourceController
         $card = Card::findOrFail($cardId);
         $this->authorizeEdit($request, $card);
 
-        if ($card->transaction_count > $cardData->transactionCount) {
+        try {
+            $merger = new CardDataMerger($card);
+            $merger->merge($cardData);
+        } catch (TransactionCountException $e) {
             \Log::error('Transaction count is lower than our own transaction count: ' . print_r($cardData));
             return new JsonResponse([
                 'error' => [
@@ -156,7 +161,6 @@ class CardController extends Base\ResourceController
             ], 402);
         }
 
-        $card->mergeFromCardData($cardData);
 
         $readContext = $this->getContext(Action::VIEW);
         return new ResourceResponse($this->toResource($card, $readContext));
