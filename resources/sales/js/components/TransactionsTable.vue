@@ -22,6 +22,11 @@
 <template>
 
     <div>
+        <div class="text-center" v-if="!loaded">
+            <b-spinner label="Loading data" />
+        </div>
+
+        <div class="alert alert-warning" v-if="loaded && transactions.length === 0">We have not recorded any transactions yet.</div>
 
         <b-table striped hover :items="transactions" :fields="fields" v-if="transactions.length > 0">
 
@@ -72,6 +77,8 @@
             return {
                 transactions: [],
                 orderDetails: null,
+                loaded: false,
+                loading: false,
                 fields: []
             }
         },
@@ -91,7 +98,11 @@
 
                 this.fields.push('transactionId', 'order', 'amount', 'date');
 
+                this.loading = true;
+
                 this.transactions = await this.$cardService.getTransactions(this.card);
+                this.loaded = true;
+                this.loading = false;
 
             },
 

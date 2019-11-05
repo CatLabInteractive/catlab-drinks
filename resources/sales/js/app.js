@@ -200,15 +200,19 @@ Vue.prototype.$settingService.load()
     .then(
         function() {
 
+            Vue.prototype.$cardService = new CardService(
+                window.axios.create({
+                    baseURL: '/api/v1',
+                    json: true
+                }),
+                window.ORGANISATION_ID
+            );
+
+            // Only try to connect to the nfc reader if config variables are set.
             if (
                 Vue.prototype.$settingService.nfcServer
             ) {
-                Vue.prototype.$cardService = new CardService(
-                    window.axios.create({
-                        baseURL: '/api/v1',
-                        json: true
-                    }),
-                    window.ORGANISATION_ID,
+                Vue.prototype.$cardService.connect(
                     Vue.prototype.$settingService.nfcServer,
                     Vue.prototype.$settingService.nfcPassword
                 );

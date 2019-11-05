@@ -36,7 +36,7 @@
     export default {
         mounted() {
 
-            if (!this.$cardService) {
+            if (!this.$cardService || !this.$cardService.hasCardReader) {
                 return;
             }
 

@@ -22,6 +22,13 @@
 <template>
     <b-container fluid>
 
+        <h1>
+            Card Management
+            <b-link class="btn btn-sm btn-info" :to="{ name: 'transactions' }">
+                Transactions
+            </b-link>
+        </h1>
+
         <div class="text-center" v-if="loading">
             <b-spinner label="Loading data" />
         </div>
@@ -33,13 +40,6 @@
         </div>
 
         <div v-if="loaded">
-
-            <h1>
-                Topup Cards
-                <b-link class="btn btn-sm btn-info" :to="{ name: 'transactions' }">
-                    Transactions
-                </b-link>
-            </h1>
 
 
             <div v-if="card === null">
@@ -73,7 +73,7 @@
 
             // do we have a card service?
             this.error = null;
-            if (!this.$cardService) {
+            if (!this.$cardService || !this.$cardService.hasCardReader) {
                 this.error = 'No NFC card service found. Please check the settings.';
                 this.loading = false;
                 return;

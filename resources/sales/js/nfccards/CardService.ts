@@ -76,14 +76,15 @@ export class CardService extends Eventable {
 
     private axios: any = null;
 
+    public hasCardReader: boolean = false;
+
     /**
      *
      */
     constructor(
         axios: any,
         organisationId: string,
-        nfcService: string, // http://192.168.1.194:3000
-        nfcPassword: string
+
     ) {
         super();
 
@@ -94,6 +95,16 @@ export class CardService extends Eventable {
         this.logger = new Logger();
 
         this.nfcReader = new NfcReader(this.offlineStore, this.logger);
+    }
+
+    /**
+     * @param nfcService
+     * @param nfcPassword
+     */
+    public connect(nfcService: string, nfcPassword: string) {
+
+        this.hasCardReader = true;
+
         this.nfcReader.on('connection:change', (connection: boolean) => {
             this.connected = connection;
             this.trigger('connection:change', connection);
