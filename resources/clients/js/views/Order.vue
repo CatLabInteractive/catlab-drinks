@@ -23,6 +23,7 @@
 
     <b-container fluid>
 
+        <h1>CatLab Drinks</h1>
         <h2>Bestellen</h2>
 
         <div class="text-center" v-if="!loaded">
