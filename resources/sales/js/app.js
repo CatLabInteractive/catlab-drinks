@@ -57,6 +57,7 @@ import {SettingService} from "./services/SettingService";
 import {PaymentService} from "./services/PaymentService";
 import {OrganisationService} from "./services/OrganisationService";
 import Transactions from "./views/Transactions";
+import TestTransactions from "./views/TestTransactions";
 
 Vue.component(
     'live-sales',
@@ -192,6 +193,12 @@ const router = new VueRouter({
             path: '/transactions',
             name: 'transactions',
             component: Transactions
+        },
+
+        {
+            path: '/tests/transactions',
+            name: 'testTransactions',
+            component: TestTransactions
         }
     ],
 });
