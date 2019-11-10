@@ -121,6 +121,8 @@
 
         mounted() {
 
+            // if bad internet connection is detected, don't refresh the card.
+            this.$cardService.setSkipRefreshWhenBadInternetConnection(true);
 
         },
 

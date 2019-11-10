@@ -28,6 +28,17 @@ import VueRouter from "vue-router";
 import BootstrapVue from "bootstrap-vue";
 import App from './views/App'
 import Order from './views/Order'
+import AirbrakeClient from 'airbrake-js';
+
+if (AIRBRAKE_CONFIG) {
+    var airbrake = new AirbrakeClient(AIRBRAKE_CONFIG);
+    Vue.config.errorHandler = function (err, vm, info) {
+        airbrake.notify({
+            error: err,
+            params: {info: info}
+        });
+    };
+}
 
 Vue.use(VueRouter);
 Vue.use(BootstrapVue);

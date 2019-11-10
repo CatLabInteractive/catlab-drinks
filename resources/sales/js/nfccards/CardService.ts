@@ -74,6 +74,8 @@ export class CardService extends Eventable {
 
     private connected:boolean = false;
 
+    private skipRefreshWhenBadInternetConnection = false;
+
     private axios: any = null;
 
     public hasCardReader: boolean = false;
@@ -83,8 +85,7 @@ export class CardService extends Eventable {
      */
     constructor(
         axios: any,
-        organisationId: string,
-
+        organisationId: string
     ) {
         super();
 
@@ -135,7 +136,9 @@ export class CardService extends Eventable {
             this.isCardLoaded = false;
 
             // check if there are any transactions that still need to be processed
-            await this.refreshCard(card);
+            if (!this.skipRefreshWhenBadInternetConnection || this.hasApiConnection()) {
+                await this.refreshCard(card);
+            }
 
             // check if we still have a card (it might be disconnected by now)
             // if so, apply triggers.
@@ -152,9 +155,18 @@ export class CardService extends Eventable {
     /**
      *
      */
-    public isConnected()
-    {
+    public isConnected() {
         return this.connected;
+    }
+
+    /**
+     * Check if we have an active connection to the api.
+     * If this method returns false, the reader will work in 'offline' mode and no api requests will be made that
+     * might affect usability. Transactions will still be pushed in the background, but any pending transactions
+     * will not be synced from this specific terminal.
+     */
+    public hasApiConnection() {
+        return true;
     }
 
     /**
@@ -168,8 +180,7 @@ export class CardService extends Eventable {
      * @param card
      * @param forceWrite
      */
-    async refreshCard(card: Card, forceWrite = false)
-    {
+    async refreshCard(card: Card, forceWrite = false) {
         const now = new Date();
 
         const serverCard = await this.transactionStore.getCard(card.getUid());
@@ -233,7 +244,7 @@ export class CardService extends Eventable {
      * might be too high.
      * @param card
      */
-    async rebuild(card: Card){
+    async rebuild(card: Card) {
 
         if (!this.transactionStore.isOnline()) {
             throw new OfflineException('rebuild only works with an active internet connection');
@@ -366,6 +377,9 @@ export class CardService extends Eventable {
         }
     }
 
+    /**
+     * @param card
+     */
     async saveCardAliases(card: Card) {
 
         const response = await this.axios({
@@ -386,6 +400,15 @@ export class CardService extends Eventable {
         } else {
             return await this.transactionStore.getTransactions(card);
         }
+    }
+
+    /**
+     * If set to TRUE, card refresh is skipped when internet connection is bad.
+     * @param skipRefreshOnBadInternetConnection
+     */
+    public setSkipRefreshWhenBadInternetConnection(skipRefreshOnBadInternetConnection = false) {
+        this.skipRefreshWhenBadInternetConnection = skipRefreshOnBadInternetConnection;
+        return this;
     }
 
 }

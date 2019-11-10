@@ -80,20 +80,20 @@
             }
 
             // load event
-            this.cardService = this.$cardService;
+            this.$cardService.setSkipRefreshWhenBadInternetConnection(false);
 
             this.loaded = true;
             this.loading = false;
 
-            if (this.cardService.getCard()) {
-                this.showCard(this.cardService.getCard());
+            if (this.$cardService.getCard()) {
+                this.showCard(this.$cardService.getCard());
             }
 
-            this.cardService.on('card:connect', (card) => {
+            this.$cardService.on('card:connect', (card) => {
                 this.showCard(card);
             });
 
-            this.cardService.on('card:disconnect', (card) => {
+            this.$cardService.on('card:disconnect', (card) => {
                 this.hideCard(card);
             });
         },

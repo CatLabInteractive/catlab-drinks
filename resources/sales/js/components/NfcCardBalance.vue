@@ -25,6 +25,7 @@
 
         <span v-if="connected === true" class="btn btn-sm btn-success">NFC</span>
         <span v-if="connected === false" class="btn btn-sm btn-danger">NFC</span>
+        &nbsp;<span v-if="apiConnected === false" class="btn btn-sm btn-danger">API Offline</span>
 
         &nbsp;<span v-if="!corrupt && balance !== null" class="btn btn-sm btn-warning">Balance: {{ balance }}</span>
         <span v-if="corrupt" class="btn btn-sm btn-danger">Corrupt card, contact support</span>
@@ -41,9 +42,16 @@
             }
 
             this.connected = this.$cardService.isConnected();
+            this.apiConnected = this.$cardService.hasApiConnection();
+
             this.$cardService.on('connection:change', function(isOnline) {
                 //console.log('is online', isOnline);
                 this.connected = isOnline;
+            }.bind(this));
+
+            this.$cardService.on('apiConnection:change', function(isOnline) {
+                //console.log('is online', isOnline);
+                this.apiConnected = this.$cardService.hasApiConnection();
             }.bind(this));
 
             this.$cardService.on('card:connect', function(card) {
@@ -73,6 +81,7 @@
                 visible: false,
                 balance: null,
                 connected: null,
+                apiConnected: null,
                 corrupt: false,
                 loading: false
             };

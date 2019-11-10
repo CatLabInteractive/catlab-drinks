@@ -4,8 +4,61 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4bf4f50f145a6385ecee96af34397d5b",
+    "content-hash": "950cfb76cab3bc0927183f30c01879cb",
     "packages": [
+        {
+            "name": "airbrake/phpbrake",
+            "version": "v0.7.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/airbrake/phpbrake.git",
+                "reference": "5b6edc3a40412d3ccd588af0685f11f68c5c7526"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/airbrake/phpbrake/zipball/5b6edc3a40412d3ccd588af0685f11f68c5c7526",
+                "reference": "5b6edc3a40412d3ccd588af0685f11f68c5c7526",
+                "shasum": ""
+            },
+            "require": {
+                "cash/lrucache": "^1.0",
+                "guzzlehttp/guzzle": "^6.3",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "monolog/monolog": "^1.22",
+                "phpunit/phpunit": "^5.7",
+                "squizlabs/php_codesniffer": "^2.9"
+            },
+            "suggest": {
+                "guzzlehttp/guzzle": "Guzzle HTTP client"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Airbrake\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Airbrake exception and error notifier for PHP",
+            "homepage": "https://airbrake.io",
+            "keywords": [
+                "airbrake",
+                "error",
+                "exception",
+                "logging",
+                "notifier"
+            ],
+            "time": "2019-10-31T13:17:09+00:00"
+        },
         {
             "name": "asm89/stack-cors",
             "version": "1.2.0",
@@ -288,6 +341,47 @@
                 }
             ],
             "time": "2018-12-13T10:34:14+00:00"
+        },
+        {
+            "name": "cash/lrucache",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cash/LRUCache.git",
+                "reference": "4fa4c6834cec59690b43526c4da41d6153026289"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cash/LRUCache/zipball/4fa4c6834cec59690b43526c4da41d6153026289",
+                "reference": "4fa4c6834cec59690b43526c4da41d6153026289",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "cash": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cash Costello",
+                    "email": "cash.costello@gmail.com"
+                }
+            ],
+            "description": "An efficient memory-based Least Recently Used (LRU) cache",
+            "homepage": "https://github.com/cash/LRUCache",
+            "keywords": [
+                "cache",
+                "lru"
+            ],
+            "time": "2013-09-20T18:59:12+00:00"
         },
         {
             "name": "catlabinteractive/base",
@@ -2174,6 +2268,56 @@
                 "zxing"
             ],
             "time": "2018-04-26T11:41:33+00:00"
+        },
+        {
+            "name": "kouz/laravel-airbrake",
+            "version": "0.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/TheoKouzelis/laravel-airbrake.git",
+                "reference": "e6adcae6c9577224a59f8a635602b4de12e04143"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/TheoKouzelis/laravel-airbrake/zipball/e6adcae6c9577224a59f8a635602b4de12e04143",
+                "reference": "e6adcae6c9577224a59f8a635602b4de12e04143",
+                "shasum": ""
+            },
+            "require": {
+                "airbrake/phpbrake": "^0.7.0",
+                "illuminate/support": "^5.0|^6.0",
+                "monolog/monolog": "^1.22",
+                "php": ">=5.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Kouz\\LaravelAirbrake\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Kouz\\LaravelAirbrake\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Theo Kouzelis",
+                    "email": "tkouzelis@outlook.com"
+                }
+            ],
+            "description": "Laravel service provider for Airbrake https://github.com/airbrake/phpbrake",
+            "keywords": [
+                "airbrake",
+                "laravel"
+            ],
+            "time": "2019-09-19T06:49:51+00:00"
         },
         {
             "name": "kylekatarnls/update-helper",

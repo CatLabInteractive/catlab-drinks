@@ -176,8 +176,11 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        \CatLab\Accounts\Client\CatLabAccountsServiceProvider::class,
-        \SocialiteProviders\Manager\ServiceProvider::class,
+        CatLab\Accounts\Client\CatLabAccountsServiceProvider::class,
+        SocialiteProviders\Manager\ServiceProvider::class,
+
+        Kouz\LaravelAirbrake\ServiceProvider::class,
+
 
     ],
 
