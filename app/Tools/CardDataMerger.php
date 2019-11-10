@@ -68,8 +68,8 @@ class CardDataMerger
             }
 
             // do magic.
-            $this->transaction_count = $cardData->transactionCount;
-            $this->discount_percentage = $cardData->discount_percentage;
+            $card->transaction_count = $cardData->transactionCount;
+            $card->discount_percentage = $cardData->discount_percentage;
 
             $card->save();
 
@@ -85,11 +85,12 @@ class CardDataMerger
 
                 // make a temporary transaction that we can use to merge with the existing transactions
                 $incompleteTransaction = new Transaction();
+                $incompleteTransaction->card_sync_id = $transactionId;
                 $incompleteTransaction->has_synced = true;
                 $incompleteTransaction->value = $lastTransactions[$i];
 
                 // check if we have this
-                $transaction = $card->getTransactionFromCounter($transactionId, true);
+                $transaction = $card->getTransactionFromCounter($incompleteTransaction->card_sync_id, true);
                 $transaction->has_synced = true;
 
                 // merge the transaction (in case it doesn't exist yet)
