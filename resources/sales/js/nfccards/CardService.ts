@@ -27,10 +27,10 @@ import {OfflineStore} from "./store/OfflineStore";
 import {Logger} from "./tools/Logger";
 import {NfcWriteException} from "./exceptions/NfcWriteException";
 import {OfflineException} from "./exceptions/OfflineException";
-import {InsufficientFunds} from "./exceptions/InsufficientFunds";
-import {NoCardFound} from "./exceptions/NoCardFound";
+import {InsufficientFundsException} from "./exceptions/InsufficientFundsException";
+import {NoCardFoundException} from "./exceptions/NoCardFoundException";
 import {Transaction} from "./models/Transaction";
-import {CorruptedCard} from "./exceptions/CorruptedCard";
+import {CorruptedCardException} from "./exceptions/CorruptedCardException";
 
 /**
  *
@@ -292,7 +292,7 @@ export class CardService extends Eventable {
     async topup(topupUid: string, amount: number) {
         const card = this.getCard();
         if (!card) {
-            throw new NoCardFound('No card found.');
+            throw new NoCardFoundException('No card found.');
         }
 
         // try to write the transaction to card
@@ -332,11 +332,11 @@ export class CardService extends Eventable {
         //console.log('CardService: handling order ' + orderUid);
         const card = this.getCard();
         if (!card) {
-            throw new NoCardFound('No card found.');
+            throw new NoCardFoundException('No card found.');
         }
 
         if (card.isCorrupted()) {
-            throw new CorruptedCard('Card data is corrupt or not linked to this organisation.');
+            throw new CorruptedCardException('Card data is corrupt or not linked to this organisation.');
         }
 
         // discount time!
@@ -348,7 +348,7 @@ export class CardService extends Eventable {
         }
 
         if (amount > 0 && card.balance < amount) {
-            throw new InsufficientFunds('Insufficient funds.');
+            throw new InsufficientFundsException('Insufficient funds.');
         }
 
         const transactionNumber = card.applyTransaction(0 - amount);

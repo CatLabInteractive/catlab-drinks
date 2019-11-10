@@ -24,7 +24,7 @@ import * as ndef from 'ndef';
 import * as CryptoJS from 'crypto-js';
 import {NfcReader} from "../nfc/NfcReader";
 import {InvalidMessageException} from "../exceptions/InvalidMessageException";
-import {SignatureMismatch} from "../exceptions/SignatureMismatch";
+import {SignatureMismatchException} from "../exceptions/SignatureMismatchException";
 import {Eventable} from "../../utils/Eventable";
 import {VisibleAmount} from "../tools/VisibleAmount";
 import {CardValidationException} from "../exceptions/CardValidationException";
@@ -219,7 +219,7 @@ export class Card extends Eventable {
         const signature = this.nfcReader.hmac(this, payloadBytestring).toString(CryptoJS.enc.Latin1);
 
         if (signature !== receivedSignature) {
-            throw new SignatureMismatch('Signature mismatch');
+            throw new SignatureMismatchException('Signature mismatch');
         }
 
         this.unserialize(payloadBytestring);

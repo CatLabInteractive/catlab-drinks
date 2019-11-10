@@ -53,7 +53,7 @@
 
         </div>
 
-        <p>
+        <p v-if="this.eventId">
             <b-link :to="{ name: 'sales', params: { id: this.eventId } }" class="btn btn-sm btn-info">Order history</b-link>
 
             <b-link class="btn btn-sm btn-info" :to="{ name: 'summary', params: { id: this.eventId } }">

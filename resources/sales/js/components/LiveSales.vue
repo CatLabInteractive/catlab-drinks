@@ -112,6 +112,7 @@
     import {MenuService} from "../services/MenuService";
     import {OrderService} from "../services/OrderService";
     import {EventService} from "../services/EventService";
+    import {TransactionCancelledException} from "../nfccards/exceptions/TransactionCancelledException";
 
     export default {
 
@@ -343,6 +344,7 @@
                     this.warning = e.response.data.error.message;
                 }
             }
-        }
+        },
+
     }
 </script>

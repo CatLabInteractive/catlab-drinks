@@ -28,7 +28,7 @@ import {Eventable} from "../../utils/Eventable";
 import {Card} from "../models/Card";
 import {OfflineStore} from "../store/OfflineStore";
 import {InvalidMessageException} from "../exceptions/InvalidMessageException";
-import {CorruptedCard} from "../exceptions/CorruptedCard";
+import {CorruptedCardException} from "../exceptions/CorruptedCardException";
 import {Logger} from "../tools/Logger";
 import {NfcWriteException} from '../exceptions/NfcWriteException';
 
@@ -128,7 +128,7 @@ export class NfcReader extends Eventable {
                 this.offlineStore.setLastKnownSyncId(this.currentCard.getUid(), this.currentCard.transactionCount);
 
             } catch (e) {
-                if (e instanceof CorruptedCard) {
+                if (e instanceof CorruptedCardException) {
                     this.currentCard.setCorrupted();
                     this.trigger('card:corrupted', this.currentCard);
                 } else {
@@ -244,14 +244,14 @@ export class NfcReader extends Eventable {
                 this.logger.log(card.getUid(), 'successfully recovered data');
             } catch (e) {
                 if (e instanceof InvalidMessageException) {
-                    throw new CorruptedCard("The data in memory is corrupted as well. This should never happen.");
+                    throw new CorruptedCardException("The data in memory is corrupted as well. This should never happen.");
                 } else {
                     throw e;
                 }
             }
         } else if (throwException) {
             this.logger.log(card.getUid(), "The data on the card is damaged and we could not recover it from memory.");
-            throw new CorruptedCard("The data on the card is damaged and we could not recover it from memory.");
+            throw new CorruptedCardException("The data on the card is damaged and we could not recover it from memory.");
         }
     }
 

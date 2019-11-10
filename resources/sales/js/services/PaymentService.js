@@ -21,11 +21,15 @@
 
 import {Eventable} from "../utils/Eventable";
 import {Card} from "../nfccards/models/Card";
-import {NoCardFound} from "../nfccards/exceptions/NoCardFound";
+import {NoCardFoundException} from "../nfccards/exceptions/NoCardFoundException";
 import {NfcWriteException} from "../nfccards/exceptions/NfcWriteException";
-import {InsufficientFunds} from "../nfccards/exceptions/InsufficientFunds";
-import {CorruptedCard} from "../nfccards/exceptions/CorruptedCard";
+import {InsufficientFundsException} from "../nfccards/exceptions/InsufficientFundsException";
+import {CorruptedCardException} from "../nfccards/exceptions/CorruptedCardException";
+import {TransactionCancelledException} from "../nfccards/exceptions/TransactionCancelledException";
 
+/**
+ *
+ */
 export class PaymentService extends Eventable {
 
     constructor() {
@@ -121,11 +125,21 @@ export class PaymentService extends Eventable {
         )
     }
 
+    /**
+     * @param card
+     * @param transaction
+     * @returns {Promise<void>}
+     */
     async onCardConnect(card, transaction) {
         this.currentTransaction.loading = true;
         this.trigger('transaction:change', transaction);
     }
 
+    /**
+     * @param card
+     * @param transaction
+     * @returns {Promise<void>}
+     */
     async handleTransaction(card, transaction) {
 
         // let's spend some money
@@ -148,13 +162,13 @@ export class PaymentService extends Eventable {
 
         } catch (e) {
             this.currentTransaction.loading = false;
-            if (e instanceof InsufficientFunds) {
+            if (e instanceof InsufficientFundsException) {
                 transaction.error = 'Insufficient funds.';
-            } else if (e instanceof NoCardFound) {
+            } else if (e instanceof NoCardFoundException) {
                 transaction.error = 'No card found, please represent card.';
             } else if (e instanceof NfcWriteException) {
                 transaction.error = 'Nfc error, please scan again.';
-            } else if (e instanceof CorruptedCard) {
+            } else if (e instanceof CorruptedCardException) {
                 transaction.error = 'The card is corrupt or does not belong to this organisation. Please contact support.';
             }
         }
@@ -162,6 +176,9 @@ export class PaymentService extends Eventable {
         this.trigger('transaction:change', transaction);
     }
 
+    /**
+     * @returns {Promise<void>}
+     */
     async cancel() {
 
         if (!this.currentTransaction) {
@@ -169,12 +186,15 @@ export class PaymentService extends Eventable {
         }
 
         // close the state
-        this.currentTransaction.reject(new Error('Transaction cancelled manually.'));
+        this.currentTransaction.reject(new TransactionCancelledException('Transaction cancelled manually.'));
 
         this.currentTransaction = null;
         this.trigger('transaction:done');
     }
 
+    /**
+     * @returns {Promise<void>}
+     */
     async cash() {
 
         if (!this.currentTransaction) {

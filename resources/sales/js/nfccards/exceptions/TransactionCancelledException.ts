@@ -21,6 +21,6 @@
 
 import {BaseError} from "./BaseError";
 
-export class NoCardFound extends BaseError {
+export class TransactionCancelledException extends BaseError {
 
 }

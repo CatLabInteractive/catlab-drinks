@@ -77,7 +77,7 @@ class OrderResourceDefinition extends ResourceDefinition
             ->visible(true);
 
         $this->field('price')
-            ->int()
+            ->number()
             ->visible(true);
 
         $this->field('discount_percentage')

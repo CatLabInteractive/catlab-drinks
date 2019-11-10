@@ -21,6 +21,6 @@
 
 import {BaseError} from "./BaseError";
 
-export class CorruptedCard extends BaseError {
+export class InsufficientFundsException extends BaseError {
 
 }
