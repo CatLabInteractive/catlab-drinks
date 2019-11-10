@@ -175,7 +175,12 @@
 
                 // not paid? We need to get paid first!
                 if (!order.paid) {
-                    let paymentData = await this.$paymentService.order(order, false);
+                    try {
+                        let paymentData = await this.$paymentService.order(order, false);
+                    } catch (e) {
+                        this.declineOrder();
+                        return;
+                    }
                 }
 
                 order.status = 'processed';
