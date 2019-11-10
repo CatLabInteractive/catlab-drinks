@@ -22,7 +22,7 @@
 <template>
     <div>
         <h2>
-            Samenvatting
+            Summary
             <b-link class="btn btn-sm btn-info" :to="{ name: 'hq', params: { id: this.eventId } }">
                 Bar HQ
             </b-link>
@@ -33,27 +33,35 @@
 
         <div class="order-summary" v-if="summary">
 
-            <table class="table">
-                <tr>
-                    <th>Item</th>
-                    <th>Amount</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                </tr>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Amount</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
 
-                <tr v-for="product in summary.items.items">
-                    <td>{{product.menuItem.name}}</td>
-                    <td>{{product.amount}}</td>
-                    <td>€{{product.price.toFixed(2)}}</td>
-                    <td>€{{product.totalSales.toFixed(2)}}</td>
-                </tr>
+                <tbody>
+                    <template v-for="productGroup in groupedItems">
+                        <tr v-for="(product, index) in productGroup.sales">
+                            <td><span v-if="index === 0">{{product.menuItem.name}}</span></td>
+                            <td>{{product.amount}}</td>
+                            <td>€{{product.price.toFixed(2)}}</td>
+                            <td>€{{product.totalSales.toFixed(2)}}</td>
+                        </tr>
+                    </template>
+                </tbody>
 
-                <tr>
-                    <th>Total</th>
-                    <td>{{summary.amount}}</td>
-                    <td>&nbsp;</td>
-                    <td>€{{summary.totalSales.toFixed(2)}}</td>
-                </tr>
+                <tfoot>
+                    <tr>
+                        <th>Total</th>
+                        <th>{{summary.amount}}</th>
+                        <th>&nbsp;</th>
+                        <th>€{{summary.totalSales.toFixed(2)}}</th>
+                    </tr>
+                </tfoot>
             </table>
 
         </div>
@@ -88,7 +96,8 @@
         data() {
             return {
                 loaded: false,
-                summary: null
+                summary: null,
+                groupedItems: []
             }
         },
 
@@ -106,9 +115,9 @@
                 this.refresh();
                 this.interval = setInterval(
                     () => {
-                        this.refresh();
+                        //this.refresh();
                     },
-                    5000
+                    30000
                 );
             }
 
@@ -123,6 +132,27 @@
                 this.summary = (await this.orderService.summary({
 
                 }));
+
+                this.groupedItems = [];
+
+                let indexMap = {};
+                this.summary.items.items.forEach(
+                    (summaryLine) => {
+
+                        const key = summaryLine.menuItem.id;
+
+                        if (typeof(indexMap[key]) === 'undefined') {
+                            indexMap[key] = this.groupedItems.push({
+                                menuItem: summaryLine.menuItem,
+                                sales: []
+                            }) - 1;
+                        }
+
+                        this.groupedItems[indexMap[key]].sales.push(summaryLine);
+                    }
+                );
+
+                console.log(this.groupedItems);
             }
         }
     }
