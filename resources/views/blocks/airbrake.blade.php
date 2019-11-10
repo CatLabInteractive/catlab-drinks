@@ -1,6 +1,6 @@
 <script>
 var AIRBRAKE_CONFIG = null;
-@if(config('airbrake'))
+@if(config('airbrake.projectId'))
     AIRBRAKE_CONFIG = {!! json_encode([
             'projectId' => config('airbrake.projectId'),
             'projectKey' => config('airbrake.projectKey'),
