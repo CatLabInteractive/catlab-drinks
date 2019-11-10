@@ -94,6 +94,7 @@ class TransactionMerger
 
     /**
      * @param Card $card
+     * @throws \Exception
      */
     protected function fixBalance(Card $card)
     {

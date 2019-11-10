@@ -101,7 +101,7 @@ class CardDataMerger
 
             // now check if the balance is correct
             $transactionBalance = $card->getBalance();
-            if ($transactionBalance !== $cardData->balance) {
+            if (abs($transactionBalance - $cardData->balance) > 0) {
                 $overflowTransaction = $card->getOverflowTransaction();
                 $overflowTransaction->value -= $transactionBalance - $cardData->balance;
                 $overflowTransaction->save();
