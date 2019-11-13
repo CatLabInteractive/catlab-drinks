@@ -110,6 +110,11 @@ Vue.component(
 );
 
 Vue.component(
+    'card-details',
+    require('./components/CardDetails.vue').default
+);
+
+Vue.component(
     'card',
     require('./components/Card.vue').default
 );

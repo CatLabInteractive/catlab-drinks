@@ -49,6 +49,10 @@ class CardResourceDefinition extends ResourceDefinition
             ->string()
             ->writeable(true, false);
 
+        $this->field('balance')
+            ->visible(true, true)
+            ->number();
+
         $this->relationship('organisation', OrganisationResourceDefinition::class)
             ->one()
             ->expandable()
@@ -64,7 +68,7 @@ class CardResourceDefinition extends ResourceDefinition
 
         $this->field('orderTokenAliases')
             ->string()
-            ->visible()
+            ->visible(true)
             ->array()
             ->writeable(true, true);
 

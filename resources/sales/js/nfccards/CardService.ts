@@ -183,7 +183,7 @@ export class CardService extends Eventable {
     async refreshCard(card: Card, forceWrite = false) {
         const now = new Date();
 
-        const serverCard = await this.transactionStore.getCard(card.getUid());
+        const serverCard = await this.transactionStore.getCard(card.getUid(), true);
         if (serverCard) {
 
             // set interla id
@@ -228,6 +228,10 @@ export class CardService extends Eventable {
         }
     }
 
+    async getCardFromUid(cardUid: string) {
+        return await this.transactionStore.getCard(cardUid);
+    }
+
     async uploadCardData(card: Card) {
         if (!card.id) {
             throw 'Card without id cannot be uploaded to server.';
@@ -251,7 +255,7 @@ export class CardService extends Eventable {
         }
 
         // load the server card
-        const serverCard = await this.transactionStore.getCard(card.getUid());
+        const serverCard = await this.transactionStore.getCard(card.getUid(), true);
 
         // reset the last known sync id.
         this.offlineStore.setLastKnownSyncId(card.getUid(), 0);
@@ -394,11 +398,11 @@ export class CardService extends Eventable {
     /**
      * @param card
      */
-    async getTransactions(card: Card | null = null) {
-        if (card === null) {
+    async getTransactions(cardId: string | null = null) {
+        if (cardId === null) {
             return await this.transactionStore.getAllTransactions();
         } else {
-            return await this.transactionStore.getTransactions(card);
+            return await this.transactionStore.getTransactions(cardId);
         }
     }
 

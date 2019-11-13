@@ -30,6 +30,10 @@
 
         <b-table striped hover :items="transactions" :fields="fields" v-if="transactions.length > 0">
 
+            <template v-slot:cell(card)="row">
+                <a v-on:click="showCard(row.item.card)" href="javascript:void(0)">{{ row.item.card.uid }}</a>
+            </template>
+
             <template v-slot:cell(order)="row">
                 <span v-if="row.item.order">
                     <a href="javascript:void(0)" class="btn btn-sm btn-info" v-on:click="showOrder(row.item.order)">Order #{{row.item.order.id}}</a>
@@ -54,6 +58,13 @@
             </div>
         </b-modal>
 
+        <!-- Modal Component -->
+        <b-modal ref="cardModal" title="Card details" ok-only size="lg">
+            <div v-if="cardDetails">
+                <card-details :cardUid="cardDetails.uid"></card-details>
+            </div>
+        </b-modal>
+
     </div>
 
 </template>
@@ -70,7 +81,7 @@
         },
 
         props: {
-            'card': Card
+            'cardId': null
         },
 
         data() {
@@ -79,7 +90,8 @@
                 orderDetails: null,
                 loaded: false,
                 loading: false,
-                fields: []
+                fields: [],
+                cardDetails: null
             }
         },
 
@@ -87,10 +99,10 @@
 
             async refresh() {
 
-                if (!this.card) {
+                if (!this.cardId) {
                     this.fields = [
                         'id',
-                        'cardUid'
+                        'card'
                     ];
                 } else {
                     this.fields = [];
@@ -100,7 +112,7 @@
 
                 this.loading = true;
 
-                this.transactions = await this.$cardService.getTransactions(this.card);
+                this.transactions = await this.$cardService.getTransactions(this.cardId);
                 this.loaded = true;
                 this.loading = false;
 
@@ -111,6 +123,14 @@
 
                 this.orderDetails = order;
                 this.$refs.orderModal.show();
+            },
+
+            showCard(card) {
+                console.log(card);
+
+                this.cardDetails = card;
+                this.$refs.cardModal.show();
+
             }
         }
     }

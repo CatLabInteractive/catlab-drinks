@@ -98,25 +98,7 @@
                 </table>
 
                 <h3>Transactions</h3>
-                <transactions-table v-if="loaded" :card="card" />
-
-                <table class="table">
-
-                    <tr v-for="transaction in this.transactions">
-
-                        <td>{{ transaction.transactionId }}</td>
-                        <td>
-                            <span v-if="transaction.order">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-info" v-on:click="showOrder(transaction.order)">Order #{{transaction.order.id}}</a>
-                            </span>
-                            <span v-else>{{ transaction.type }}</span>
-                        </td>
-                        <td>{{ transaction.getVisibleAmount() }}</td>
-                        <td>{{ transaction.date ? transaction.date : null | formatDate }}</td>
-
-                    </tr>
-
-                </table>
+                <transactions-table v-if="loaded" :cardId="card.id" />
 
                 <p><button v-on:click="rebuild()" class="btn btn-danger btn-sm">Rebuild</button></p>
 
@@ -210,7 +192,6 @@
 
                 this.loaded = true;
 
-                //this.transactions = await this.$cardService.getTransactions(this.card);
                 this.resetTopupAmount();
 
             },
@@ -283,7 +264,7 @@
                     await this.$cardService.topup(uniqueId, amount);
 
                     // reload last transactions (as otherwise it might be confusing)
-                    this.transactions = await this.$cardService.getTransactions(this.card);
+                    this.transactions = await this.$cardService.getTransactions(this.card.id);
 
                     this.$refs.processingModal.hide();
 

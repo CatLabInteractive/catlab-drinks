@@ -53,7 +53,7 @@ export class TransactionStore {
     /**
      * @param card
      */
-    public getCard(card: string): Promise<any> {
+    public getCard(card: string, markAsSynced = false): Promise<any> {
         if (!this.isOnline()) {
             return Promise.resolve(null);
         }
@@ -61,7 +61,12 @@ export class TransactionStore {
         return new Promise(
             (resolve, reject) => {
 
-                this.axios.get('organisations/' + this.organisationId + '/card-from-uid/' + card + '?markSynced=1')
+                let url = 'organisations/' + this.organisationId + '/card-from-uid/' + card;
+                if (markAsSynced) {
+                    url += '?markSynced=1'
+                }
+
+                this.axios.get(url)
                     .then(
                         (response: any) => {
                             resolve(response.data);
@@ -310,11 +315,11 @@ export class TransactionStore {
 
     /**
      * Get all transactions (uploaded & offline) for a specific card.
-     * @param card
+     * @param cardId: string
      */
-    async getTransactions(card: Card) {
+    async getTransactions(cardId: string) {
 
-        const transactions = await this.axios.get('cards/' + card.id + '/transactions?records=1000&sort=!card_transaction&expand=order,topup,card&fields=*,order,topup');
+        const transactions = await this.axios.get('cards/' + cardId + '/transactions?records=1000&sort=!card_transaction&expand=order,topup,card&fields=*,order,topup');
         return this.mapTransactions(transactions);
 
     }
@@ -340,6 +345,8 @@ export class TransactionStore {
                     item.orderUid,
                     item.topupUid
                 );
+
+                transaction.card = item.card;
 
                 transaction.id = item.id;
                 transaction.uploaded = true;
