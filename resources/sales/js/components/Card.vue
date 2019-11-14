@@ -270,6 +270,9 @@
 
                     this.$refs.processedModal.show();
                     setTimeout(() => {
+                        if (!this.$refs.processedModal) {
+                            return;
+                        }
                         this.$refs.processedModal.hide();
                     }, 5000);
 

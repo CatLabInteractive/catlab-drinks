@@ -1,4 +1,3 @@
-
 /*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
@@ -19,7 +18,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-import OrderSubmitted from "./views/OrderSubmitted";
 
 require('./bootstrap');
 
@@ -58,13 +56,6 @@ const router = new VueRouter({
             path: '/',
             name: 'order',
             component: Order,
-            default: true
-        },
-
-        {
-            path: '/orders/:id',
-            name: 'ordersubmitted',
-            component: OrderSubmitted,
             default: true
         }
     ],

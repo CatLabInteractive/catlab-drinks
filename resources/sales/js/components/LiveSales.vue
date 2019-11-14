@@ -313,6 +313,9 @@
 
                         this.$refs.processedModal.show();
                         setTimeout(function () {
+                            if (!this.$refs.processedModal) {
+                                return;
+                            }
                             this.$refs.processedModal.hide();
                         }.bind(this), 2000);
 

@@ -150,23 +150,23 @@
             // Look for name attribute
             if (this.$route.query.name) {
                 this.userName = this.$route.query.name;
-                localStorage.userName = this.userName;
-            } else if(typeof(localStorage.userName) !== 'undefined') {
-                this.userName = localStorage.userName;
+                this.setLocalStorage('userName', this.userName);
+            } else if(this.getLocalStorage('userName')) {
+                this.userName = this.getLocalStorage('userName');
             }
 
             // order token
             this.cardToken = null;
             if (this.$route.query.card) {
                 this.cardToken = this.$route.query.card;
-                localStorage.cardToken = this.cardToken;
-            } else if (typeof(localStorage.cardToken) !== 'undefined') {
-                this.cardToken = localStorage.cardToken;
+                this.setLocalStorage('cardToken', this.cardToken);
+            } else if (this.getLocalStorage('cardToken')) {
+                this.cardToken = this.getLocalStorage('cardToken');
             }
 
             // Look for name
-            if (typeof(localStorage.tableNumber) !== 'undefined') {
-                this.tableNumber = localStorage.tableNumber;
+            if (this.getLocalStorage('tableNumber')) {
+                this.tableNumber = this.getLocalStorage('tableNumber');
             }
 
         },
@@ -296,13 +296,14 @@
 
             recoverStoredOrder() {
 
-                if (typeof (localStorage.currentOrder) === 'undefined') {
+                let currentOrder = this.getLocalStorage('currentOrder');
+                if (currentOrder) {
                     return;
                 }
 
                 let amounts;
                 try {
-                    amounts = JSON.parse(localStorage.currentOrder);
+                    amounts = JSON.parse(currentOrder);
 
                     this.items.forEach(
                         (item) => {
@@ -340,14 +341,16 @@
                     }
                 );
 
-                localStorage.currentOrder = JSON.stringify(amounts);
-
+                this.setLocalStorage('currentOrder', JSON.stringify(amounts));
             },
 
             async submit() {
                 if (this.saving) {
                     return;
                 }
+
+                // scroll to top
+                window.scrollTo(0, 0);
 
                 if (!this.tableNumber || this.tableNumber === '') {
                     this.warning = 'Gelieve een tafelnummer in te voeren.';
@@ -397,7 +400,7 @@
 
                 this.$refs.processingOrderModal.show();
                 try {
-                    localStorage.tableNumber = this.tableNumber;
+                    this.setLocalStorage('tableNumber', this.tableNumber);
 
                     const order = await this.service.order(this.orderData);
                     this.$refs.processingOrderModal.hide();
@@ -413,7 +416,15 @@
                 } catch (e) {
                     this.$refs.processingOrderModal.hide();
 
-                    this.warning = e.response.data.error.message;
+                    this.warning = 'Network connection error. Please check network connection.';
+                    if (
+                        e.response &&
+                        e.response.data &&
+                        e.response.data.error &&
+                        e.response.data.message
+                    ) {
+                        this.warning = e.response.data.error.message;
+                    }
                     this.$refs.warningModal.show();
                 }
 
@@ -422,8 +433,34 @@
             async closeModal() {
                 this.$refs.warningModal.hide();
                 this.$refs.successModal.hide();
-            }
+            },
 
+            /**
+             * (try to) set in localstorage.
+             */
+            setLocalStorage(name, value) {
+                try {
+                    localStorage[name] = value;
+                } catch (e) {
+                    // do nothing.
+                }
+            },
+
+            /**
+             * (try to) load from localStorage.
+             * @param name
+             * @returns {null|any}
+             */
+            getLocalStorage(name) {
+                try {
+                    if (localStorage[name]) {
+                        return localStorage[name];
+                    }
+                    return null;
+                } catch (e) {
+                    return null;
+                }
+            }
         }
     }
 </script>
