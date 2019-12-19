@@ -90,8 +90,12 @@ class OrderController extends Base\ResourceController
      * Create a new entity
      * @param Request $request
      * @return Response
-     * @throws \CatLab\Requirements\Exceptions\RequirementValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
+     * @throws \CatLab\Charon\Exceptions\InvalidEntityException
+     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\IterableExpected
+     * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
      */
     public function store(Request $request)
     {

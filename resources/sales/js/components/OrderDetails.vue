@@ -63,8 +63,11 @@
                 <tr>
                     <td>Payment</td>
                     <td>
-                        <span v-if="order.paid"><i class="fas fa-check-square"></i> Paid by card</span>
-                        <span v-if="!order.paid"><i class="fas fa-times"></i> Cash transaction</span>
+                        <span v-if="order.paid"><i class="fas fa-check-square"></i> Paid
+                            <span v-if="order.cardTransaction">by card</span>
+                            <span v-if="!order.cardTransaction">in cash</span>
+                        </span>
+                        <span v-if="!order.paid"><i class="fas fa-times"></i> Not paid</span>
                     </td>
                 </tr>
 
