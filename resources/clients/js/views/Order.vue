@@ -421,7 +421,7 @@
                         e.response &&
                         e.response.data &&
                         e.response.data.error &&
-                        e.response.data.message
+                        e.response.data.error.message
                     ) {
                         this.warning = e.response.data.error.message;
                     }
