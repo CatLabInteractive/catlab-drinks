@@ -103,6 +103,12 @@ class CardController extends Base\ResourceController
      * @param $organisationId
      * @param $cardUid
      * @return ResourceResponse
+     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
+     * @throws \CatLab\Charon\Exceptions\InvalidEntityException
+     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\IterableExpected
+     * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function viewFromUid(Request $request, $organisationId, $cardUid)
@@ -170,6 +176,12 @@ class CardController extends Base\ResourceController
      * @param Request $request
      * @param $cardId
      * @return ResourceResponse
+     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
+     * @throws \CatLab\Charon\Exceptions\InvalidEntityException
+     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\IterableExpected
+     * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function resetTransactions(Request $request, $cardId)
