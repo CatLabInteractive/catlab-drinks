@@ -36,6 +36,15 @@
                         <router-link :to="{ name: 'hq', params: { id: row.item.id } }">{{ row.item.name }}</router-link>
                     </template>
 
+                    <template v-slot:cell(order_token)="row">
+                        <!--
+                        <a :href="row.item.order_url" target="_blank" title="Client panel">
+                            <pre>{{ row.item.order_token }}></pre>
+                        </a>
+                        -->
+                        <pre>{{ row.item.order_token }}</pre>
+                    </template>
+
                     <template v-slot:cell(actions)="row">
 
                         <b-button size="sm" class="btn-info" :to="{ name: 'menu', params: { id: row.item.id } }" title="Edit menu">
@@ -138,6 +147,10 @@
                     {
                         key: 'name',
                         label: 'Event',
+                    },
+                    {
+                        key: 'order_token',
+                        label: 'Order token',
                     },
                     {
                         key: 'is_selling',
