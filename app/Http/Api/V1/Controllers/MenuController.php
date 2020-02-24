@@ -105,9 +105,11 @@ class MenuController extends Base\ResourceController
      * @param Request $request
      * @param \Illuminate\Database\Eloquent\Model $entity
      * @param $isNew
+     * @return Model
      */
     protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
     {
         $this->traitBeforeSaveEntity($request, $entity, $isNew);
+        return $entity;
     }
 }

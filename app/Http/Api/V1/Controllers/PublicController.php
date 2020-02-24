@@ -84,6 +84,7 @@ class PublicController extends ResourceController
      * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
      * @throws \CatLab\Charon\Exceptions\InvalidTransformer
      * @throws \CatLab\Charon\Exceptions\IterableExpected
+     * @throws \CatLab\Charon\Exceptions\InvalidResourceDefinition
      */
     public function menu()
     {
@@ -101,7 +102,7 @@ class PublicController extends ResourceController
 
         $context = $this->getContext(Action::VIEW);
 
-        $menuItems = $this->getModels($event->menuItems()->where('is_selling', '=', true), $context);
+        $menuItems = $this->getModels($event->menuItems()->where('is_selling', '=', true), $context)->getModels();
 
         $resources = $this->toResources($menuItems, $context, MenuItemResourceDefinition::class);
         return new ResourceResponse($resources, $context);
@@ -113,8 +114,10 @@ class PublicController extends ResourceController
      * @throws InvalidContextAction
      * @throws InvalidEntityException
      * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidResourceDefinition
      * @throws \CatLab\Charon\Exceptions\InvalidTransformer
      * @throws \CatLab\Charon\Exceptions\IterableExpected
+     * @throws \CatLab\Charon\Exceptions\NoInputDataFound
      * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
      */
     public function order()

@@ -77,6 +77,7 @@ class DescriptionController extends Controller
     /**
      * @return mixed
      * @throws \CatLab\Charon\Exceptions\RouteAlreadyDefined
+     * @throws \CatLab\Charon\Exceptions\InvalidScalarException
      */
     protected function swaggerResponse()
     {

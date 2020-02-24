@@ -155,7 +155,14 @@ class TransactionController extends ResourceController
 
     /**
      * @param $organisationId
+     * @return \CatLab\Charon\Laravel\Contracts\Response
+     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
+     * @throws \CatLab\Charon\Exceptions\InvalidEntityException
+     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\IterableExpected
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \CatLab\Charon\Exceptions\InvalidResourceDefinition
      */
     public function getFromOrganisation($organisationId)
     {
@@ -165,7 +172,7 @@ class TransactionController extends ResourceController
 
         $context = $this->getContext(Action::INDEX);
 
-        $models = $this->getModels($organisation->transactions(), $context);
+        $models = $this->getModels($organisation->transactions(), $context)->getModels();
         $resources = $this->toResources($models, $context);
 
         return $this->getResourceResponse($resources, $context);
@@ -176,9 +183,11 @@ class TransactionController extends ResourceController
      * @param Request $request
      * @param \Illuminate\Database\Eloquent\Model $entity
      * @param $isNew
+     * @return Model
      */
     protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
     {
         $this->traitBeforeSaveEntity($request, $entity, $isNew);
+        return $entity;
     }
 }

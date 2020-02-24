@@ -101,6 +101,7 @@ class EventController extends Base\ResourceController
      * @param Request $request
      * @param \Illuminate\Database\Eloquent\Model $entity
      * @param $isNew
+     * @return Model
      */
     protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
     {
@@ -110,5 +111,7 @@ class EventController extends Base\ResourceController
             $entity->order_token = str_random(32);
             $entity->waiter_token = str_random(32);
         }
+
+        return $entity;
     }
 }

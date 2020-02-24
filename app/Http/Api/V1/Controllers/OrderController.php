@@ -90,8 +90,14 @@ class OrderController extends Base\ResourceController
      * Create a new entity
      * @param Request $request
      * @return Response
-     * @throws \CatLab\Requirements\Exceptions\RequirementValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
+     * @throws \CatLab\Charon\Exceptions\InvalidEntityException
+     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidResourceDefinition
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\IterableExpected
+     * @throws \CatLab\Charon\Exceptions\NoInputDataFound
+     * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
      */
     public function store(Request $request)
     {
@@ -167,9 +173,11 @@ class OrderController extends Base\ResourceController
      * @param Request $request
      * @param \Illuminate\Database\Eloquent\Model $entity
      * @param $isNew
+     * @return Model
      */
     protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
     {
         $this->traitBeforeSaveEntity($request, $entity, $isNew);
+        return $entity;
     }
 }
