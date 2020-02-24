@@ -139,7 +139,10 @@
                 this.settingService.nfcServer = this.nfcServer;
                 this.settingService.nfcPassword = this.nfcPassword;
 
-                this.settingService.save();
+                this.settingService.save()
+                    .then(function() {
+                        window.location.reload();
+                    })
 
             },
 

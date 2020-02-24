@@ -51,11 +51,17 @@ export class SettingService {
     }
 
     save() {
-        localForage.setItem('settings', {
-            terminalName : this.terminalName,
-            nfcServer: this.nfcServer,
-            nfcPassword: this.nfcPassword
-        });
+        return new Promise(
+            function(resolve, reject) {
+                localForage.setItem('settings', {
+                    terminalName : this.terminalName,
+                    nfcServer: this.nfcServer,
+                    nfcPassword: this.nfcPassword
+                }, function() {
+                    resolve();
+                });
+            }.bind(this)
+        );
     }
 
 }
