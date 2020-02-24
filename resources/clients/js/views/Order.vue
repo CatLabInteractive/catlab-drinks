@@ -44,7 +44,7 @@
                 <b-col>
                     <b-table striped hover :items="items" :fields="fields" v-if="loaded" class="order-table">
 
-                        <template v-slot:cell(row-details)="row">
+                        <template v-slot:row-details="row">
                             {{row.item.description}}
                         </template>
 
@@ -297,13 +297,17 @@
             recoverStoredOrder() {
 
                 let currentOrder = this.getLocalStorage('currentOrder');
-                if (currentOrder) {
+                if (!currentOrder) {
                     return;
                 }
 
                 let amounts;
                 try {
-                    amounts = JSON.parse(currentOrder);
+                    if (typeof(currentOrder) !== 'object') {
+                        amounts = JSON.parse(currentOrder);
+                    } else {
+                        amounts = currentOrder;
+                    }
 
                     this.items.forEach(
                         (item) => {
@@ -442,7 +446,15 @@
                 try {
                     localStorage[name] = value;
                 } catch (e) {
-                    // do nothing.
+                    console.log(e);
+
+                    // try to set cookie
+                    try {
+                        this.$cookies.set(name, value);
+                    } catch (e) {
+                        console.log(e);
+                        // do nothing.
+                    }
                 }
             },
 
@@ -456,9 +468,23 @@
                     if (localStorage[name]) {
                         return localStorage[name];
                     }
+
+                    if (this.$cookies.get(name)) {
+                        return this.$cookies.get(name);
+                    }
+
                     return null;
                 } catch (e) {
-                    return null;
+                    console.log(e);
+
+                    // check cookie
+                    try {
+                        if (this.$cookies.get(name)) {
+                            return this.$cookies.get(name);
+                        }
+                    } catch (e) {
+                        console.log(e);
+                    }
                 }
             }
         }

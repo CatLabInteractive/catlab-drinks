@@ -27,6 +27,8 @@ import BootstrapVue from "bootstrap-vue";
 import App from './views/App'
 import Order from './views/Order'
 import AirbrakeClient from 'airbrake-js';
+import VueCookies from 'vue-cookies'
+
 
 if (AIRBRAKE_CONFIG) {
     var airbrake = new AirbrakeClient(AIRBRAKE_CONFIG);
@@ -40,6 +42,9 @@ if (AIRBRAKE_CONFIG) {
 
 Vue.use(VueRouter);
 Vue.use(BootstrapVue);
+Vue.use(VueCookies);
+Vue.$cookies.config('7d');
+
 
 /**
  * The following block of code may be used to automatically register your
