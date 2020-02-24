@@ -98,6 +98,12 @@ class OrderController extends Base\ResourceController
      * @throws \CatLab\Charon\Exceptions\IterableExpected
      * @throws \CatLab\Charon\Exceptions\NoInputDataFound
      * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
+     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
+     * @throws \CatLab\Charon\Exceptions\InvalidEntityException
+     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\IterableExpected
+     * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
      */
     public function store(Request $request)
     {

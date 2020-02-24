@@ -151,6 +151,15 @@ class Order extends Model
     }
 
     /**
+     * Is this a card transaction?
+     * @return bool
+     */
+    public function isCardTransaction()
+    {
+        return $this->cardTransactions()->count() > 0;
+    }
+
+    /**
      * Return the amount of card credits that this order is worth.
      * @return float
      */

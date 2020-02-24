@@ -72,6 +72,10 @@ class OrderResourceDefinition extends ResourceDefinition
             ->filterable()
             ->writeable(true, true);
 
+        $this->field('cardTransaction')
+            ->bool()
+            ->visible(true);
+
         $this->field('paid')
             ->bool()
             ->visible(true);

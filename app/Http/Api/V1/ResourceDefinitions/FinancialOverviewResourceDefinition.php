@@ -1,4 +1,5 @@
-/*
+<?php
+/**
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
  * CatLab Interactive bvba, Gent, Belgium
@@ -19,20 +20,23 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {AbstractService} from './AbstractService';
-import $ from "jquery";
+namespace App\Http\Api\V1\ResourceDefinitions;
 
-export class OrganisationService extends AbstractService {
+use App\Models\FinancialOverview;
+use CatLab\Charon\Models\ResourceDefinition;
 
-    constructor() {
-        super();
+/**
+ * Class FinancialOverviewResourceDefinition
+ * @package App\Http\Api\V1\ResourceDefinitions
+ */
+class FinancialOverviewResourceDefinition extends ResourceDefinition
+{
+    public function __construct()
+    {
+        parent::__construct(FinancialOverview::class);
 
-        this.entityUrl = 'organisations';
-        this.indexUrl = 'users/me/organisations';
+        $this->field('totalCardCredit')
+            ->number()
+            ->visible(true, true);
     }
-
-    getFinancialOverview(organisationId) {
-        return this.execute('get', '/organisations/' + organisationId + '/financial-overview');
-    }
-
 }
