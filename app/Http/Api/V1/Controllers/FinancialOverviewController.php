@@ -124,8 +124,8 @@ class FinancialOverviewController extends Base\ResourceController
         $topups = Transaction::query()
             ->leftJoin('cards', 'cards.id', '=', 'card_transactions.card_id')
             ->where('cards.organisation_id', '=', $organisation->id)
-            ->where('value', '>', 0)
-            ->whereDate('card_transactions.created_at', '>', $since)
+            ->where('card_transactions.value', '>', 0)
+            ->where('card_transactions.created_at', '>', $since)
             ->sum('value');
 
         $overview->topups24Hours = $topups;
