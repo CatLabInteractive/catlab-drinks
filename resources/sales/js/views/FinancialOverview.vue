@@ -33,6 +33,11 @@
                         <td>{{ totalCardCredit }}</td>
                     </tr>
 
+                    <tr>
+                        <td>Topups last 24 hours</td>
+                        <td>{{ topups24Hours }}</td>
+                    </tr>
+
                 </table>
 
             </b-col>
@@ -57,7 +62,7 @@
         data() {
             return {
                 overview: null,
-                totalCardCredit: null
+                topups24Hours: null
             }
         },
 
@@ -72,6 +77,7 @@
                             this.overview = overview;
 
                             this.totalCardCredit = VisibleAmount.toVisible(overview.totalCardCredit);
+                            this.topups24Hours = VisibleAmount.toVisible(overview.topups24Hours);
                         }
                     );
 

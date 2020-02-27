@@ -32,4 +32,9 @@ class FinancialOverview
      * @var float
      */
     public $totalCardCredit;
+
+    /**
+     * @var float
+     */
+    public $topups24Hours;
 }

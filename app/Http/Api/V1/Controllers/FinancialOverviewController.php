@@ -26,6 +26,7 @@ use App\Http\Api\V1\ResourceDefinitions\FinancialOverviewResourceDefinition;
 use App\Models\FinancialOverview;
 use App\Models\Organisation;
 use App\Models\Transaction;
+use Carbon\Carbon;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Laravel\Models\ResourceResponse;
@@ -73,6 +74,7 @@ class FinancialOverviewController extends Base\ResourceController
      * @throws \CatLab\Charon\Exceptions\IterableExpected
      * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \CatLab\Charon\Exceptions\InvalidResourceDefinition
      */
     public function overview($organisationId)
     {
@@ -102,6 +104,30 @@ class FinancialOverviewController extends Base\ResourceController
 
         $out->totalCardCredit = $totalCredit;
 
+        $this->setTotalTopup($out, $organisation);
+
         return $out;
+    }
+
+    /**
+     * @param FinancialOverview $overview
+     * @param Organisation $organisation
+     * @param \DateTime $since
+     * @return void
+     */
+    private function setTotalTopup(
+        FinancialOverview $overview,
+        Organisation $organisation
+    ) {
+        $since = Carbon::now()->subDay();
+
+        $topups = Transaction::query()
+            ->leftJoin('cards', 'cards.id', '=', 'card_transactions.card_id')
+            ->where('cards.organisation_id', '=', $organisation->id)
+            ->where('value', '>', 0)
+            ->whereDate('card_transactions.created_at', '>', $since)
+            ->sum('value');
+
+        $overview->topups24Hours = $topups;
     }
 }

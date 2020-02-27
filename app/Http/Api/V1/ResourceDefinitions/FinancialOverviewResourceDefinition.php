@@ -38,5 +38,9 @@ class FinancialOverviewResourceDefinition extends ResourceDefinition
         $this->field('totalCardCredit')
             ->number()
             ->visible(true, true);
+
+        $this->field('topups24Hours')
+            ->number()
+            ->visible(true, true);
     }
 }
