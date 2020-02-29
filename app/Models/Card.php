@@ -106,6 +106,16 @@ class Card extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
+     */
+    public function orders()
+    {
+        return Order::query()
+            ->leftJoin('card_transactions', 'card_transactions.order_id', '=', 'orders.id')
+            ->where('card_transactions.card_id', '=', $this->id);
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getPendingTransactions()
@@ -305,5 +315,25 @@ class Card extends Model
                 return $v->alias;
             }
         );
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getName()
+    {
+        if (!$this->name) {
+            $namedOrder = $this->orders()
+                ->whereNotNull('orders.requester')
+                ->orderBy('orders.id', 'desc')
+                ->first();
+
+            // Try to guess the client name.
+            if ($namedOrder) {
+                $this->name = $namedOrder->requester;
+                $this->save();
+            }
+        }
+        return $this->name;
     }
 }

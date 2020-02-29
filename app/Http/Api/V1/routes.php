@@ -57,6 +57,8 @@ $routes->group(
         // Swagger documentation
         $routes->get('description', 'DescriptionController@description')->tag('description');
 
+        \App\Http\Api\V1\Controllers\PublicCardNameController::setRoutes($routes);
+
         $routes->group(
             [
                 'middleware' => [

@@ -49,6 +49,10 @@ class CardResourceDefinition extends ResourceDefinition
             ->string()
             ->writeable(true, false);
 
+        $this->field('name')
+            ->visible()
+            ->string();
+
         $this->field('balance')
             ->visible(true, true)
             ->number();

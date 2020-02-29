@@ -25,6 +25,7 @@ namespace App\Http\Api\V1\Controllers;
 use App\Exceptions\InsufficientFundsException;
 use App\Factories\OrderEntityFactory;
 use App\Http\Api\V1\Controllers\Base\ResourceController;
+use App\Http\Api\V1\ResourceDefinitions\CardNameResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\MenuItemResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\OrderResourceDefinition;
 use App\Models\Card;
@@ -38,6 +39,7 @@ use CatLab\Charon\Exceptions\InvalidEntityException;
 use CatLab\Charon\Laravel\Models\ResourceResponse;
 use Illuminate\Http\JsonResponse;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class PublicController

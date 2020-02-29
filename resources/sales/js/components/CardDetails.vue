@@ -31,12 +31,15 @@
                     <td>{{ card.id }}</td>
                 </tr>
 
+                <tr v-if="card.name">
+                    <td>Name</td>
+                    <td>{{ card.name }}</td>
+                </tr>
+
                 <tr>
                     <td>Balance</td>
                     <td>{{ VisibleAmount.toVisible(card.balance) }}</td>
                 </tr>
-
-
 
                 <tr v-if="card.discount !== 0">
                     <td>Discount</td>
