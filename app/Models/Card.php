@@ -322,6 +322,10 @@ class Card extends Model
      */
     public function getName()
     {
+        if (!$this->exists) {
+            return null;
+        }
+
         if (!$this->name) {
             $namedOrder = $this->orders()
                 ->whereNotNull('orders.requester')

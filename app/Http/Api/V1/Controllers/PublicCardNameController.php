@@ -77,7 +77,7 @@ class PublicCardNameController extends ResourceController
     {
         $card = Card::where('uid', '=', $cardId)->first();
         if (!$card) {
-            $card = [];
+            $card = new Card();
         }
 
         $context = $this->getContext(Action::VIEW);
