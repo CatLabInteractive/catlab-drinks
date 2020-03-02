@@ -49,6 +49,7 @@ class ResourceController extends Controller
     /**
      * AbstractResourceController constructor.
      * @param string $resourceDefinitionClass
+     * @throws \CatLab\Charon\Exceptions\InvalidResourceDefinition
      */
     public function __construct($resourceDefinitionClass)
     {
