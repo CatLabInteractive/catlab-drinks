@@ -59,7 +59,7 @@ class TopupController extends ResourceController
             static::RESOURCE_DEFINITION,
             'cards/{' . self::PARENT_RESOURCE_ID . '}/topups',
             'topups',
-            'TopUpController',
+            'TopupController',
             [
                 'id' => self::RESOURCE_ID,
                 'parentId' => self::PARENT_RESOURCE_ID,
