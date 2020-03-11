@@ -45,7 +45,7 @@ class TransactionController extends ResourceController
 {
     const RESOURCE_DEFINITION = TransactionResourceDefinition::class;
     const RESOURCE_ID = 'id';
-    const PARENT_RESOURCE_ID = 'cardId';
+    const PARENT_RESOURCE_ID = 'card';
 
     use \CatLab\Charon\Laravel\Controllers\ChildCrudController {
         beforeSaveEntity as traitBeforeSaveEntity;

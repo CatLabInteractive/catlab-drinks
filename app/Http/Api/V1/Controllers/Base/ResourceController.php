@@ -25,8 +25,6 @@ namespace App\Http\Api\V1\Controllers\Base;
 use App\Http\Controllers\Controller;
 use CatLab\Base\Helpers\ArrayHelper;
 use CatLab\Charon\Laravel\InputParsers\JsonBodyInputParser;
-use CatLab\Charon\Laravel\Resolvers\PropertyResolver;
-use CatLab\Charon\Laravel\Resolvers\PropertySetter;
 use CatLab\CursorPagination\CursorPaginationBuilder;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Library\ResourceDefinitionLibrary;
@@ -116,7 +114,14 @@ class ResourceController extends Controller
      * @param array $parameters
      * @param null $resourceDefinition
      * @return \Illuminate\Http\JsonResponse
+     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
      * @throws \CatLab\Charon\Exceptions\InvalidEntityException
+     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidResourceDefinition
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\IterableExpected
+     * @throws \CatLab\Charon\Exceptions\NotImplementedException
+     * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
      */
     protected function outputList($models, array $parameters = [], $resourceDefinition = null)
     {
@@ -141,7 +146,13 @@ class ResourceController extends Controller
      * @param $models
      * @param array $parameters
      * @return \Illuminate\Http\JsonResponse
+     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
      * @throws \CatLab\Charon\Exceptions\InvalidEntityException
+     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidResourceDefinition
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\IterableExpected
+     * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
      */
     protected function output($models, array $parameters = [])
     {
@@ -160,7 +171,13 @@ class ResourceController extends Controller
      * @param Context $context
      * @param null $resourceDefinition
      * @return array|\mixed[]
+     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
      * @throws \CatLab\Charon\Exceptions\InvalidEntityException
+     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
+     * @throws \CatLab\Charon\Exceptions\InvalidResourceDefinition
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\IterableExpected
+     * @throws \CatLab\Charon\Exceptions\VariableNotFoundInContext
      */
     protected function modelsToResources($models, Context $context, $resourceDefinition = null)
     {

@@ -47,7 +47,7 @@ class CardController extends Base\ResourceController
 {
     const RESOURCE_DEFINITION = CardResourceDefinition::class;
     const RESOURCE_ID = 'id';
-    const PARENT_RESOURCE_ID = 'organisationId';
+    const PARENT_RESOURCE_ID = 'organisation';
 
     use \CatLab\Charon\Laravel\Controllers\ChildCrudController {
         beforeSaveEntity as traitBeforeSaveEntity;

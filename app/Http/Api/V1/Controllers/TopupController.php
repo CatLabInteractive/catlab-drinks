@@ -26,11 +26,13 @@ use App\Http\Api\V1\Controllers\Base\ResourceController;
 use App\Http\Api\V1\ResourceDefinitions\TopupResourceDefinition;
 use App\Models\Card;
 
+use App\Models\Topup;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Laravel\Controllers\ChildCrudController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Class TopupController
@@ -40,10 +42,11 @@ class TopupController extends ResourceController
 {
     const RESOURCE_DEFINITION = TopUpResourceDefinition::class;
     const RESOURCE_ID = 'id';
-    const PARENT_RESOURCE_ID = 'cardId';
+    const PARENT_RESOURCE_ID = 'card';
 
     use ChildCrudController {
         beforeSaveEntity as traitBeforeSaveEntity;
+        afterSaveEntity as traitAfterSaveEntity;
     }
 
     /**
@@ -105,10 +108,31 @@ class TopupController extends ResourceController
      * @param \Illuminate\Database\Eloquent\Model $entity
      * @param $isNew
      * @return Model
+     * @throws \Exception
      */
     protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
     {
         $this->traitBeforeSaveEntity($request, $entity, $isNew);
+
+        $entity->type = Topup::TYPE_MANUAL;
+        $entity->status = Topup::STATUS_PENDING;
+        $entity->uid = Uuid::uuid1();
+
+        return $entity;
+    }
+
+    /**
+     * Called before saveEntity
+     * @param Request $request
+     * @param \Illuminate\Database\Eloquent\Model $entity
+     * @param $isNew
+     * @return Model
+     */
+    protected function afterSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
+    {
+        $this->traitAfterSaveEntity($request, $entity, $isNew);
+
+        $entity->success();
         return $entity;
     }
 }

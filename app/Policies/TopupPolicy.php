@@ -42,7 +42,7 @@ class TopupPolicy extends BasePolicy
      */
     public function index(?User $user, Card $card)
     {
-        return $this->isMyEvent($user, $card->event);
+        return $this->isMyOrganisation($user, $card->organisation);
     }
 
     /**
@@ -52,7 +52,7 @@ class TopupPolicy extends BasePolicy
      */
     public function create(?User $user, Card $card)
     {
-        return $this->isMyEvent($user, $card->event);
+        return $this->isMyOrganisation($user, $card->organisation);
     }
 
     /**
@@ -62,7 +62,7 @@ class TopupPolicy extends BasePolicy
      */
     public function view(?User $user, Topup $topup)
     {
-        return $this->isMyEvent($user, $topup->card->event);
+        return $this->isMyOrganisation($user, $topup->card->organisation);
     }
 
     /**
@@ -72,7 +72,7 @@ class TopupPolicy extends BasePolicy
      */
     public function edit(?User $user, Topup $topup)
     {
-        return $this->isMyEvent($user, $topup->card->event);
+        return $this->isMyOrganisation($user, $topup->card->organisation);
     }
 
     /**
@@ -82,6 +82,6 @@ class TopupPolicy extends BasePolicy
      */
     public function destroy(?User $user, Topup $topup)
     {
-        return $this->isMyEvent($user, $topup->card->event);
+        return $this->isMyOrganisation($user, $topup->card->organisation);
     }
 }

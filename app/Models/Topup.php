@@ -80,9 +80,10 @@ class Topup extends Model
     }
 
     /**
+     * Mark a topup as succesful.
      * @param $data
      */
-    public function success($data)
+    public function success($data = null)
     {
         if ($this->isSuccess()) {
             // already processed.

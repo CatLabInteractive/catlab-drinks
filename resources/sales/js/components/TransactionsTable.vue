@@ -31,7 +31,7 @@
         <b-table striped hover :items="transactions" :fields="fields" v-if="transactions.length > 0">
 
             <template v-slot:cell(card)="row">
-                <a v-on:click="showCard(row.item.card)" href="javascript:void(0)">{{ row.item.card.uid }}</a>
+                <a v-on:click="showCard(row.item.card)" href="javascript:void(0)" class="card-id">{{ row.item.card.uid }}</a>
             </template>
 
             <template v-slot:cell(order)="row">

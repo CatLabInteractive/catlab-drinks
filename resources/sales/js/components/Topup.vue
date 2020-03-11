@@ -26,6 +26,10 @@
 
         <div v-if="!loading">
 
+            <div v-if="success">
+                <p class="alert alert-success">Topup succesful.</p>
+            </div>
+
             <div v-if="showConfirmation">
                 <ul>
                     <li>Amount: {{ amount }}</li>
@@ -92,6 +96,7 @@
                 loading: false,
                 showConfirmation: false,
                 showForm: true,
+                success: false,
                 amount: 0,
                 reason: ''
             }
@@ -114,8 +119,13 @@
                     reason: this.reason
                 });
 
-                this.loading = true;
+                this.loading = false;
                 this.showForm = true;
+
+                this.success = true;
+                setTimeout(() => {
+                    this.sucess = false;
+                }, 2000);
             },
 
             cancelTopup: function() {
