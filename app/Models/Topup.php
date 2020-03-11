@@ -154,4 +154,12 @@ class Topup extends Model
     {
         return ceil($this->amount * 100);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

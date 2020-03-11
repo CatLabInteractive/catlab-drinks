@@ -48,6 +48,9 @@
 
             </table>
 
+            <h3>Topup</h3>
+            <card-topup :card="card" />
+
             <h3>Transactions</h3>
             <transactions-table :cardId="card.id" />
         </div>
@@ -90,6 +93,10 @@
             async loadCardData() {
                 this.card = await this.$cardService.getCardFromUid(this.cardUid);
                 this.loading = false;
+            },
+
+            topup() {
+                alert('Topping up');
             }
 
         }

@@ -54,14 +54,16 @@ class FinancialOverviewController extends Base\ResourceController
      */
     public static function setRoutes(RouteCollection $routes)
     {
-        $routes->get(
-            'organisations/{' . self::PARENT_RESOURCE_ID . '}/financial-overview',
-            'FinancialOverviewController@overview'
-        )
-            ->parameters()->path(self::PARENT_RESOURCE_ID)->string()->required()
-            ->returns()->one(self::RESOURCE_DEFINITION);
+        $routes->group([], function(RouteCollection $routes) {
+            $routes->get(
+                'organisations/{' . self::PARENT_RESOURCE_ID . '}/financial-overview',
+                'FinancialOverviewController@overview'
+            )
+                ->parameters()->path(self::PARENT_RESOURCE_ID)->string()->required()
+                ->returns()->one(self::RESOURCE_DEFINITION);
 
-        $routes->tag('financial');
+            $routes->tag('financial');
+        });
     }
 
     /**

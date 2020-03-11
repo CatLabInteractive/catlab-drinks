@@ -22,6 +22,7 @@
 
 namespace App\Http\Api\V1\ResourceDefinitions;
 
+use App\Http\Api\V1\Transformers\DateTimeTransformer;
 use App\Models\Topup;
 use CatLab\Charon\Models\ResourceDefinition;
 
@@ -36,5 +37,41 @@ class TopupResourceDefinition extends ResourceDefinition
         parent::__construct(Topup::class);
 
         $this->identifier('id');
+
+        $this->field('type')
+            ->string()
+            ->visible(true, true);
+
+        $this->field('uid')
+            ->string()
+            ->visible(true, true);
+
+        $this->field('amount')
+            ->number()
+            ->writeable(true, true)
+            ->visible(true, true);
+
+        $this->field('reason')
+            ->string()
+            ->writeable(true, true)
+            ->visible(true, true);
+
+        $this->field('created_at')
+            ->datetime(DateTimeTransformer::class)
+            ->visible(true);
+
+        $this->field('updated_at')
+            ->datetime(DateTimeTransformer::class)
+            ->visible(true);
+
+        $this->relationship('card', CardResourceDefinition::class)
+            ->one()
+            ->expandable()
+            ->visible(true, true);
+
+        $this->relationship('createdBy', UserResourceDefinition::class)
+            ->one()
+            ->expandable()
+            ->visible(true, true);
     }
 }

@@ -121,6 +121,11 @@ Vue.component(
 );
 
 Vue.component(
+    'card-topup',
+    require('./components/Topup.vue').default
+);
+
+Vue.component(
     'transactions-table',
     require('./components/TransactionsTable.vue').default
 );
