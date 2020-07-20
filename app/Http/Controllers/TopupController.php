@@ -27,6 +27,7 @@ use App\Models\Topup;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Neuron\Config;
 use Neuron\Net\Response;
+use Omnipay\Common\Exception\InvalidRequestException;
 use Omnipay\Omnipay;
 use Omnipay\Paynl\Gateway;
 use Omnipay\Paynl\Message\Request\CompletePurchaseRequest;
@@ -127,31 +128,53 @@ class TopupController extends Controller
         $card = $this->getCard($cardUid);
 
         /** @var Topup $topup */
-        $topup = Topup::findOrFail($topupId);
+        $topup = Topup::where('uid', '=', $topupId)->first();
+        if (!$topup) {
+            if (\Request::isJson()) {
+                return 'TRUE|Order not found';
+            }
+
+            abort(400, 'Order not found.');
+            return;
+        }
 
         if ($topup->card->id !== $card->id) {
+            if (\Request::isJson()) {
+                return 'TRUE|Order does not match card id.';
+            }
+
             abort(400, 'Card doesn\'t match topup card. But hey, nice try.');
             return;
         }
 
         $gateway = $this->createPayNLGateway();
 
-        $response = $gateway->completePurchase($this->getParameters($card, $topup))->send();
+        try {
+            $response = $gateway->completePurchase($this->getParameters($card, $topup))->send();
 
-        $topup->logs()->create([
-            'message' => json_encode($response->getData())
-        ]);
+            $topup->logs()->create([
+                'message' => json_encode($response->getData())
+            ]);
 
-        //dd($response->isSuccessful() && $response->isPaid());
-        $successful = $response->isSuccessful();
-        if ($response instanceof CompletePurchaseResponse) {
-            $successful = $successful && $response->isPaid();
+            //dd($response->isSuccessful() && $response->isPaid());
+            $successful = $response->isSuccessful();
+            if ($response instanceof CompletePurchaseResponse) {
+                $successful = $successful && $response->isPaid();
+            }
+
+            if ($successful) {
+                $topup->success($response->getData());
+            } elseif ($response->isCancelled()) {
+                $topup->cancel($response->getData());
+            }
+
+        } catch (InvalidRequestException $e) {
+            // Do nothing, just show the status in page.
+            error_log($e);
         }
 
-        if ($successful) {
-            $topup->success($response->getData());
-        } elseif ($response->isCancelled()) {
-            $topup->cancel($response->getData());
+        if (\Request::isJson()) {
+            return 'TRUE|' . json_encode($topup->getData());
         }
 
         return view('topup/status', [
@@ -171,10 +194,10 @@ class TopupController extends Controller
             'currency' => 'EUR',
             'description' => 'Topup card ' . $card->uid,
             'amount' => number_format((float)$topup->amount, 2, '.', ''),
-            'finishUrl' => action('TopupController@status', [ $card->uid, $topup->id ]),
-            'returnUrl' => action('TopupController@status', [ $card->uid, $topup->id ]),
-            'cancelUrl' => action('TopupController@status', [ $card->uid, $topup->id ]),
-            'notifyUrl' => action('TopupController@status', [ $card->uid, $topup->id ])
+            'finishUrl' => action('TopupController@status', [ $card->uid, $topup->uid ]),
+            'returnUrl' => action('TopupController@status', [ $card->uid, $topup->uid ]),
+            'cancelUrl' => action('TopupController@status', [ $card->uid, $topup->uid ]),
+            'notifyUrl' => action('TopupController@status', [ $card->uid, $topup->uid ])
         ];
     }
 
