@@ -120,17 +120,28 @@ class TopupController extends Controller
 
     /**
      * @param $cardUid
-     * @param $topupId
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|void
+     * @param $topupUid
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|string|void
      */
-    public function status($cardUid, $topupId)
+    public function notification($cardUid, $topupUid)
+    {
+        return $this->status($cardUid, $topupUid, true);
+    }
+
+    /**
+     * @param $cardUid
+     * @param $topupUid
+     * @param bool $isApiRequest
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\View\View|string|void
+     */
+    public function status($cardUid, $topupUid, $isApiRequest = false)
     {
         $card = $this->getCard($cardUid);
 
         /** @var Topup $topup */
-        $topup = Topup::where('uid', '=', $topupId)->first();
+        $topup = Topup::where('uid', '=', $topupUid)->first();
         if (!$topup) {
-            if (\Request::isJson()) {
+            if ($isApiRequest) {
                 return 'TRUE|Order not found';
             }
 
@@ -139,7 +150,7 @@ class TopupController extends Controller
         }
 
         if ($topup->card->id !== $card->id) {
-            if (\Request::isJson()) {
+            if ($isApiRequest) {
                 return 'TRUE|Order does not match card id.';
             }
 
@@ -173,7 +184,7 @@ class TopupController extends Controller
             error_log($e);
         }
 
-        if (\Request::isJson()) {
+        if ($isApiRequest) {
             return 'TRUE|' . json_encode($topup->getData());
         }
 
@@ -197,7 +208,7 @@ class TopupController extends Controller
             'finishUrl' => action('TopupController@status', [ $card->uid, $topup->uid ]),
             'returnUrl' => action('TopupController@status', [ $card->uid, $topup->uid ]),
             'cancelUrl' => action('TopupController@status', [ $card->uid, $topup->uid ]),
-            'notifyUrl' => action('TopupController@status', [ $card->uid, $topup->uid ])
+            'notifyUrl' => action('TopupController@notification', [ $card->uid, $topup->uid ])
         ];
     }
 
