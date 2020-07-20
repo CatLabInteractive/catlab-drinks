@@ -134,7 +134,7 @@ class TopupController extends Controller
                 return 'TRUE|Order not found';
             }
 
-            abort(400, 'Order not found.');
+            abort(404, 'Order not found.');
             return;
         }
 
@@ -143,7 +143,7 @@ class TopupController extends Controller
                 return 'TRUE|Order does not match card id.';
             }
 
-            abort(400, 'Card doesn\'t match topup card. But hey, nice try.');
+            abort(404, 'Card doesn\'t match topup card. But hey, nice try.');
             return;
         }
 
