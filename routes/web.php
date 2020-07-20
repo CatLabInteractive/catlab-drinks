@@ -32,7 +32,7 @@ Route::get('/order/{orderId}/{any?}', 'OrderController@view')
 Route::get('/topup/{cardId}', 'TopupController@topupForm');
 Route::post('/topup/{cardId}', 'TopupController@processTopup');
 Route::get('/topup/{cardId}/{orderId}', 'TopupController@status');
-Route::get('/topup/{cardId}/{orderId}/notification', 'TopupController@notification');
+Route::match([ 'GET', 'POST' ], '/topup/{cardId}/{orderId}/notification', 'TopupController@notification');
 
 Route::get('/qr-generator', 'QrGenerator@generator');
 Route::get('/qr-generator/code', 'QrGenerator@code');
