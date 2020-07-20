@@ -19,3 +19,6 @@ $routeTransformer = new \CatLab\Charon\Laravel\Transformers\RouteTransformer();
 /** @var \CatLab\Charon\Collections\RouteCollection $routeCollection */
 $routeCollection = include __DIR__ . '/../app/Http/Api/V1/routes.php';
 $routeTransformer->transform($routeCollection);
+
+// Notification endpoint for topups.
+Route::match([ 'GET', 'POST' ], '/topup/{cardId}/{orderId}/notification', 'TopupController@notification');
