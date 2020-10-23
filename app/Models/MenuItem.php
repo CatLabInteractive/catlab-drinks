@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use CatLab\Charon\Laravel\Database\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MenuItem extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'menu_items';
 
     /**

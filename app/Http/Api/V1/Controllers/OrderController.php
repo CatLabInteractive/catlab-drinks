@@ -22,6 +22,7 @@
 
 namespace App\Http\Api\V1\Controllers;
 
+use App\Factories\OrderEntityFactory;
 use App\Http\Api\V1\ResourceDefinitions\EventResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\MenuItemResourceDefinition;
 use App\Http\Api\V1\ResourceDefinitions\OrderResourceDefinition;
@@ -31,7 +32,17 @@ use App\Models\User;
 use Auth;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
+use CatLab\Charon\Factories\ResourceFactory;
+use CatLab\Charon\Interfaces\Context;
+use CatLab\Charon\Interfaces\ResourceDefinition as ResourceDefinitionContract;
+use CatLab\Charon\Laravel\Factories\EntityFactory;
+use CatLab\Charon\Laravel\Resolvers\PropertyResolver;
+use CatLab\Charon\Laravel\Resolvers\PropertySetter;
+use CatLab\Charon\Laravel\Resolvers\QueryAdapter;
+use CatLab\Charon\Laravel\ResourceTransformer;
 use CatLab\Charon\Library\ResourceDefinitionLibrary;
+use CatLab\Charon\Models\RESTResource;
+use CatLab\Charon\Resolvers\RequestResolver;
 use CatLab\Requirements\Exceptions\ResourceValidationException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -172,6 +183,34 @@ class OrderController extends Base\ResourceController
     public function getRelationshipKey(): string
     {
         return self::PARENT_RESOURCE_ID;
+    }
+
+    /**
+     * Transform a resource into (an existing?) entity.
+     * @param RESTResource $resource
+     * @param Context $context
+     * @param mixed|null $existingEntity
+     * @param ResourceDefinitionContract|null $resourceDefinition
+     * @param \CatLab\Charon\Interfaces\EntityFactory|null $entityFactory
+     * @return mixed
+     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
+     * @throws \CatLab\Charon\Exceptions\InvalidResourceDefinition
+     */
+    public function toEntity(
+        RESTResource $resource,
+        Context $context,
+        $existingEntity = null,
+        $resourceDefinition = null,
+        $entityFactory = null
+    ) {
+        $entityFactory = $entityFactory ?? new OrderEntityFactory();
+
+        return $this->resourceTransformer->toEntity(
+            $resource,
+            $entityFactory,
+            $context,
+            $existingEntity
+        );
     }
 
     /**

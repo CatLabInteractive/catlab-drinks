@@ -51,7 +51,9 @@ class ResourceController extends Controller
      */
     public function __construct($resourceDefinitionClass)
     {
-        $this->setResourceDefinition(ResourceDefinitionLibrary::make($resourceDefinitionClass));
+        $this->setResourceDefinition(
+            ResourceDefinitionLibrary::make($resourceDefinitionClass)
+        );
     }
 
     /**
@@ -224,9 +226,10 @@ class ResourceController extends Controller
     {
         return Response::json([
             'error' => [
+                'status' => 422,
                 'message' => 'Could not decode resource.',
                 'issues' => $e->getMessages()->toMap()
             ]
-        ])->setStatusCode(400);
+        ])->setStatusCode(422);
     }
 }
