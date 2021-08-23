@@ -49,6 +49,7 @@ export class AbstractService {
                 if (status === 401) {
                     console.log({401:error});
                     window.location.reload();
+                    return false;
                 }
 
                 // Handle Forbidden
@@ -56,6 +57,21 @@ export class AbstractService {
                     console.log({403:error});
                     alert(error.message);
                     window.location = window.location.origin;
+                    return false;
+                }
+
+                if (status === 422) {
+                    console.log({403:error});
+
+                    var issues = [];
+                    for (var k in error.response.data.error.issues) {
+                        if (error.response.data.error.issues.hasOwnProperty(k)) {
+                            issues.push(error.response.data.error.issues[k][0]);
+                        }
+                    }
+
+                    alert(error.response.data.error.message + ': \n' + issues.join(', \n'));
+                    return false;
                 }
 
                 return Promise.reject(error)

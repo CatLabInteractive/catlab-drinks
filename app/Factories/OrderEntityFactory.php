@@ -47,7 +47,7 @@ class OrderEntityFactory extends \CatLab\Charon\Factories\EntityFactory
      * OrderEntityFactory constructor.
      * @param Event $event
      */
-    public function __construct(Event $event)
+    public function __construct(Event $event = null)
     {
         $this->event = $event;
     }
@@ -61,7 +61,19 @@ class OrderEntityFactory extends \CatLab\Charon\Factories\EntityFactory
     public function resolveFromIdentifier(string $entityClassName, Identifier $identifier, Context $context)
     {
         if ($entityClassName === MenuItem::class) {
-            return $this->event->menuItems()->where('id', '=', $identifier->toArray()['id'])->first();
+            if ($this->event) {
+                return $this
+                    ->event
+                    ->menuItems()
+                    ->withTrashed()
+                    ->where('id', '=', $identifier->toArray()['id'])
+                    ->first();
+            } else {
+                $item = MenuItem::withTrashed()->where('id', '=', $identifier->toArray()['id'])->first();
+                if ($item) {
+                    return $item;
+                }
+            }
         }
 
         throw new InvalidArgumentException(self::class . ' cannot link ' . $entityClassName . ' entities');
@@ -78,7 +90,19 @@ class OrderEntityFactory extends \CatLab\Charon\Factories\EntityFactory
     public function resolveLinkedEntity($parent, string $entityClassName, array $identifiers, Context $context)
     {
         if ($entityClassName === MenuItem::class) {
-            return $this->event->menuItems()->where('id', '=', $identifiers['id'])->first();
+            if ($this->event) {
+                return $this
+                    ->event
+                    ->menuItems()
+                    ->withTrashed()
+                    ->where('id', '=', $identifiers['id'])
+                    ->first();
+            } else {
+                $item = MenuItem::withTrashed()->where('id', '=', $identifiers['id'])->first();
+                if ($item) {
+                    return $item;
+                }
+            }
         }
 
         throw new InvalidArgumentException(self::class . ' cannot link ' . $entityClassName . ' entities');

@@ -76,6 +76,11 @@ window.axios.interceptors.response.use(
             alert(error.message);
         }
 
+        // Handle Forbidden
+        if (status === 422) {
+            alert(error.message);
+        }
+
         return Promise.reject(error)
     }
 );

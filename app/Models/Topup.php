@@ -163,4 +163,12 @@ class Topup extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function getData()
+    {
+        return [
+            'status' => $this->status,
+            'card' => $this->card->uid
+        ];
+    }
 }

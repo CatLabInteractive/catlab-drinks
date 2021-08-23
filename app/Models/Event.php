@@ -23,6 +23,7 @@
 namespace App\Models;
 
 use CatLab\Charon\Laravel\Database\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Event
@@ -30,6 +31,8 @@ use CatLab\Charon\Laravel\Database\Model;
  */
 class Event extends Model
 {
+    use SoftDeletes;
+
     /**
      * The attributes that are mass assignable.
      *

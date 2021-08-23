@@ -23,6 +23,7 @@
 namespace App\Exceptions;
 
 use Exception;
+use Http\Client\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -33,7 +34,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        HttpException::class
     ];
 
     /**
