@@ -331,6 +331,30 @@ export class CardService extends Eventable {
     }
 
     private getRecoverTransaction(card:Card): Transaction | undefined{
+        /*
+            idea is to hold a map<cardId, FailedTransaction> and before next spending check if the last transaction was false exception case.
+            this is done by matching transaction ids written to the card and the failedtransactions map.
+            If it was indeed a false exception case, first reverse the old transaction before applying new one.
+            The reason for reversing instead of not applying the current transaction is due to the fact that the order might have change.
+
+            to match the failed transaction with the last trasaction that was written, the last 5 transaction also need the transaction id next to 
+            the current value. 
+
+            Also the choice was to add the id to the last 5 transaction instead of a general last tx id because i think the map<cardId, FailedTransaction>
+            will probably have to change to map<cardId, array<FailedTransaction>> to cope with failure after failure (hopefuly less then 5).
+
+            current issue. Due to change of the last 5 transactions from number to object the card data can be read but is wrongly digested "somewhere"
+            I could backtrack it as followed:
+                ->cardservice#refreshCard
+                    ->cardService#uploadCardData 
+                        -> transactionStore#uploadCardData 
+                            -> this.axios(....) issue (php i found in the chrome debugger, network failure)
+                
+            it probably has something to do with (de)serialization of card.ts but failed to see why
+                
+            
+        */
+
         let lastTx = card.getPreviousTransactions()
                          .filter(x => x.id > -1)
                          .reduce((one,other) => one.id - other.id > 0?one:other, null);

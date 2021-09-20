@@ -165,7 +165,6 @@ export class TransactionStore {
                 })
                     .then(
                         (response: any) => {
-                            console.log(response)
                             resolve();
                         }
                     )
