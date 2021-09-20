@@ -78,6 +78,8 @@ export class CardService extends Eventable {
 
     private axios: any = null;
 
+    private recoverTransacations: Map<number, Transaction>;
+
     public hasCardReader: boolean = false;
 
     /**
@@ -96,6 +98,7 @@ export class CardService extends Eventable {
         this.logger = new Logger();
 
         this.nfcReader = new NfcReader(this.offlineStore, this.logger);
+        this.recoverTransacations = new Map();
     }
 
     /**
@@ -266,7 +269,7 @@ export class CardService extends Eventable {
         // format the card
         card.balance = 0;
         card.transactionCount = 0;
-        card.previousTransactions = [ 0, 0, 0, 0, 0 ];
+        card.previousTransactions = [{'id':-1, 'amount':0},{'id':-1, 'amount':0},{'id':-1, 'amount':0},{'id':-1, 'amount':0},{'id':-1, 'amount':0} ];
         card.lastTransaction = new Date();
 
         await this.refreshCard(card, true);
@@ -327,6 +330,22 @@ export class CardService extends Eventable {
         }
     }
 
+    private getRecoverTransaction(card:Card): Transaction | undefined{
+        let lastTx = card.getPreviousTransactions()
+                         .filter(x => x.id > -1)
+                         .reduce((one,other) => one.id - other.id > 0?one:other, null);
+
+        if(lastTx !== null){
+            let failedTx = this.recoverTransacations.get(card.id!);
+            if(failedTx !== undefined && lastTx.id === failedTx.id){
+                failedTx.amount = failedTx.reverse()
+                failedTx.id = card.applyTransaction(failedTx.amount);
+                return failedTx;
+            }
+        }
+        return undefined;
+    }
+
     /**
      * @param orderUid
      * @param amount
@@ -343,6 +362,9 @@ export class CardService extends Eventable {
             throw new CorruptedCardException('Card data is corrupt or not linked to this organisation.');
         }
 
+
+
+
         // discount time!
         const discount = card.discountPercentage;
         if (discount >= 1) {
@@ -355,12 +377,13 @@ export class CardService extends Eventable {
             throw new InsufficientFundsException('Insufficient funds.');
         }
 
-        const transactionNumber = card.applyTransaction(0 - amount);
-        await card.save();
+        //TODO @jdb cope with the fact that this might fail as well and cause a chain reaction
+        let recoverTransaction = this.getRecoverTransaction(card)
 
+        let transactionId = card.applyTransaction(0 - amount);
         const transaction = new Transaction(
             card.getUid(),
-            transactionNumber,
+            transactionId,
             'sale',
             new Date(),
             0 - amount,
@@ -369,13 +392,23 @@ export class CardService extends Eventable {
             discount
         );
 
+        try{
+            await card.save();
+            this.recoverTransacations.delete(card.id!);
+        }catch (e){
+            if(e instanceof NfcWriteException){
+                this.recoverTransacations.set(card.id!, transaction);
+            }
+            throw e;
+        }
+
         // yay! save that transaction (but don't wait for upload)
-        await this.offlineStore.addPendingTransaction(transaction);
+        this.offlineStore.addPendingTransaction(transaction);
         this.trigger('card:balance:change', card);
 
         return {
             uid: card.getUid(),
-            transaction: transactionNumber,
+            transaction: transaction.transactionId,
             discount: discount,
             amount: amount
         }

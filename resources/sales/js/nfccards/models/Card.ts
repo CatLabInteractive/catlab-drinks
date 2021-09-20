@@ -50,11 +50,11 @@ export class Card extends Eventable {
     public ready = false;
 
     public previousTransactions = [
-        0,
-        0,
-        0,
-        0,
-        0
+        {'id':-1, 'amount':0},
+        {'id':-1, 'amount':0},
+        {'id':-1, 'amount':0},
+        {'id':-1, 'amount':0},
+        {'id':-1, 'amount':0}
     ];
 
     public lastTransaction: Date = new Date();
@@ -147,7 +147,8 @@ export class Card extends Eventable {
         out += this.toBytesInt32(timestamp);
 
         for (let i = 0; i < this.previousTransactions.length; i ++) {
-            out += this.toBytesInt32(this.previousTransactions[i]);
+            out += this.toBytesInt32(this.previousTransactions[i].id)
+            out += this.toBytesInt32(this.previousTransactions[i].amount);
         }
 
         // discount
@@ -172,7 +173,9 @@ export class Card extends Eventable {
 
         this.previousTransactions = [];
         for (let i = 0; i < 5; i ++) {
-            this.previousTransactions.push(this.fromBytesInt32(data.substr(12 + (i * 4), 4)));
+            let id = this.fromBytesInt32(data.substr(12 + (i * 4), 4));
+            let amount = this.fromBytesInt32(data.substr(16 + (i * 4), 4));
+            this.previousTransactions.push({'id':id,'amount':amount});
         }
 
         // monday november 4th, 12:50am.
@@ -244,10 +247,8 @@ export class Card extends Eventable {
      * @param value
      */
     public applyTransaction(value: number) {
-        this.transactionCount ++;
-        this.balance += value;
-
-        this.previousTransactions[this.transactionCount % 5] = value;
+        this.transactionCount ++;   
+        this.previousTransactions[this.transactionCount % 5] = {'id': this.transactionCount,'amount':value};
         this.lastTransaction = new Date();
 
         return this.transactionCount;
@@ -256,14 +257,13 @@ export class Card extends Eventable {
     /**
      * Get the last 5 transactions in correct order.
      */
-    public getPreviousTransactions(): number[] {
-        const out: number[] = [];
+    public getPreviousTransactions(): Array<any> {
+        const out: any[] = [];
 
         let lastNewIndex = this.transactionCount % 5;
         for (let i = 5; i > 0; i --) {
             out.push(this.previousTransactions[(lastNewIndex + i) % 5]);
         }
-
         return out;
     }
 
@@ -271,12 +271,14 @@ export class Card extends Eventable {
      * Return the data that will be sent to the server.
      */
     public getServerData(): any {
-        return {
+        let test= {
             transactionCount: this.transactionCount,
             balance: this.balance,
-            previousTransactions: this.getPreviousTransactions(),
+            previousTransactions: this.getPreviousTransactions().map(x => x.amount),
             discount: this.discountPercentage
         };
+        console.log(test)
+        return test
     }
 
     /**

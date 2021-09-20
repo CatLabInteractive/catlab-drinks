@@ -63,6 +63,7 @@ export class PaymentService extends Eventable {
     async order(order, acceptCurrentCard = true) {
 
         // handle the actual payment
+        console.log(order);
         let paymentData = await this.handleOrder(order, true);
 
         // mark order as paid
