@@ -79,7 +79,7 @@ export class CardService extends Eventable {
 
     private axios: any = null;
 
-    private recoverTransacations: Map<number, Transaction>;
+    private failedTransacations: Map<number, Transaction>;
 
     public hasCardReader: boolean = false;
 
@@ -99,13 +99,7 @@ export class CardService extends Eventable {
         this.logger = new Logger();
 
         this.nfcReader = new NfcReader(this.offlineStore, this.logger);
-        this.recoverTransacations = this.readFailedTransactions();
-    }
-
-
-    private readFailedTransactions(){
-        let mapAsObject = JSON.parse(localStorage.getItem("failedTransactions") || '{}');
-        return Object.entries(mapAsObject).reduce((acc,[key,value]) => acc.set(parseInt(key),value), new Map())
+        this.failedTransacations = this.transactionStore.readFailedTransactions()
     }
 
     /**
@@ -309,9 +303,8 @@ export class CardService extends Eventable {
         }
 
         // try to write the transaction to card
+        this.recoverTransactionIfNeeded(card);
         const transactionNumber = card.applyTransaction(amount);
-        await card.save();
-
         const transaction = new Transaction(
             card.getUid(),
             transactionNumber,
@@ -320,7 +313,9 @@ export class CardService extends Eventable {
             amount,
             null,
             topupUid
-        );
+        );             
+
+        this.persist(card, transaction);
 
         // yay! save that transaction (but don't wait for upload)
         await this.offlineStore.addPendingTransaction(transaction);
@@ -336,21 +331,27 @@ export class CardService extends Eventable {
         }
     }
 
-    private getRecoverTransaction(card:Card): Transaction | undefined{
-        let failedTx = this.recoverTransacations.get(card.id!) || null
-        if(failedTx != null && failedTx.transactionId == card.transactionCount){
-            failedTx.amount = failedTx.reverse()
-            failedTx.transactionId = card.applyTransaction(failedTx.amount);            
-            return failedTx;
+    private async persist(card:Card, transaction:Transaction){
+        try{
+            await card.save();
+            this.failedTransacations.delete(card.id!);
+        }catch (e){
+            if(e instanceof NfcWriteException){
+                this.failedTransacations.set(card.id!, transaction);
+            }
+            throw e;
+        }finally{
+            this.transactionStore.persistFailedTransactions(this.failedTransacations);
         }
-        return undefined;
     }
 
+    private recoverTransactionIfNeeded(card:Card):void{
+        let failedTx = this.failedTransacations.get(card.id!) || null;
 
-    private persistFailedTransactions(){
-        let mapAsObject = Array.from(this.recoverTransacations.entries())
-             .reduce((acc, [key, value] ) => Object.assign(acc, { [key]: value }), {})
-        localStorage.setItem("failedTransactions",JSON.stringify(mapAsObject))
+        if(failedTx != null && failedTx.transactionId == card.transactionCount){
+            failedTx.reverse();
+            card.applyTransaction(failedTx.amount);            
+        }
     }
 
     /**
@@ -381,8 +382,7 @@ export class CardService extends Eventable {
             throw new InsufficientFundsException('Insufficient funds.');
         }
 
-        let recoverTransaction = this.getRecoverTransaction(card)
-        
+        this.recoverTransactionIfNeeded(card);      
 
         let transactionId = card.applyTransaction(0 - amount);
         const transaction = new Transaction(
@@ -396,17 +396,7 @@ export class CardService extends Eventable {
             discount
         );
 
-        try{
-            await card.save();
-            this.recoverTransacations.delete(card.id!);
-        }catch (e){
-            if(e instanceof NfcWriteException){
-                this.recoverTransacations.set(card.id!, transaction);
-            }
-            throw e;
-        }finally{
-            this.persistFailedTransactions()
-        }
+        this.persist(card, transaction);
 
         // yay! save that transaction (but don't wait for upload)
         this.offlineStore.addPendingTransaction(transaction);

@@ -365,4 +365,16 @@ export class TransactionStore {
 
         return out;
     }
+
+    public readFailedTransactions():Map<number, Transaction>{
+        let mapAsObject = JSON.parse(localStorage.getItem("failedTransactions") || '{}');
+        return Object.entries(mapAsObject)
+                     .reduce((acc,[key,value]) => acc.set(parseInt(key),value), new Map());
+    }
+
+    public persistFailedTransactions(failedTransactions:Map<number, Transaction>){
+        let mapAsObject = Array.from(failedTransactions.entries())
+                               .reduce((acc, [key, value] ) => Object.assign(acc, { [key]: value }), {});
+        localStorage.setItem("failedTransactions",JSON.stringify(mapAsObject))
+    }
 }
