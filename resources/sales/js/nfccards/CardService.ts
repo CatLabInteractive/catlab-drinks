@@ -31,6 +31,7 @@ import {InsufficientFundsException} from "./exceptions/InsufficientFundsExceptio
 import {NoCardFoundException} from "./exceptions/NoCardFoundException";
 import {Transaction} from "./models/Transaction";
 import {CorruptedCardException} from "./exceptions/CorruptedCardException";
+import { key } from "localforage";
 
 /**
  *
@@ -98,7 +99,13 @@ export class CardService extends Eventable {
         this.logger = new Logger();
 
         this.nfcReader = new NfcReader(this.offlineStore, this.logger);
-        this.recoverTransacations = new Map();
+        this.recoverTransacations = this.readFailedTransactions();
+    }
+
+
+    private readFailedTransactions(){
+        let mapAsObject = JSON.parse(localStorage.getItem("failedTransactions") || '{}');
+        return Object.entries(mapAsObject).reduce((acc,[key,value]) => acc.set(parseInt(key),value), new Map())
     }
 
     /**
@@ -252,7 +259,6 @@ export class CardService extends Eventable {
      * @param card
      */
     async rebuild(card: Card) {
-
         if (!this.transactionStore.isOnline()) {
             throw new OfflineException('rebuild only works with an active internet connection');
         }
@@ -269,7 +275,7 @@ export class CardService extends Eventable {
         // format the card
         card.balance = 0;
         card.transactionCount = 0;
-        card.previousTransactions = [{'id':-1, 'amount':0},{'id':-1, 'amount':0},{'id':-1, 'amount':0},{'id':-1, 'amount':0},{'id':-1, 'amount':0} ];
+        card.previousTransactions = [0,0,0,0,0];
         card.lastTransaction = new Date();
 
         await this.refreshCard(card, true);
@@ -331,43 +337,20 @@ export class CardService extends Eventable {
     }
 
     private getRecoverTransaction(card:Card): Transaction | undefined{
-        /*
-            idea is to hold a map<cardId, FailedTransaction> and before next spending check if the last transaction was false exception case.
-            this is done by matching transaction ids written to the card and the failedtransactions map.
-            If it was indeed a false exception case, first reverse the old transaction before applying new one.
-            The reason for reversing instead of not applying the current transaction is due to the fact that the order might have change.
-
-            to match the failed transaction with the last trasaction that was written, the last 5 transaction also need the transaction id next to 
-            the current value. 
-
-            Also the choice was to add the id to the last 5 transaction instead of a general last tx id because i think the map<cardId, FailedTransaction>
-            will probably have to change to map<cardId, array<FailedTransaction>> to cope with failure after failure (hopefuly less then 5).
-
-            current issue. Due to change of the last 5 transactions from number to object the card data can be read but is wrongly digested "somewhere"
-            I could backtrack it as followed:
-                ->cardservice#refreshCard
-                    ->cardService#uploadCardData 
-                        -> transactionStore#uploadCardData 
-                            -> this.axios(....) issue (php i found in the chrome debugger, network failure)
-                
-            it probably has something to do with (de)serialization of card.ts but failed to see why
-                
-            
-        */
-
-        let lastTx = card.getPreviousTransactions()
-                         .filter(x => x.id > -1)
-                         .reduce((one,other) => one.id - other.id > 0?one:other, null);
-
-        if(lastTx !== null){
-            let failedTx = this.recoverTransacations.get(card.id!);
-            if(failedTx !== undefined && lastTx.id === failedTx.id){
-                failedTx.amount = failedTx.reverse()
-                failedTx.id = card.applyTransaction(failedTx.amount);
-                return failedTx;
-            }
+        let failedTx = this.recoverTransacations.get(card.id!) || null
+        if(failedTx != null && failedTx.transactionId == card.transactionCount){
+            failedTx.amount = failedTx.reverse()
+            failedTx.transactionId = card.applyTransaction(failedTx.amount);            
+            return failedTx;
         }
         return undefined;
+    }
+
+
+    private persistFailedTransactions(){
+        let mapAsObject = Array.from(this.recoverTransacations.entries())
+             .reduce((acc, [key, value] ) => Object.assign(acc, { [key]: value }), {})
+        localStorage.setItem("failedTransactions",JSON.stringify(mapAsObject))
     }
 
     /**
@@ -386,9 +369,6 @@ export class CardService extends Eventable {
             throw new CorruptedCardException('Card data is corrupt or not linked to this organisation.');
         }
 
-
-
-
         // discount time!
         const discount = card.discountPercentage;
         if (discount >= 1) {
@@ -401,8 +381,8 @@ export class CardService extends Eventable {
             throw new InsufficientFundsException('Insufficient funds.');
         }
 
-        //TODO @jdb cope with the fact that this might fail as well and cause a chain reaction
         let recoverTransaction = this.getRecoverTransaction(card)
+        
 
         let transactionId = card.applyTransaction(0 - amount);
         const transaction = new Transaction(
@@ -424,6 +404,8 @@ export class CardService extends Eventable {
                 this.recoverTransacations.set(card.id!, transaction);
             }
             throw e;
+        }finally{
+            this.persistFailedTransactions()
         }
 
         // yay! save that transaction (but don't wait for upload)

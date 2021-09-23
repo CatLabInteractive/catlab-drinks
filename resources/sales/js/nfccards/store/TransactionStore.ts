@@ -156,7 +156,6 @@ export class TransactionStore {
     {
         await new Promise(
             (resolve, reject) => {
-                console.log("uploadCardData")
 
                 this.axios({
                     method: 'post',
