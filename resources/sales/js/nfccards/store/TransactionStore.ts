@@ -24,6 +24,7 @@ import {Card} from "../models/Card";
 import {Transaction} from "../models/Transaction";
 
 export class TransactionStore {
+    private static FAILED_TRANSCATIONS_KEY = "failedTransactions";
 
     private transactionIdCursor: string = '';
 
@@ -366,15 +367,34 @@ export class TransactionStore {
         return out;
     }
 
-    public readFailedTransactions():Map<number, Transaction>{
-        let mapAsObject = JSON.parse(localStorage.getItem("failedTransactions") || '{}');
+    
+    public readFailedTransactions(): Map<number, Transaction> {
+        let mapAsObject = JSON.parse(localStorage.getItem(TransactionStore.FAILED_TRANSCATIONS_KEY) || '{}');
         return Object.entries(mapAsObject)
-                     .reduce((acc,[key,value]) => acc.set(parseInt(key),value), new Map());
+                     .reduce((acc,[key,value]) => acc.set(parseInt(key),this.toTransaction(value)), new Map());
     }
 
-    public persistFailedTransactions(failedTransactions:Map<number, Transaction>){
+    private toTransaction(json:any): Transaction{
+        return new Transaction(
+            json.cardUid,
+            json.transactionId,
+            json.type,
+            json.date,
+            json.amount,
+            json.orderUid,
+            json.topupUid,
+            json.discount
+        )
+    }
+
+
+    public persistFailedTransactions(failedTransactions:Map<number, Transaction>): void {
         let mapAsObject = Array.from(failedTransactions.entries())
                                .reduce((acc, [key, value] ) => Object.assign(acc, { [key]: value }), {});
-        localStorage.setItem("failedTransactions",JSON.stringify(mapAsObject))
+        try{
+            localStorage.setItem(TransactionStore.FAILED_TRANSCATIONS_KEY, JSON.stringify(mapAsObject));
+        }catch(e){
+            console.log("Could not store failed transactions, quota reached?");
+        }   
     }
 }

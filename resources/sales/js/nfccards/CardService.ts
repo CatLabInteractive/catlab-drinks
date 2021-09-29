@@ -93,13 +93,12 @@ export class CardService extends Eventable {
         super();
 
         this.axios = axios;
-
         this.offlineStore = new OfflineStore(organisationId);
         this.transactionStore = new TransactionStore(axios, organisationId, this.offlineStore);
         this.logger = new Logger();
 
         this.nfcReader = new NfcReader(this.offlineStore, this.logger);
-        this.failedTransacations = this.transactionStore.readFailedTransactions()
+        this.failedTransacations = this.transactionStore.readFailedTransactions();
     }
 
     /**
@@ -315,7 +314,7 @@ export class CardService extends Eventable {
             topupUid
         );             
 
-        this.persist(card, transaction);
+        await this.persist(transaction, card);
 
         // yay! save that transaction (but don't wait for upload)
         await this.offlineStore.addPendingTransaction(transaction);
@@ -331,17 +330,18 @@ export class CardService extends Eventable {
         }
     }
 
-    private async persist(card:Card, transaction:Transaction){
+    private async persist(transaction:Transaction, card:Card){
         try{
             await card.save();
             this.failedTransacations.delete(card.id!);
+            this.transactionStore.persistFailedTransactions(this.failedTransacations);
         }catch (e){
             if(e instanceof NfcWriteException){
                 this.failedTransacations.set(card.id!, transaction);
+                this.transactionStore.persistFailedTransactions(this.failedTransacations);
+                console.log("Writing to card failed, added tx to failed transactions and persisted to localstorage");
             }
             throw e;
-        }finally{
-            this.transactionStore.persistFailedTransactions(this.failedTransacations);
         }
     }
 
@@ -359,8 +359,6 @@ export class CardService extends Eventable {
      * @param amount
      */
     async spend(orderUid: string, amount: number) {
-
-        //console.log('CardService: handling order ' + orderUid);
         const card = this.getCard();
         if (!card) {
             throw new NoCardFoundException('No card found.');
@@ -381,7 +379,7 @@ export class CardService extends Eventable {
         if (amount > 0 && card.balance < amount) {
             throw new InsufficientFundsException('Insufficient funds.');
         }
-
+        
         this.recoverTransactionIfNeeded(card);      
 
         let transactionId = card.applyTransaction(0 - amount);
@@ -396,7 +394,7 @@ export class CardService extends Eventable {
             discount
         );
 
-        this.persist(card, transaction);
+        await this.persist(transaction, card);
 
         // yay! save that transaction (but don't wait for upload)
         this.offlineStore.addPendingTransaction(transaction);
@@ -408,6 +406,7 @@ export class CardService extends Eventable {
             discount: discount,
             amount: amount
         }
+      
     }
 
     /**
