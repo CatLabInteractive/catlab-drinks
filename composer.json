@@ -18,7 +18,7 @@
         "catlabinteractive/laravel-catlab-accounts": "^1.1",
         "catlabinteractive/requirements": "^1.0.3",
         "doctrine/dbal": "^2.9",
-        "endroid/qr-code": "^3.6",
+        "endroid/qr-code": "3.6.1",
         "fideloper/proxy": "^4.0",
         "kouz/laravel-airbrake": "^0.5.0",
         "laravel/framework": "5.7.*",
