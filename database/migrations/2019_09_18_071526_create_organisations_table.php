@@ -61,15 +61,6 @@ class CreateOrganisationsTable extends Migration
 
         });
 
-        foreach (\App\Models\Event::all() as $event) {
-
-            /** @var \App\Models\Event $event */
-            $user = User::find($event->user_id);
-            $event->organisation()->associate($user->organisations->first());
-            $event->save();
-
-        }
-
         Schema::table('events', function (Blueprint $table) {
 
             $table->dropForeign('events_user_id_foreign');
