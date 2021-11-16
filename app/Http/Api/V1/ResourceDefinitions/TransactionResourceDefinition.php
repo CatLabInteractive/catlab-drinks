@@ -38,7 +38,8 @@ class TransactionResourceDefinition extends ResourceDefinition
     {
         parent::__construct(Transaction::class);
 
-        $this->identifier('id');
+        $this->identifier('id')
+            ->sortable();
 
         // the readable 'type' attribute (can have 'unknown' transactions)
         $this->field('transaction_type')
