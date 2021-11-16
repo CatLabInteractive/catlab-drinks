@@ -66,7 +66,7 @@ class TopupController extends Controller
                 'minTopup' => number_format($this->minTopup, 2),
                 'maxTopup' => number_format($this->maxTopup, 2),
                 'action' => action('\App\Http\Controllers\TopupController@processTopup', [ $cardUid ]),
-                'balance' => number_format($card->getBalance(), 2)
+                'balance' => number_format($card->getBalance() / 100, 2)
             ]
         );
     }
