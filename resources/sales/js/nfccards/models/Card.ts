@@ -161,7 +161,6 @@ export class Card extends Eventable {
      * @param data
      */
     private unserialize(data: string) {
-
         this.balance = this.fromBytesInt32(data.substr(0, 4));
         this.transactionCount = this.fromBytesInt32(data.substr(4, 4));
 
@@ -263,7 +262,6 @@ export class Card extends Eventable {
         for (let i = 5; i > 0; i --) {
             out.push(this.previousTransactions[(lastNewIndex + i) % 5]);
         }
-
         return out;
     }
 

@@ -84,6 +84,11 @@ export class Transaction {
         return VisibleAmount.toVisible(this.amount);
     }
 
+    public reverse(): void {
+        this.amount =  0 - this.amount;
+        this.type = 'reversal';
+    }
+
     /**
      *
      */
