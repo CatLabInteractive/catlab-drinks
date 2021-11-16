@@ -231,7 +231,7 @@ export class NfcReader extends Eventable {
      */
     public async recoverInvalidContent(card: Card, throwException = true) {
 
-        this.logger.log(card.getUid(), 'recoving failed write');
+        this.logger.log(card.getUid(), 'recovering failed write');
 
         // look for existing message
         const data = await this.offlineStore.getCardState(card.getUid());
