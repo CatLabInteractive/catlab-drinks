@@ -6,6 +6,10 @@
 
         <!--<p class="alert alert-danger">Online herladen is nog niet beschikbaar.</p>-->
 
+        <h2>Huidige balans</h2>
+        <p>
+            € {{ $getBalance }}
+        </p>
 
         <h2>Kaart opladen</h2>
 
