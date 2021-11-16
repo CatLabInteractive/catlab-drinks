@@ -31,7 +31,6 @@ import {InsufficientFundsException} from "./exceptions/InsufficientFundsExceptio
 import {NoCardFoundException} from "./exceptions/NoCardFoundException";
 import {Transaction} from "./models/Transaction";
 import {CorruptedCardException} from "./exceptions/CorruptedCardException";
-import { key } from "localforage";
 
 /**
  *
@@ -79,7 +78,7 @@ export class CardService extends Eventable {
 
     private axios: any = null;
 
-    private failedTransacations: Map<number, Transaction>;
+    private failedTransactions: Map<number, Transaction>;
 
     public hasCardReader: boolean = false;
 
@@ -98,7 +97,7 @@ export class CardService extends Eventable {
         this.logger = new Logger();
 
         this.nfcReader = new NfcReader(this.offlineStore, this.logger);
-        this.failedTransacations = this.transactionStore.readFailedTransactions();
+        this.failedTransactions = this.transactionStore.readFailedTransactions();
     }
 
     /**
@@ -312,7 +311,7 @@ export class CardService extends Eventable {
             amount,
             null,
             topupUid
-        );             
+        );
 
         await this.persist(transaction, card);
 
@@ -333,12 +332,12 @@ export class CardService extends Eventable {
     private async persist(transaction:Transaction, card:Card){
         try{
             await card.save();
-            this.failedTransacations.delete(card.id!);
-            this.transactionStore.persistFailedTransactions(this.failedTransacations);
+            this.failedTransactions.delete(card.id!);
+            this.transactionStore.persistFailedTransactions(this.failedTransactions);
         }catch (e){
             if(e instanceof NfcWriteException){
-                this.failedTransacations.set(card.id!, transaction);
-                this.transactionStore.persistFailedTransactions(this.failedTransacations);
+                this.failedTransactions.set(card.id!, transaction);
+                this.transactionStore.persistFailedTransactions(this.failedTransactions);
                 console.log("Writing to card failed, added tx to failed transactions and persisted to localstorage");
             }
             throw e;
@@ -346,11 +345,11 @@ export class CardService extends Eventable {
     }
 
     private recoverTransactionIfNeeded(card:Card):void{
-        let failedTx = this.failedTransacations.get(card.id!) || null;
+        let failedTx = this.failedTransactions.get(card.id!) || null;
 
         if(failedTx != null && failedTx.transactionId == card.transactionCount){
             failedTx.reverse();
-            card.applyTransaction(failedTx.amount);            
+            card.applyTransaction(failedTx.amount);
         }
     }
 
@@ -379,8 +378,8 @@ export class CardService extends Eventable {
         if (amount > 0 && card.balance < amount) {
             throw new InsufficientFundsException('Insufficient funds.');
         }
-        
-        this.recoverTransactionIfNeeded(card);      
+
+        this.recoverTransactionIfNeeded(card);
 
         let transactionId = card.applyTransaction(0 - amount);
         const transaction = new Transaction(
@@ -397,7 +396,7 @@ export class CardService extends Eventable {
         await this.persist(transaction, card);
 
         // yay! save that transaction (but don't wait for upload)
-        this.offlineStore.addPendingTransaction(transaction);
+        await this.offlineStore.addPendingTransaction(transaction);
         this.trigger('card:balance:change', card);
 
         return {
@@ -406,7 +405,7 @@ export class CardService extends Eventable {
             discount: discount,
             amount: amount
         }
-      
+
     }
 
     /**

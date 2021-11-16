@@ -44,14 +44,24 @@ class TransactionResourceDefinition extends ResourceDefinition
         $this->field('transaction_type')
             ->display('type')
             ->string()
-            ->enum([ Transaction::TYPE_SALE, Transaction::TYPE_TOPUP, Transaction::TYPE_REFUND, Transaction::TYPE_UNKNOWN ])
+            ->enum([
+                Transaction::TYPE_SALE,
+                Transaction::TYPE_TOPUP,
+                Transaction::TYPE_REFUND,
+                Transaction::TYPE_UNKNOWN
+            ])
             ->visible(true);
 
         // the writeable 'type' attribute
         $this->field('transaction_type')
             ->display('type')
             ->string()
-            ->enum([ Transaction::TYPE_SALE, Transaction::TYPE_TOPUP, Transaction::TYPE_REFUND ])
+            ->enum([
+                Transaction::TYPE_SALE,
+                Transaction::TYPE_TOPUP,
+                Transaction::TYPE_REFUND,
+                Transaction::TYPE_REVERSAL
+            ])
             ->writeable(true, false);
 
         $this->field('value')

@@ -86,6 +86,7 @@ export class Transaction {
 
     public reverse(): void {
         this.amount =  0 - this.amount;
+        this.type = 'reversal';
     }
 
     /**
