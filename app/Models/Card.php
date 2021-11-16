@@ -187,7 +187,7 @@ class Card extends Model
     public function spend(Order $order)
     {
         $order->discount_percentage = $this->discount_percentage;
-        $totalPrice = ceil($order->getCurrentCardCost() * $order->getDiscountFactor());
+        $totalPrice = round($order->getCurrentCardCost() * $order->getDiscountFactor());
 
         $balance = $this->getBalance();
         if ($totalPrice > 0 && $balance < $totalPrice) {
