@@ -8,7 +8,7 @@
 
         <h2>Huidige balans</h2>
         <p>
-            € {{ $getBalance }}
+            € {{ $balance }}
         </p>
 
         <h2>Kaart opladen</h2>
