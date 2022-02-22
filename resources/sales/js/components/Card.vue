@@ -55,6 +55,7 @@
                 <button class="btn btn-primary" v-on:click="topup()">Topup</button>
 
                 <h3>Aliases</h3>
+                <p>(expire 24h after creation)</p>
                 <ul>
                     <li v-for="alias in card.orderTokenAliases">{{alias}} <a href="javascript:void(0);" v-on:click="removeOrderTokenAlias(alias)" class="btn btn-danger btn-sm">x</a></li>
 
@@ -221,15 +222,14 @@
             },
 
             async addOrderTokenAlias() {
-                this.card.orderTokenAliases.push(this.creatingOrderTokenAlias);
+                this.card.addOrderTokenAlias(this.creatingOrderTokenAlias);
                 this.creatingOrderTokenAlias = '';
 
                 this.storeServerData();
             },
 
             async removeOrderTokenAlias(alias) {
-                const index = this.card.orderTokenAliases.indexOf(alias);
-                this.card.orderTokenAliases.splice(index, 1);
+                this.card.removeOrderTokenAlias(alias);
 
                 this.storeServerData();
             },

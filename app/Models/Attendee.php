@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
  * CatLab Interactive bvba, Gent, Belgium
@@ -22,60 +22,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use CatLab\Charon\Laravel\Database\Model;
 
 /**
- * Class CardOrderTokenAlias
- * @package App\Models
+ *
  */
-class CardOrderTokenAlias extends Model
+class Attendee extends Model
 {
     protected $fillable = [
-        'alias'
+        'name',
+        'alias',
+        'email'
     ];
-
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'expires_at'
-    ];
-
-    /**
-     * @var string
-     */
-    protected $table = 'card_order_token_aliases';
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function organisation()
+    public function event()
     {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function card()
-    {
-        return $this->belongsTo(Card::class);
-    }
-
-    /**
-     * @return $this
-     */
-    public function touchExpirationDate()
-    {
-        $this->expires_at = (new \DateTime())->add(new \DateInterval('P1D'));
-        return $this;
-    }
-
-    /**
-     * @param $builder
-     * @return void
-     */
-    public function scopeNotExpired($builder)
-    {
-        $builder->where('expires_at', '>', new \DateTime());
+        return $this->belongsTo(Event::class);
     }
 }

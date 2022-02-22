@@ -1,3 +1,4 @@
+<?php
 /*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
@@ -19,35 +20,44 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {AbstractService} from './AbstractService';
-import $ from "jquery";
+namespace App\Http\Api\V1\ResourceDefinitions;
 
-export class EventService extends AbstractService {
+use App\Models\Attendee;
+use CatLab\Charon\Models\ResourceDefinition;
 
+/**
+ *
+ */
+class AttendeeResourceDefinition extends ResourceDefinition
+{
     /**
-     * @param organisationId
+     * @param $entityClassName
      */
-    constructor(organisationId) {
-        super();
+    public function __construct()
+    {
+        parent::__construct(Attendee::class);
 
-        this.entityUrl = 'events';
-        this.indexUrl = 'organisations/' + organisationId + '/events';
-    }
+        $this
+            ->identifier('id')
+            ->int();
 
-    getAttendees(eventId) {
-        return this.execute('get', 'events/' + eventId + '/attendees?records=1000');
-    }
+        $this->field('name')
+            ->string()
+            ->required()
+            ->visible(true)
+            ->writeable(true, true)
+        ;
 
-    importAttendees(eventId, attendeeInput, parameters ) {
+        $this->field('alias')
+            ->string()
+            ->required()
+            ->visible(true)
+            ->writeable(true, true);
 
-        if (typeof(parameters) === 'undefined') {
-            parameters = {};
-        }
-
-        return this.execute(
-            'put',
-            '/' + this.entityUrl + '/' + eventId + "/attendees/import?" + $.param(parameters),
-            { attendees: attendeeInput }
-        );
+        $this->field('email')
+            ->string()
+            ->visible(true)
+            ->writeable(true, true)
+        ;
     }
 }

@@ -82,7 +82,9 @@ class Card extends Model
         }
 
         // look for aliases
-        $alias = $organisation->orderTokenAliases()->where('alias', '=', $token)->first();
+        $alias = $organisation->orderTokenAliases()
+            ->notExpired()
+            ->where('alias', '=', $token)->first();
         if ($alias) {
             return $alias->card;
         }
@@ -128,7 +130,8 @@ class Card extends Model
      */
     public function orderTokenAliases()
     {
-        return $this->hasMany(CardOrderTokenAlias::class);
+        return $this->hasMany(CardOrderTokenAlias::class)
+            ->notExpired();
     }
 
     /**
@@ -281,6 +284,8 @@ class Card extends Model
         $touches = [];
         foreach ($items as $alias) {
             // if not exists yet, create.
+
+            /** @var CardOrderTokenAlias $t */
             $t = $this->orderTokenAliases->where('alias', '=', $alias)->first();
             if (!$t) {
 
@@ -294,10 +299,17 @@ class Card extends Model
 
                 $model->organisation()->associate($this->organisation);
                 $model->card()->associate($this);
+                $model->touchExpirationDate();
 
                 $model->save();
                 $touches[] = $model->id;
             } else {
+                /*
+                 * don't refresh existing tokens (for now)
+                $t->touchExpirationDate();
+                $t->save();
+                */
+
                 $touches[] = $t->id;
             }
         }

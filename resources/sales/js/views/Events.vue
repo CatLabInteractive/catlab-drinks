@@ -67,6 +67,16 @@
                             <span class="sr-only">Client panel</span>
                         </b-link>
 
+                        <b-link class="btn btn-sm btn-success" :to="{ name: 'attendees', params: { id: row.item.id } }" title="Attendees">
+                            <i class="fas fa-users"></i>
+                            <span class="sr-only">Attendees</span>
+                        </b-link>
+
+                        <b-link class="btn btn-sm btn-success" :to="{ name: 'checkIn', params: { id: row.item.id } }" title="Check-In">
+                            <i class="fas fa-passport"></i>
+                            <span class="sr-only">Check-In</span>
+                        </b-link>
+
                         <b-button size="sm" class="" @click="edit(row.item, row.index)" title="Edit">
                             <i class="fas fa-edit"></i>
                             <span class="sr-only">Edit</span>

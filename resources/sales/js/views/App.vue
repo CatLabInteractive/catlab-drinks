@@ -32,7 +32,6 @@
                 <b-navbar-nav>
 
                     <b-nav-item :to="{ name: 'events' }">Events</b-nav-item>
-                    <b-nav-item :to="{ name: 'cards' }">Cards</b-nav-item>
 
                     <nfc-card-balance></nfc-card-balance>
 
@@ -43,6 +42,7 @@
 
                     <b-navbar-nav>
 
+                        <b-nav-item :to="{ name: 'cards' }">Cards</b-nav-item>
                         <b-nav-item :to="{ name: 'settings' }">Settings</b-nav-item>
 
                         <li class="nav-item">
