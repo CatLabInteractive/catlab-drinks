@@ -40,11 +40,11 @@
                     <h2>Set attendees {{ event.name }}</h2>
                     <form @submit.prevent="replaceAttendees">
                         <div class="alert alert-danger">
-                            This will remove ALL attendees and replace them with new ones.
+                            This will remove ALL existing attendees and replace them with new ones.
                         </div>
 
                         <b-form-group label="Replace attendees">
-                            <b-textarea v-model="attendeeInput"></b-textarea>
+                            <b-textarea v-model="attendeeInput" :placeholder="'alias-1: Name of attendee 1\nalias-2: Name of attendee 2\n...'" rows="10"></b-textarea>
                         </b-form-group>
 
                         <div>
