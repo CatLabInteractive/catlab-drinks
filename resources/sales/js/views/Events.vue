@@ -23,7 +23,7 @@
 
     <b-container fluid>
 
-        <h1>Events</h1>
+        <h1>Events <b-button size="sm" class="btn-success" @click="createNew" title="Create new event">Create new</b-button></h1>
         <div class="text-center" v-if="!loaded">
             <b-spinner label="Loading data" />
         </div>
@@ -106,7 +106,7 @@
                 </b-table>
             </b-col>
 
-            <b-col lg="4">
+            <b-col lg="4" v-if="showForm">
                 <b-card :title="(model.id ? 'Edit event ID#' + model.id : 'New event')">
                     <form @submit.prevent="save">
                         <b-form-group label="Name">
@@ -164,6 +164,7 @@
 
         data() {
             return {
+                showForm: false,
                 loaded: false,
                 saving: false,
                 saved: false,
@@ -201,7 +202,7 @@
 
             async refreshEvents() {
 
-                this.items = (await this.service.index()).items;
+                this.items = (await this.service.index({ sort: '!id' })).items;
                 this.loaded = true;
 
             },
@@ -217,11 +218,13 @@
                     await this.service.update(this.model.id, this.model);
                 } else {
                     await this.service.create(this.model);
+                    this.resetForm();
                 }
 
-                this.resetForm();
                 this.saving = false;
                 this.saved = true;
+
+                this.refreshEvents();
 
                 setTimeout(
                     () => {
@@ -230,13 +233,12 @@
                     2500
                 );
 
-                this.refreshEvents();
-
             },
 
             async edit(model, index) {
 
                 this.model = Object.assign({}, model);
+                this.showForm = true;
 
             },
 
@@ -260,6 +262,11 @@
                 await this.service.update(model.id, model);
                 this.toggling = null;
 
+            },
+
+            createNew() {
+                this.showForm = true;
+                this.resetForm();
             },
 
             resetForm() {
