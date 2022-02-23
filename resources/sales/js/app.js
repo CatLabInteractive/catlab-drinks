@@ -61,6 +61,7 @@ import TestTransactions from "./views/TestTransactions";
 import FinancialOverview from "./views/FinancialOverview";
 import Attendees from "./views/Attendees";
 import CheckIn from "./views/CheckIn";
+import {KioskService} from "./services/KioskService";
 
 Vue.component(
     'live-sales',
@@ -249,6 +250,8 @@ Vue.prototype.$settingService.load()
                 }),
                 window.ORGANISATION_ID
             );
+
+            Vue.prototype.$kioskModeService = new KioskService();
 
             // Only try to connect to the nfc reader if config variables are set.
             if (

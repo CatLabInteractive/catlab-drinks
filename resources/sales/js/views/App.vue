@@ -31,14 +31,14 @@
             <b-collapse is-nav id="nav_collapse">
                 <b-navbar-nav>
 
-                    <b-nav-item :to="{ name: 'events' }">Events</b-nav-item>
+                    <b-nav-item :to="{ name: 'events' }"  v-if="!kioskMode">Events</b-nav-item>
 
                     <nfc-card-balance></nfc-card-balance>
 
                 </b-navbar-nav>
 
                 <!-- Right aligned nav items -->
-                <b-navbar-nav class="ml-auto">
+                <b-navbar-nav class="ml-auto"  v-if="!kioskMode">
 
                     <b-navbar-nav>
 
@@ -81,5 +81,18 @@
 
 </template>
 <script>
-    export default {}
+    export default {
+        data() {
+            return {
+                kioskMode: false
+            }
+        },
+
+        mounted() {
+            this.kioskMode = this.$kioskModeService.kioskModeActive;
+            this.$kioskModeService.on('kioskmode:change', () => {
+                this.kioskMode = this.$kioskModeService.kioskModeActive;
+            });
+        }
+    }
 </script>
