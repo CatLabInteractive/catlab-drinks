@@ -152,8 +152,8 @@
     export default {
         mounted() {
 
-            console.log(window.ORGANISATION_ID);
             this.service = new EventService(window.ORGANISATION_ID); // hacky hacky
+            this.resetForm();
             this.refreshEvents();
 
         },
@@ -215,7 +215,7 @@
                     await this.service.create(this.model);
                 }
 
-                this.model = {};
+                this.resetForm();
                 this.saving = false;
                 this.saved = true;
 
@@ -259,7 +259,9 @@
             },
 
             resetForm() {
-                this.model = {};
+                this.model = {
+                    payment_cards: true
+                };
             }
         }
     }

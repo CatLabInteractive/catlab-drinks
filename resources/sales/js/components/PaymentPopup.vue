@@ -109,7 +109,11 @@
                     paymentMethods.push('Collect <strong>' + this.voucherAmount + ' vouchers</strong>');
                 }
 
-                return paymentMethods.join(' or ');
+                if (paymentMethods.length > 0) {
+                    return paymentMethods.join(' or ');
+                } else {
+                    return '<p class="alert alert-danger">No payment methods have been enabled for this event.<br />Please edit the event and enable payment methods.</p>';
+                }
             },
 
             async cancel() {
