@@ -22,8 +22,8 @@
 <template>
     <div>
         <h2>
-            Summary
-            <b-link class="btn btn-sm btn-info" :to="{ name: 'hq', params: { id: this.eventId } }">
+            <span v-if="event">{{event.name}} - </span>Sales summary
+            <b-link class="btn btn-sm btn-info d-print-none" :to="{ name: 'hq', params: { id: this.eventId } }">
                 Bar HQ
             </b-link>
         </h2>
@@ -75,6 +75,7 @@
 
     import {MenuService} from "../services/MenuService";
     import {OrderService} from "../services/OrderService";
+    import {EventService} from "../services/EventService";
 
     export default {
 
@@ -84,6 +85,7 @@
 
         mounted() {
 
+            this.eventService = new EventService(window.ORGANISATION_ID); // hacky hacky
 
         },
 
@@ -93,11 +95,28 @@
             }
         },
 
+        destroyed() {
+
+            if (this.orderService) {
+                this.orderService.destroy();
+            }
+
+            if (this.menuService) {
+                this.menuService.destroy();
+            }
+
+            if (this.eventService) {
+                this.eventService.destroy();
+            }
+
+        },
+
         data() {
             return {
                 loaded: false,
                 summary: null,
-                groupedItems: []
+                groupedItems: [],
+                event: null
             }
         },
 
@@ -126,6 +145,9 @@
         methods: {
 
             async refresh() {
+
+                this.event = await this.eventService.get(this.eventId);
+                console.log(this.event);
 
                 this.loaded = true;
 

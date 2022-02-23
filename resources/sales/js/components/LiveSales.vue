@@ -125,6 +125,8 @@
             // if bad internet connection is detected, don't refresh the card.
             this.$cardService.setSkipRefreshWhenBadInternetConnection(true);
 
+            this.eventService = new EventService(window.ORGANISATION_ID); // hacky hacky
+
         },
 
         destroyed() {
@@ -171,13 +173,8 @@
                     this.menuService.destroy();
                 }
 
-                if (this.eventService) {
-                    this.eventService.destroy();
-                }
-
                 this.menuService = new MenuService(newVal);
                 this.orderService = new OrderService(newVal);
-                this.eventService = new EventService(newVal);
 
                 this.orderService.startPeriodicUpload();
 
