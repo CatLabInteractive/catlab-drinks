@@ -35,13 +35,15 @@ export class AbstractService {
      * @param method
      * @param resource
      * @param data
+     * @param headers
      * @returns {Promise<void>}
      */
-    async execute(method, resource, data = {}) {
+    async execute(method, resource, data = {}, headers = {}) {
         return this.client({
             method: method,
             url: resource,
-            data: data
+            data: data,
+            headers: headers
         }).then(
             (response) => {
                 return response.data;

@@ -125,6 +125,10 @@
                             Allow payment with vouchers
                         </b-form-checkbox>
 
+                        <b-form-checkbox v-model="model.allow_unpaid_online_orders">
+                            Allow unpaid online orders (without providing card alias)
+                        </b-form-checkbox>
+
                         <b-form-group label="Voucher value">
                             <b-form-input type="number" v-model="model.payment_voucher_value" step="0.01"></b-form-input>
                         </b-form-group>
@@ -260,7 +264,8 @@
 
             resetForm() {
                 this.model = {
-                    payment_cards: true
+                    payment_cards: true,
+                    allow_unpaid_online_orders: true
                 };
             }
         }

@@ -74,7 +74,7 @@ class EventResourceDefinition extends ResourceDefinition
         $table->boolean('payment_cards')->default(0);
          */
 
-        $this->field([ 'payment_cash', 'payment_vouchers', 'payment_cards' ])
+        $this->field([ 'payment_cash', 'payment_vouchers', 'payment_cards', 'allow_unpaid_online_orders' ])
             ->bool()
             ->visible(true)
             ->writeable();

@@ -34,12 +34,17 @@ export class MenuService extends AbstractService {
     /**
      * @returns {Promise<void>}
      */
-    getMenu() {
-        return this.execute('get', "public/menu.json?records=1000");
+    getMenu(cardToken = null) {
+        return this.execute('get', "public/menu.json?records=1000", {}, {
+            'X-Card-Token' : cardToken
+        });
     }
 
-    order(data) {
-        return this.execute('post', 'public/order.json', data);
+    order(data, cardToken = null) {
+        return this.execute('post', 'public/order.json', data,
+        {
+            'X-Card-Token' : cardToken
+        });
     }
 
 }

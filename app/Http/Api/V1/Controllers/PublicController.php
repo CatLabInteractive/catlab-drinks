@@ -102,6 +102,15 @@ class PublicController extends ResourceController
             ], 423);
         }
 
+        $card = $this->getCard($event);
+        if (!$card && !$event->allow_unpaid_online_orders) {
+            return new JsonResponse([
+                'error' => [
+                    'message' => 'Het is niet mogelijk te bestellen zonder een gekoppelde kaart. Contacteer een medewerker.'
+                ]
+            ], 423);
+        }
+
         $context = $this->getContext(Action::VIEW);
 
         $menuItems = $this->getModels($event->menuItems()->where('is_selling', '=', true), $context)->getModels();
@@ -158,29 +167,32 @@ class PublicController extends ResourceController
         }
 
         // Do we have a card token, so we can pay immediately?
-        $cardToken = $entity->getCardToken();
-        if ($cardToken) {
-            $card = Card::getFromOrderTokenOrAlias($event->organisation, $cardToken);
-            if ($card) {
+        $card = $this->getCard($event);
+        if ($card) {
 
-                try {
-                    $card->spend($entity);
-                    $entity->paid = true;
-                    $entity->payment_type = 'nfc-card-online';
+            try {
+                $card->spend($entity);
+                $entity->paid = true;
+                $entity->payment_type = 'nfc-card-online';
 
-                    // update the items in the order to make sure they have the correct price.
-                    foreach ($entity->order as $orderItem) {
-                        $orderItem->price *= $entity->getDiscountFactor();
-                    }
-
-                } catch (InsufficientFundsException $e) {
-                    return new JsonResponse([
-                        'error' => [
-                            'message' => 'Je hebt onvoldoende saldo op je kaart staan. Herlaad je kaart.'
-                        ]
-                    ], 402);
+                // update the items in the order to make sure they have the correct price.
+                foreach ($entity->order as $orderItem) {
+                    $orderItem->price *= $entity->getDiscountFactor();
                 }
+
+            } catch (InsufficientFundsException $e) {
+                return new JsonResponse([
+                    'error' => [
+                        'message' => 'Je hebt onvoldoende saldo op je kaart staan. Herlaad je kaart.'
+                    ]
+                ], 402);
             }
+        } elseif (!$event->allow_unpaid_online_orders) {
+            return new JsonResponse([
+                'error' => [
+                    'message' => 'Het is niet mogelijk te bestellen zonder een gekoppelde kaart. Contacteer een medewerker.'
+                ]
+            ], 402);
         }
 
         $entity->event()->associate($event);
@@ -191,5 +203,18 @@ class PublicController extends ResourceController
         $readContext = $this->getContext(Action::VIEW);
         $resource = $this->toResource($entity, $readContext, OrderResourceDefinition::class);
         return new ResourceResponse($resource, $readContext);
+    }
+
+    /**
+     * @param Event $event
+     * @return Card|null
+     */
+    protected function getCard(Event $event) {
+        $cardToken = \Request::header('X-Card-Token');
+        if (!$cardToken) {
+            return null;
+        }
+
+        return Card::getFromOrderTokenOrAlias($event->organisation, $cardToken);
     }
 }
