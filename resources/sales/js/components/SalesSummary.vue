@@ -122,7 +122,7 @@
 
         watch: {
 
-            eventId(newVal, oldVal) {
+            async eventId(newVal, oldVal) {
 
                 this.menuService = new MenuService(newVal);
                 this.orderService = new OrderService(newVal);
@@ -131,7 +131,12 @@
                     clearInterval(this.interval);
                 }
 
-                this.refresh();
+                this.event = await this.eventService.get(this.eventId);
+
+                // hacky hack hack
+                window.document.title = this.event.name + ' - CatLab Drinks';
+
+                await this.refresh();
                 this.interval = setInterval(
                     () => {
                         //this.refresh();
@@ -145,8 +150,6 @@
         methods: {
 
             async refresh() {
-
-                this.event = await this.eventService.get(this.eventId);
 
                 this.loaded = true;
 
