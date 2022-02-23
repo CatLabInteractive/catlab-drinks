@@ -117,7 +117,7 @@ export class AbstractService {
     }
 
     async get (id, parameters) {
-
+        
         if (typeof(parameters) === 'undefined') {
             parameters = {};
         }

@@ -113,6 +113,22 @@
                             <b-form-input type="text" v-model="model.name"></b-form-input>
                         </b-form-group>
 
+                        <b-form-checkbox v-model="model.payment_cards">
+                            Allow payment with NFC topup cards
+                        </b-form-checkbox>
+
+                        <b-form-checkbox v-model="model.payment_cash">
+                            Allow payment in cash
+                        </b-form-checkbox>
+
+                        <b-form-checkbox v-model="model.payment_vouchers">
+                            Allow payment with vouchers
+                        </b-form-checkbox>
+
+                        <b-form-group label="Voucher value">
+                            <b-form-input type="number" v-model="model.payment_voucher_value" step="0.01"></b-form-input>
+                        </b-form-group>
+
                         <div>
                             <b-btn type="submit" variant="success">Save</b-btn>
                             <b-btn type="button" variant="light" @click="resetForm()">Reset</b-btn>
@@ -187,6 +203,10 @@
             },
 
             async save() {
+
+                if (!this.model.payment_vouchers) {
+                    this.model.payment_voucher_value = null;
+                }
 
                 this.saving = true;
                 if (this.model.id) {

@@ -147,7 +147,6 @@
             async refresh() {
 
                 this.event = await this.eventService.get(this.eventId);
-                console.log(this.event);
 
                 this.loaded = true;
 

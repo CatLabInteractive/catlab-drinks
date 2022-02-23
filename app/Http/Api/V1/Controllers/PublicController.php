@@ -166,6 +166,7 @@ class PublicController extends ResourceController
                 try {
                     $card->spend($entity);
                     $entity->paid = true;
+                    $entity->payment_type = 'nfc-card-online';
 
                     // update the items in the order to make sure they have the correct price.
                     foreach ($entity->order as $orderItem) {
