@@ -272,7 +272,7 @@
             resetForm() {
                 this.model = {
                     payment_cards: true,
-                    allow_unpaid_online_orders: true
+                    allow_unpaid_online_orders: false
                 };
             }
         }
