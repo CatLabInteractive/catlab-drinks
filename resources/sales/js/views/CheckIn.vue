@@ -81,11 +81,13 @@
 <script>
 
     import {EventService} from "../services/EventService";
+    import {ExternalCheckinService} from "../services/ExternalCheckinService";
 
     export default {
         mounted() {
 
             this.eventService = new EventService(window.ORGANISATION_ID); // hacky hacky
+            this.checkinService = new ExternalCheckinService();
 
             this.eventId = this.$route.params.id;
             this.refresh();
@@ -205,7 +207,10 @@
                 let alias = this.attendeeCheckingIn.alias;
                 this.card.addOrderTokenAlias(alias);
 
-                await this.$cardService.saveCardAliases(this.card);
+                await Promise.all([
+                    this.$cardService.saveCardAliases(this.card),
+                    this.callExternalCheckin(this.card)
+                ]);
 
                 // mark attendee as 'already selected'
                 this.attendeeCheckingIn.alreadySelected = true;
@@ -227,6 +232,10 @@
                 this.selectingAttendee = false;
                 this.attendeeCheckingIn = null;
                 this.$refs.confirmModal.hide();
+            },
+
+            async callExternalCheckin(card) {
+                return this.checkinService.checkin(this.event, this.attendeeCheckingIn, card);
             }
         }
     }

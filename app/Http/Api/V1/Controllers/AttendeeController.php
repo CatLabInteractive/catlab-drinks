@@ -129,8 +129,8 @@ class AttendeeController extends Base\ResourceController
         foreach ($lines as $line) {
             $parts = explode(':', $line);
             if (count($parts) > 1) {
-                $alias = trim($parts[0]);
-                $nameInput = trim(implode(':', $parts[1]));
+                $alias = trim(array_shift($parts));
+                $nameInput = implode(':', $parts);
 
                 // Do we have tabs?
                 $nameParts = explode("\t", $nameInput);

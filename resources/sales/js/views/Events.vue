@@ -133,6 +133,10 @@
                             <b-form-input type="number" v-model="model.payment_voucher_value" step="0.01"></b-form-input>
                         </b-form-group>
 
+                        <b-form-group label="Checkin URL (callback)">
+                            <b-form-input type="text" v-model="model.checkin_url"></b-form-input>
+                        </b-form-group>
+
                         <div>
                             <b-btn type="submit" variant="success">Save</b-btn>
                             <b-btn type="button" variant="light" @click="resetForm()">Reset</b-btn>
