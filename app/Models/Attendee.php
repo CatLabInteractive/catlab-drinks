@@ -1,3 +1,4 @@
+<?php
 /*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
@@ -19,32 +20,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {AbstractService} from './AbstractService';
+namespace App\Models;
 
-export class MenuService extends AbstractService {
+use CatLab\Charon\Laravel\Database\Model;
+
+/**
+ *
+ */
+class Attendee extends Model
+{
+    protected $fillable = [
+        'name',
+        'alias',
+        'email'
+    ];
 
     /**
-     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    constructor() {
-        super();
-
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
     }
-
-    /**
-     * @returns {Promise<void>}
-     */
-    getMenu(cardToken = null) {
-        return this.execute('get', "public/menu.json?records=1000", {}, {
-            'X-Card-Token' : cardToken
-        });
-    }
-
-    order(data, cardToken = null) {
-        return this.execute('post', 'public/order.json', data,
-        {
-            'X-Card-Token' : cardToken
-        });
-    }
-
 }

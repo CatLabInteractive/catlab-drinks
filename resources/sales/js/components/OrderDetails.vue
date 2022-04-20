@@ -61,6 +61,16 @@
                 </tr>
 
                 <tr>
+                    <td>Payment type</td>
+                    <td>{{order.payment_type}}</td>
+                </tr>
+
+                <tr>
+                    <td>POS</td>
+                    <td>{{order.location}}</td>
+                </tr>
+
+                <tr>
                     <td>Payment</td>
                     <td>
                         <span v-if="order.paid"><i class="fas fa-check-square"></i> Paid

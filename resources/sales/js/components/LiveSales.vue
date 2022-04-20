@@ -125,6 +125,8 @@
             // if bad internet connection is detected, don't refresh the card.
             this.$cardService.setSkipRefreshWhenBadInternetConnection(true);
 
+            this.eventService = new EventService(window.ORGANISATION_ID); // hacky hacky
+
         },
 
         destroyed() {
@@ -152,6 +154,7 @@
                 saving: false,
                 savedMessage: '',
                 warning: null,
+                event: null,
                 totals: {
                     items: 0,
                     price: 0
@@ -171,13 +174,8 @@
                     this.menuService.destroy();
                 }
 
-                if (this.eventService) {
-                    this.eventService.destroy();
-                }
-
                 this.menuService = new MenuService(newVal);
                 this.orderService = new OrderService(newVal);
-                this.eventService = new EventService(newVal);
 
                 this.orderService.startPeriodicUpload();
 
@@ -189,6 +187,16 @@
         methods: {
 
             async refresh() {
+
+                this.event = await this.eventService.get(this.eventId);
+
+                // also set all payment possibilities
+                this.$paymentService.setPaymentMethods(
+                    this.event.payment_cards,
+                    this.event.payment_cash,
+                    this.event.payment_vouchers,
+                    this.event.payment_voucher_value
+                );
 
                 this.items = (await this.menuService.index()).items;
                 this.reset();
@@ -310,6 +318,7 @@
 
                     try {
                         let paymentData = await this.$paymentService.order(order);
+                        order.payment_type = paymentData.paymentType;
 
                         this.$refs.processedModal.show();
                         setTimeout(function () {

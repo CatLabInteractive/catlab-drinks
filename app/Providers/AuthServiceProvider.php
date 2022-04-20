@@ -40,7 +40,8 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\Card::class => \App\Policies\CardPolicy::class,
         \App\Models\Organisation::class => \App\Policies\OrganisationPolicy::class,
         \App\Models\Transaction::class => \App\Policies\TransactionPolicy::class,
-        \App\Models\Topup::class => \App\Policies\TopupPolicy::class
+        \App\Models\Topup::class => \App\Policies\TopupPolicy::class,
+        \App\Models\Attendee::class => \App\Policies\AttendeePolicy::class,
     ];
 
     /**

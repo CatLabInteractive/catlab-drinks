@@ -34,6 +34,12 @@ class CardOrderTokenAlias extends Model
         'alias'
     ];
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'expires_at'
+    ];
+
     /**
      * @var string
      */
@@ -53,5 +59,23 @@ class CardOrderTokenAlias extends Model
     public function card()
     {
         return $this->belongsTo(Card::class);
+    }
+
+    /**
+     * @return $this
+     */
+    public function touchExpirationDate()
+    {
+        $this->expires_at = (new \DateTime())->add(new \DateInterval('P1D'));
+        return $this;
+    }
+
+    /**
+     * @param $builder
+     * @return void
+     */
+    public function scopeNotExpired($builder)
+    {
+        $builder->where('expires_at', '>', new \DateTime());
     }
 }

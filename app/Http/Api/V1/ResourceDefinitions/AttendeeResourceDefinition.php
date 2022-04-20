@@ -1,3 +1,4 @@
+<?php
 /*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
@@ -19,32 +20,44 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {AbstractService} from './AbstractService';
+namespace App\Http\Api\V1\ResourceDefinitions;
 
-export class MenuService extends AbstractService {
+use App\Models\Attendee;
+use CatLab\Charon\Models\ResourceDefinition;
 
+/**
+ *
+ */
+class AttendeeResourceDefinition extends ResourceDefinition
+{
     /**
-     *
+     * @param $entityClassName
      */
-    constructor() {
-        super();
+    public function __construct()
+    {
+        parent::__construct(Attendee::class);
 
+        $this
+            ->identifier('id')
+            ->int();
+
+        $this->field('name')
+            ->string()
+            ->required()
+            ->visible(true)
+            ->writeable(true, true)
+        ;
+
+        $this->field('alias')
+            ->string()
+            ->required()
+            ->visible(true)
+            ->writeable(true, true);
+
+        $this->field('email')
+            ->string()
+            ->visible(true)
+            ->writeable(true, true)
+        ;
     }
-
-    /**
-     * @returns {Promise<void>}
-     */
-    getMenu(cardToken = null) {
-        return this.execute('get', "public/menu.json?records=1000", {}, {
-            'X-Card-Token' : cardToken
-        });
-    }
-
-    order(data, cardToken = null) {
-        return this.execute('post', 'public/order.json', data,
-        {
-            'X-Card-Token' : cardToken
-        });
-    }
-
 }

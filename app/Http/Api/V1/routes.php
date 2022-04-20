@@ -90,6 +90,7 @@ $routes->group(
                 \App\Http\Api\V1\Controllers\TransactionController::setRoutes($routes);
                 \App\Http\Api\V1\Controllers\FinancialOverviewController::setRoutes($routes);
                 \App\Http\Api\V1\Controllers\TopupController::setRoutes($routes);
+                \App\Http\Api\V1\Controllers\AttendeeController::setRoutes($routes);
 
 
             }

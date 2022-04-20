@@ -23,7 +23,7 @@
 
     <b-container fluid>
 
-        <h1>Events</h1>
+        <h1>Events <b-button size="sm" class="btn-success" @click="createNew" title="Create new event">Create new</b-button></h1>
         <div class="text-center" v-if="!loaded">
             <b-spinner label="Loading data" />
         </div>
@@ -33,7 +33,7 @@
                 <b-table striped hover :items="items" :fields="fields" v-if="loaded">
 
                     <template v-slot:cell(name)="row">
-                        <router-link :to="{ name: 'hq', params: { id: row.item.id } }">{{ row.item.name }}</router-link>
+                        <router-link :to="{ name: 'hq', params: { id: row.item.id } }" target="_blank">{{ row.item.name }}</router-link>
                     </template>
 
                     <template v-slot:cell(order_token)="row">
@@ -67,6 +67,16 @@
                             <span class="sr-only">Client panel</span>
                         </b-link>
 
+                        <b-link class="btn btn-sm btn-success" :to="{ name: 'attendees', params: { id: row.item.id } }" title="Attendees">
+                            <i class="fas fa-users"></i>
+                            <span class="sr-only">Attendees</span>
+                        </b-link>
+
+                        <b-link class="btn btn-sm btn-success" :to="{ name: 'checkIn', params: { id: row.item.id } }" title="Check-In">
+                            <i class="fas fa-passport"></i>
+                            <span class="sr-only">Check-In</span>
+                        </b-link>
+
                         <b-button size="sm" class="" @click="edit(row.item, row.index)" title="Edit">
                             <i class="fas fa-edit"></i>
                             <span class="sr-only">Edit</span>
@@ -96,11 +106,31 @@
                 </b-table>
             </b-col>
 
-            <b-col lg="4">
+            <b-col lg="4" v-if="showForm">
                 <b-card :title="(model.id ? 'Edit event ID#' + model.id : 'New event')">
                     <form @submit.prevent="save">
                         <b-form-group label="Name">
                             <b-form-input type="text" v-model="model.name"></b-form-input>
+                        </b-form-group>
+
+                        <b-form-checkbox v-model="model.payment_cards">
+                            Allow payment with NFC topup cards
+                        </b-form-checkbox>
+
+                        <b-form-checkbox v-model="model.payment_cash">
+                            Allow payment in cash
+                        </b-form-checkbox>
+
+                        <b-form-checkbox v-model="model.payment_vouchers">
+                            Allow payment with vouchers
+                        </b-form-checkbox>
+
+                        <b-form-checkbox v-model="model.allow_unpaid_online_orders">
+                            Allow unpaid online orders (without providing card alias)
+                        </b-form-checkbox>
+
+                        <b-form-group label="Voucher value">
+                            <b-form-input type="number" v-model="model.payment_voucher_value" step="0.01"></b-form-input>
                         </b-form-group>
 
                         <div>
@@ -126,14 +156,15 @@
     export default {
         mounted() {
 
-            console.log(window.ORGANISATION_ID);
             this.service = new EventService(window.ORGANISATION_ID); // hacky hacky
+            this.resetForm();
             this.refreshEvents();
 
         },
 
         data() {
             return {
+                showForm: false,
                 loaded: false,
                 saving: false,
                 saved: false,
@@ -171,23 +202,29 @@
 
             async refreshEvents() {
 
-                this.items = (await this.service.index()).items;
+                this.items = (await this.service.index({ sort: '!id' })).items;
                 this.loaded = true;
 
             },
 
             async save() {
 
+                if (!this.model.payment_vouchers) {
+                    this.model.payment_voucher_value = null;
+                }
+
                 this.saving = true;
                 if (this.model.id) {
                     await this.service.update(this.model.id, this.model);
                 } else {
                     await this.service.create(this.model);
+                    this.resetForm();
                 }
 
-                this.model = {};
                 this.saving = false;
                 this.saved = true;
+
+                this.refreshEvents();
 
                 setTimeout(
                     () => {
@@ -196,13 +233,12 @@
                     2500
                 );
 
-                this.refreshEvents();
-
             },
 
             async edit(model, index) {
 
                 this.model = Object.assign({}, model);
+                this.showForm = true;
 
             },
 
@@ -228,8 +264,16 @@
 
             },
 
+            createNew() {
+                this.showForm = true;
+                this.resetForm();
+            },
+
             resetForm() {
-                this.model = {};
+                this.model = {
+                    payment_cards: true,
+                    allow_unpaid_online_orders: false
+                };
             }
         }
     }

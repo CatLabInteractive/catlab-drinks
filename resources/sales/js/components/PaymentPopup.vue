@@ -28,13 +28,21 @@
             <b-spinner />
         </div>
         <div v-if="!loading">
-            <p class="text-center">
-                Scan card or collect <strong>{{Math.ceil(amount / 0.5)}} vouchers</strong>.
-            </p>
+            <p class="text-center" v-html="instructions"></p>
 
             <p v-if="error" class="text-center alert alert-warning">Card error: {{ error }}</p>
 
-            <p class="text-center"><button class="btn btn-success" v-on:click="cash()">{{Math.ceil(amount / 0.5)}} vouchers collected</button></p>
+            <p class="text-center">
+                <button v-if="$paymentService.allow_cash_payments" class="btn btn-success" v-on:click="cash()">
+                    <i class="fas fa-money-bill-wave"></i>
+                    {{cashAmount}}
+                </button>
+
+                <button v-if="$paymentService.allow_voucher_payment" class="btn btn-success" v-on:click="vouchers()">
+                    <i class="fa fa-ticket-alt"></i>
+                    {{voucherAmount}} vouchers
+                </button>
+            </p>
         </div>
 
     </b-modal>
@@ -54,6 +62,11 @@
                 this.transaction = transaction;
                 this.error = transaction.error;
                 this.loading = transaction.loading;
+
+                this.cashAmount = '€' + this.amount;
+                this.voucherAmount = Math.ceil(this.amount / this.$paymentService.voucher_value);
+
+                this.instructions = this.getInstructions();
             });
 
             this.$paymentService.on('transaction:change', (transaction) => {
@@ -74,11 +87,35 @@
             return {
                 amount: 0,
                 error: null,
-                loading: false
+                loading: false,
+                instructions: null
             };
         },
 
         methods: {
+
+            getInstructions() {
+                let paymentMethods = [];
+
+                if (this.$paymentService.allow_nfc_payments) {
+                    paymentMethods.push('<strong>Scan card</strong>');
+                }
+
+                if (this.$paymentService.allow_cash_payments) {
+                    paymentMethods.push('Collect <strong>' + this.cashAmount + '</strong>');
+                }
+
+                if (this.$paymentService.allow_voucher_payment) {
+                    paymentMethods.push('Collect <strong>' + this.voucherAmount + ' vouchers</strong>');
+                }
+
+                if (paymentMethods.length > 0) {
+                    return paymentMethods.join(' or ');
+                } else {
+                    return '<p class="alert alert-danger">No payment methods have been enabled for this event.<br />Please edit the event and enable payment methods.</p>';
+                }
+            },
+
             async cancel() {
 
                 if (!this.active) {
@@ -91,6 +128,10 @@
 
             async cash() {
                 this.$paymentService.cash();
+            },
+
+            async vouchers() {
+                this.$paymentService.vouchers();
             }
         }
     }

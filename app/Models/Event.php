@@ -84,6 +84,14 @@ class Event extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function attendees()
+    {
+        return $this->hasMany(Attendee::class);
+    }
+
+    /**
      * @return string
      */
     public function getOrderUrl()

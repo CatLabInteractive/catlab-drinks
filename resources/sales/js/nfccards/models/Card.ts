@@ -309,6 +309,17 @@ export class Card extends Eventable {
         }
     }
 
+    public addOrderTokenAlias(alias: string) {
+        this.orderTokenAliases.push(alias);
+    };
+
+    public removeOrderTokenAlias(alias: string) {
+        const index = this.orderTokenAliases.indexOf(alias);
+        if (index > -1) {
+            this.orderTokenAliases.splice(index, 1);
+        }
+    };
+
     /**
      * @param bytes
      */

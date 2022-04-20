@@ -49,6 +49,8 @@
             this.eventId = this.$route.params.id;
             this.refresh();
 
+            this.$kioskModeService.enableKioskMode();
+
         },
 
         watch: {

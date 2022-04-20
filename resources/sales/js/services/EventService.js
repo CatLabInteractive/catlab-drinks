@@ -20,6 +20,7 @@
  */
 
 import {AbstractService} from './AbstractService';
+import $ from "jquery";
 
 export class EventService extends AbstractService {
 
@@ -33,5 +34,20 @@ export class EventService extends AbstractService {
         this.indexUrl = 'organisations/' + organisationId + '/events';
     }
 
+    getAttendees(eventId) {
+        return this.execute('get', 'events/' + eventId + '/attendees?records=1000');
+    }
 
+    importAttendees(eventId, attendeeInput, parameters ) {
+
+        if (typeof(parameters) === 'undefined') {
+            parameters = {};
+        }
+
+        return this.execute(
+            'put',
+            '/' + this.entityUrl + '/' + eventId + "/attendees/import?" + $.param(parameters),
+            { attendees: attendeeInput }
+        );
+    }
 }

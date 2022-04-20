@@ -142,3 +142,35 @@ a.card-id {
     padding: 1px 5px;
     background: #eee;
 }
+
+#check-in {
+    .attendee {
+        width: 150px;
+        border: 2px solid orange;
+        background: #ffefa9;
+        border-radius: 10px;
+        padding: 10px;
+        float: left;
+        margin: 5px 5px 0 0;
+        height: 100px;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+        -webkit-user-select: none; /* Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+/Edge */
+        user-select: none; /* Standard */
+    }
+}
+
+.check-in-confirm {
+
+    p {
+        text-align: center;
+    }
+
+    .name {
+        font-size: 200%;
+    }
+
+}

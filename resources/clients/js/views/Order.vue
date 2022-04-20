@@ -145,8 +145,6 @@
 
             this.service = new MenuService();
 
-            this.refresh();
-
             // Look for name attribute
             if (this.$route.query.name) {
                 this.userName = this.$route.query.name;
@@ -159,15 +157,17 @@
             this.cardToken = null;
             if (this.$route.query.card) {
                 this.cardToken = this.$route.query.card;
-                this.setLocalStorage('cardToken', this.cardToken);
+                //this.setLocalStorage('cardToken', this.cardToken);
             } else if (this.getLocalStorage('cardToken')) {
-                this.cardToken = this.getLocalStorage('cardToken');
+                //this.cardToken = this.getLocalStorage('cardToken');
             }
 
             // Look for name
             if (this.getLocalStorage('tableNumber')) {
                 this.tableNumber = this.getLocalStorage('tableNumber');
             }
+
+            this.refresh();
 
         },
 
@@ -212,7 +212,7 @@
 
                 let items = [];
                 try {
-                    items = (await this.service.getMenu()).items;
+                    items = (await this.service.getMenu(this.cardToken)).items;
                 } catch (e) {
                     this.loaded = true;
                     this.error = e.response.data.error.message;
@@ -406,7 +406,7 @@
                 try {
                     this.setLocalStorage('tableNumber', this.tableNumber);
 
-                    const order = await this.service.order(this.orderData);
+                    const order = await this.service.order(this.orderData, this.cardToken);
                     this.$refs.processingOrderModal.hide();
 
                     this.loadingOrder = false;

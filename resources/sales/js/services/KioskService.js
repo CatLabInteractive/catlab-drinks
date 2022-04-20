@@ -19,32 +19,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {AbstractService} from './AbstractService';
+import {Eventable} from "../utils/Eventable";
 
-export class MenuService extends AbstractService {
+export class KioskService extends Eventable {
 
-    /**
-     *
-     */
     constructor() {
         super();
-
+        this.kioskModeActive = false;
     }
 
-    /**
-     * @returns {Promise<void>}
-     */
-    getMenu(cardToken = null) {
-        return this.execute('get', "public/menu.json?records=1000", {}, {
-            'X-Card-Token' : cardToken
-        });
+    enableKioskMode() {
+        this.kioskModeActive = true;
+        this.trigger('kioskmode:change');
     }
 
-    order(data, cardToken = null) {
-        return this.execute('post', 'public/order.json', data,
-        {
-            'X-Card-Token' : cardToken
-        });
+    disableKioskMode() {
+        this.kioskModeActive = false;
+        this.trigger('kioskmode:change');
     }
-
 }

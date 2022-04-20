@@ -34,6 +34,28 @@ export class PaymentService extends Eventable {
 
     constructor() {
         super();
+
+        this.allow_nfc_payments = true;
+        this.allow_cash_payments = false;
+        this.allow_voucher_payment = false;
+        this.voucher_value = 0.5;
+    }
+
+    setPaymentMethods(
+        nfc = true,
+        cash = false,
+        vouchers = false,
+        voucherValue = 0.5
+    ) {
+        this.allow_nfc_payments = nfc;
+        this.allow_cash_payments = cash;
+        this.allow_voucher_payment = vouchers;
+
+        if (voucherValue > 0) {
+            this.voucher_value = voucherValue;
+        } else {
+            this.voucher_value = 1;
+        }
     }
 
     setCardService(cardService) {
@@ -153,7 +175,7 @@ export class PaymentService extends Eventable {
 
             const out = await this.cardService.spend(transaction.orderId, price);
             this.currentTransaction.loading = false;
-            out.paymentType = 'card';
+            out.paymentType = 'nfc-card-scanner';
 
             this.currentTransaction = null;
 
@@ -161,6 +183,8 @@ export class PaymentService extends Eventable {
             this.trigger('transaction:done');
 
         } catch (e) {
+            console.error(e);
+
             this.currentTransaction.loading = false;
             if (e instanceof InsufficientFundsException) {
                 transaction.error = 'Insufficient funds.';
@@ -195,18 +219,25 @@ export class PaymentService extends Eventable {
     /**
      * @returns {Promise<void>}
      */
-    async cash() {
+    async cash(paymentType = 'cash') {
 
         if (!this.currentTransaction) {
             return;
         }
 
         this.currentTransaction.resolve({
-            paymentType: 'cash',
+            paymentType: paymentType,
             discount: 0
         });
 
         this.currentTransaction = null;
         this.trigger('transaction:done');
+    }
+
+    /**
+     * @returns {Promise<void>}
+     */
+    async vouchers() {
+        this.cash('vouchers');
     }
 }
