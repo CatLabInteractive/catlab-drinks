@@ -130,14 +130,26 @@ class AttendeeController extends Base\ResourceController
             $parts = explode(':', $line);
             if (count($parts) > 1) {
                 $alias = trim($parts[0]);
-                $name = trim($parts[1]);
+                $nameInput = trim(implode(':', $parts[1]));
 
-                if ($alias && $name) {
-                    $event->attendees()->create([
-                        'alias' => $alias,
-                        'name' => $name
-                    ]);
+                // Do we have tabs?
+                $nameParts = explode("\t", $nameInput);
+
+                $name = trim($nameParts[0]);
+                if (!$alias || !$name) {
+                    continue;
                 }
+
+                $attributes = [
+                    'alias' => $alias,
+                    'name' => $name
+                ];
+
+                if (isset($nameParts[1])) {
+                    $attributes['email'] = trim($nameParts[1]);
+                }
+
+                $event->attendees()->create($attributes);
             }
         }
 

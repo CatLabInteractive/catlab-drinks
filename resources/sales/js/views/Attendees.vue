@@ -44,7 +44,7 @@
                         </div>
 
                         <b-form-group label="Replace attendees">
-                            <b-textarea v-model="attendeeInput" :placeholder="'alias-1: Name of attendee 1\nalias-2: Name of attendee 2\n...'" rows="10"></b-textarea>
+                            <b-textarea v-model="attendeeInput" :placeholder="'alias-1: Name of attendee 1\tEmail address (optional)\nalias-2: Name of attendee 2\tEmail address (optional)\n...'" rows="10"></b-textarea>
                         </b-form-group>
 
                         <div>
