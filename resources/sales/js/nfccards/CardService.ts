@@ -78,6 +78,8 @@ export class CardService extends Eventable {
 
     private axios: any = null;
 
+    private failedTransactions: Map<number, Transaction>;
+
     public hasCardReader: boolean = false;
 
     /**
@@ -90,12 +92,12 @@ export class CardService extends Eventable {
         super();
 
         this.axios = axios;
-
         this.offlineStore = new OfflineStore(organisationId);
         this.transactionStore = new TransactionStore(axios, organisationId, this.offlineStore);
         this.logger = new Logger();
 
         this.nfcReader = new NfcReader(this.offlineStore, this.logger);
+        this.failedTransactions = this.transactionStore.readFailedTransactions();
     }
 
     /**
@@ -249,7 +251,6 @@ export class CardService extends Eventable {
      * @param card
      */
     async rebuild(card: Card) {
-
         if (!this.transactionStore.isOnline()) {
             throw new OfflineException('rebuild only works with an active internet connection');
         }
@@ -266,7 +267,7 @@ export class CardService extends Eventable {
         // format the card
         card.balance = 0;
         card.transactionCount = 0;
-        card.previousTransactions = [ 0, 0, 0, 0, 0 ];
+        card.previousTransactions = [0,0,0,0,0];
         card.lastTransaction = new Date();
 
         await this.refreshCard(card, true);
@@ -300,9 +301,8 @@ export class CardService extends Eventable {
         }
 
         // try to write the transaction to card
+        this.recoverTransactionIfNeeded(card);
         const transactionNumber = card.applyTransaction(amount);
-        await card.save();
-
         const transaction = new Transaction(
             card.getUid(),
             transactionNumber,
@@ -312,6 +312,8 @@ export class CardService extends Eventable {
             null,
             topupUid
         );
+
+        await this.persist(transaction, card);
 
         // yay! save that transaction (but don't wait for upload)
         await this.offlineStore.addPendingTransaction(transaction);
@@ -327,13 +329,35 @@ export class CardService extends Eventable {
         }
     }
 
+    private async persist(transaction:Transaction, card:Card){
+        try{
+            await card.save();
+            this.failedTransactions.delete(card.id!);
+            this.transactionStore.persistFailedTransactions(this.failedTransactions);
+        }catch (e){
+            if(e instanceof NfcWriteException){
+                this.failedTransactions.set(card.id!, transaction);
+                this.transactionStore.persistFailedTransactions(this.failedTransactions);
+                console.log("Writing to card failed, added tx to failed transactions and persisted to localstorage");
+            }
+            throw e;
+        }
+    }
+
+    private recoverTransactionIfNeeded(card:Card):void{
+        let failedTx = this.failedTransactions.get(card.id!) || null;
+
+        if(failedTx != null && failedTx.transactionId == card.transactionCount){
+            failedTx.reverse();
+            card.applyTransaction(failedTx.amount);
+        }
+    }
+
     /**
      * @param orderUid
      * @param amount
      */
     async spend(orderUid: string, amount: number) {
-
-        //console.log('CardService: handling order ' + orderUid);
         const card = this.getCard();
         if (!card) {
             throw new NoCardFoundException('No card found.');
@@ -355,12 +379,12 @@ export class CardService extends Eventable {
             throw new InsufficientFundsException('Insufficient funds.');
         }
 
-        const transactionNumber = card.applyTransaction(0 - amount);
-        await card.save();
+        this.recoverTransactionIfNeeded(card);
 
+        let transactionId = card.applyTransaction(0 - amount);
         const transaction = new Transaction(
             card.getUid(),
-            transactionNumber,
+            transactionId,
             'sale',
             new Date(),
             0 - amount,
@@ -369,16 +393,19 @@ export class CardService extends Eventable {
             discount
         );
 
+        await this.persist(transaction, card);
+
         // yay! save that transaction (but don't wait for upload)
         await this.offlineStore.addPendingTransaction(transaction);
         this.trigger('card:balance:change', card);
 
         return {
             uid: card.getUid(),
-            transaction: transactionNumber,
+            transaction: transaction.transactionId,
             discount: discount,
             amount: amount
         }
+
     }
 
     /**

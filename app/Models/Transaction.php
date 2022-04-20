@@ -69,6 +69,7 @@ class Transaction extends Model
     const TYPE_REFUND = 'refund';
     const TYPE_UNKNOWN = 'unknown';
     const TYPE_OVERFLOW = 'overflow';
+    const TYPE_REVERSAL = 'reversal';
 
     // the id that will be used as an overflow transaction
     const ID_OVERFLOW = -1;
