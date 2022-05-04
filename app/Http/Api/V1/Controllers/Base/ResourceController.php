@@ -202,10 +202,16 @@ class ResourceController extends Controller
         $context = new Context($action, $parameters);
 
         if ($toShow = Request::input('fields')) {
+            if (!is_array($toShow)) {
+                $toShow = explode(',', $toShow);
+            }
             $context->showFields(array_map('trim', $toShow));
         }
 
         if ($toExpand = Request::input('expand')) {
+            if (!is_array($toExpand)) {
+                $toExpand = explode(',', $toExpand);
+            }
             $context->expandFields(array_map('trim', $toExpand));
         }
 
