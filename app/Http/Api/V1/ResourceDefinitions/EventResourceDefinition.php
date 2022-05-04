@@ -84,6 +84,11 @@ class EventResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->writeable();
 
+        $this->field('checkin_url')
+            ->string()
+            ->visible(true)
+            ->writeable();
+
         $this->relationship('organisation', OrganisationResourceDefinition::class)
             ->one()
             ->expandable(true)
