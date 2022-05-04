@@ -202,11 +202,11 @@ class ResourceController extends Controller
         $context = new Context($action, $parameters);
 
         if ($toShow = Request::input('fields')) {
-            $context->showFields(array_map('trim', $toShow));
+            $context->showFields(array_map('trim', explode(',', $toShow)));
         }
 
         if ($toExpand = Request::input('expand')) {
-            $context->expandFields(array_map('trim', $toExpand));
+            $context->expandFields(array_map('trim', explode(',', $toExpand)));
         }
 
         $context->addProcessor(new PaginationProcessor(CursorPaginationBuilder::class));
