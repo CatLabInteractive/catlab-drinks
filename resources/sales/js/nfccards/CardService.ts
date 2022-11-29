@@ -185,8 +185,15 @@ export class CardService extends Eventable {
     async refreshCard(card: Card, forceWrite = false) {
         const now = new Date();
 
+        this.logger.log(card.getUid(), 'Refreshing card');
+
+
+        this.logger.log(card.getUid(), 'Loading server data');
+
         const serverCard = await this.transactionStore.getCard(card.getUid(), true);
         if (serverCard) {
+
+            this.logger.log(card.getUid(), 'Server data found!', serverCard);
 
             // set interla id
             card.id = serverCard.id;
@@ -195,6 +202,8 @@ export class CardService extends Eventable {
             // check for pending transactions
             const pendingTransactions = serverCard.pendingTransactions.items;
             if (pendingTransactions.length > 0) {
+
+                this.logger.log(card.getUid(), 'Apply ' + pendingTransactions.length + ' pending transactions');
 
                 // apply each transaction to the card
                 try {
@@ -207,9 +216,13 @@ export class CardService extends Eventable {
                     );
 
                     // save the card
+
+                    this.logger.log(card.getUid(), 'Saving applied pending transactions');
                     await card.save();
 
                     await this.transactionStore.updateTransactions(pendingTransactions);
+
+                    this.logger.log(card.getUid(), 'Done saving applied pending transactions');
 
                 } catch (e) {
                     if (e instanceof NfcWriteException) {
@@ -226,7 +239,10 @@ export class CardService extends Eventable {
             }
 
             // upload current values so that server can update its list of transactions
+
+            this.logger.log(card.getUid(), 'Uploading card state');
             await this.uploadCardData(card);
+            this.logger.log(card.getUid(), 'Done uploading card state');
         }
     }
 

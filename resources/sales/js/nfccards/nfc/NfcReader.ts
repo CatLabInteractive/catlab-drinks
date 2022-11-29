@@ -119,12 +119,15 @@ export class NfcReader extends Eventable {
                 await this.setCardData(this.currentCard, data);
 
                 // check if our last known transaction still matches
+                this.logger.log(this.currentCard.getUid(), 'Comparing last seen transaction id');
                 const lastSeenSyncId = this.offlineStore.getLastKnownSyncId(this.currentCard.getUid());
                 if (lastSeenSyncId > this.currentCard.transactionCount) {
                     this.currentCard.setCorrupted();
                     this.trigger('card:corrupted', this.currentCard);
                     return;
                 }
+
+                this.logger.log(this.currentCard.getUid(), 'Setting last seen transaction id');
                 this.offlineStore.setLastKnownSyncId(this.currentCard.getUid(), this.currentCard.transactionCount);
 
             } catch (e) {
@@ -136,6 +139,7 @@ export class NfcReader extends Eventable {
                 }
             }
 
+            this.logger.log(this.currentCard.getUid(), 'Card finished loading');
             this.trigger('card:loaded', this.currentCard);
         });
 
@@ -179,9 +183,14 @@ export class NfcReader extends Eventable {
                 card.parseNdef(ndefDecoded);
 
                 // Store the original state locally to be able to revert to it on write error
+                this.logger.log(card.getUid(), 'NDEF messages parsed', ndefDecoded);
+
+                this.logger.log(card.getUid(), 'Setting card state in offline store');
                 await this.offlineStore.setCardState(card.getUid(), data.ndef);
+                this.logger.log(card.getUid(), 'Done setting card state in offline store');
 
             } catch (e) {
+                this.logger.log(card.getUid(), 'Error! Failed parsing ndef / setting offline store', e);
                 if (e instanceof InvalidMessageException) {
                     await this.recoverInvalidContent(card);
 
