@@ -195,31 +195,29 @@ export class TransactionStore {
     /**
      *
      */
-    private refreshCardTransactionCounts() {
-        return this.axios({
+    private async refreshCardTransactionCounts() {
+
+        console.log('Refreshing card transactions counts starting from cursor ' + this.transactionIdCursor);
+        const response = await this.axios({
             method: 'get',
             url: 'organisations/' + this.organisationId + '/cards?records=100000&fields=uid,transactions,updated_at&sort=updated_at&after=' + this.transactionIdCursor
-        }).then(
-            (response: any) => {
+        })
 
-                const data = response.data;
-                if (
-                    data.meta &&
-                    data.meta.pagination &&
-                    data.meta.pagination.cursors
-                ) {
-                    this.transactionIdCursor = data.meta.pagination.cursors.after;
-                }
+        const data = response.data;
+        if (
+            data.meta &&
+            data.meta.pagination &&
+            data.meta.pagination.cursors
+        ) {
+            this.transactionIdCursor = data.meta.pagination.cursors.after;
+        }
 
-                // update transactions
-                data.items.forEach(
-                    (card: any) => {
-                        this.offlineStore.setLastKnownSyncId(card.uid, card.transactions);
-                    }
-                )
+        console.log('Done loading card transactions; got ' + data.items.length + ' cards');
 
-            }
-        );
+        // update transactions
+        console.log('Setting card transaction counts in localstorage');
+        await this.offlineStore.setLastKnownSyncIds(data.items);
+        console.log('Done setting card transaction counts in localstorage');
     }
 
     /**
@@ -367,7 +365,7 @@ export class TransactionStore {
         return out;
     }
 
-    
+
     public readFailedTransactions(): Map<number, Transaction> {
         let mapAsObject = JSON.parse(localStorage.getItem(TransactionStore.FAILED_TRANSCATIONS_KEY) || '{}');
         return Object.entries(mapAsObject)
@@ -395,6 +393,6 @@ export class TransactionStore {
             localStorage.setItem(TransactionStore.FAILED_TRANSCATIONS_KEY, JSON.stringify(mapAsObject));
         }catch(e){
             console.log("Could not store failed transactions, quota reached?");
-        }   
+        }
     }
 }

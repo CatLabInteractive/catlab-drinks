@@ -121,11 +121,23 @@ export class OfflineStore {
      * @param card
      * @param syncId
      */
-    public setLastKnownSyncId(card: string, syncId: number) {
+    public async setLastKnownSyncId(card: string, syncId: number) {
         this.lastKnownSyncIds[card] = syncId;
 
         // store in localstorage
-        localForage.setItem(this.localForagePrefix + 'lastKnownSyncIds', this.lastKnownSyncIds);
+        await localForage.setItem(this.localForagePrefix + 'lastKnownSyncIds', this.lastKnownSyncIds);
+    }
+
+    /**
+     * @param cards
+     */
+    public async setLastKnownSyncIds(cards: { uid: string, transactions: number }[])
+    {
+        cards.forEach(card => {
+            this.lastKnownSyncIds[card.uid] = card.transactions;
+        });
+
+        await localForage.setItem(this.localForagePrefix + 'lastKnownSyncIds', this.lastKnownSyncIds);
     }
 
     /**
