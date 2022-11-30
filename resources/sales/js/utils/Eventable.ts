@@ -19,6 +19,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+export interface EventListener {
+    unbind: () => void
+}
+
 export abstract class Eventable {
 
     private events: any = {};
@@ -29,16 +33,29 @@ export abstract class Eventable {
      * @param event
      * @param callback
      */
-    public on(event: string, callback: (...parameters: any) => void)
+    public on(event: string, callback: (...parameters: any) => void): EventListener
     {
         if (typeof(this.events[event]) === 'undefined') {
             this.events[event] = [];
         }
 
-        const index = this.index ++;
+        const id = this.index ++;
+        this.events[event].push({
+            id: id,
+            callback: callback
+        });
 
-        this.events[event].push(callback);
-        return index;
+        return {
+            unbind: () => {
+                for (let i = 0; i < this.events[event].length; i ++) {
+                    if (this.events[event][i].id === id) {
+                        this.events[event].splice(i, 1);
+                        return;
+                    }
+                }
+                throw new Error('Failed unbinding event: does not exist.');
+            }
+        };
     }
 
     /**
@@ -52,8 +69,8 @@ export abstract class Eventable {
         }
 
         this.events[event].forEach(
-            (callback: () => void) => {
-                callback.apply(this, parameters);
+            (event: { callback: ()  => void }) => {
+                event.callback.apply(this, parameters);
             }
         );
     }

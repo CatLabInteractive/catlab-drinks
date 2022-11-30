@@ -68,6 +68,9 @@
 
         ],
 
+        destroyed() {
+            this.eventListeners.forEach(e => e.unbind());
+        },
 
         async mounted() {
 
@@ -89,13 +92,15 @@
                 this.showCard(this.$cardService.getCard());
             }
 
-            this.$cardService.on('card:connect', (card) => {
-                this.showCard(card);
-            });
+            this.eventListeners = [];
 
-            this.$cardService.on('card:disconnect', (card) => {
+            this.eventListeners.push(this.$cardService.on('card:connect', (card) => {
+                this.showCard(card);
+            }));
+
+            this.eventListeners.push(this.$cardService.on('card:disconnect', (card) => {
                 this.hideCard(card);
-            });
+            }));
         },
 
         data() {

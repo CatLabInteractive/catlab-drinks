@@ -35,44 +35,54 @@
 </template>
 <script>
     export default {
+
+        destroyed() {
+
+            // we should unlisten the events here
+            this.eventListeners.forEach(e => e.unbind());
+
+        },
+
         mounted() {
 
             if (!this.$cardService || !this.$cardService.hasCardReader) {
                 return;
             }
 
+            this.eventListeners = [];
+
             this.connected = this.$cardService.isConnected();
             this.apiConnected = this.$cardService.hasApiConnection();
 
-            this.$cardService.on('connection:change', function(isOnline) {
+            this.eventListeners.push(this.$cardService.on('connection:change', function(isOnline) {
                 //console.log('is online', isOnline);
                 this.connected = isOnline;
-            }.bind(this));
+            }.bind(this)));
 
-            this.$cardService.on('apiConnection:change', function(isOnline) {
+            this.eventListeners.push(this.$cardService.on('apiConnection:change', function(isOnline) {
                 //console.log('is online', isOnline);
                 this.apiConnected = this.$cardService.hasApiConnection();
-            }.bind(this));
+            }.bind(this)));
 
-            this.$cardService.on('card:connect', function(card) {
+            this.eventListeners.push(this.$cardService.on('card:connect', function(card) {
                 this.loading = true;
-            }.bind(this));
+            }.bind(this)));
 
-            this.$cardService.on('card:corrupt', function(card) {
+            this.eventListeners.push(this.$cardService.on('card:corrupt', function(card) {
                 this.corrupt = card.isCorrupted();
                 this.loading = false;
-            }.bind(this));
+            }.bind(this)));
 
-            this.$cardService.on('card:balance:change', function(card) {
+            this.eventListeners.push(this.$cardService.on('card:balance:change', function(card) {
                 this.balance = card.getVisibleBalance();
                 this.loading = false;
-            }.bind(this));
+            }.bind(this)));
 
-            this.$cardService.on('card:disconnect', function(card) {
+            this.eventListeners.push(this.$cardService.on('card:disconnect', function(card) {
                 this.balance = null;
                 this.corrupt = false;
                 this.loading = false;
-            }.bind(this));
+            }.bind(this)));
 
         },
 

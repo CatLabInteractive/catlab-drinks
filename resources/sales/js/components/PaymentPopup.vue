@@ -51,10 +51,16 @@
 <script>
     export default {
 
+        destroyed() {
+            this.eventListeners.forEach(e => e.unbind());
+        },
+
         mounted() {
 
+            this.eventListeners = [];
+
             this.active = false;
-            this.$paymentService.on('transaction:start', (transaction) => {
+            this.eventListeners.push(this.$paymentService.on('transaction:start', (transaction) => {
                 this.active = true;
                 this.$refs.paymentModal.show();
 
@@ -67,20 +73,20 @@
                 this.voucherAmount = Math.ceil(this.amount / this.$paymentService.voucher_value);
 
                 this.instructions = this.getInstructions();
-            });
+            }));
 
-            this.$paymentService.on('transaction:change', (transaction) => {
+            this.eventListeners.push(this.$paymentService.on('transaction:change', (transaction) => {
                 //console.log(transaction.error);
                 this.error = transaction.error;
                 this.loading = transaction.loading;
-            });
+            }));
 
-            this.$paymentService.on('transaction:done', () => {
+            this.eventListeners.push(this.$paymentService.on('transaction:done', () => {
                 this.active = false;
                 this.$refs.paymentModal.hide();
                 this.error = null;
                 this.loading = false;
-            });
+            }));
         },
 
         data() {

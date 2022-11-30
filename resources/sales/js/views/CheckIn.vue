@@ -82,12 +82,15 @@
 
     import {EventService} from "../services/EventService";
     import {ExternalCheckinService} from "../services/ExternalCheckinService";
+    import {EventListener} from "../utils/Eventable";
 
     export default {
         mounted() {
 
             this.eventService = new EventService(window.ORGANISATION_ID); // hacky hacky
             this.checkinService = new ExternalCheckinService();
+
+            this.eventListeners = [];
 
             this.eventId = this.$route.params.id;
             this.refresh();
@@ -97,6 +100,7 @@
         destroyed() {
 
             // we should unlisten the events here
+            this.eventListeners.forEach(e => e.unbind());
 
         },
 
@@ -153,13 +157,17 @@
                     this.showCard(this.$cardService.getCard());
                 }
 
-                this.$cardService.on('card:loaded', (card) => {
-                    this.showCard(card);
-                });
+                this.eventListeners.push(
+                    this.$cardService.on('card:loaded', (card) => {
+                        this.showCard(card);
+                    }
+                ));
 
-                this.$cardService.on('card:disconnect', (card) => {
-                    this.hideCard(card);
-                });
+                this.eventListeners.push(
+                    this.$cardService.on('card:disconnect', (card) => {
+                        this.hideCard(card);
+                    }
+                ));
             },
 
             async showCard(card) {

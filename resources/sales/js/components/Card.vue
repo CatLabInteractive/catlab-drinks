@@ -171,17 +171,27 @@
             }
         },
 
+        destroyed() {
+
+            // we should unlisten the events here
+            this.eventListeners.forEach(e => e.unbind());
+
+        },
+
         mounted() {
+
+            this.eventListeners = [];
 
             this.transactions = [];
             this.storingAlias = false;
+
             if (this.card) {
                 if (this.card.ready) {
                     this.loadCard();
                 } else {
-                    this.card.on('ready', () => {
+                    this.eventListeners.push(this.card.on('ready', () => {
                         this.loadCard();
-                    });
+                    }));
                 }
             }
 

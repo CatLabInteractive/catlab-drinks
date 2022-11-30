@@ -43,10 +43,16 @@
 <script>
 
     export default {
+        destroyed() {
+            this.eventListeners.forEach(e => e.unbind());
+        },
+
         mounted() {
-            this.$cardService.on('card:connect', (card) => {
+            this.eventListeners = [];
+
+            this.eventListeners.push(this.$cardService.on('card:connect', (card) => {
                 this.setCard(card);
-            });
+            }));
         },
 
         methods: {

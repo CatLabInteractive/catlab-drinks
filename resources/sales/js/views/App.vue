@@ -88,11 +88,18 @@
             }
         },
 
+        destroyed() {
+            this.eventListeners.forEach(e => e.unbind());
+        },
+
         mounted() {
+
+            this.eventListeners = [];
+
             this.kioskMode = this.$kioskModeService.kioskModeActive;
-            this.$kioskModeService.on('kioskmode:change', () => {
+            this.eventListeners.push(this.$kioskModeService.on('kioskmode:change', () => {
                 this.kioskMode = this.$kioskModeService.kioskModeActive;
-            });
+            }));
         }
     }
 </script>
