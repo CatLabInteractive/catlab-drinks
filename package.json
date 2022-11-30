@@ -21,7 +21,7 @@
         "dotenv": "^8.2.0",
         "enhanced-resolve": "^4.1.1",
         "jquery": "^3.4.1",
-        "laravel-mix": "^4.1.4",
+        "laravel-mix": "^6.0.49",
         "localforage": "^1.7.3",
         "lodash": "^4.17.15",
         "ndef": "^0.2.0",
