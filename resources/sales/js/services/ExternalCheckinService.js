@@ -12,19 +12,23 @@ export class ExternalCheckinService {
             json: true
         });
 
-        await client({
-            method: 'post',
-            url: checkinUrl,
-            data: {
-                uid: card.uid,
-                name: attendee.name,
-                email: attendee.email
-            }
-        }).then(
-            (response) => {
-                return response.data;
-            }
-        )
+        try {
+            await client({
+                method: 'post',
+                url: checkinUrl,
+                data: {
+                    uid: card.uid,
+                    name: attendee.name,
+                    email: attendee.email
+                }
+            }).then(
+                (response) => {
+                    return response.data;
+                }
+            )
+        } catch (e) {
+            console.error('Checking failed: ', e.message);
+        }
     }
 
 }
