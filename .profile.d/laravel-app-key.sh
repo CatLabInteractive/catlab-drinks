@@ -23,7 +23,7 @@ if [ -n "$APP_KEY" ] && [[ ! "$APP_KEY" =~ ^base64: ]]; then
     TRANSFORM_EXIT=$?
     
     # Validate the transformed key format and length
-    # Base64-encoded 32 bytes should be exactly 44 characters (43 + padding)
+    # Base64-encoded 32 bytes always produces exactly 44 characters total (including one '=' padding)
     if [ $TRANSFORM_EXIT -eq 0 ] && [[ "$TRANSFORM_OUTPUT" =~ ^[A-Za-z0-9+/]{43}=$ ]]; then
         APP_KEY="base64:${TRANSFORM_OUTPUT}"
         export APP_KEY
@@ -34,7 +34,7 @@ if [ -n "$APP_KEY" ] && [[ ! "$APP_KEY" =~ ^base64: ]]; then
             echo "Error: $TRANSFORM_OUTPUT" >&2
         else
             echo "Transformation produced invalid output" >&2
-            echo "Expected: 44-character base64 string (43 chars + '=' padding) from SHA-256 hash" >&2
+            echo "Expected: 44 characters total (43 base64 chars + one '=' padding) from SHA-256 hash" >&2
         fi
         echo "PHP must be available and functional to transform Heroku's generated secret." >&2
         echo "The APP_KEY will remain in incorrect format and Laravel will fail to start." >&2
