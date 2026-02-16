@@ -21,8 +21,8 @@
 
 require('./bootstrap');
 
-import Vue from "vue";
-import VueRouter from "vue-router";
+import Vue, { createApp } from "vue";
+import { createRouter, createWebHistory } from 'vue-router'
 import BootstrapVue from "bootstrap-vue";
 import App from './views/App'
 import Order from './views/Order'
@@ -30,7 +30,7 @@ import AirbrakeClient from 'airbrake-js';
 import VueCookies from 'vue-cookies'
 
 
-if (AIRBRAKE_CONFIG) {
+if (typeof (AIRBRAKE_CONFIG) !== 'undefined' && AIRBRAKE_CONFIG !== null) {
     var airbrake = new AirbrakeClient(AIRBRAKE_CONFIG);
     Vue.config.errorHandler = function (err, vm, info) {
         airbrake.notify({
@@ -40,7 +40,6 @@ if (AIRBRAKE_CONFIG) {
     };
 }
 
-Vue.use(VueRouter);
 Vue.use(BootstrapVue);
 Vue.use(VueCookies);
 Vue.$cookies.config('7d');
@@ -53,9 +52,8 @@ Vue.$cookies.config('7d');
  *
  * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
  */
-const router = new VueRouter({
-    mode: 'history',
-    base: BASE_URL,
+const router = createRouter({
+    history: createWebHistory(BASE_URL),
     routes: [
         {
             path: '/',
@@ -72,8 +70,10 @@ const router = new VueRouter({
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-const app = new Vue({
+const app = createApp({
     el: '#app',
-    components: { App },
-    router
+    components: { App }
 });
+
+app.use(router);
+app.mount('#app');

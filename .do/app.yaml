@@ -1,0 +1,47 @@
+name: catlab-drinks
+services:
+  - name: web
+    github:
+      repo: CatLabInteractive/catlab-drinks
+      branch: master
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    http_port: 80
+    instance_count: 1
+    instance_size_slug: basic-s
+    envs:
+      - key: APP_NAME
+        value: "CatLab Drinks"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        type: SECRET
+      - key: APP_URL
+        value: ${APP_URL}
+      - key: LOG_CHANNEL
+        value: errorlog
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        value: ${db.HOSTNAME}
+      - key: DB_PORT
+        value: ${db.PORT}
+      - key: DB_DATABASE
+        value: ${db.DATABASE}
+      - key: DB_USERNAME
+        value: ${db.USERNAME}
+      - key: DB_PASSWORD
+        value: ${db.PASSWORD}
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_DRIVER
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+
+databases:
+  - name: db
+    engine: MYSQL
+    version: "8"

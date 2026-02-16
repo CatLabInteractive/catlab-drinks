@@ -88,7 +88,8 @@
                 </div>
 
                 <p>
-                    <a href="{{ action('ClientController@index') }}" class="btn btn-primary">Open CatLab Drinks</a>
+                    <a href="{{ action('ClientController@manage') }}" class="btn btn-primary">Open web app</a>
+					<a href="https://play.google.com/store/apps/details?id=eu.catlab.drinks" class="btn btn-primary">Install Android app</a>
                 </p>
             </div>
         </div>

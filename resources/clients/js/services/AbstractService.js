@@ -26,7 +26,7 @@ export class AbstractService {
         this.indexUrl = '';
 
         this.client = window.axios.create({
-            baseURL: '/api/v1',
+            baseURL: CATLAB_DRINKS_CONFIG.API + '/api/v1',
             json: true
         });
     }

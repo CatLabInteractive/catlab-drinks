@@ -70,6 +70,7 @@ class Transaction extends Model
     const TYPE_UNKNOWN = 'unknown';
     const TYPE_OVERFLOW = 'overflow';
     const TYPE_REVERSAL = 'reversal';
+    const TYPE_RESET = 'reset';
 
     // the id that will be used as an overflow transaction
     const ID_OVERFLOW = -1;
@@ -145,5 +146,16 @@ class Transaction extends Model
         if ($entity->topup_uid) {
             $this->topup_uid = $entity->topup_uid;
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeDescription()
+    {
+        if ($this->topup) {
+            return $this->topup->type;
+        }
+        return 'cash registry / unknown';
     }
 }

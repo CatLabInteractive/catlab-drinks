@@ -1,0 +1,27 @@
+version: '3.9'
+services:
+  webserver:
+    container_name: catlab-drinks
+    working_dir: /var/www/html
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - 8095:80
+    depends_on:
+      - mysql-db
+    privileged: true
+
+  mysql-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - ./.env
+    ports:
+      - "3312:3306"

@@ -22,7 +22,9 @@
 
 namespace App\Providers;
 
+use App\Http\Guards\DeviceGuard;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
@@ -42,6 +44,7 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\Transaction::class => \App\Policies\TransactionPolicy::class,
         \App\Models\Topup::class => \App\Policies\TopupPolicy::class,
         \App\Models\Attendee::class => \App\Policies\AttendeePolicy::class,
+        \App\Models\OrganisationPaymentGateway::class => \App\Policies\OrganisationPaymentGatewayPolicy::class,
     ];
 
     /**
@@ -53,11 +56,14 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Passport::routes();
         Passport::enableImplicitGrant();
 
         Passport::tokensCan([
             'full' => 'Get complete access to your account.'
         ]);
+
+		Auth::extend('device', function ($app, $name, array $config) {
+			return new DeviceGuard($this->app->make('request'));
+		});
     }
 }

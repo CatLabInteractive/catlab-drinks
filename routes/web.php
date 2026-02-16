@@ -19,9 +19,14 @@ Route::get('/docs/oauth2', 'DocumentController@oauth2Redirect');
 /*
  * Link to the single page web application
  */
-Route::get('/sales/{any?}', 'ClientController@index')
+Route::get('/manage/{any?}', 'ClientController@manage')
     ->where('any', '.*')
     ->middleware('auth');
+
+Route::get('/connect', 'ConnectController@show');
+
+Route::get('/pos/{any?}', 'ClientController@pos')
+    ->where('any', '.*');
 
 /*
  * Order panel
@@ -45,3 +50,9 @@ if (config('services.catlab.client_id')) {
 }
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::group([ 'auth' ], function() {
+
+    Route::get('report/daily/{organisation}/{date}', [ \App\Http\Controllers\DailyReportController::class, 'dailyReport' ]);
+
+});

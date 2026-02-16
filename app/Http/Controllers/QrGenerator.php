@@ -38,7 +38,9 @@ class QrGenerator
 
     public function code(Request $request)
     {
-        $url = 'http://d.ctlb.eu/' . $request->query('uid');
+		$topupDomain = config('app.topup_domain_name');
+
+        $url = 'http://' . $topupDomain . '/' . $request->query('uid');
 
         // Create a basic QR code
         $qrCode = new QrCode($url);

@@ -122,7 +122,7 @@
 
         <b-modal ref="successModal" title="We komen eraan!" @ok="closeModal" button-size="lg" ok-only ok-title="Nieuwe bestelling" ok-variant="success" no-close-on-esc no-close-on-backdrop>
             <b-alert variant="success" :show="true">
-                We hebben je bestelling ontvangen (#{{orderId}}). Je bestelling staat in onze wachtlijst, we komen er zo snel mogelijk aan.
+                We hebben je bestelling ontvangen ({{orderIds}}). Je bestelling staat in onze wachtlijst, we komen er zo snel mogelijk aan.
             </b-alert>
         </b-modal>
 
@@ -178,7 +178,7 @@
                 saving: false,
                 saved: false,
                 toggling: null,
-                orderId: null,
+                orderIds: null,
                 orderData: null,
                 items: [],
                 fields: [
@@ -363,7 +363,7 @@
                 }
 
                 if (this.totals.amount === 0) {
-                    this.warning = 'Gelieve minstens 1 drankje te bestellen.';
+                    this.warning = 'Gelieve minstens 1 item te bestellen.';
                     this.$refs.warningModal.show();
                     return;
                 }
@@ -406,12 +406,12 @@
                 try {
                     this.setLocalStorage('tableNumber', this.tableNumber);
 
-                    const order = await this.service.order(this.orderData, this.cardToken);
+                    const orders = await this.service.order(this.orderData, this.cardToken);
                     this.$refs.processingOrderModal.hide();
 
                     this.loadingOrder = false;
 
-                    this.orderId = order.id;
+                    this.orderIds = orders.items.map((order) => '#' + order.id).join(', ');
 
                     //this.$router.push({ name: 'ordersubmitted', params: { id: order.id  } });
                     this.$refs.successModal.show();

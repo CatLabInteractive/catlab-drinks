@@ -28,11 +28,16 @@ namespace App\Http\Controllers;
  */
 class ClientController
 {
-    public function index()
+	public function manage()
+	{
+		$organisation = \Auth::user()->organisations()->first();
+		return view('client.manage', [
+			'organisation' => $organisation
+		]);
+	}
+
+	public function pos()
     {
-        $organisation = \Auth::user()->organisations()->first();
-        return view('sales.index', [
-            'organisation' => $organisation
-        ]);
+        return view('client.pos');
     }
 }

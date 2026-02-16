@@ -11,18 +11,53 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.sass('resources/sass/app.scss', 'public/css');
+ // Tell Mix to use Vue 3 and the appropriate compat options when compiling .vue files
+mix.vue({
+	version: 3,
+	options: {
+	  compilerOptions: {
+		compatConfig: {
+		  MODE: 3,
+		  WATCH_ARRAY: false,
+		},
+	  },
+	},
+  })
 
-mix.js('resources/swagger/swagger-ui.js', 'public/swaggerui')
-    .sass('resources/swagger/swagger.scss', 'public/swaggerui');
+// Alias Vue and (optionally) the composition API
+mix.webpackConfig(() => {
+return {
+	resolve: {
+	alias: {
+		vue: "@vue/compat",
+		"@vue/composition-api": "@vue/compat",
+	},
+	fallback: {
+		"stream": require.resolve("stream-browserify")
+	}
+	},
+}
+})
 
-// Client
-mix.ts('resources/sales/js/app.js', 'public/res/sales/js')
-    .sass('resources/sales/sass/app.scss', 'public/res/sales/css');
+mix.setPublicPath('public');
+
+mix.sass('resources/sass/app.scss', 'css');
+
+mix.js('resources/swagger/swagger-ui.js', 'swaggerui')
+	.sass('resources/swagger/swagger.scss', 'swaggerui');
+
+// Manage
+mix.ts('resources/manage/js/app.js', 'res/manage.js')
+	.sass('resources/manage/sass/app.scss', 'res/manage.css');
+
+
+// POS (warning: these - and only these - will be used by the android app)
+mix.ts('resources/pos/js/app.js', 'res/pos.js')
+	.sass('resources/pos/sass/app.scss', 'res/pos.css');
 
 // Qr
-mix.ts('resources/sales/js/qrGenerator.js', 'public/res/sales/js');
+mix.ts('resources/manage/js/qrGenerator.js', 'res/sales/js');
 
 // Order
-mix.ts('resources/clients/js/app.js', 'public/res/clients/js')
-    .sass('resources/clients/sass/app.scss', 'public/res/clients/css');
+mix.ts('resources/clients/js/app.js', 'res/clients/js')
+	.sass('resources/clients/sass/app.scss', 'res/clients/css');

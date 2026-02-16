@@ -11,6 +11,11 @@ use DateTime;
 class OrderSummaryItem
 {
     /**
+     * @var string
+     */
+    public $name;
+
+    /**
      * @var MenuItem
      */
     public $menuItem;
@@ -39,4 +44,13 @@ class OrderSummaryItem
      * @var float
      */
     public $price;
+
+    /**
+     * @var float
+     */
+    public $vat_percentage = null;
+
+    public $net_total = null;
+
+    public $vat_total = null;
 }

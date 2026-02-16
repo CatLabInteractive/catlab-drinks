@@ -26,6 +26,7 @@ use App\Models\Event;
 use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Access\Authorizable;
 
 /**
  * Class MenuItemPolicy
@@ -38,9 +39,9 @@ class OrderPolicy extends BasePolicy
      * @param Event $event
      * @return bool
      */
-    public function index(?User $user, Event $event)
+    public function index(?Authorizable $user, Event $event)
     {
-        return $this->isMyEvent($user, $event);
+        return $this->isMyEvent($user, $event, true);
     }
 
     /**
@@ -48,9 +49,9 @@ class OrderPolicy extends BasePolicy
      * @param Event $event
      * @return bool
      */
-    public function create(?User $user, Event $event)
+    public function create(?Authorizable $user, Event $event)
     {
-        return $this->isMyEvent($user, $event);
+        return $this->isMyEvent($user, $event, true);
     }
 
     /**
@@ -58,9 +59,9 @@ class OrderPolicy extends BasePolicy
      * @param Order $menuItem
      * @return bool
      */
-    public function view(?User $user, Order $menuItem)
+    public function view(?Authorizable $user, Order $menuItem)
     {
-        return $this->isMyEvent($user, $menuItem->event);
+        return $this->isMyEvent($user, $menuItem->event, true);
     }
 
     /**
@@ -68,9 +69,9 @@ class OrderPolicy extends BasePolicy
      * @param Order $menuItem
      * @return bool
      */
-    public function edit(?User $user, Order $menuItem)
+    public function edit(?Authorizable $user, Order $menuItem)
     {
-        return $this->isMyEvent($user, $menuItem->event);
+        return $this->isMyEvent($user, $menuItem->event, true);
     }
 
     /**
@@ -78,7 +79,7 @@ class OrderPolicy extends BasePolicy
      * @param Order $menuItem
      * @return bool
      */
-    public function destroy(?User $user, Order $menuItem)
+    public function destroy(?Authorizable $user, Order $menuItem)
     {
         return $this->isMyEvent($user, $menuItem->event);
     }

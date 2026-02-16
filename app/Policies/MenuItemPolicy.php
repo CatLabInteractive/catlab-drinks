@@ -25,6 +25,7 @@ namespace App\Policies;
 use App\Models\Event;
 use App\Models\MenuItem;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Access\Authorizable;
 
 /**
  * Class MenuItemPolicy
@@ -37,9 +38,9 @@ class MenuItemPolicy extends BasePolicy
      * @param Event $event
      * @return bool
      */
-    public function index(?User $user, Event $event)
+    public function index(?Authorizable $user, Event $event)
     {
-        return $this->isMyEvent($user, $event);
+        return $this->isMyEvent($user, $event, true);
     }
 
     /**
@@ -47,7 +48,7 @@ class MenuItemPolicy extends BasePolicy
      * @param Event $event
      * @return bool
      */
-    public function create(?User $user, Event $event)
+    public function create(?Authorizable $user, Event $event)
     {
         return $this->isMyEvent($user, $event);
     }
@@ -57,9 +58,9 @@ class MenuItemPolicy extends BasePolicy
      * @param MenuItem $menuItem
      * @return bool
      */
-    public function view(?User $user, MenuItem $menuItem)
+    public function view(?Authorizable $user, MenuItem $menuItem)
     {
-        return $this->isMyEvent($user, $menuItem->event);
+        return $this->isMyEvent($user, $menuItem->event, true);
     }
 
     /**
@@ -67,17 +68,22 @@ class MenuItemPolicy extends BasePolicy
      * @param MenuItem $menuItem
      * @return bool
      */
-    public function edit(?User $user, MenuItem $menuItem)
+    public function edit(?Authorizable $user, MenuItem $menuItem)
     {
         return $this->isMyEvent($user, $menuItem->event);
     }
+
+	public function editStatus(?Authorizable $user, MenuItem $menuItem)
+	{
+		return $this->isMyEvent($user, $menuItem->event, true);
+	}
 
     /**
      * @param User|null $user
      * @param MenuItem $menuItem
      * @return bool
      */
-    public function destroy(?User $user, MenuItem $menuItem)
+    public function destroy(?Authorizable $user, MenuItem $menuItem)
     {
         return $this->isMyEvent($user, $menuItem->event);
     }

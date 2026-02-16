@@ -15,6 +15,10 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+	'topup_domain_name' => [
+		env('TOPUP_DOMAIN_NAME', 'd.ctlb.eu'), // Should be a very short domain as this is written to the cards
+	],
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

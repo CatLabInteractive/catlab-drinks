@@ -45,7 +45,8 @@ class Event extends Model
         'payment_cash',
         'payment_vouchers',
         'payment_voucher_value',
-        'payment_cards'
+        'payment_cards',
+        'split_orders_by_categories',
     ];
 
     /**
@@ -89,6 +90,14 @@ class Event extends Model
     public function attendees()
     {
         return $this->hasMany(Attendee::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function categories()
+    {
+        return $this->hasMany(Category::class);   
     }
 
     /**

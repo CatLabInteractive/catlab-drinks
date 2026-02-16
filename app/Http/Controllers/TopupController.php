@@ -23,20 +23,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Card;
+use App\Models\Organisation;
+use App\Models\OrganisationPaymentGateway;
 use App\Models\Topup;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Neuron\Config;
-use Neuron\Net\Response;
 use Omnipay\Common\Exception\InvalidRequestException;
 use Omnipay\Omnipay;
 use Omnipay\Paynl\Gateway;
-use Omnipay\Paynl\Message\Request\CompletePurchaseRequest;
 use Omnipay\Paynl\Message\Response\CompletePurchaseResponse;
 use Ramsey\Uuid\Uuid;
 
 /**
  * Class TopupController
- * @package App\Http\Api\V1\Controllers
+ * @package App\Http\ManagementApi\V1\Controllers
  */
 class TopupController extends Controller
 {
@@ -55,12 +54,12 @@ class TopupController extends Controller
      */
     public function topupForm($cardUid)
     {
-        $gateway = $this->createPayNLGateway();
+        $card = $this->getCard($cardUid);
+        $gateway = $this->createPayNLGateway($card->organisation);
         if (!$gateway) {
             return view('topup.notAvailable');
         }
 
-        $card = $this->getCard($cardUid);
         return view(
             'topup.topupForm', [
                 'minTopup' => number_format($this->minTopup, 2),
@@ -97,15 +96,12 @@ class TopupController extends Controller
 
         $card = $this->getCard($cardUid);
 
-        // build the requets
-        $omnipayRequest = $this->getParameters($card, $topup);
-
-        $gateway = $this->createPayNLGateway();
+        $gateway = $this->createPayNLGateway($card->organisation);
         if (!$gateway) {
-            abort(500, 'No payment gateway set.');
+            abort(500, 'No payment gateway configured for this organisation.');
         }
 
-        $response = $gateway->purchase($omnipayRequest)->send();
+        $response = $gateway->purchase($this->getParameters($card, $topup))->send();
 
         if ($response->isRedirect()) {
             // redirect to offsite payment gateway
@@ -159,7 +155,13 @@ class TopupController extends Controller
             return;
         }
 
-        $gateway = $this->createPayNLGateway();
+        $gateway = $this->createPayNLGateway($card->organisation);
+        if (!$gateway) {
+            if ($isApiRequest) {
+                return 'TRUE|Payment gateway not configured.';
+            }
+            abort(500, 'Payment gateway not configured for this organisation.');
+        }
 
         try {
             $response = $gateway->completePurchase($this->getParameters($card, $topup))->send();
@@ -232,28 +234,24 @@ class TopupController extends Controller
     }
 
     /**
-     * @return \Omnipay\Paynl\Gateway
+     * @param Organisation $organisation
+     * @return \Omnipay\Paynl\Gateway|false
      */
-    protected function createPayNLGateway()
+    protected function createPayNLGateway(Organisation $organisation)
     {
-        if (!config('omnipay.paynl.apiToken')) {
+        $gatewayConfig = $organisation->getPaymentGateway(OrganisationPaymentGateway::GATEWAY_PAYNL);
+        if (!$gatewayConfig || !$gatewayConfig->hasValidCredentials()) {
             return false;
         }
 
         /** @var Gateway $gateway */
         $gateway = Omnipay::create('Paynl');
 
-        $gateway->setTokenCode(config('omnipay.paynl.apiToken'));
-        $gateway->setApitoken(config('omnipay.paynl.apiSecret'));
-        $gateway->setServiceId(config('omnipay.paynl.serviceId'));
+        $gateway->setTokenCode($gatewayConfig->getCredential('apiToken'));
+        $gateway->setApitoken($gatewayConfig->getCredential('apiSecret'));
+        $gateway->setServiceId($gatewayConfig->getCredential('serviceId'));
         $gateway->setParameter('clientIp', $_SERVER['REMOTE_ADDR']);
-        $gateway->setTestMode(config('omnipay.paynl.testing'));
-
-        /*
-        if ($profileId = $this->request->input('profile')) {
-            $gateway->setParameter('paymentMethod', $profileId);
-        }
-        */
+        $gateway->setTestMode($gatewayConfig->is_testing);
 
         return $gateway;
     }
