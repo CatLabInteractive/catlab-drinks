@@ -26,7 +26,7 @@ if [ -n "$APP_KEY" ] && [[ ! "$APP_KEY" =~ ^base64: ]]; then
     else
         echo "ERROR: Failed to transform APP_KEY to Laravel format." >&2
         echo "PHP must be available to transform Heroku's generated secret." >&2
-        echo "APP_KEY will remain in incorrect format: ${APP_KEY:0:20}..." >&2
+        echo "The APP_KEY will remain in incorrect format and Laravel will fail to start." >&2
         # Note: Keeping the original key allows Laravel to show a clearer error message
         # about the incorrect format, which is more helpful for debugging
     fi
