@@ -18,14 +18,16 @@ if [ -n "$APP_KEY" ] && [[ ! "$APP_KEY" =~ ^base64: ]]; then
     # - An attacker with access to the Heroku secret already has all environment variables
     
     # Transform the APP_KEY with error handling
-    TRANSFORMED_KEY=$(php -r "echo base64_encode(hash('sha256', getenv('APP_KEY'), true));" 2>&1)
+    TRANSFORMED_KEY=$(php -r "echo base64_encode(hash('sha256', getenv('APP_KEY'), true));" 2>/dev/null)
     
     if [ $? -eq 0 ] && [ -n "$TRANSFORMED_KEY" ]; then
         APP_KEY="base64:${TRANSFORMED_KEY}"
         export APP_KEY
     else
-        echo "ERROR: Failed to transform APP_KEY. Please check PHP is available." >&2
-        echo "Original error: $TRANSFORMED_KEY" >&2
-        # Don't exit - let the app try to start and fail with a clearer Laravel error
+        echo "ERROR: Failed to transform APP_KEY to Laravel format." >&2
+        echo "PHP must be available to transform Heroku's generated secret." >&2
+        echo "APP_KEY will remain in incorrect format: ${APP_KEY:0:20}..." >&2
+        # Note: Keeping the original key allows Laravel to show a clearer error message
+        # about the incorrect format, which is more helpful for debugging
     fi
 fi
