@@ -39,12 +39,32 @@ try {
 
 window.axios = require('axios');
 
+if (typeof(CATLAB_DRINKS_CONFIG) === 'undefined') {
+    window.CATLAB_DRINKS_CONFIG = {};
+}
+
 let token = document.head.querySelector('meta[name="csrf-token"]');
 
 if (token) {
     window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
 } else {
     console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+}
+
+if (typeof(CATLAB_DRINKS_CONFIG) === 'undefined') {
+    window.CATLAB_DRINKS_CONFIG = {};
+}
+
+if (typeof(window.CATLAB_DRINKS_CONFIG.ROUTER_MODE) === 'undefined') {
+    window.CATLAB_DRINKS_CONFIG.ROUTER_MODE = 'history';
+}
+
+if (typeof(window.CATLAB_DRINKS_CONFIG.ROUTER_BASE) === 'undefined') {
+    window.CATLAB_DRINKS_CONFIG.ROUTER_BASE = '/order/';
+}
+
+if (typeof(window.CATLAB_DRINKS_CONFIG.API) === 'undefined') {
+    window.CATLAB_DRINKS_CONFIG.API = '';
 }
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';

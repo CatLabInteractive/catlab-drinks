@@ -23,6 +23,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Illuminate\Contracts\Auth\Access\Authorizable;
 
 /**
  * Class UserPolicy
@@ -34,7 +35,7 @@ class UserPolicy extends BasePolicy
      * @param User|null $user
      * @return bool
      */
-    public function index(User $user = null)
+    public function index(?Authorizable $user = null)
     {
         return $this->isAdmin($user);
     }
@@ -44,7 +45,7 @@ class UserPolicy extends BasePolicy
      * @param $targetUser
      * @return bool
      */
-    public function show(?User $user, $targetUser)
+    public function show(?Authorizable $user, $targetUser)
     {
         return $this->isAdmin($user) || $user->id === $targetUser->id;
     }

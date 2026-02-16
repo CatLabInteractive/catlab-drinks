@@ -26,6 +26,7 @@ use App\Models\Card;
 use App\Models\Organisation;
 use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Access\Authorizable;
 
 /**
  * Class TransactionPolicy
@@ -38,7 +39,7 @@ class TransactionPolicy extends BasePolicy
      * @param Card $card
      * @return bool
      */
-    public function index(?User $user, Card $card)
+    public function index(?Authorizable $user, Card $card)
     {
         return $this->isMyCard($user, $card);
     }
@@ -48,9 +49,9 @@ class TransactionPolicy extends BasePolicy
      * @param Organisation $organisation
      * @return mixed
      */
-    public function organisationIndex(?User $user, Organisation $organisation)
+    public function organisationIndex(?Authorizable $user, Organisation $organisation)
     {
-        return $this->isMyOrganisation($user, $organisation);
+        return $this->isDeviceOrUserPartOfOrganisation($user, $organisation);
     }
 
     /**
@@ -58,7 +59,7 @@ class TransactionPolicy extends BasePolicy
      * @param Card $card
      * @return bool
      */
-    public function create(?User $user, Card $card)
+    public function create(?Authorizable $user, Card $card)
     {
         return $this->isMyCard($user, $card);
     }
@@ -68,7 +69,7 @@ class TransactionPolicy extends BasePolicy
      * @param Transaction $transaction
      * @return bool
      */
-    public function view(?User $user, Transaction $transaction)
+    public function view(?Authorizable $user, Transaction $transaction)
     {
         return $this->isMyCard($user, $transaction->card);
     }
@@ -78,7 +79,7 @@ class TransactionPolicy extends BasePolicy
      * @param Transaction $transaction
      * @return bool
      */
-    public function edit(?User $user, Transaction $transaction)
+    public function edit(?Authorizable $user, Transaction $transaction)
     {
         return $this->isMyCard($user, $transaction->card);
     }
@@ -88,7 +89,7 @@ class TransactionPolicy extends BasePolicy
      * @param Card $card
      * @return bool
      */
-    public function destroy(?User $user, Card $card)
+    public function destroy(?Authorizable $user, Card $card)
     {
         return false;
     }
@@ -97,8 +98,8 @@ class TransactionPolicy extends BasePolicy
      * @param Card $card
      * @return mixed
      */
-    protected function isMyCard(?User $user, Card $card)
+    protected function isMyCard(?Authorizable $user, Card $card)
     {
-        return $this->isMyOrganisation($user, $card->organisation);
+        return $this->isDeviceOrUserPartOfOrganisation($user, $card->organisation);
     }
 }

@@ -22,9 +22,11 @@
 
 namespace App\Policies;
 
+use App\Models\Device;
 use App\Models\Event;
 use App\Models\Organisation;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Access\Authorizable;
 
 /**
  * Class BasePolicy
@@ -32,36 +34,64 @@ use App\Models\User;
  */
 class BasePolicy
 {
-    /**
-     * @param User|null $user
-     * @return bool
-     */
-    public function isAdmin(User $user = null)
-    {
-        return in_array($user->id, config('admin.admin_user_ids'));
-    }
+	/**
+	 * @param User|null $user
+	 * @return bool
+	 */
+	public function isAdmin(?Authorizable $user = null)
+	{
+		if ($user instanceof User) {
+			return in_array($user->id, config('admin.admin_user_ids'));
+		}
 
-    /**
-     * @param User|null $user
-     * @param Event $event
-     * @return bool
-     */
-    protected function isMyEvent(?User $user, Event $event)
-    {
-        if (!$user) {
-            return false;
-        }
+		return false;
+	}
 
-        return $this->isMyOrganisation($user, $event->organisation);
-    }
+	/**
+	 * @param User|null $user
+	 * @param Event $event
+	 * @return bool
+	 */
+	protected function isMyEvent(?Authorizable $user, Event $event, $allowDevices = false)
+	{
+		if (!$user) {
+			return false;
+		}
 
-    /**
-     * @param User|null $user
-     * @param Organisation $organisation
-     * @return mixed
-     */
-    protected function isMyOrganisation(?User $user, Organisation $organisation)
-    {
-        return $user->organisations->contains($organisation);
-    }
+		if ($allowDevices) {
+			return $this->isDeviceOrUserPartOfOrganisation($user, $event->organisation);
+		}
+
+		return $this->isMyOrganisation($user, $event->organisation);
+	}
+
+	/**
+	 * @param User|Device|null $user
+	 * @param Organisation $organisation
+	 * @return mixed
+	 */
+	protected function isMyOrganisation(?Authorizable $user, Organisation $organisation)
+	{
+		if ($user instanceof User) {
+			return $user->organisations->contains($organisation);
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param User|Device|null $user
+	 * @param Organisation $organisation
+	 * @return mixed
+	 */
+	protected function isDeviceOrUserPartOfOrganisation(?Authorizable $user, Organisation $organisation)
+	{
+		if ($user instanceof User) {
+			return $user->organisations->contains($organisation);
+		} elseif ($user instanceof Device) {
+			return $user->organisation_id == $organisation->id;
+		} else {
+			return false;
+		}
+	}
 }

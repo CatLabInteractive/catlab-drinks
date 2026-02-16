@@ -87,8 +87,11 @@ class OrderEntityFactory extends \CatLab\Charon\Factories\EntityFactory
      * @return mixed
      * @throws Exception
      */
-    public function resolveLinkedEntity($parent, string $entityClassName, array $identifiers, Context $context)
+    public function resolveLinkedEntity($parent, string $entityClassName, Identifier $identifier, Context $context)
     {
+        //$identifiers = $identifiers->toArray();
+        $identifiers = $identifier->getProperties()->transformToEntityValuesMap($context);
+
         if ($entityClassName === MenuItem::class) {
             if ($this->event) {
                 return $this

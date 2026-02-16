@@ -28,6 +28,7 @@ use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\Topup;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Access\Authorizable;
 
 /**
  * Class TopupPolicy
@@ -40,7 +41,7 @@ class TopupPolicy extends BasePolicy
      * @param Card $card
      * @return bool
      */
-    public function index(?User $user, Card $card)
+    public function index(?Authorizable $user, Card $card)
     {
         return $this->isMyOrganisation($user, $card->organisation);
     }
@@ -50,7 +51,7 @@ class TopupPolicy extends BasePolicy
      * @param Card $card
      * @return bool
      */
-    public function create(?User $user, Card $card)
+    public function create(?Authorizable $user, Card $card)
     {
         return $this->isMyOrganisation($user, $card->organisation);
     }
@@ -60,7 +61,7 @@ class TopupPolicy extends BasePolicy
      * @param Topup $topup
      * @return bool
      */
-    public function view(?User $user, Topup $topup)
+    public function view(?Authorizable $user, Topup $topup)
     {
         return $this->isMyOrganisation($user, $topup->card->organisation);
     }
@@ -70,7 +71,7 @@ class TopupPolicy extends BasePolicy
      * @param Topup $topup
      * @return bool
      */
-    public function edit(?User $user, Topup $topup)
+    public function edit(?Authorizable $user, Topup $topup)
     {
         return $this->isMyOrganisation($user, $topup->card->organisation);
     }
@@ -80,7 +81,7 @@ class TopupPolicy extends BasePolicy
      * @param Topup $topup
      * @return bool
      */
-    public function destroy(?User $user, Topup $topup)
+    public function destroy(?Authorizable $user, Topup $topup)
     {
         return $this->isMyOrganisation($user, $topup->card->organisation);
     }
