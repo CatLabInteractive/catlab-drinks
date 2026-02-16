@@ -24,6 +24,11 @@ if [ -n "$APP_KEY" ] && [[ ! "$APP_KEY" =~ ^base64: ]]; then
     
     # Validate the transformed key format and length
     # Base64-encoded 32 bytes always produces exactly 44 characters total (including one '=' padding)
+    # Math: 32 bytes = 256 bits. Base64 encodes in 3-byte (24-bit) chunks to 4 chars each.
+    #       32 bytes = 10 complete chunks (30 bytes) + 2 remaining bytes
+    #       10 chunks * 4 chars = 40 chars
+    #       2 remaining bytes (16 bits) = 3 base64 chars + 1 padding '='
+    #       Total: 40 + 3 + 1 = 44 characters (always)
     if [ $TRANSFORM_EXIT -eq 0 ] && [[ "$TRANSFORM_OUTPUT" =~ ^[A-Za-z0-9+/]{43}=$ ]]; then
         APP_KEY="base64:${TRANSFORM_OUTPUT}"
         export APP_KEY
