@@ -6,10 +6,17 @@
 if [ -n "$APP_KEY" ] && [[ ! "$APP_KEY" =~ ^base64: ]]; then
     # Heroku's generator creates a secret that isn't in Laravel's expected format.
     # We convert it to the correct format by:
-    # 1. Hashing the secret to get exactly 32 bytes (required for AES-256-CBC)
+    # 1. Hashing the secret with SHA-256 to get exactly 32 bytes (required for AES-256-CBC)
     # 2. Base64-encoding the result
     # 3. Adding the 'base64:' prefix
-    # This ensures the same secret always produces the same key (idempotent)
+    #
+    # Security note: SHA-256 is a one-way cryptographic hash function that preserves
+    # the entropy of the input while ensuring a fixed 32-byte output. The transformation
+    # is deterministic (same input = same output), which ensures consistency across dynos.
+    # Since the original Heroku secret is stored in environment variables (which an attacker
+    # with access to the app would already have), this transformation doesn't introduce
+    # any additional vulnerability.
     APP_KEY="base64:$(php -r "echo base64_encode(hash('sha256', getenv('APP_KEY'), true));")"
     export APP_KEY
 fi
+
