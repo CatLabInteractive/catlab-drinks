@@ -7,8 +7,8 @@ if ($jawsDbUrl) {
         'host' => $parsedUrl['host'] ?? '127.0.0.1',
         'port' => (string)($parsedUrl['port'] ?? '3306'),
         'database' => ltrim($parsedUrl['path'] ?? '/forge', '/'),
-        'username' => $parsedUrl['user'] ?? 'forge',
-        'password' => $parsedUrl['pass'] ?? '',
+        'username' => urldecode($parsedUrl['user'] ?? 'forge'),
+        'password' => urldecode($parsedUrl['pass'] ?? ''),
     ];
 } else {
     $jawsDb = null;
