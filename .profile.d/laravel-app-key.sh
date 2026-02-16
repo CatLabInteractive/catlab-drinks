@@ -19,4 +19,3 @@ if [ -n "$APP_KEY" ] && [[ ! "$APP_KEY" =~ ^base64: ]]; then
     APP_KEY="base64:$(php -r "echo base64_encode(hash('sha256', getenv('APP_KEY'), true));")"
     export APP_KEY
 fi
-
