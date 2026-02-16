@@ -7,7 +7,8 @@
 	"env": {
 		"APP_NAME": {
 			"description": "The name of your application.",
-			"value": "CatLab Drinks"
+			"value": "CatLab Drinks",
+			"required": false
 		},
 		"APP_ENV": {
 			"description": "The application environment.",
@@ -23,27 +24,33 @@
 		},
 		"APP_URL": {
 			"description": "The URL of your application (will be set automatically by Heroku).",
-			"value": ""
+			"value": "",
+			"required": false
 		},
 		"LOG_CHANNEL": {
 			"description": "Log channel.",
-			"value": "errorlog"
+			"value": "errorlog",
+			"required": false
 		},
 		"DB_CONNECTION": {
 			"description": "Database connection type.",
-			"value": "mysql"
+			"value": "mysql",
+			"required": false
 		},
 		"SESSION_DRIVER": {
 			"description": "Session driver.",
-			"value": "file"
+			"value": "file",
+			"required": false
 		},
 		"CACHE_DRIVER": {
 			"description": "Cache driver.",
-			"value": "file"
+			"value": "file",
+			"required": false
 		},
 		"QUEUE_CONNECTION": {
 			"description": "Queue connection.",
-			"value": "sync"
+			"value": "sync",
+			"required": false
 		}
 	},
 	"addons": [
