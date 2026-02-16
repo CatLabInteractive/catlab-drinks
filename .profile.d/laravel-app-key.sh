@@ -18,24 +18,26 @@ if [ -n "$APP_KEY" ] && [[ ! "$APP_KEY" =~ ^base64: ]]; then
     # - An attacker with access to the Heroku secret already has all environment variables
     
     # Transform the APP_KEY with error handling
-    # Capture stderr separately for better error diagnostics
-    TRANSFORM_ERROR=$(mktemp)
-    TRANSFORMED_KEY=$(php -r "echo base64_encode(hash('sha256', getenv('APP_KEY'), true));" 2>"$TRANSFORM_ERROR")
+    # Capture both stdout and stderr to handle PHP errors
+    TRANSFORM_OUTPUT=$(php -r "echo base64_encode(hash('sha256', getenv('APP_KEY'), true));" 2>&1)
     TRANSFORM_EXIT=$?
     
-    if [ $TRANSFORM_EXIT -eq 0 ] && [ -n "$TRANSFORMED_KEY" ]; then
-        APP_KEY="base64:${TRANSFORMED_KEY}"
+    # Validate the transformed key format and length
+    # Base64-encoded 32 bytes should be exactly 44 characters (43 + padding)
+    if [ $TRANSFORM_EXIT -eq 0 ] && [[ "$TRANSFORM_OUTPUT" =~ ^[A-Za-z0-9+/]{43}=$ ]]; then
+        APP_KEY="base64:${TRANSFORM_OUTPUT}"
         export APP_KEY
     else
         echo "ERROR: Failed to transform APP_KEY to Laravel format." >&2
-        echo "PHP must be available to transform Heroku's generated secret." >&2
-        if [ -s "$TRANSFORM_ERROR" ]; then
-            echo "PHP error:" >&2
-            cat "$TRANSFORM_ERROR" >&2
+        if [ $TRANSFORM_EXIT -ne 0 ]; then
+            echo "PHP execution failed with exit code $TRANSFORM_EXIT" >&2
+            echo "Error: $TRANSFORM_OUTPUT" >&2
+        else
+            echo "Transformation produced invalid output (expected 44-character base64 string)" >&2
         fi
+        echo "PHP must be available and functional to transform Heroku's generated secret." >&2
         echo "The APP_KEY will remain in incorrect format and Laravel will fail to start." >&2
         # Note: Keeping the original key allows Laravel to show a clearer error message
         # about the incorrect format, which is more helpful for debugging
     fi
-    rm -f "$TRANSFORM_ERROR"
 fi
