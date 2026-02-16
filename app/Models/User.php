@@ -35,55 +35,54 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
  * @package App\Models
  */
 class User extends Model implements
-    AuthenticatableContract,
-    AuthorizableContract
+	AuthenticatableContract,
+	AuthorizableContract
 {
-    use Authenticatable, Authorizable;
+	use Authenticatable, Authorizable;
+	use Notifiable;
+	use \Laravel\Passport\HasApiTokens;
 
-    /**
-     * Register any other events for your application.
-     *
-     * @return void
-     */
-    public static function boot()
-    {
-        parent::boot();
+	/**
+	 * Register any other events for your application.
+	 *
+	 * @return void
+	 */
+	public static function boot()
+	{
+		parent::boot();
 
-        static::created(function (User $model) {
+		static::created(function (User $model) {
 
-            // also create an organisation with the same name
-            $organisation = new Organisation([ 'name' => $model->name ]);
-            $model->organisations()->save($organisation);
+			// also create an organisation with the same name
+			$organisation = new Organisation([ 'name' => $model->name ]);
+			$model->organisations()->save($organisation);
 
-        });
-    }
+		});
+	}
 
-    use Notifiable;
-    use \Laravel\Passport\HasApiTokens;
+	/**
+	 * The attributes that are mass assignable.
+	 *
+	 * @var array
+	 */
+	protected $fillable = [
+		'name', 'email', 'password',
+	];
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'name', 'email', 'password',
-    ];
+	/**
+	 * The attributes that should be hidden for arrays.
+	 *
+	 * @var array
+	 */
+	protected $hidden = [
+		'password', 'remember_token',
+	];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function organisations()
-    {
-        return $this->belongsToMany(Organisation::class)->withTimestamps();
-    }
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+	 */
+	public function organisations()
+	{
+		return $this->belongsToMany(Organisation::class)->withTimestamps();
+	}
 }

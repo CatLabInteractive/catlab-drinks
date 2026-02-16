@@ -24,6 +24,7 @@ namespace App\Policies;
 
 use App\Models\Event;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Access\Authorizable;
 
 /**
  * Class EventPolicy
@@ -35,7 +36,7 @@ class EventPolicy extends BasePolicy
      * @param User|null $user
      * @return bool
      */
-    public function index(?User $user)
+    public function index(?Authorizable $user)
     {
         return true;
     }
@@ -44,22 +45,27 @@ class EventPolicy extends BasePolicy
      * @param $user
      * @return bool
      */
-    public function create(?User $user)
+    public function create(?Authorizable $user)
     {
         return true;
     }
 
-    public function view(?User $user, Event $event)
+    public function view(?Authorizable $user, Event $event)
+    {
+        return $this->isMyEvent($user, $event, true);
+    }
+
+    public function edit(?Authorizable $user, Event $event)
     {
         return $this->isMyEvent($user, $event);
     }
 
-    public function edit(?User $user, Event $event)
-    {
-        return $this->isMyEvent($user, $event);
-    }
+	public function editStatus(?Authorizable $user, Event $event)
+	{
+		return $this->isMyEvent($user, $event, true);
+	}
 
-    public function destroy(?User $user, Event $event)
+    public function destroy(?Authorizable $user, Event $event)
     {
         return $this->isMyEvent($user, $event);
     }
@@ -69,8 +75,8 @@ class EventPolicy extends BasePolicy
      * @param Event $event
      * @return bool
      */
-    public function orderSummary(?User $user, Event $event)
+    public function orderSummary(?Authorizable $user, Event $event)
     {
-        return $this->isMyEvent($user, $event);
+        return $this->isMyEvent($user, $event, true);
     }
 }

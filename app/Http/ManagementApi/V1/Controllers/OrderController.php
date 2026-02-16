@@ -1,0 +1,8 @@
+<?php
+
+namespace App\Http\ManagementApi\V1\Controllers;
+
+class OrderController extends \App\Http\Shared\V1\Controllers\OrderController
+{
+
+}

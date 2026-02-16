@@ -25,6 +25,7 @@ namespace App\Policies;
 use App\Models\Card;
 use App\Models\Organisation;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Access\Authorizable;
 
 /**
  * Class CardPolicy
@@ -33,51 +34,51 @@ use App\Models\User;
 class CardPolicy extends BasePolicy
 {
     /**
-     * @param User|null $user
+     * @param User|Device|null $user
      * @param Organisation $organisation
      * @return bool
      */
-    public function index(?User $user, Organisation $organisation)
+    public function index(?Authorizable $user, Organisation $organisation)
     {
-        return $this->isMyOrganisation($user, $organisation);
+        return $this->isDeviceOrUserPartOfOrganisation($user, $organisation);
     }
 
     /**
-     * @param User|null $user
+     * @param User|Device|null $user
      * @param Organisation $organisation
      * @return bool
      */
-    public function create(?User $user, Organisation $organisation)
+    public function create(?Authorizable $user, Organisation $organisation)
     {
-        return $this->isMyOrganisation($user, $organisation);
+        return $this->isDeviceOrUserPartOfOrganisation($user, $organisation);
     }
 
     /**
-     * @param User|null $user
+     * @param User|Device|null $user
      * @param Card $card
      * @return bool
      */
-    public function view(?User $user, Card $card)
+    public function view(?Authorizable $user, Card $card)
     {
-        return $this->isMyOrganisation($user, $card->organisation);
+        return $this->isDeviceOrUserPartOfOrganisation($user, $card->organisation);
     }
 
     /**
-     * @param User|null $user
+     * @param User|Device|null $user
      * @param Card $card
      * @return bool
      */
-    public function edit(?User $user, Card $card)
+    public function edit(?Authorizable $user, Card $card)
     {
-        return $this->isMyOrganisation($user, $card->organisation);
+        return $this->isDeviceOrUserPartOfOrganisation($user, $card->organisation);
     }
 
     /**
-     * @param User|null $user
+     * @param User|Device|null $user
      * @param Card $card
      * @return bool
      */
-    public function destroy(?User $user, Card $card)
+    public function destroy(?Authorizable $user, Card $card)
     {
         return false;
     }

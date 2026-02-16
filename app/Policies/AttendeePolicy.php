@@ -25,6 +25,7 @@ namespace App\Policies;
 use App\Models\Event;
 use App\Models\MenuItem;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Access\Authorizable;
 
 /**
  * Class AttendeePolicy
@@ -37,7 +38,7 @@ class AttendeePolicy extends BasePolicy
      * @param Event $event
      * @return bool
      */
-    public function index(?User $user, Event $event)
+    public function index(?Authorizable $user, Event $event)
     {
         return $this->isMyEvent($user, $event);
     }
@@ -47,7 +48,7 @@ class AttendeePolicy extends BasePolicy
      * @param Event $event
      * @return bool
      */
-    public function create(?User $user, Event $event)
+    public function create(?Authorizable $user, Event $event)
     {
         return $this->isMyEvent($user, $event);
     }
@@ -57,7 +58,7 @@ class AttendeePolicy extends BasePolicy
      * @param MenuItem $menuItem
      * @return bool
      */
-    public function view(?User $user, MenuItem $menuItem)
+    public function view(?Authorizable $user, MenuItem $menuItem)
     {
         return $this->isMyEvent($user, $menuItem->event);
     }
@@ -67,7 +68,7 @@ class AttendeePolicy extends BasePolicy
      * @param MenuItem $menuItem
      * @return bool
      */
-    public function edit(?User $user, MenuItem $menuItem)
+    public function edit(?Authorizable $user, MenuItem $menuItem)
     {
         return $this->isMyEvent($user, $menuItem->event);
     }

@@ -103,7 +103,7 @@ class TransactionMerger
         // lets take a look at the current balance
         $currentBalance = $card->transactions()->sum('value');
 
-        if ($originalBalance !== $currentBalance) {
+        if (intval($originalBalance) !== intval($currentBalance)) {
             $overflowTransaction = $card->getOverflowTransaction();
             $overflowTransaction->value += $currentBalance - $originalBalance;
             $overflowTransaction->save();

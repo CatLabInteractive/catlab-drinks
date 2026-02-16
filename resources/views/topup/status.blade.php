@@ -12,8 +12,10 @@
                 <a href="{{ $retryUrl }}" class="btn btn-danger btn-sm">Probeer het opnieuw</a>
             </div>
         @elseif($topup->isPending())
-            <div class="alert alert-warning">
-                We hebben nog geen bevestiging van je betaling.
+            <div class="alert alert-success">
+                Dank voor de betaling! We hebben nog geen bevestiging van betaling ontvangen, maar dat kan enkele
+                minuten duren. Is het opladen na 10 minuten nog steeds niet gelukt, contacteer dan een medewerker
+                en we kijken het na.
             </div>
         @elseif($topup->isSuccess())
             <div class="alert alert-success">

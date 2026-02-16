@@ -24,6 +24,7 @@ namespace App\Policies;
 
 use App\Models\Organisation;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Access\Authorizable;
 
 /**
  * Class OrganisationPolicy
@@ -35,7 +36,7 @@ class OrganisationPolicy extends BasePolicy
      * @param User|null $user
      * @return bool
      */
-    public function index(?User $user)
+    public function index(?Authorizable $user)
     {
         return true;
     }
@@ -45,7 +46,7 @@ class OrganisationPolicy extends BasePolicy
      * @param Organisation $organisation
      * @return bool
      */
-    public function create(?User $user, Organisation $organisation)
+    public function create(?Authorizable $user, Organisation $organisation)
     {
         return $this->isMyOrganisation($user, $organisation);
     }
@@ -55,7 +56,17 @@ class OrganisationPolicy extends BasePolicy
      * @param Organisation $organisation
      * @return bool
      */
-    public function view(?User $user, Organisation $organisation)
+    public function view(?Authorizable $user, Organisation $organisation)
+    {
+        return $this->isDeviceOrUserPartOfOrganisation($user, $organisation);
+    }
+
+    /**
+     * @param User|null $user
+     * @param Organisation $organisation
+     * @return bool
+     */
+    public function edit(?Authorizable $user, Organisation $organisation)
     {
         return $this->isMyOrganisation($user, $organisation);
     }
@@ -65,17 +76,7 @@ class OrganisationPolicy extends BasePolicy
      * @param Organisation $organisation
      * @return bool
      */
-    public function edit(?User $user, Organisation $organisation)
-    {
-        return $this->isMyOrganisation($user, $organisation);
-    }
-
-    /**
-     * @param User|null $user
-     * @param Organisation $organisation
-     * @return bool
-     */
-    public function destroy(?User $user, Organisation $organisation)
+    public function destroy(?Authorizable $user, Organisation $organisation)
     {
         return $this->isMyOrganisation($user, $organisation);
     }
@@ -85,8 +86,8 @@ class OrganisationPolicy extends BasePolicy
      * @param Organisation $organisation
      * @return mixed
      */
-    public function mergeTransactions(?User $user, Organisation $organisation) {
-        return $this->isMyOrganisation($user, $organisation);
+    public function mergeTransactions(?Authorizable $user, Organisation $organisation) {
+        return $this->isDeviceOrUserPartOfOrganisation($user, $organisation);
     }
 
     /**
@@ -94,7 +95,7 @@ class OrganisationPolicy extends BasePolicy
      * @param Organisation $organisation
      * @return mixed
      */
-    public function financialOverview(?User $user, Organisation $organisation) {
+    public function financialOverview(?Authorizable $user, Organisation $organisation) {
         return $this->isMyOrganisation($user, $organisation);
     }
 }

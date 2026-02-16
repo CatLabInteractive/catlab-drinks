@@ -1,0 +1,64 @@
+{
+	"name": "catlab-drinks",
+	"description": "A bar automation / point-of-sale (POS) web application with support for NFC cashless topup cards, remote ordering, and multi-device management.",
+	"repository": "https://github.com/CatLabInteractive/catlab-drinks",
+	"logo": "https://raw.githubusercontent.com/CatLabInteractive/catlab-drinks/master/icons/icon-192.webp",
+	"keywords": ["laravel", "pos", "point-of-sale", "bar", "nfc", "vue"],
+	"env": {
+		"APP_NAME": {
+			"description": "The name of your application.",
+			"value": "CatLab Drinks"
+		},
+		"APP_ENV": {
+			"description": "The application environment.",
+			"value": "production"
+		},
+		"APP_DEBUG": {
+			"description": "Enable or disable debug mode.",
+			"value": "false"
+		},
+		"APP_KEY": {
+			"description": "Application encryption key. Generated automatically.",
+			"generator": "secret"
+		},
+		"APP_URL": {
+			"description": "The URL of your application (will be set automatically by Heroku).",
+			"value": ""
+		},
+		"LOG_CHANNEL": {
+			"description": "Log channel.",
+			"value": "errorlog"
+		},
+		"DB_CONNECTION": {
+			"description": "Database connection type.",
+			"value": "mysql"
+		},
+		"SESSION_DRIVER": {
+			"description": "Session driver.",
+			"value": "file"
+		},
+		"CACHE_DRIVER": {
+			"description": "Cache driver.",
+			"value": "file"
+		},
+		"QUEUE_CONNECTION": {
+			"description": "Queue connection.",
+			"value": "sync"
+		}
+	},
+	"addons": [
+		{
+			"plan": "jawsdb:kitefin"
+		}
+	],
+	"buildpacks": [
+		{ "url": "heroku/nodejs" },
+		{ "url": "heroku/php" }
+	],
+	"scripts": {
+		"dokku": {
+			"predeploy": "php artisan migrate --force"
+		},
+		"postdeploy": "php artisan migrate --force && php artisan passport:keys"
+	}
+}

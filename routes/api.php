@@ -17,8 +17,15 @@
 $routeTransformer = new \CatLab\Charon\Laravel\Transformers\RouteTransformer();
 
 /** @var \CatLab\Charon\Collections\RouteCollection $routeCollection */
-$routeCollection = include __DIR__ . '/../app/Http/Api/V1/routes.php';
-$routeTransformer->transform($routeCollection);
+$routeCollection1 = include __DIR__ . '/../app/Http/ManagementApi/V1/routes.php';
+$routeTransformer->transform($routeCollection1);
+
+/** @var \CatLab\Charon\Collections\RouteCollection $routeCollection */
+$routeCollection2 = include __DIR__ . '/../app/Http/DeviceApi/V1/routes.php';
+$routeTransformer->transform($routeCollection2);
+
+// Swagger documentation
+Route::get('/api/v1/description.json', 'App\Http\Controllers\DescriptionController@description');
 
 // Notification endpoint for topups.
 Route::post( '/topup/{cardId}/{orderId}/notification', 'App\Http\Controllers\TopupController@notification');

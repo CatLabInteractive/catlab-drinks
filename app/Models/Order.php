@@ -24,6 +24,7 @@ namespace App\Models;
 
 use CatLab\Charon\Laravel\Database\Model;
 use DB;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Class Order
@@ -127,7 +128,7 @@ class Order extends Model
     {
         $price = 0;
         foreach ($this->order as $order) {
-            $price += $order->amount * $order->menuItem->price;
+            $price += round($order->amount * $order->menuItem->price * 100) / 100;
         }
         return $price;
     }
@@ -137,7 +138,7 @@ class Order extends Model
      */
     public function getPrice()
     {
-        $price = $this->order()->sum(DB::raw('order_items.amount * order_items.price'));
+        $price = $this->order()->sum(DB::raw('round(order_items.amount * order_items.price * 100) / 100'));
 
         return $price;
     }
@@ -163,9 +164,18 @@ class Order extends Model
      * Return the amount of card credits that this order is worth.
      * @return float
      */
-    public function getCurrentCardCost()
+    public function getCurrentCardCost(): int
     {
-        return ceil($this->getCurrentOrderValue() * 100);
+        return round($this->getCurrentOrderValue() * 100);
+    }
+
+    /**
+     * Return the amount of card credits that this order is worth, with discount applied.
+     * @return float 
+     */
+    public function getDiscountedCurrentCardCost(): int
+    {
+        return round($this->getCurrentCardCost() * $this->getDiscountFactor());
     }
 
     /**
@@ -189,5 +199,30 @@ class Order extends Model
         }
 
         return 1 - $discountFactor;
+    }
+
+    /**
+     * Take the order and split it by categories.
+     * Each category will get its own order.
+     * @return Order[]
+     */
+    public function splitByCategories()
+    {
+        /** @var Order[] $categories */
+        $categories = [];
+        foreach ($this->order as $orderItem) {
+            $categoryId = $orderItem->menuItem->category ? $orderItem->menuItem->category->id : 0;
+
+            if (!isset($categories[$categoryId])) {
+                $order = $this->replicate();
+                $order->uid = Uuid::uuid1(); // Must have a unique uid
+
+                $categories[$categoryId] = $order;
+            }
+
+            $categories[$categoryId]->addChildrenToEntity('order', [ $orderItem ]);
+        }
+
+        return $categories;
     }
 }

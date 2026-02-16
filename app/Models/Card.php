@@ -22,10 +22,11 @@
 
 namespace App\Models;
 
+use App\Exceptions\DuplicateUidException;
 use App\Exceptions\InsufficientFundsException;
-use App\Exceptions\TransactionCountException;
 use DB;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 /**
  * Class Card
@@ -38,7 +39,7 @@ class Card extends Model
         parent::boot();
 
         self::creating(function(Card $card){
-            $card->order_token = str_random(16);
+            $card->order_token = Str::random(16);
         });
     }
 
@@ -58,6 +59,12 @@ class Card extends Model
         $card = $card->first();
 
         if (!$card) {
+
+            // make sure this UID is still unknown
+            if (Card::where('uid', '=', $cardUid)->count() > 0) {
+                throw new DuplicateUidException("Card is already assigned to a different organisation.");
+            }
+
             $card = new Card();
             $card->uid = $cardUid;
             $card->transaction_count = 0;
@@ -184,13 +191,29 @@ class Card extends Model
     }
 
     /**
+     * Check if we can afford the given orders.
+     * @param array $orders 
+     * @return bool 
+     */
+    public function canAfford(array $orders)
+    {
+        $totalPrice = 0;
+        foreach ($orders as $order) {
+            $order->discount_percentage = $this->discount_percentage;
+            $totalPrice += $order->getDiscountedCurrentCardCost();
+        }
+
+        return $this->getBalance() >= $totalPrice;
+    }
+
+    /**
      * @param Order $order
      * @throws InsufficientFundsException
      */
     public function spend(Order $order)
     {
         $order->discount_percentage = $this->discount_percentage;
-        $totalPrice = round($order->getCurrentCardCost() * $order->getDiscountFactor());
+        $totalPrice = $order->getDiscountedCurrentCardCost();
 
         $balance = $this->getBalance();
         if ($totalPrice > 0 && $balance < $totalPrice) {

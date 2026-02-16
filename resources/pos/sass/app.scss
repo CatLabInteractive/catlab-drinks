@@ -1,0 +1,18 @@
+// Variables
+@import 'variables';
+@import '../../shared/sass/app.scss';
+
+body {
+	background: #f0e9f0;  /* fallback for old browsers */
+	background: linear-gradient(-60deg, #c4d1d1, #e7dede); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+	background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+body a {
+	color: rgb(32, 7, 124);
+}
+
+body a:hover {
+	color: rgb(16, 0, 75);
+}

@@ -23,6 +23,8 @@
 namespace App\Models;
 
 use CatLab\Charon\Laravel\Database\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 /**
  * Class Organisation
@@ -74,16 +76,60 @@ class Organisation extends Model
         return $this->hasMany(CardOrderTokenAlias::class);
     }
 
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function devices()
+	{
+		return $this->hasMany(Device::class);
+	}
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function paymentGateways()
+    {
+        return $this->hasMany(OrganisationPaymentGateway::class);
+    }
+
+    /**
+     * Get a specific payment gateway configuration.
+     * @param string $gateway
+     * @return OrganisationPaymentGateway|null
+     */
+    public function getPaymentGateway(string $gateway)
+    {
+        return $this->paymentGateways()
+            ->where('gateway', $gateway)
+            ->where('is_active', true)
+            ->first();
+    }
+
     /**
      * @return string
      */
     public function getSecret()
     {
         if (!$this->secret) {
-            $this->secret = str_random(32);
+            $this->secret = Str::random(32);
             $this->save();
         }
 
         return $this->secret;
+    }
+
+    /**
+     * Get the first topup domain from config.
+     * @return string|null
+     */
+    public function getTopupDomainAttribute()
+    {
+        $topupDomains = config('app.topup_domain_name', []);
+
+        if (!is_array($topupDomains)) {
+            return $topupDomains;
+        }
+
+        return $topupDomains[0] ?? null;
     }
 }

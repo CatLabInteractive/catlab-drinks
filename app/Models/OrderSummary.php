@@ -30,8 +30,13 @@ class OrderSummary
      */
     public $totalSales;
 
+    public $net_total = null;
+    public $vat_total = null;
+
     /**
      * @var OrderItem[]
      */
     public $items = [];
+
+    public $names = [];
 }
