@@ -1,5 +1,19 @@
 <?php
 
+$jawsDbUrl = env('JAWSDB_URL');
+if ($jawsDbUrl) {
+	$parsedUrl = parse_url($jawsDbUrl);
+	$connectionStringParsed = [
+		'host' => $parsedUrl['host'] ?? '127.0.0.1',
+		'port' => (string)($parsedUrl['port'] ?? '3306'),
+		'database' => ltrim($parsedUrl['path'] ?? '/forge', '/'),
+		'username' => urldecode($parsedUrl['user']) ?? 'forge',
+		'password' => urldecode($parsedUrl['pass']) ?? '',
+	];
+} else {
+	$connectionStringParsed = null;
+}
+
 return [
 
     /*
@@ -42,11 +56,11 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
+			'host' => env('DB_HOST', $connectionStringParsed['host'] ?? '127.0.0.1'),
+			'port' => env('DB_PORT', $connectionStringParsed['port'] ?? '3306'),
+			'database' => env('DB_DATABASE', $connectionStringParsed['database'] ?? 'forge'),
+			'username' => env('DB_USERNAME', $connectionStringParsed['username'] ?? 'forge'),
+			'password' => env('DB_PASSWORD', $connectionStringParsed['password'] ?? ''),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
