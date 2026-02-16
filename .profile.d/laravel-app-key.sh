@@ -33,7 +33,8 @@ if [ -n "$APP_KEY" ] && [[ ! "$APP_KEY" =~ ^base64: ]]; then
             echo "PHP execution failed with exit code $TRANSFORM_EXIT" >&2
             echo "Error: $TRANSFORM_OUTPUT" >&2
         else
-            echo "Transformation produced invalid output (expected 44-character base64 string)" >&2
+            echo "Transformation produced invalid output" >&2
+            echo "Expected: 44-character base64 string (43 chars + '=' padding) from SHA-256 hash" >&2
         fi
         echo "PHP must be available and functional to transform Heroku's generated secret." >&2
         echo "The APP_KEY will remain in incorrect format and Laravel will fail to start." >&2
