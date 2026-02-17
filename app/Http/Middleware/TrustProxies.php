@@ -32,7 +32,25 @@ class TrustProxies extends Middleware
      *
      * @var array|string|null
      */
-    protected $proxies = '*';
+    protected $proxies;
+
+    /**
+     * Create a new middleware instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        // Use environment variable or default to '*' for Heroku/cloud deployments
+        $proxies = env('TRUSTED_PROXIES', '*');
+        
+        // Convert comma-separated string to array if needed
+        if (is_string($proxies) && $proxies !== '*' && strpos($proxies, ',') !== false) {
+            $this->proxies = array_map('trim', explode(',', $proxies));
+        } else {
+            $this->proxies = $proxies;
+        }
+    }
 
     /**
      * The headers that should be used to detect proxies.
