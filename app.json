@@ -51,6 +51,11 @@
 			"description": "Queue connection.",
 			"value": "sync",
 			"required": false
+		},
+		"TRUSTED_PROXIES": {
+			"description": "Trusted proxy configuration. Use '*' to trust all proxies (recommended for Heroku). Defaults to '*' if not set.",
+			"value": "*",
+			"required": false
 		}
 	},
 	"addons": [
