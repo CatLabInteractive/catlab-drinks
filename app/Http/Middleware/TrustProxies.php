@@ -46,7 +46,10 @@ class TrustProxies extends Middleware
         
         // Convert comma-separated string to array if needed
         if (is_string($proxies) && $proxies !== '*' && str_contains($proxies, ',')) {
-            $this->proxies = array_values(array_filter(array_map('trim', explode(',', $proxies))));
+            $this->proxies = array_values(array_filter(
+                array_map('trim', explode(',', $proxies)),
+                fn($v) => $v !== ''
+            ));
         } else {
             $this->proxies = $proxies;
         }
