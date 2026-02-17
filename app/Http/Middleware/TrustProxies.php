@@ -30,11 +30,30 @@ class TrustProxies extends Middleware
     /**
      * The trusted proxies for this application.
      *
-     * @var array
+     * @var array|string|null
      */
-    protected $proxies = [
-		'172.17.0.0/8'
-	];
+    protected $proxies;
+
+    /**
+     * Create a new middleware instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        // Use environment variable or default to '*' for Heroku/cloud deployments
+        $proxies = env('TRUSTED_PROXIES', '*');
+        
+        // Convert comma-separated string to array if needed
+        if (is_string($proxies) && $proxies !== '*' && str_contains($proxies, ',')) {
+            $this->proxies = array_values(array_filter(
+                array_map('trim', explode(',', $proxies)),
+                fn($v) => $v !== ''
+            ));
+        } else {
+            $this->proxies = $proxies;
+        }
+    }
 
     /**
      * The headers that should be used to detect proxies.
