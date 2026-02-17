@@ -71,6 +71,6 @@
 		"dokku": {
 			"predeploy": "php artisan migrate --force"
 		},
-		"postdeploy": "php artisan migrate --force && php artisan passport:keys"
+		"postdeploy": "php artisan migrate --force"
 	}
 }
