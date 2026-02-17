@@ -57,5 +57,15 @@ class DeviceResourceDefinition extends ResourceDefinition
             ->required()
             ->visible(true)
             ->writeable(true, true);
+
+        $this->field('uid')
+            ->string()
+            ->visible(true)
+            ->writeable(false);
+
+        $this->field('license_key')
+            ->string()
+            ->visible(true)
+            ->writeable(true, true);
     }
 }

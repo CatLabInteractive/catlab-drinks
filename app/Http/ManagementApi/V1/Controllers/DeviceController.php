@@ -28,6 +28,9 @@ use App\Models\Organisation;
 use App\Models\User;
 
 use CatLab\Charon\Collections\RouteCollection;
+use CatLab\Requirements\Collections\MessageCollection;
+use CatLab\Requirements\Exceptions\ResourceValidationException;
+use CatLab\Requirements\Models\Message;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\JsonResponse;
@@ -97,5 +100,58 @@ class DeviceController extends ResourceController
 	public function getRelationshipKey(): string
 	{
 		return self::PARENT_RESOURCE_ID;
+	}
+
+	/**
+	 * @param Request $request
+	 * @param Model $entity
+	 * @param bool $isNew
+	 * @return Model
+	 * @throws ResourceValidationException
+	 */
+	protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
+	{
+		$this->traitBeforeSaveEntity($request, $entity, $isNew);
+
+		if ($entity->isDirty('license_key') && $entity->license_key !== null) {
+			$this->validateLicenseKey($entity);
+		}
+
+		return $entity;
+	}
+
+	/**
+	 * Validate that the license key's device_uid matches the device.
+	 * @param Device $device
+	 * @throws ResourceValidationException
+	 */
+	private function validateLicenseKey(Device $device)
+	{
+		$decoded = base64_decode($device->license_key, true);
+		if ($decoded === false) {
+			$messages = new MessageCollection();
+			$messages->add(new Message('Invalid license key: not valid base64.'));
+			throw ResourceValidationException::make($messages);
+		}
+
+		$license = json_decode($decoded, true);
+		if (!is_array($license) || !isset($license['data'])) {
+			$messages = new MessageCollection();
+			$messages->add(new Message('Invalid license key: invalid license structure.'));
+			throw ResourceValidationException::make($messages);
+		}
+
+		$data = $license['data'];
+		if (!is_array($data) || !isset($data['device_uid'])) {
+			$messages = new MessageCollection();
+			$messages->add(new Message('Invalid license key: missing device_uid in license data.'));
+			throw ResourceValidationException::make($messages);
+		}
+
+		if ($data['device_uid'] !== $device->uid) {
+			$messages = new MessageCollection();
+			$messages->add(new Message('Invalid license key: device_uid does not match this device.'));
+			throw ResourceValidationException::make($messages);
+		}
 	}
 }
