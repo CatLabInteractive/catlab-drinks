@@ -45,7 +45,6 @@ import CheckIn from "../../shared/js/views/CheckIn";
 import SalesSummaryNames from "../../shared/js/views/SalesSummaryNames";
 import Menu from "./views/Menu.vue";
 import Devices from "./views/Devices";
-import OrganisationSettings from "./views/OrganisationSettings";
 
 function launch() {
 
@@ -152,12 +151,6 @@ function launch() {
 				name: 'devices',
 				component: Devices
 			},
-
-			{
-				path: '/organisation-settings',
-				name: 'organisationSettings',
-				component: OrganisationSettings
-			}
 		],
 	});
 
