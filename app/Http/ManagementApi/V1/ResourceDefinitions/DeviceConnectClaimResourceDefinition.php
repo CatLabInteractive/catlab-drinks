@@ -20,7 +20,6 @@ class DeviceConnectClaimResourceDefinition extends ResourceDefinition
 
 		$this->field('device_uid')
 			->string()
-			->required()
 			->visible(true)
 			->writeable(true, false);
 
