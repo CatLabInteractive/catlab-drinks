@@ -32,6 +32,7 @@
 				<b-navbar-nav>
 
 					<b-nav-item :to="{ name: 'events' }">Events</b-nav-item>
+					<b-nav-item :to="{ name: 'devices' }">Points of sale</b-nav-item>
 
 				</b-navbar-nav>
 
@@ -40,7 +41,6 @@
 
 					<b-navbar-nav>
 
-						<b-nav-item :to="{ name: 'devices' }">Devices</b-nav-item>
 						<b-nav-item :to="{ name: 'settings' }">Settings</b-nav-item>
 
 						<li class="nav-item">
