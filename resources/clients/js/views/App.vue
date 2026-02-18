@@ -23,11 +23,21 @@
 
     <div>
 
+        <div class="text-right p-2">
+            <language-toggle />
+        </div>
+
         <router-view></router-view>
 
     </div>
 
 </template>
 <script>
-    export default {}
+    import LanguageToggle from '../../../shared/js/components/LanguageToggle.vue';
+
+    export default {
+        components: {
+            'language-toggle': LanguageToggle,
+        }
+    }
 </script>
