@@ -36,7 +36,7 @@ import Events from './views/Events.vue'
 import Sales from "../../shared/js/views/Sales";
 import SalesSummary from "../../shared/js/views/SalesSummary";
 import Cards from "../../shared/js/views/Cards";
-import Settings from "../../shared/js/views/Settings";
+import Settings from "./views/OrganisationSettings";
 import Transactions from "../../shared/js/views/Transactions";
 import TestTransactions from "../../shared/js/views/TestTransactions";
 import FinancialOverview from "../../shared/js/views/FinancialOverview";

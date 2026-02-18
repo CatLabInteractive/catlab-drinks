@@ -23,6 +23,15 @@
 
 	<div>
 
+		<b-alert variant="warning" :show="showLicenseWarning" class="mb-0 rounded-0 text-center">
+			<i class="fas fa-exclamation-triangle mr-1"></i>
+			<strong>No active license.</strong>
+			<span v-if="licenseStatus">
+				{{ licenseStatus.remainingCards }} of {{ licenseStatus.maxCards }} card scans remaining.
+			</span>
+			Please purchase a license in the management portal to remove this limit.
+		</b-alert>
+
 		<b-navbar toggleable="lg">
 			<b-navbar-brand href="#">CatLab Drinks</b-navbar-brand>
 			<nfc-card-balance></nfc-card-balance>
@@ -56,6 +65,22 @@
 		<router-view></router-view>
 		<payment-popup></payment-popup>
 
+		<b-modal
+			v-model="showLicenseErrorModal"
+			title="License Required"
+			ok-only
+			ok-variant="warning"
+			ok-title="OK"
+		>
+			<p>
+				<i class="fas fa-exclamation-circle text-danger mr-2"></i>
+				Card limit exceeded. Please activate a license to continue scanning cards.
+			</p>
+			<p class="text-muted">
+				You can purchase and activate a license from the management portal under Devices.
+			</p>
+		</b-modal>
+
 	</div>
 
 </template>
@@ -73,7 +98,10 @@
 
 		data() {
 			return {
-				kioskMode: false
+				kioskMode: false,
+				showLicenseWarning: false,
+				showLicenseErrorModal: false,
+				licenseStatus: null
 			}
 		},
 
@@ -81,7 +109,7 @@
 			this.eventListeners.forEach(e => e.unbind());
 		},
 
-		mounted() {
+		async mounted() {
 
 			this.eventListeners = [];
 
@@ -89,6 +117,31 @@
 			this.eventListeners.push(this.$kioskModeService.on('kioskmode:change', () => {
 				this.kioskMode = this.$kioskModeService.kioskModeActive;
 			}));
+
+			// Check license status on Cordova
+			if (typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.LicenseService) {
+				try {
+					const licenseService = new window.CATLAB_DRINKS_APP.LicenseService();
+					this.licenseStatus = await licenseService.getLicenseStatus();
+					if (!this.licenseStatus.valid) {
+						this.showLicenseWarning = true;
+					}
+				} catch (e) {
+					console.error('Failed to check license status:', e);
+				}
+			}
+
+			// Listen for card errors (license errors)
+			if (typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.nfc) {
+				const nfc = window.CATLAB_DRINKS_APP.nfc;
+				nfc.on('card:error', (error) => {
+					if (window.CATLAB_DRINKS_APP.exceptions && error instanceof window.CATLAB_DRINKS_APP.exceptions.LicenseError) {
+						this.showLicenseErrorModal = true;
+					} else {
+						console.error('NFC error:', error.message);
+					}
+				});
+			}
 		}
 	}
 

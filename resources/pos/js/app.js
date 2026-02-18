@@ -40,7 +40,7 @@ import Headquarters from "./views/Headquarters.vue";
 import Sales from "../../shared/js/views/Sales";
 import SalesSummary from "../../shared/js/views/SalesSummary";
 import Cards from "../../shared/js/views/Cards";
-import Settings from "../../shared/js/views/Settings";
+import Settings from "./views/Settings";
 import Transactions from "../../shared/js/views/Transactions";
 import TestTransactions from "../../shared/js/views/TestTransactions";
 import FinancialOverview from "../../shared/js/views/FinancialOverview";
@@ -202,6 +202,7 @@ async function launch() {
 					.then(response => {
 						window.ORGANISATION_ID = response.data.organisation.id;
 						window.DEVICE_SECRET = response.data.secret_key;
+						window.DEVICE_NAME = response.data.name;
 
 						// Set device license if LicenseService is available
 						if (response.data.license_key && typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.LicenseService) {
