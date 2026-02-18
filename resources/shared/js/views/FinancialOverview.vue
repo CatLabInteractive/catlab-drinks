@@ -30,12 +30,12 @@
 
 					<tbody>
 						<tr>
-							<td>Total credit</td>
+							<td>{{ $t('Total credit') }}</td>
 							<td>{{ totalCardCredit }}</td>
 						</tr>
 
 						<tr>
-							<td>Topups last 24 hours</td>
+							<td>{{ $t('Topups last 24 hours') }}</td>
 							<td>{{ topups24Hours }}</td>
 						</tr>
 					</tbody>

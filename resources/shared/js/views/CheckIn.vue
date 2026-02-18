@@ -26,7 +26,7 @@
         <b-row>
             <b-col cols="12" id="check-in">
 
-                <h2>Check-In</h2>
+                <h2>{{ $t('Check-In') }}</h2>
                 <div v-if="error">
                     <div class="alert alert-danger" role="alert">
                         {{ error }}
@@ -36,11 +36,11 @@
                 <div v-if="loaded">
 
                     <div v-if="this.attendees.length === 0" class="alert alert-danger">
-                        Please import attendees and aliases before using this module.
+                        {{ $t('Please import attendees and aliases before using this module.') }}
                     </div>
 
                     <div v-if="card === null">
-                        <p>Scan to start</p>
+                        <p>{{ $t('Scan to start') }}</p>
                     </div>
 
                     <div v-if="card && !selectingAttendee">
@@ -51,13 +51,13 @@
 
                     <div v-if="card && selectingAttendee">
 
-                        <h3>Select attendee</h3>
+                        <h3>{{ $t('Select attendee') }}</h3>
                         <p class="alert alert-danger">
-                            Always checkin <strong>all</strong> attendees. If the attendee already has a card, please use that card instead of a new one.
+                            {{ $t('Always checkin all attendees. If the attendee already has a card, please use that card instead of a new one.') }}
                         </p>
 
                         <div v-if="this.attendees.length === 0" class="alert alert-danger">
-                            No attendees have been set. Please import attendees before using this module.
+                            {{ $t('No attendees have been set. Please import attendees before using this module.') }}
                         </div>
 
                         <div v-for="(attendee, index) in attendees" v-if="!attendee.alreadySelected" class="attendee" v-on:click="selectAttendee(attendee)">
@@ -68,10 +68,10 @@
 
                 </div>
 
-                <b-modal ref="confirmModal" class="check-in-confirm-modal" title="Confirm check-in" @ok="confirmCheckIn()" @cancel="cancelCheckIn()" button-size="lg" no-close-on-backdrop>
+                <b-modal ref="confirmModal" class="check-in-confirm-modal" :title="$t('Confirm check-in')" @ok="confirmCheckIn()" @cancel="cancelCheckIn()" button-size="lg" no-close-on-backdrop>
                     <div v-if="attendeeCheckingIn" class="check-in-confirm">
                         <p class="name">{{ attendeeCheckingIn.name }}</p>
-                        <p class="alias">Alias: {{ attendeeCheckingIn.alias }}</p>
+                        <p class="alias">{{ $t('Alias: {alias}', { alias: attendeeCheckingIn.alias }) }}</p>
                     </div>
                 </b-modal>
 
@@ -147,7 +147,7 @@
                 // do we have a card service?
                 this.error = null;
                 if (!this.$cardService || !this.$cardService.hasCardReader) {
-                    this.error = 'No NFC card service found. Please check the settings.';
+                    this.error = this.$t('No NFC card service found. Please check the settings.');
                     this.loading = false;
                     return;
                 }

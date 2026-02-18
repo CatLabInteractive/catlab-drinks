@@ -27,32 +27,32 @@
             <b-col cols="12" id="order-history">
 
                 <div class="text-center" v-if="!loaded">
-                    <b-spinner label="Loading data" />
+                    <b-spinner :label="$t('Loading data')" />
                 </div>
 
                 <div v-if="loaded">
 
-                    <b-link class="btn btn-success" :to="{ name: 'checkIn', params: { id: this.eventId } }" title="Check-in">
+                    <b-link class="btn btn-success" :to="{ name: 'checkIn', params: { id: this.eventId } }" :title="$t('Check-In')">
                         <span>🛂</span>
-                        Check-In
+                        {{ $t('Check-In') }}
                     </b-link>
 
-                    <h2>Set attendees {{ event.name }}</h2>
+                    <h2>{{ $t('Set attendees {name}', { name: event.name }) }}</h2>
                     <form @submit.prevent="replaceAttendees">
                         <div class="alert alert-danger">
-                            This will remove ALL existing attendees and replace them with new ones.
+                            {{ $t('This will remove ALL existing attendees and replace them with new ones.') }}
                         </div>
 
-                        <b-form-group label="Replace attendees">
+                        <b-form-group :label="$t('Replace attendees')">
                             <b-textarea v-model="attendeeInput" :placeholder="'alias-1: Name of attendee 1\tEmail address (optional)\nalias-2: Name of attendee 2\tEmail address (optional)\n...'" rows="10"></b-textarea>
                         </b-form-group>
 
                         <div>
-                            <b-btn type="submit" variant="success">Save</b-btn>
-                            <b-btn type="button" variant="light" @click="resetForm()">Reset</b-btn>
+                            <b-btn type="submit" variant="success">{{ $t('Save') }}</b-btn>
+                            <b-btn type="button" variant="light" @click="resetForm()">{{ $t('Reset') }}</b-btn>
 
-                            <b-alert v-if="saving" variant="none" show>Saving</b-alert>
-                            <b-alert v-if="saved" variant="none" show="2">Saved</b-alert>
+                            <b-alert v-if="saving" variant="none" show>{{ $t('Saving') }}</b-alert>
+                            <b-alert v-if="saved" variant="none" show="2">{{ $t('Saved') }}</b-alert>
                         </div>
                     </form>
 

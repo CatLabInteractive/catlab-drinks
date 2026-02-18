@@ -23,14 +23,14 @@
     <b-container fluid>
 
         <h1>
-            Card Management
+            {{ $t('Card Management') }}
             <b-link class="btn btn-sm btn-info" :to="{ name: 'transactions' }">
-                Transactions
+                {{ $t('Transactions') }}
             </b-link>
         </h1>
 
         <div class="text-center" v-if="loading">
-            <b-spinner label="Loading data" />
+            <b-spinner :label="$t('Loading data')" />
         </div>
 
         <div v-if="error">
@@ -43,7 +43,7 @@
 
 
             <div v-if="card === null">
-                <p>Scan to start</p>
+                <p>{{ $t('Scan to start') }}</p>
             </div>
 
             <div v-if="card">
@@ -84,7 +84,7 @@
             // do we have a card service?
             this.error = null;
             if (!this.$cardService || !this.$cardService.hasCardReader) {
-                this.error = 'No NFC card service found. Please check the settings.';
+                this.error = this.$t('No NFC card service found. Please check the settings.');
                 this.loading = false;
                 return;
             }
