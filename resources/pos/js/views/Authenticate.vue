@@ -93,6 +93,7 @@
 
 <script type="ts">
 import QrScanner from '../components/QrScanner.vue';
+import { getDeviceUuid, setDeviceUuid, setAuthData } from '../../../shared/js/services/deviceAuth';
 
 export default {
 
@@ -147,16 +148,12 @@ export default {
 			this.error = null;
 		},
 
-		onQrScanned(data) {
+		async onQrScanned(data) {
 			this.showScanner = false;
 			this.connecting = true;
 			this.error = null;
 
-			let deviceId = window.localStorage.getItem('catlab_drinks_device_pos_uid');
-			if (typeof(deviceId) === 'undefined') {
-				deviceId = null;
-			}
-			this.device_uid = deviceId;
+			this.device_uid = await getDeviceUuid();
 
 			this.requestAccessToken(data.api, data.token);
 			this.pinger = setInterval(() => {
@@ -171,12 +168,7 @@ export default {
 		async requestDeviceToken() {
 			
 			// Do we have a device id?
-			let deviceId = window.localStorage.getItem('catlab_drinks_device_pos_uid');
-			if (typeof(deviceId) === 'undefined') {
-				deviceId = null;
-			}
-
-			this.device_uid = deviceId;
+			this.device_uid = await getDeviceUuid();
 
 			let data = null;
 
@@ -245,7 +237,7 @@ export default {
 			const responseData = response.data;
 			
 			// We should have received a device id.
-			if (!window.localStorage.getItem('catlab_drinks_device_pos_uid')) {
+			if (!this.device_uid) {
 				if (responseData.device_uid) {
 					this.device_uid = responseData.device_uid;
 				} else {
@@ -271,13 +263,10 @@ export default {
 				const apiIdentifier = api.replace(/https?:\/\//, '');
 
 				// Set the device id
-				window.localStorage.setItem('catlab_drinks_device_pos_uid', this.device_uid);
+				await setDeviceUuid(this.device_uid);
 
-				// Set the API_
-				window.localStorage.setItem('calab_drinks_pos_api_identifier', apiIdentifier);
-
-				window.localStorage.setItem('catlab_drinks_pos_api_url[' + apiIdentifier + ']', api);
-				window.localStorage.setItem('catlab_drinks_pos_access_token[' + apiIdentifier + ']', responseData.access_token);
+				// Store auth data
+				await setAuthData(api, responseData.access_token, apiIdentifier);
 				
 				window.location.reload();
 

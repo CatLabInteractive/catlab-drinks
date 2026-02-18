@@ -52,8 +52,9 @@ import Relax from "../../shared/js/components/Relax";
 
 
 import Authenticate from "./views/Authenticate";
+import { getAuthData } from "../../shared/js/services/deviceAuth";
 
-function launch() {
+async function launch() {
 
 	if (typeof (AIRBRAKE_CONFIG) !== 'undefined' && AIRBRAKE_CONFIG !== null) {
 		var airbrake = new AirbrakeClient(AIRBRAKE_CONFIG);
@@ -68,12 +69,8 @@ function launch() {
 	Vue.use(BootstrapVue);
 
 	// Check if we have all required config.
-	const catlab_drinks_api_identifier = window.localStorage.getItem('calab_drinks_pos_api_identifier');
-	if (
-		!catlab_drinks_api_identifier ||
-		!window.localStorage.getItem('catlab_drinks_pos_access_token[' + catlab_drinks_api_identifier + ']') ||
-		!window.localStorage.getItem('catlab_drinks_pos_api_url[' + catlab_drinks_api_identifier + ']')
-	) {
+	const authData = await getAuthData();
+	if (!authData) {
 
 		// Authenticate component.
 		const app = createApp({
@@ -88,11 +85,11 @@ function launch() {
 	}
 
 	// Set the API URL.
-	window.CATLAB_DRINKS_CONFIG.API = window.localStorage.getItem('catlab_drinks_pos_api_url[' + catlab_drinks_api_identifier + ']');
+	window.CATLAB_DRINKS_CONFIG.API = authData.apiUrl;
 	window.CATLAB_DRINKS_CONFIG.API_PATH = CATLAB_DRINKS_CONFIG.API + '/pos-api/v1'
 
 	window.axios.defaults.baseURL = CATLAB_DRINKS_CONFIG.API;
-	window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + window.localStorage.getItem('catlab_drinks_pos_access_token[' + catlab_drinks_api_identifier + ']');
+	window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + authData.accessToken;
 
 	const router = createRouter({
 		history: createWebHistory(window.CATLAB_DRINKS_CONFIG.ROUTER_BASE),
