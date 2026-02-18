@@ -17,6 +17,12 @@ Route::get('/docs', 'DocumentController@swagger');
 Route::get('/docs/oauth2', 'DocumentController@oauth2Redirect');
 
 /*
+ * License return handler (must be before the SPA catch-all)
+ */
+Route::get('/manage/devices/apply-license', 'LicenseController@applyLicense')
+    ->middleware('auth');
+
+/*
  * Link to the single page web application
  */
 Route::get('/manage/{any?}', 'ClientController@manage')

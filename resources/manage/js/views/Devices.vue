@@ -314,7 +314,7 @@
 			},
 
 			buyLicenseUrl(device) {
-				const returnUrl = window.location.origin + window.CATLAB_DRINKS_CONFIG.ROUTER_BASE + 'devices?device_id=' + encodeURIComponent(device.id);
+				const returnUrl = window.location.origin + '/manage/devices/apply-license?device_id=' + encodeURIComponent(device.id);
 				return 'https://accounts.catlab.eu/licenses/10/buy?data[device_uid]=' + encodeURIComponent(device.uid) + '&return=' + encodeURIComponent(returnUrl);
 			},
 
