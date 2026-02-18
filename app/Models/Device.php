@@ -18,6 +18,12 @@ class Device extends Model implements
 {
     use Authenticatable, Authorizable;
 
+	protected $fillable = [
+		'uid',
+		'name',
+		'secret_key',
+	];
+
 	protected static function booted()
 	{
 		static::deleting(function (Device $device) {
@@ -26,7 +32,7 @@ class Device extends Model implements
 	}
 
 	/**
-	 * @return string 
+	 * @return string
 	 */
 	public static function generateUid() : string
 	{
@@ -70,7 +76,7 @@ class Device extends Model implements
 	}
 
 	/**
-	 * @return BelongsTo 
+	 * @return BelongsTo
 	 */
 	public function organisation()
 	{
@@ -78,7 +84,7 @@ class Device extends Model implements
 	}
 
 	/**
-	 * @return HasMany 
+	 * @return HasMany
 	 */
 	public function accessTokens()
 	{
@@ -86,7 +92,7 @@ class Device extends Model implements
 	}
 
 	/**
-	 * @return DeviceAccessToken 
+	 * @return DeviceAccessToken
 	 */
 	public function createAccessToken(User $user, ?int $lifetimeSeconds = null)
 	{
