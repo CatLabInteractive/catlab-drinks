@@ -24,7 +24,7 @@
 		<h2>
 			Menu
 			<b-button v-if="this.event" size="sm" class="btn-light" :to="{ name: 'menu', params: { id: this.event.id } }">
-				<i class="fas fa-edit"></i>
+				<span>✏️</span>
 				<span class="sr-only">Menu items</span>
 			</b-button>
 		</h2>
@@ -41,7 +41,7 @@
 						<span class="buttons">
 
 							<button class="btn btn-danger btn-sm" v-on:click="decreaseOrder(item, index, $event)">
-								<i class="fa fa-minus fa-sm"></i>
+								<span>−</span>
 								<span class="sr-only">-</span>
 							</button>
 
@@ -94,13 +94,13 @@
 
 		<!-- Modal Component -->
 		<b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling geslaagd" ok-variant="success" no-close-on-backdrop>
-			<p class="text-center"><i class="fas fa-thumbs-up huge"></i></p>
+			<p class="text-center"><span class="huge">👍</span></p>
 			<p class="text-center alert alert-success">Order registered successfully.</p>
 		</b-modal>
 
 		<!-- Modal Component -->
 		<b-modal ref="declinedModal" class="order-confirm-modal" ok-only button-size="lg" title="Payment failed" ok-variant="danger" no-close-on-backdrop>
-			<p class="text-center"><i class="fas fa-exclamation-triangle huge"></i></p>
+			<p class="text-center"><span class="huge">⚠️</span></p>
 			<p class="text-center alert alert-danger">Payment has failed. Please re-enter the order.</p>
 		</b-modal>
 	</div>

@@ -12,8 +12,8 @@
 			Total: {{ paymentService.visualisePrice(order.totalPrice) }}
 		</p>
 
-		<p v-if="order.paid" class="alert alert-success"><i class="fas fa-check-square"></i> Paid</p>
-		<p v-if="!order.paid" class="alert alert-danger"><i class="fas fa-times"></i> Not paid yet</p>
+		<p v-if="order.paid" class="alert alert-success">☑️ Paid</p>
+		<p v-if="!order.paid" class="alert alert-danger">✗ Not paid yet</p>
 	</div>
 
 </template>

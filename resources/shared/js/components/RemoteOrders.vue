@@ -26,7 +26,7 @@
 			<remote-order-status v-bind:eventId="event.id"></remote-order-status>
 
 			<b-button v-if="this.event" size="sm" class="btn-light" :to="{ name: 'menu', params: { id: this.event.id } }">
-				<i class="fas fa-edit"></i>
+				<span>✏️</span>
 				<span class="sr-only">Menu items</span>
 			</b-button>
 		</h2>
@@ -63,7 +63,7 @@
 
 		<!-- Modal Component -->
 		<b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Order accepted" ok-variant="success" no-close-on-backdrop ok-title="On my way!">
-			<p class="text-center"><i class="fas fa-thumbs-up huge"></i></p>
+			<p class="text-center"><span class="huge">👍</span></p>
 			<div class="text-center alert alert-success">
 				<span>Deliver order at table <strong>{{currentOrder.location}}</strong>.</span>
 			</div>
@@ -80,7 +80,7 @@
 		</b-modal>
 
 		<b-modal ref="processedDeclined" class="order-confirm-modal" ok-only button-size="lg" title="Order declined" ok-variant="danger" no-close-on-backdrop ok-title="On my way!">
-			<p class="text-center"><i class="fas fa-thumbs-down huge"></i></p>
+			<p class="text-center"><span class="huge">👎</span></p>
 			<div class="text-center alert alert-danger">
 				<span v-if="currentOrder">Order declined. Notify table <strong>{{currentOrder.location}}</strong> and ask to enter order again.</span>
 			</div>

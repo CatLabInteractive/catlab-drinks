@@ -27,7 +27,7 @@
 			Events
 
 			<b-button size="sm" class="btn-success" @click="createNew" title="Create new event">
-				<i class="fas fa-plus"></i>
+				<span>＋</span>
 				<span class="sr-only">Create new event</span>
 			</b-button>
 		</h1>
@@ -58,12 +58,12 @@
 						<b-dropdown text="Actions" size="sm" right>
 
 							<b-dropdown-item class="" @click="edit(row.item, row.index)" title="Edit">
-								<i class="fas fa-edit"></i>
+								✏️
 								Edit
 							</b-dropdown-item>
 
 							<b-dropdown-item @click="remove(row.item)" title="Remove">
-								<i class="fas fa-trash"></i>
+								🗑️
 								Delete
 							</b-dropdown-item>
 
@@ -72,24 +72,24 @@
 							<b-dropdown-group header="Sales">
 
 								<b-dropdown-item :to="{ name: 'menu', params: { id: row.item.id } }" title="Edit menu">
-									<i class="fas fa-scroll"></i>
+									📜
 									Edit menu
 								</b-dropdown-item>
 
 								<b-dropdown-item :to="{ name: 'summary', params: { id: row.item.id } }"
 												 title="Sales overview">
-									<i class="fas fa-chart-line"></i>
+									📊
 									Sales overview
 								</b-dropdown-item>
 
 								<b-dropdown-item :href="row.item.order_url" target="_blank" title="Client panel">
-									<i class="fas fa-user"></i>
+									👤
 									Client order form
 								</b-dropdown-item>
 
 
 								<b-dropdown-item :to="{ name: 'sales', params: { id: row.item.id } }">
-									<i class="fas fa-list-alt"></i>
+									📋
 									Order history
 								</b-dropdown-item>
 
@@ -100,13 +100,13 @@
 							<b-dropdown-group header="Attendees">
 								<b-dropdown-item :to="{ name: 'attendees', params: { id: row.item.id } }"
 												 title="Attendees">
-									<i class="fas fa-users"></i>
+									👥
 									Register attendees
 								</b-dropdown-item>
 
 								<b-dropdown-item :to="{ name: 'checkIn', params: { id: row.item.id } }"
 												 title="Check-In">
-									<i class="fas fa-passport"></i>
+									🛂
 									Check-In attendees
 								</b-dropdown-item>
 							</b-dropdown-group>
@@ -138,14 +138,14 @@
 		<b-row class="mt-4">
 			<b-col>
 				<b-card>
-					<h5><i class="fas fa-tablet-alt mr-1"></i> POS Device Pairing</h5>
+					<h5><span class="mr-1">📱</span> POS Device Pairing</h5>
 					<p class="text-muted">
 						POS (Point of Sale) devices authenticate separately from your management account.
 						Each POS terminal requires its own pairing to ensure secure, independent operation—even
 						if the management session expires, POS devices continue to function.
 					</p>
 					<b-button variant="primary" :to="{ name: 'devices' }">
-						<i class="fas fa-link mr-1"></i> Manage &amp; Pair Devices
+						<span class="mr-1">🔗</span> Manage &amp; Pair Devices
 					</b-button>
 				</b-card>
 			</b-col>

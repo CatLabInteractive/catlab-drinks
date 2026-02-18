@@ -24,7 +24,7 @@
 	<div>
 
 		<b-alert variant="warning" :show="showLicenseWarning" class="mb-0 rounded-0 text-center">
-			<i class="fas fa-exclamation-triangle mr-1"></i>
+			<span class="mr-1">⚠️</span>
 			<strong>No active license.</strong>
 			<span v-if="licenseStatus">
 				{{ licenseStatus.remainingCards }} of {{ licenseStatus.maxCards }} card scans remaining.
@@ -73,7 +73,7 @@
 			ok-title="OK"
 		>
 			<p>
-				<i class="fas fa-exclamation-circle text-danger mr-2"></i>
+				<span class="text-danger mr-2">⚠️</span>
 				Card limit exceeded. Please activate a license to continue scanning cards.
 			</p>
 			<p class="text-muted">

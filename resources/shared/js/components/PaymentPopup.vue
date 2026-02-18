@@ -34,12 +34,12 @@
 
             <p class="text-center">
                 <button v-if="$paymentService.allow_cash_payments" class="btn btn-success" v-on:click="cash()">
-                    <i class="fas fa-money-bill-wave"></i>
+                    <span>💵</span>
                     {{cashAmount}}
                 </button>
 
                 <button v-if="$paymentService.allow_voucher_payment" class="btn btn-success" v-on:click="vouchers()">
-                    <i class="fa fa-ticket-alt"></i>
+                    <span>🎟️</span>
                     {{voucherAmount}} vouchers
                 </button>
             </p>

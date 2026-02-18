@@ -27,7 +27,7 @@
 			Point of sale devices
 
 			<b-button size="sm" class="btn-success" @click="createNew" title="Pair a device">
-				<i class="fas fa-link"></i>
+				<span>🔗</span>
 				<span class="sr-only">Link or authenticate a device</span>
 			</b-button>
 		</h1>
@@ -45,10 +45,10 @@
 
 					<template v-slot:cell(license)="row">
 						<span v-if="row.item.license_key" class="text-success">
-							<i class="fas fa-check-circle"></i> Licensed
+							✅ Licensed
 						</span>
 						<span v-else class="text-muted">
-							<i class="fas fa-times-circle"></i> No license
+							❌ No license
 						</span>
 					</template>
 
@@ -57,22 +57,22 @@
 						<b-dropdown text="Actions" size="sm" right>
 
 							<b-dropdown-item class="" @click="edit(row.item)" title="Edit">
-								<i class="fas fa-edit"></i>
+								✏️
 								Edit
 							</b-dropdown-item>
 
 							<b-dropdown-item :href="buyLicenseUrl(row.item)" title="Buy License">
-								<i class="fas fa-key"></i>
+								🔑
 								Buy License
 							</b-dropdown-item>
 
 							<b-dropdown-item @click="enterLicense(row.item)" title="Enter License">
-								<i class="fas fa-paste"></i>
+								📋
 								Enter License
 							</b-dropdown-item>
 
 							<b-dropdown-item @click="remove(row.item)" title="Remove">
-								<i class="fas fa-trash"></i>
+								🗑️
 								Delete
 							</b-dropdown-item>
 
@@ -111,7 +111,7 @@
 			<div v-if="connectRequest.state === 'requires_pairing_code'">
 
 				<b-alert variant="info" show>
-					<i class="fas fa-info-circle mr-1"></i>
+					<span class="mr-1">ℹ️</span>
 					This is a new device and needs to be paired. Enter the pairing code displayed on the POS device below.
 				</b-alert>
 
@@ -124,7 +124,7 @@
 				</b-form-group>
 
 				<b-button variant="primary" @click="submitPairingCode" block>
-					<i class="fas fa-check mr-1"></i> Pair Device
+					<span class="mr-1">✓</span> Pair Device
 				</b-button>
 			</div>
 
@@ -145,7 +145,7 @@
 		<template #modal-footer>
 			<b-btn type="button" variant="light" @click="resetEditForm()">Cancel</b-btn>
 			<b-btn type="button" variant="success" @click="saveEdit()">
-				<i class="fas fa-save mr-1"></i> Save
+				<span class="mr-1">💾</span> Save
 			</b-btn>
 		</template>
 	</b-modal>
@@ -158,13 +158,13 @@
 		</b-form-group>
 
 		<b-alert variant="danger" :show="!!licenseError">
-			<i class="fas fa-exclamation-triangle mr-1"></i> {{ licenseError }}
+			<span class="mr-1">⚠️</span> {{ licenseError }}
 		</b-alert>
 
 		<template #modal-footer>
 			<b-btn type="button" variant="light" @click="resetLicenseForm()">Cancel</b-btn>
 			<b-btn type="button" variant="success" @click="submitLicense()" :disabled="!licenseKey">
-				<i class="fas fa-check mr-1"></i> Apply License
+				<span class="mr-1">✓</span> Apply License
 			</b-btn>
 		</template>
 	</b-modal>
