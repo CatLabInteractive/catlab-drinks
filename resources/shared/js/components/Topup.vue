@@ -27,32 +27,32 @@
 		<div v-if="!loading">
 
 			<div v-if="success">
-				<p class="alert alert-success">Topup succesful.</p>
+				<p class="alert alert-success">{{ $t('Topup successful.') }}</p>
 			</div>
 
 			<div v-if="showConfirmation">
 				<ul>
-					<li>Amount: {{ amount }}</li>
-					<li>Reason: {{ reason }}</li>
+					<li>{{ $t('Amount: {amount}', { amount: amount }) }}</li>
+					<li>{{ $t('Reason: {reason}', { reason: reason }) }}</li>
 					<li>
-						<button class="btn btn-success" v-on:click="confirmTopup()">Confirm</button>
-						<button class="btn btn-danger" v-on:click="cancelTopup()">Cancel</button>
+						<button class="btn btn-success" v-on:click="confirmTopup()">{{ $t('Confirm') }}</button>
+						<button class="btn btn-danger" v-on:click="cancelTopup()">{{ $t('Cancel') }}</button>
 					</li>
 				</ul>
 			</div>
 
 			<div v-if="showForm">
 				<div class="form-group">
-					<label for="amount">Amount</label>
-					<input type="number" class="form-control" id="amount" placeholder="Topup amount" step="0.01" v-model="amount">
+					<label for="amount">{{ $t('Amount') }}</label>
+					<input type="number" class="form-control" id="amount" :placeholder="$t('Topup amount')" step="0.01" v-model="amount">
 				</div>
 
 				<div class="form-group">
-					<label for="reason">Reason</label>
-					<input type="text" class="form-control" id="reason" placeholder="Specify a reason for the topup." v-model="reason">
+					<label for="reason">{{ $t('Reason') }}</label>
+					<input type="text" class="form-control" id="reason" :placeholder="$t('Specify a reason for the topup.')" v-model="reason">
 				</div>
 
-				<button class="btn btn-success" v-on:click="topup()">Topup</button>
+				<button class="btn btn-success" v-on:click="topup()">{{ $t('Topup') }}</button>
 			</div>
 		</div>
 	</div>

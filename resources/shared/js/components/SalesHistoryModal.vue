@@ -22,15 +22,15 @@
 <template>
     <div>
         <h2>
-            Orders
+            {{ $t('Orders') }}
         </h2>
 
         <div class="text-center" v-if="!loaded && items.length === 0">
-            <b-spinner label="Loading data" />
+            <b-spinner :label="$t('Loading data')" />
         </div>
 
         <div class="text-center" v-if="loaded && items.length === 0">
-            <p>There don't seem to be any orders, sir...</p>
+            <p>{{ $t("There don't seem to be any orders, sir...") }}</p>
         </div>
 
         <div class="order-history-modal">

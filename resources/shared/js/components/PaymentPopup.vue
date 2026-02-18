@@ -22,7 +22,7 @@
 <template>
 
     <!-- Modal Component -->
-    <b-modal ref="paymentModal" class="payment-modal" title="Payment" @ok="cancel" @hide="cancel" button-size="lg" ok-only no-close-on-backdrop ok-variant="danger" ok-title="Cancel">
+    <b-modal ref="paymentModal" class="payment-modal" :title="$t('Payment')" @ok="cancel" @hide="cancel" button-size="lg" ok-only no-close-on-backdrop ok-variant="danger" :ok-title="$t('Cancel')">
 
         <div v-if="loading" class="text-center">
             <b-spinner />
@@ -40,7 +40,7 @@
 
                 <button v-if="$paymentService.allow_voucher_payment" class="btn btn-success" v-on:click="vouchers()">
                     <span>🎟️</span>
-                    {{voucherAmount}} vouchers
+                    {{ $t('{amount} vouchers', { amount: voucherAmount }) }}
                 </button>
             </p>
         </div>
@@ -104,21 +104,21 @@
                 let paymentMethods = [];
 
                 if (this.$paymentService.allow_nfc_payments) {
-                    paymentMethods.push('<strong>Scan card</strong>');
+                    paymentMethods.push('<strong>' + this.$t('Scan card') + '</strong>');
                 }
 
                 if (this.$paymentService.allow_cash_payments) {
-                    paymentMethods.push('Collect <strong>' + this.cashAmount + '</strong>');
+                    paymentMethods.push(this.$t('Collect') + ' <strong>' + this.cashAmount + '</strong>');
                 }
 
                 if (this.$paymentService.allow_voucher_payment) {
-                    paymentMethods.push('Collect <strong>' + this.voucherAmount + ' vouchers</strong>');
+                    paymentMethods.push(this.$t('Collect') + ' <strong>' + this.voucherAmount + ' ' + this.$t('vouchers') + '</strong>');
                 }
 
                 if (paymentMethods.length > 0) {
-                    return paymentMethods.join(' or ');
+                    return paymentMethods.join(' ' + this.$t('or') + ' ');
                 } else {
-                    return '<p class="alert alert-danger">No payment methods have been enabled for this event.<br />Please edit the event and enable payment methods.</p>';
+                    return '<p class="alert alert-danger">' + this.$t('No payment methods have been enabled for this event.') + '<br />' + this.$t('Please edit the event and enable payment methods.') + '</p>';
                 }
             },
 

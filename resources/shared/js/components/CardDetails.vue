@@ -28,29 +28,29 @@
 
 				<tbody>
 					<tr>
-						<td>ID</td>
+						<td>{{ $t('ID') }}</td>
 						<td>{{ card.id }}</td>
 					</tr>
 
 					<tr v-if="card.name">
-						<td>Name</td>
+						<td>{{ $t('Name') }}</td>
 						<td>{{ card.name }}</td>
 					</tr>
 
 					<tr>
-						<td>Balance</td>
+						<td>{{ $t('Balance') }}</td>
 						<td>{{ VisibleAmount.toVisible(card.balance) }}</td>
 					</tr>
 
 					<tr v-if="card.discount !== 0">
-						<td>Discount</td>
+						<td>{{ $t('Discount') }}</td>
 						<td>{{ card.discount }}</td>
 					</tr>
 				</tbody>
 
 			</table>
 
-			<h3>Topup</h3>
+			<h3>{{ $t('Topup') }}</h3>
 			<card-topup :card="card" />
 		</div>
 	</div>
@@ -98,7 +98,7 @@
 			},
 
 			topup() {
-				alert('Topping up');
+				alert(this.$t('Topping up'));
 			}
 
 		}

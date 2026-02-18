@@ -22,12 +22,12 @@
 <template>
 	<div v-if="event">
 		<h2>
-			Remote orders
+			{{ $t('Remote orders') }}
 			<remote-order-status v-bind:eventId="event.id"></remote-order-status>
 
 			<b-button v-if="this.event" size="sm" class="btn-light" :to="{ name: 'menu', params: { id: this.event.id } }">
 				<span>✏️</span>
-				<span class="sr-only">Menu items</span>
+				<span class="sr-only">{{ $t('Menu items') }}</span>
 			</b-button>
 		</h2>
 
@@ -41,7 +41,7 @@
 		</b-form-group>
 
 		<div class="text-center" v-if="!loaded">
-			<b-spinner label="Loading data" />
+			<b-spinner :label="$t('Loading data')" />
 		</div>
 
 		<b-alert v-if="loaded && items.length === 0" show>
@@ -54,18 +54,18 @@
 				<remote-order-description :order="item" :paymentService="$paymentService"></remote-order-description>
 
 				<p>
-					<button class="btn btn-success" @click="acceptOrder(item)">Completed</button>
-					<button class="btn btn-danger" @click="declineOrder(item)">Not accepted</button>
+					<button class="btn btn-success" @click="acceptOrder(item)">{{ $t('Completed') }}</button>
+					<button class="btn btn-danger" @click="declineOrder(item)">{{ $t('Not accepted') }}</button>
 				</p>
 
 			</div>
 		</div>
 
 		<!-- Modal Component -->
-		<b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Order accepted" ok-variant="success" no-close-on-backdrop ok-title="On my way!">
+		<b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" :title="$t('Order accepted')" ok-variant="success" no-close-on-backdrop :ok-title="$t('On my way!')">
 			<p class="text-center"><span class="huge">👍</span></p>
 			<div class="text-center alert alert-success">
-				<span>Deliver order at table <strong>{{currentOrder.location}}</strong>.</span>
+				<span>{{ $t('Deliver order at table {location}.', { location: currentOrder.location }) }}</span>
 			</div>
 
 			<!-- Also repear order here -->
@@ -79,10 +79,10 @@
 
 		</b-modal>
 
-		<b-modal ref="processedDeclined" class="order-confirm-modal" ok-only button-size="lg" title="Order declined" ok-variant="danger" no-close-on-backdrop ok-title="On my way!">
+		<b-modal ref="processedDeclined" class="order-confirm-modal" ok-only button-size="lg" :title="$t('Order declined')" ok-variant="danger" no-close-on-backdrop :ok-title="$t('On my way!')">
 			<p class="text-center"><span class="huge">👎</span></p>
 			<div class="text-center alert alert-danger">
-				<span v-if="currentOrder">Order declined. Notify table <strong>{{currentOrder.location}}</strong> and ask to enter order again.</span>
+				<span v-if="currentOrder">{{ $t('Order declined. Notify table {location} and ask to enter order again.', { location: currentOrder.location }) }}</span>
 			</div>
 
 			<div class="text-center font-weight-bold" style="font-size: 5em;">
@@ -91,21 +91,21 @@
 		</b-modal>
 
 		<!-- Confirm order -->
-		<b-modal ref="confirmAcceptFreeOrder" class="order-confirm-modal" title="Confirm unpaid order" @ok="confirmAcceptUnpaidOrder" @cancel="clearCurrentOrder" button-size="lg" no-close-on-backdrop ok-title="Confirm order" cancel-title="Cancel" ok-variant="warning">
+		<b-modal ref="confirmAcceptFreeOrder" class="order-confirm-modal" :title="$t('Confirm unpaid order')" @ok="confirmAcceptUnpaidOrder" @cancel="clearCurrentOrder" button-size="lg" no-close-on-backdrop :ok-title="$t('Confirm order')" :cancel-title="$t('Cancel')" ok-variant="warning">
 
 			<remote-order-description v-if="currentOrder" :order="currentOrder" :paymentService="$paymentService"></remote-order-description>
 
 		</b-modal>
 
-		<b-modal ref="confirmDecline" class="order-confirm-modal" title="Confirm declined order" @ok="confirmDeclined" @cancel="clearCurrentOrder" button-size="lg" no-close-on-backdrop ok-title="Decline order" cancel-title="Keep order" ok-variant="danger">
+		<b-modal ref="confirmDecline" class="order-confirm-modal" :title="$t('Confirm declined order')" @ok="confirmDeclined" @cancel="clearCurrentOrder" button-size="lg" no-close-on-backdrop :ok-title="$t('Decline order')" :cancel-title="$t('Keep order')" ok-variant="danger">
 			<div v-if="currentOrder">
 				<div class="alert alert-danger">
-					Are you sure you want to decline order #{{currentOrder.id}}?<br />
-					<span v-if="currentOrder.paid">The paid amount will be refunded.<br /></span>
+					{{ $t('Are you sure you want to decline order #{id}?', { id: currentOrder.id }) }}<br />
+					<span v-if="currentOrder.paid">{{ $t('The paid amount will be refunded.') }}<br /></span>
 				</div>
 
 				<div class="alert alert-danger">
-					<strong>The client will not be notified, so go over to them and let them know why their order was declined.</strong>
+					<strong>{{ $t('The client will not be notified, so go over to them and let them know why their order was declined.') }}</strong>
 				</div>
 			</div>
 		</b-modal>
@@ -263,14 +263,14 @@
 				this.categories = [
 					{
 						value: '0',
-						text: 'Show all orders'
+						text: this.$t('Show all orders')
 					}
 				].concat(
 					(await this.categoryService.index()).items.map(
 						(category) => {
 							return {
 								value: category.id,
-								text: 'Only show "' + category.name + '" orders'
+								text: this.$t('Only show "{name}" orders', { name: category.name })
 							};
 						}
 					));

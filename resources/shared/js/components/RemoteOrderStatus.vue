@@ -23,11 +23,11 @@
 	<span v-if="event">
 
 		<b-button v-if="!event.is_selling" size="sm" @click="toggleIsSelling()" class="btn-danger">
-			Closed
+			{{ $t('Closed') }}
 		</b-button>
 
 		<b-button v-if="event.is_selling" size="sm" @click="toggleIsSelling()" class="btn-success">
-			Open
+			{{ $t('Open') }}
 		</b-button>
 
 	</span>
