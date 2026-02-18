@@ -24,11 +24,11 @@
 	<b-container fluid>
 
 		<h1>
-			Events
+			{{ $t('Events') }}
 		</h1>
 
 		<div class="text-center" v-if="!loaded">
-			<b-spinner label="Loading data" />
+			<b-spinner :label="$t('Loading data')" />
 		</div>
 
 		<b-row>
@@ -50,16 +50,16 @@
 
 					<template v-slot:cell(actions)="row">
 
-						<b-dropdown text="Actions" size="sm" right>
+						<b-dropdown :text="$t('Actions')" size="sm" right>
 
-							<b-dropdown-item :to="{ name: 'summary', params: { id: row.item.id } }" title="Sales overview">
+							<b-dropdown-item :to="{ name: 'summary', params: { id: row.item.id } }" :title="$t('Sales overview')">
 								📊
-								Sales overview
+								{{ $t('Sales overview') }}
 							</b-dropdown-item>
 
 							<b-dropdown-item :to="{ name: 'sales', params: { id: row.item.id } }">
 								📋
-								Order history
+								{{ $t('Order history') }}
 							</b-dropdown-item>
 
 						</b-dropdown>
@@ -69,11 +69,11 @@
 					<template v-slot:cell(is_selling)="row">
 
 						<b-button v-if="!row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)" class="btn-danger">
-							Closed
+							{{ $t('Closed') }}
 						</b-button>
 
 						<b-button v-if="row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)" class="btn-success">
-							Open
+							{{ $t('Open') }}
 						</b-button>
 
 						<b-spinner v-if="toggling === row.item.id" small></b-spinner>
@@ -82,8 +82,8 @@
 				</b-table>
 
 				<b-alert variant="info" show>
-					Editing events can only be done from the management console.<br />
-					You can only toggle remote orders from here.
+					{{ $t('Editing events can only be done from the management console.') }}<br />
+					{{ $t('You can only toggle remote orders from here.') }}
 				</b-alert>
 			</b-col>
 		</b-row>
@@ -115,20 +115,20 @@
 				fields: [
 					{
 						key: 'name',
-						label: 'Event',
+						label: this.$t('Event'),
 					},
 					{
 						key: 'order_token',
-						label: 'Order token',
+						label: this.$t('Order token'),
 					},
 					{
 						key: 'is_selling',
-						label: 'Remote orders',
+						label: this.$t('Remote orders'),
 						class: 'text-center'
 					},
 					{
 						key: 'actions',
-						label: 'Actions',
+						label: this.$t('Actions'),
 						class: 'text-right'
 					}
 				],

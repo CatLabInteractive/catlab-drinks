@@ -25,9 +25,9 @@
 
 		<div v-if="!showRemoteOrders && !showLiveOrders">
 			<b-alert variant="danger" :show="true">
-				You have disabled both live and remote orders.<br />
-				This terminal will not be able to process any orders.<br />
-				Please enable either live or remote orders in the settings.
+				{{ $t('You have disabled both live and remote orders.') }}<br />
+				{{ $t('This terminal will not be able to process any orders.') }}<br />
+				{{ $t('Please enable either live or remote orders in the settings.') }}
 			</b-alert>
 		</div>
 

@@ -23,52 +23,52 @@
 	<b-container fluid>
 
 		<div class="text-center" v-if="!loaded">
-			<b-spinner label="Loading data" />
+			<b-spinner :label="$t('Loading data')" />
 		</div>
 
 		<b-row v-if="loaded">
 
 			<b-col cols="12">
 
-				<h2>Point of sale settings</h2>
+				<h2>{{ $t('Point of sale settings') }}</h2>
 
 				<b-form @submit="onSubmit" @reset="onReset">
 
 					<b-form-fieldset>
-						<legend>General settings</legend>
+						<legend>{{ $t('General settings') }}</legend>
 
 						<b-form-group
 							id="device-name-group"
-							label="Device name"
+							:label="$t('Device name')"
 							label-for="device-name"
-							description="Name of this device as configured on the server."
+							:description="$t('Name of this device as configured on the server.')"
 						>
 							<b-form-input
 								id="device-name"
 								v-model="deviceName"
 								type="text"
 								disabled
-								placeholder="Device name"
+								:placeholder="$t('Device name')"
 							></b-form-input>
 						</b-form-group>
 
 						<b-form-group
 							id="allow_live_orders"
-							description="This terminal can process orders at the bar"
+							:description="$t('This terminal can process orders at the bar')"
 						>
 							<label>
 								<input type="checkbox" v-model="allowLiveOrders"></input>
-								Allow live orders at this terminal<br />
+								{{ $t('Allow live orders at this terminal') }}<br />
 							</label>
 						</b-form-group>
 
 						<b-form-group
 							id="allow_remote_orders"
-							description="This terminal can process orders from tables"
+							:description="$t('This terminal can process orders from tables')"
 						>
 							<label>
 								<input type="checkbox" v-model="allowRemoteOrders"></input>
-								Allow remote orders at this terminal<br />
+								{{ $t('Allow remote orders at this terminal') }}<br />
 							</label>
 						</b-form-group>
 
@@ -77,66 +77,66 @@
 					<hr />
 
 					<b-form-fieldset>
-						<legend>Remote NFC reader</legend>
+						<legend>{{ $t('Remote NFC reader') }}</legend>
 						<p class="text-muted">
-							Requires <a href="https://github.com/CatLabInteractive/nfc-socketio" target="_blank">an additional service</a>.
+							{{ $t('Requires') }} <a href="https://github.com/CatLabInteractive/nfc-socketio" target="_blank">{{ $t('an additional service') }}</a>.
 						</p>
 
 						<b-form-group
 							id="nfc-server-group"
-							label="NFC webserver url"
+							:label="$t('NFC webserver url')"
 							label-for="nfc-server"
 						>
 							<b-form-input
 								id="nfc-server"
 								v-model="nfcServer"
 								type="text"
-								placeholder="NFC Server url"
+								:placeholder="$t('NFC Server url')"
 							></b-form-input>
 						</b-form-group>
 
 						<b-form-group
 							id="nfc-password-group"
-							label="NFC webserver password"
+							:label="$t('NFC webserver password')"
 							label-for="nfc-server"
 						>
 							<b-form-input
 								id="nfc-password"
 								v-model="nfcPassword"
 								type="text"
-								placeholder="NFC Server password"
+								:placeholder="$t('NFC Server password')"
 							></b-form-input>
 						</b-form-group>
 
 					</b-form-fieldset>
 
-					<b-button type="submit" variant="primary">Save</b-button>
-					<b-button type="reset" variant="danger">Reset</b-button>
+					<b-button type="submit" variant="primary">{{ $t('Save') }}</b-button>
+					<b-button type="reset" variant="danger">{{ $t('Reset') }}</b-button>
 				</b-form>
 
 				<hr v-if="licenseStatus" />
 
 				<b-form-fieldset v-if="licenseStatus">
-					<legend>License</legend>
+					<legend>{{ $t('License') }}</legend>
 					<div v-if="licenseStatus.valid">
 						<b-alert variant="success" :show="true">
-							<span class="mr-1">✅</span> License is active.
+							<span class="mr-1">✅</span> {{ $t('License is active.') }}
 						</b-alert>
 						<p v-if="licenseStatus.expirationDate">
-							<strong>Expires:</strong> {{ formatDate(licenseStatus.expirationDate) }}
+							<strong>{{ $t('Expires:') }}</strong> {{ formatDate(licenseStatus.expirationDate) }}
 						</p>
 					</div>
 					<div v-else>
 						<b-alert variant="warning" :show="true">
-							<span class="mr-1">⚠️</span> No active license.
+							<span class="mr-1">⚠️</span> {{ $t('No active license.') }}
 						</b-alert>
 						<p>
-							<strong>Cards scanned:</strong> {{ licenseStatus.scannedCards }} / {{ licenseStatus.maxCards }}<br />
-							<strong>Remaining:</strong> {{ licenseStatus.remainingCards }}
+							<strong>{{ $t('Cards scanned:') }}</strong> {{ licenseStatus.scannedCards }} / {{ licenseStatus.maxCards }}<br />
+							<strong>{{ $t('Remaining:') }}</strong> {{ licenseStatus.remainingCards }}
 						</p>
 						<p class="text-muted">
-							Please purchase a license to remove the card scan limit.
-							Visit the management portal to buy and activate a license for this device.
+							{{ $t('Please purchase a license to remove the card scan limit.') }}
+							{{ $t('Visit the management portal to buy and activate a license for this device.') }}
 						</p>
 					</div>
 				</b-form-fieldset>
@@ -144,10 +144,10 @@
 				<hr />
 
 				<b-form-fieldset>
-					<legend>Device</legend>
-					<p class="text-muted">Disconnect this device from the server. You will need to re-pair it to use it again.</p>
+					<legend>{{ $t('Device') }}</legend>
+					<p class="text-muted">{{ $t('Disconnect this device from the server. You will need to re-pair it to use it again.') }}</p>
 					<b-button variant="outline-danger" @click="logout">
-						<span class="mr-1">🚪</span> Logout
+						<span class="mr-1">🚪</span> {{ $t('Logout') }}
 					</b-button>
 				</b-form-fieldset>
 
@@ -221,7 +221,7 @@
 			},
 
 			logout() {
-				if (confirm('Are you sure you want to logout? This device will need to be re-paired to connect again.')) {
+				if (confirm(this.$t('Are you sure you want to logout? This device will need to be re-paired to connect again.'))) {
 					clearAuthData().then(() => {
 						window.location.reload();
 					});
