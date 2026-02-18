@@ -74,8 +74,13 @@
 
 					</b-form-fieldset>
 
+					<hr />
+
 					<b-form-fieldset>
-						<legend>Cashless system</legend>
+						<legend>Remote NFC reader</legend>
+						<p class="text-muted">
+							Requires <a href="https://github.com/CatLabInteractive/nfc-socketio" target="_blank">an additional service</a>.
+						</p>
 
 						<b-form-group
 							id="nfc-server-group"
@@ -109,7 +114,7 @@
 					<b-button type="reset" variant="danger">Reset</b-button>
 				</b-form>
 
-				<hr />
+				<hr v-if="licenseStatus" />
 
 				<b-form-fieldset v-if="licenseStatus">
 					<legend>License</legend>
