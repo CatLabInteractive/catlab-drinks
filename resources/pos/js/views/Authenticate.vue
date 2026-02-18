@@ -93,7 +93,7 @@
 
 <script type="ts">
 import QrScanner from '../components/QrScanner.vue';
-import { getDeviceUuid, setDeviceUuid, setAuthData } from '../../../shared/js/services/deviceAuth';
+import { getDeviceUuid, setDeviceUuid, setAuthData } from '../../../shared/js/services/DeviceAuth';
 
 export default {
 
@@ -166,7 +166,7 @@ export default {
 		},
 
 		async requestDeviceToken() {
-			
+
 			// Do we have a device id?
 			this.device_uid = await getDeviceUuid();
 
@@ -194,7 +194,7 @@ export default {
 					return;
 				}
 			}
-			
+
 			const api = data.api;
 			const token = data.token;
 
@@ -235,7 +235,7 @@ export default {
 			}
 
 			const responseData = response.data;
-			
+
 			// We should have received a device id.
 			if (!this.device_uid) {
 				if (responseData.device_uid) {
@@ -245,7 +245,7 @@ export default {
 					this.error = 'Invalid response...';
 					this.connecting = false;
 					this.showTokenForm = true;
-					clearInterval(this.pinger);	
+					clearInterval(this.pinger);
 					return;
 				}
 			}
@@ -267,7 +267,7 @@ export default {
 
 				// Store auth data
 				await setAuthData(api, responseData.access_token, apiIdentifier);
-				
+
 				window.location.reload();
 
 				return;
