@@ -11,17 +11,28 @@ services:
     ports:
       - 8095:80
     depends_on:
-      - mysql-db
+      mysql-db:
+        condition: service_healthy
+    environment:
+      STARTUP_COMMAND_1: bash docker/startup.sh
     privileged: true
 
   mysql-db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    env_file:
-      - ./.env
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: myuser
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: secret
     ports:
       - "3312:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  mysql-data:
