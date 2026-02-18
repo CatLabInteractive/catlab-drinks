@@ -29,6 +29,7 @@ import AirbrakeClient from 'airbrake-js';
 
 import {SettingService} from "../../shared/js/services/SettingService";
 import {OrganisationService} from "../../shared/js/services/OrganisationService";
+import i18n from "../../shared/js/i18n/index";
 
 import App from './views/App'
 import Hello from '../../shared/js/views/Hello'
@@ -196,6 +197,7 @@ function launch() {
 				  }
 
 				app.use(router);
+				app.use(i18n);
 				app.mount('#app');
 
 				console.log('app mounted');

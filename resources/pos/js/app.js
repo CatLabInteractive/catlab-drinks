@@ -32,6 +32,7 @@ import {SettingService} from "../../shared/js/services/SettingService";
 import {PaymentService} from "../../shared/js/services/PaymentService";
 import {OrganisationService} from "../../shared/js/services/OrganisationService";
 import {KioskService} from "../../shared/js/services/KioskService";
+import i18n from "../../shared/js/i18n/index";
 
 import App from './views/App'
 import Hello from '../../shared/js/views/Hello'
@@ -79,6 +80,7 @@ async function launch() {
 			}
 		});
 
+		app.use(i18n);
 		app.mount('#app');
 		return;
 
@@ -292,6 +294,7 @@ async function launch() {
 				  }
 
 				app.use(router);
+				app.use(i18n);
 				app.mount('#app');
 
 			}.bind(this)
