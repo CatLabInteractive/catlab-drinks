@@ -130,10 +130,6 @@ class DeviceConnectRequest extends Model
 			return null;
 		}
 
-		// Request has not been claimed yet; check if the provided device uid is
-		// already registered to this organisation.
-		$device = Device::firstOrNew([ 'uid' => $claim->device_uid ]);
-
 		// Now that is out of the way, check if this device is registered to this organisation.
 		$device = Device::where('uid', $claim->device_uid)
 			->where('organisation_id', $organisation->id)

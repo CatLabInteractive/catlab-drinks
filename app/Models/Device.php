@@ -28,6 +28,7 @@ class Device extends Model implements
 	{
 		static::deleting(function (Device $device) {
 			$device->accessTokens()->delete();
+			$device->connectRequests()->delete();
 		});
 	}
 
@@ -92,12 +93,21 @@ class Device extends Model implements
 	}
 
 	/**
+	 * @return HasMany
+	 */
+	public function connectRequests()
+	{
+		return $this->hasMany(DeviceConnectRequest::class);
+	}
+
+	/**
 	 * @return DeviceAccessToken
 	 */
 	public function createAccessToken(User $user, ?int $lifetimeSeconds = null)
 	{
 		// Revoke all existing tokens.
 		$this->accessTokens()->delete();
+		$this->connectRequests()->delete();
 
 		if (!$lifetimeSeconds) {
 			$lifetimeSeconds = 60 * 60 * 24 * 7; // 7 days
