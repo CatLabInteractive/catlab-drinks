@@ -19,7 +19,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import { clearAuthData } from '../../shared/js/services/deviceAuth';
+import { clearAuthData } from '../../shared/js/services/DeviceAuth';
 
 window._ = require('lodash');
 

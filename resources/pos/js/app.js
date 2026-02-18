@@ -52,7 +52,7 @@ import Relax from "../../shared/js/components/Relax";
 
 
 import Authenticate from "./views/Authenticate";
-import { getAuthData } from "../../shared/js/services/deviceAuth";
+import { getAuthData } from "../../shared/js/services/DeviceAuth";
 
 async function launch() {
 

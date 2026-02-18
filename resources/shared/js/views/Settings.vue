@@ -128,7 +128,7 @@
 
 <script>
 
-	import { clearAuthData } from '../services/deviceAuth';
+	import { clearAuthData } from '../services/DeviceAuth';
 
 	export default {
 
