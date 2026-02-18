@@ -31,8 +31,8 @@
 			<b-collapse is-nav id="nav_collapse">
 				<b-navbar-nav>
 
-					<b-nav-item :to="{ name: 'events' }">Events</b-nav-item>
-					<b-nav-item :to="{ name: 'devices' }">Points of sale</b-nav-item>
+					<b-nav-item :to="{ name: 'events' }">{{ $t('Events') }}</b-nav-item>
+					<b-nav-item :to="{ name: 'devices' }">{{ $t('Points of sale') }}</b-nav-item>
 
 				</b-navbar-nav>
 
@@ -41,11 +41,13 @@
 
 					<b-navbar-nav>
 
-						<b-nav-item :to="{ name: 'settings' }">Settings</b-nav-item>
+						<b-nav-item :to="{ name: 'settings' }">{{ $t('Settings') }}</b-nav-item>
 
 						<li class="nav-item">
 							<logout-link />
 						</li>
+
+						<language-toggle />
 
 					</b-navbar-nav>
 				</b-navbar-nav>
@@ -60,11 +62,13 @@
 <script>
 
 	import LogoutLink from '../components/LogoutLink.vue';
+	import LanguageToggle from '../../../shared/js/components/LanguageToggle.vue';
 
 	export default {
 
 		components: {
 			'logout-link': LogoutLink,
+			'language-toggle': LanguageToggle,
 		},
 
 		data() {
