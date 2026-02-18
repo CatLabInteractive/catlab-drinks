@@ -24,16 +24,16 @@
 	<b-container fluid>
 
 		<h2>
-			Menu
+			{{ $t('Menu') }}
 
-			<b-button size="sm" class="btn-success" @click="createNew" title="Create new menu item">
+			<b-button size="sm" class="btn-success" @click="createNew" :title="$t('Create new menu item')">
 				<span>＋</span>
-				<span class="sr-only">Create new menu item</span>
+				<span class="sr-only">{{ $t('Create new menu item') }}</span>
 			</b-button>
 		</h2>
 
 		<div class="text-center" v-if="!loaded">
-			<b-spinner label="Loading data" />
+			<b-spinner :label="$t('Loading data')" />
 		</div>
 
 		<b-row>
@@ -43,21 +43,21 @@
 					<template v-slot:cell(actions)="row">
 						<b-button size="sm" class="" @click="edit(row.item, row.index)">
 							<span>✏️</span>
-							<span class="sr-only">Edit</span>
+							<span class="sr-only">{{ $t('Edit') }}</span>
 						</b-button>
 						<b-button size="sm" @click="remove(row.item)" class="btn-danger">
 							<span>🗑️</span>
-							<span class="sr-only">Delete</span>
+							<span class="sr-only">{{ $t('Delete') }}</span>
 						</b-button>
 					</template>
 
 					<template v-slot:cell(is_selling)="row">
 						<b-button v-if="!row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)" class="btn-danger">
-							Not selling
+							{{ $t('Not selling') }}
 						</b-button>
 
 						<b-button v-if="row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)" class="btn-success">
-							Selling
+							{{ $t('Selling') }}
 						</b-button>
 
 						<b-spinner v-if="toggling === row.item.id" small></b-spinner>
@@ -83,25 +83,25 @@
 
 	</b-container>
 
-	<b-modal ref="editFormModal" :title="(model.id ? 'Edit item ID#' + model.id : 'New item')" @hide="resetForm">
+	<b-modal ref="editFormModal" :title="(model.id ? $t('Edit item ID#{id}', { id: model.id }) : $t('New item'))" @hide="resetForm">
 		<form @submit.prevent="save">
-			<b-form-group label="Name">
+			<b-form-group :label="$t('Name')">
 				<b-form-input type="text" v-model="model.name"></b-form-input>
 			</b-form-group>
 
-			<b-form-group label="Description">
+			<b-form-group :label="$t('Description')">
 				<b-form-input type="text" v-model="model.description"></b-form-input>
 			</b-form-group>
 
-			<b-form-group label="Price (all taxes included)">
+			<b-form-group :label="$t('Price (all taxes included)')">
 				<b-form-input type="number" v-model="model.price" step=".01"></b-form-input>
 			</b-form-group>
 
-			<b-form-group label="VAT / Tax percentage (optional)">
+			<b-form-group :label="$t('VAT / Tax percentage (optional)')">
 				<b-form-input type="number" v-model="model.vat_percentage" step=".01"></b-form-input>
 			</b-form-group>
 
-			<b-form-group label="Product category" description="By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie 'Food' for kitchen and 'Drinks' for bar.">
+			<b-form-group :label="$t('Product category')" :description="$t('By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.')">
 				<select @change="changeCategory($event, model)" v-model="categoryId" class="full-width form-control">
 					<option></option>
 
@@ -109,16 +109,16 @@
 						{{ category.name }}
 					</option>
 
-					<option value="new">+ Create new category</option>
+					<option value="new">{{ $t('+ Create new category') }}</option>
 				</select>
 			</b-form-group>
 		</form>
 
 		<template #modal-footer>
-			<b-btn type="button" variant="light" @click="resetForm()">Reset</b-btn>
-			<b-btn type="submit" variant="success" @click="save" :disabled="saving">Save</b-btn>
+			<b-btn type="button" variant="light" @click="resetForm()">{{ $t('Reset') }}</b-btn>
+			<b-btn type="submit" variant="success" @click="save" :disabled="saving">{{ $t('Save') }}</b-btn>
 
-			<b-alert v-if="saving" variant="none" show>Saving</b-alert>
+			<b-alert v-if="saving" variant="none" show>{{ $t('Saving') }}</b-alert>
 		</template>
 	</b-modal>
 
@@ -163,31 +163,31 @@
 				fields: [
 					{
 						key: 'name',
-						label: 'Product name',
+						label: this.$t('Product name'),
 					},
 					{
 						key: 'price',
-						label: 'Price',
+						label: this.$t('Price'),
 						class: 'text-center'
 					},
 					{
 						key: 'vat_percentage',
-						label: 'VAT %',
+						label: this.$t('VAT %'),
 						class: 'text-center'
 					},
 					{
 						key: 'is_selling',
-						label: 'Status',
+						label: this.$t('Status'),
 						class: 'text-center'
 					},
 					{
 						key: 'category',
-						label: 'Category',
+						label: this.$t('Category'),
 						class: 'text-center'
 					},
 					{
 						key: 'actions',
-						label: 'Actions',
+						label: this.$t('Actions'),
 						class: 'text-right'
 					}
 				],
@@ -208,13 +208,13 @@
 
 			validate() {
 				if (!this.model.name) {
-					alert('Please enter a name for the product.');
+					alert(this.$t('Please enter a name for the product.'));
 					return false;
 				}
 
 				console.log('Price', this.model.price);
 				if (typeof(this.model.price) === 'undefined') {
-					alert('Please enter a price for the product.');
+					alert(this.$t('Please enter a price for the product.'));
 					return false;
 				}
 
@@ -253,7 +253,7 @@
 
 			async remove(model) {
 
-				if (confirm('Are you sure you want to remove this menu item?')) {
+				if (confirm(this.$t('Are you sure you want to remove this menu item?'))) {
 					if (this.model.id === model.id) {
 						this.model = {};
 					}
@@ -279,7 +279,7 @@
 				if (value === 'new') {
 					model.category = null;
 
-					let newCategory = prompt('Enter the name of the new category:');
+					let newCategory = prompt(this.$t('Enter the name of the new category:'));
 					if (newCategory) {
 						let category = await this.categoriesService.create({name: newCategory});
 						this.categories.push(category);
