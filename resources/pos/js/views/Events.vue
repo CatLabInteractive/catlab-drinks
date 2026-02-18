@@ -53,12 +53,12 @@
 						<b-dropdown text="Actions" size="sm" right>
 
 							<b-dropdown-item :to="{ name: 'summary', params: { id: row.item.id } }" title="Sales overview">
-								<i class="fas fa-chart-line"></i>
+								📊
 								Sales overview
 							</b-dropdown-item>
 
 							<b-dropdown-item :to="{ name: 'sales', params: { id: row.item.id } }">
-								<i class="fas fa-list-alt"></i>
+								📋
 								Order history
 							</b-dropdown-item>
 

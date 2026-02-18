@@ -62,8 +62,8 @@
                         <template v-slot:cell(actions)="row">
 
                             <span v-if="!row.item.isTotals">
-                                <b-button variant="danger small" @click="down(row.item)" ><i class="fa fa-minus"></i></b-button>
-                                <b-button variant="success small" @click="up(row.item)" ><i class="fa fa-plus"></i></b-button>
+                                <b-button variant="danger small" @click="down(row.item)" ><span>−</span></b-button>
+                                <b-button variant="success small" @click="up(row.item)" ><span>＋</span></b-button>
                             </span>
 
                         </template>

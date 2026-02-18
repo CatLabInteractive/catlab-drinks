@@ -27,7 +27,7 @@
 			Menu
 
 			<b-button size="sm" class="btn-success" @click="createNew" title="Create new menu item">
-				<i class="fas fa-plus"></i>
+				<span>＋</span>
 				<span class="sr-only">Create new menu item</span>
 			</b-button>
 		</h2>
@@ -42,11 +42,11 @@
 
 					<template v-slot:cell(actions)="row">
 						<b-button size="sm" class="" @click="edit(row.item, row.index)">
-							<i class="fas fa-edit"></i>
+							<span>✏️</span>
 							<span class="sr-only">Edit</span>
 						</b-button>
 						<b-button size="sm" @click="remove(row.item)" class="btn-danger">
-							<i class="fas fa-trash"></i>
+							<span>🗑️</span>
 							<span class="sr-only">Delete</span>
 						</b-button>
 					</template>

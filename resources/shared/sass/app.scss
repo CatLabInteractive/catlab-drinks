@@ -7,8 +7,7 @@
 
 @import '~bootstrap-vue/src/index.scss';
 
-// Font awesome
-@import '~@fortawesome/fontawesome-free/css/all.css';
+
 
 .navbar-laravel {
 	background-color: #fff;
@@ -136,7 +135,7 @@
 	border-color: red;
 }
 
-.order-confirm-modal i.huge {
+.order-confirm-modal .huge {
 	margin-top: 20px;
 	margin-bottom: 20px;
 	font-size: 100px;

@@ -120,7 +120,7 @@
 					<legend>License</legend>
 					<div v-if="licenseStatus.valid">
 						<b-alert variant="success" :show="true">
-							<i class="fas fa-check-circle mr-1"></i> License is active.
+							<span class="mr-1">✅</span> License is active.
 						</b-alert>
 						<p v-if="licenseStatus.expirationDate">
 							<strong>Expires:</strong> {{ formatDate(licenseStatus.expirationDate) }}
@@ -128,7 +128,7 @@
 					</div>
 					<div v-else>
 						<b-alert variant="warning" :show="true">
-							<i class="fas fa-exclamation-triangle mr-1"></i> No active license.
+							<span class="mr-1">⚠️</span> No active license.
 						</b-alert>
 						<p>
 							<strong>Cards scanned:</strong> {{ licenseStatus.scannedCards }} / {{ licenseStatus.maxCards }}<br />
@@ -147,7 +147,7 @@
 					<legend>Device</legend>
 					<p class="text-muted">Disconnect this device from the server. You will need to re-pair it to use it again.</p>
 					<b-button variant="outline-danger" @click="logout">
-						<i class="fas fa-sign-out-alt mr-1"></i> Logout
+						<span class="mr-1">🚪</span> Logout
 					</b-button>
 				</b-form-fieldset>
 

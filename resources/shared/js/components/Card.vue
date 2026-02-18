@@ -125,13 +125,13 @@
 
         <!-- Modal Component -->
         <b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" :title="processedMessage" ok-variant="success" no-close-on-backdrop>
-            <p class="text-center"><i class="fas fa-thumbs-up huge"></i></p>
+            <p class="text-center"><span class="huge">👍</span></p>
             <p class="text-center alert alert-success">{{ processedMessage }}</p>
         </b-modal>
 
         <!-- Modal Component -->
         <b-modal ref="declinedModal" class="order-confirm-modal" ok-only button-size="lg" :title="errorMessage" ok-variant="danger" no-close-on-backdrop>
-            <p class="text-center"><i class="fas fa-exclamation-triangle huge"></i></p>
+            <p class="text-center"><span class="huge">⚠️</span></p>
             <p class="text-center alert alert-danger">{{ errorMessage }} {{ error }}</p>
         </b-modal>
     </div>

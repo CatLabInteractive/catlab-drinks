@@ -24,7 +24,7 @@
 	<div class="authenticate-container">
 		<div class="authenticate-card">
 			<h1 class="authenticate-title">
-				<i class="fas fa-link"></i>
+				<span>🔗</span>
 				Connect Device
 			</h1>
 			<p class="authenticate-subtitle">Pair this device with your CatLab Drinks instance</p>
@@ -47,11 +47,11 @@
 			<div v-else-if="!showScanner && !showTokenForm">
 				<div class="authenticate-actions">
 					<button class="btn btn-primary btn-lg btn-block mb-3" @click="showScannerView">
-						<i class="fas fa-qrcode mr-2"></i>
+						<span class="mr-2">📷</span>
 						Scan QR Code
 					</button>
 					<button class="btn btn-outline-secondary btn-block" @click="showManualEntry">
-						<i class="fas fa-keyboard mr-2"></i>
+						<span class="mr-2">⌨️</span>
 						Enter Token Manually
 					</button>
 				</div>
@@ -62,7 +62,7 @@
 				<qr-scanner @scanned="onQrScanned" @error="onQrError" />
 				<div class="text-center mt-3">
 					<button class="btn btn-outline-secondary" @click="showMainOptions">
-						<i class="fas fa-arrow-left mr-1"></i> Back
+						<span class="mr-1">←</span> Back
 					</button>
 				</div>
 			</div>
@@ -74,17 +74,17 @@
 					<input id="tokenInput" type="text" class="form-control" placeholder="Paste connection URL or token" v-model="token" />
 				</div>
 				<button class="btn btn-primary btn-block mb-3" @click="requestDeviceToken">
-					<i class="fas fa-sign-in-alt mr-1"></i> Authenticate
+					<span class="mr-1">→</span> Authenticate
 				</button>
 				<div class="text-center">
 					<button class="btn btn-outline-secondary" @click="showMainOptions">
-						<i class="fas fa-arrow-left mr-1"></i> Back
+						<span class="mr-1">←</span> Back
 					</button>
 				</div>
 			</div>
 
 			<div v-if="error" class="alert alert-danger mt-3" role="alert">
-				<i class="fas fa-exclamation-circle mr-1"></i> {{ error }}
+				<span class="mr-1">⚠️</span> {{ error }}
 			</div>
 		</div>
 	</div>

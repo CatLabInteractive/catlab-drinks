@@ -33,7 +33,7 @@
                 <div v-if="loaded">
 
                     <b-link class="btn btn-success" :to="{ name: 'checkIn', params: { id: this.eventId } }" title="Check-in">
-                        <i class="fas fa-passport"></i>
+                        <span>🛂</span>
                         Check-In
                     </b-link>
 

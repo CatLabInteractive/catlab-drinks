@@ -60,10 +60,10 @@
 				<template v-slot:cell(actions)="row">
 					<b-dropdown text="Actions" size="sm" right>
 						<b-dropdown-item @click="editGateway(row.item)">
-							<i class="fas fa-edit"></i> Edit
+							✏️ Edit
 						</b-dropdown-item>
 						<b-dropdown-item @click="removeGateway(row.item)">
-							<i class="fas fa-trash"></i> Delete
+							🗑️ Delete
 						</b-dropdown-item>
 					</b-dropdown>
 				</template>
@@ -75,7 +75,7 @@
 			</b-alert>
 
 			<b-button size="sm" variant="success" @click="addGateway">
-				<i class="fas fa-plus"></i> Add Payment Gateway
+				<span>＋</span> Add Payment Gateway
 			</b-button>
 
 		</div>
@@ -119,7 +119,7 @@
 				<b-btn variant="light" @click="resetForm">Cancel</b-btn>
 				<b-btn variant="success" @click="saveGateway" :disabled="saving">
 					<b-spinner small v-if="saving" />
-					<i class="fas fa-save mr-1" v-if="!saving"></i>
+					<span class="mr-1" v-if="!saving">💾</span>
 					Save
 				</b-btn>
 			</template>

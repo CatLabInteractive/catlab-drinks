@@ -11,7 +11,6 @@
         "heroku-postbuild": "npm run prod"
     },
     "devDependencies": {
-        "@fortawesome/fontawesome-free": "^5.11.2",
         "@types/crypto-js": "^4.2.2",
         "@types/uuid": "^10.0.0",
         "@vue/compat": "^3.5.13",
