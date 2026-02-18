@@ -28,7 +28,7 @@
 
 		<b-row v-if="loaded">
 
-			<b-col cols="6">
+			<b-col cols="12">
 
 				<h2>Point of sale settings</h2>
 
