@@ -20,13 +20,14 @@ class DeviceConnectClaimResourceDefinition extends ResourceDefinition
 
 		$this->field('device_uid')
 			->string()
+			->required()
 			->visible(true)
 			->writeable(true, false);
 
 		$this->field('pairing_code')
 			->string()
 			->visible(true);
-			
+
 		$this->field('access_token')
 			->visible(true);
 	}
