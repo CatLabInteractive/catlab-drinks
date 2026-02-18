@@ -22,7 +22,7 @@
 require('./bootstrap');
 
 import Vue, { createApp } from "vue";
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, createMemoryHistory } from 'vue-router'
 import BootstrapVue from "bootstrap-vue";
 import moment from 'moment'
 import AirbrakeClient from 'airbrake-js';
@@ -91,8 +91,14 @@ async function launch() {
 	window.axios.defaults.baseURL = CATLAB_DRINKS_CONFIG.API;
 	window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + authData.accessToken;
 
+	// Determine if we're running in Cordova
+	const isCordova = typeof window.cordova !== 'undefined' || typeof window.CATLAB_DRINKS_APP !== 'undefined';
+
+	// Use memory history (hash-based) for Cordova, web history for web
+	const historyMode = isCordova ? createMemoryHistory() : createWebHistory(window.CATLAB_DRINKS_CONFIG.ROUTER_BASE);
+
 	const router = createRouter({
-		history: createWebHistory(window.CATLAB_DRINKS_CONFIG.ROUTER_BASE),
+		history: historyMode,
 		routes: [
 			{
 				path: '/',
