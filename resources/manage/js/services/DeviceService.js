@@ -81,4 +81,20 @@ export class DeviceService extends AbstractService {
 		);
 		
 	}
+
+	setLicense(deviceId, licenseKey, parameters) {
+
+		if (typeof(parameters) === 'undefined') {
+			parameters = {};
+		}
+
+		return this.execute(
+			'post',
+			'devices/' + deviceId + '/license' + "?" + $.param(parameters),
+			{
+				license_key: licenseKey
+			}
+		);
+
+	}
 }
