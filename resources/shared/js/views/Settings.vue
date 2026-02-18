@@ -128,6 +128,8 @@
 
 <script>
 
+	import { clearAuthData } from '../services/DeviceAuth';
+
 	export default {
 
 		props: [
@@ -168,14 +170,9 @@
 
 			logout() {
 				if (confirm('Are you sure you want to logout? This device will need to be re-paired to connect again.')) {
-					const apiIdentifier = window.localStorage.getItem('calab_drinks_pos_api_identifier');
-					window.localStorage.removeItem('catlab_drinks_device_pos_uid');
-					window.localStorage.removeItem('calab_drinks_pos_api_identifier');
-					if (apiIdentifier) {
-						window.localStorage.removeItem('catlab_drinks_pos_api_url[' + apiIdentifier + ']');
-						window.localStorage.removeItem('catlab_drinks_pos_access_token[' + apiIdentifier + ']');
-					}
-					window.location.reload();
+					clearAuthData().then(() => {
+						window.location.reload();
+					});
 				}
 			},
 

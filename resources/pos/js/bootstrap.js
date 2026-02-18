@@ -19,6 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import { clearAuthData } from '../../shared/js/services/DeviceAuth';
+
 window._ = require('lodash');
 
 /**
@@ -71,16 +73,10 @@ window.axios.interceptors.response.use(
             console.log({401:error});
 
             // Clear all POS session data
-            const apiIdentifier = window.localStorage.getItem('calab_drinks_pos_api_identifier');
-            window.localStorage.removeItem('catlab_drinks_device_pos_uid');
-            window.localStorage.removeItem('calab_drinks_pos_api_identifier');
-            if (apiIdentifier) {
-                window.localStorage.removeItem('catlab_drinks_pos_api_url[' + apiIdentifier + ']');
-                window.localStorage.removeItem('catlab_drinks_pos_access_token[' + apiIdentifier + ']');
-            }
-
-            alert('Session expired. Please re-authenticate your device.');
-            window.location.reload();
+            clearAuthData().then(() => {
+                alert('Session expired. Please re-authenticate your device.');
+                window.location.reload();
+            });
         }
 
         // Handle Forbidden
