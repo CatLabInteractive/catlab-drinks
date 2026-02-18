@@ -23,9 +23,11 @@
 
     <div>
 
-        <div class="text-right p-2">
-            <language-toggle />
-        </div>
+        <b-navbar class="p-2">
+            <b-navbar-nav class="ml-auto">
+                <language-toggle />
+            </b-navbar-nav>
+        </b-navbar>
 
         <router-view></router-view>
 
