@@ -22,7 +22,6 @@ import localForage from "localforage";
 
 export class SettingService {
 
-	terminalName = 'bar';
 	nfcServer = null;
 	nfcPassword = null;
 
@@ -45,7 +44,6 @@ export class SettingService {
                         settings = {};
                     }
 
-                    this.terminalName = settings.terminalName || 'bar';
                     this.nfcServer = settings.nfcServer || null;
                     this.nfcPassword = settings.nfcPassword || null;
 
@@ -71,7 +69,6 @@ export class SettingService {
         return new Promise(
             function(resolve, reject) {
                 localForage.setItem('settings', {
-                    terminalName : this.terminalName,
                     nfcServer: this.nfcServer,
                     nfcPassword: this.nfcPassword,
 

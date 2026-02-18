@@ -23,7 +23,8 @@ class DeviceResourceDefinition extends ResourceDefinition
 
 		$this->field('name')
 			->string()
-			->required();
+			->required()
+			->visible();
 
 		$this->relationship('organisation', OrganisationResourceDefinition::class)
 			->url('/organisations/{model.organisation.id}')

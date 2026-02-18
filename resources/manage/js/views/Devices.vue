@@ -24,7 +24,7 @@
 	<b-container fluid>
 
 		<h1>
-			Devices
+			Point of sale devices
 
 			<b-button size="sm" class="btn-success" @click="createNew" title="Pair a device">
 				<i class="fas fa-link"></i>

@@ -38,17 +38,17 @@
 						<legend>General settings</legend>
 
 						<b-form-group
-							id="terminal-name-group"
-							label="Terminal name"
-							label-for="terminal-name"
-							description="Describing name of this specific terminal."
+							id="device-name-group"
+							label="Device name"
+							label-for="device-name"
+							description="Name of this device as configured on the server."
 						>
 							<b-form-input
-								id="terminal-name"
-								v-model="name"
+								id="device-name"
+								v-model="deviceName"
 								type="text"
-								required
-								placeholder="Terminal name"
+								disabled
+								placeholder="Device name"
 							></b-form-input>
 						</b-form-group>
 
@@ -74,8 +74,13 @@
 
 					</b-form-fieldset>
 
+					<hr />
+
 					<b-form-fieldset>
-						<legend>Cashless system</legend>
+						<legend>Remote NFC reader</legend>
+						<p class="text-muted">
+							Requires <a href="https://github.com/CatLabInteractive/nfc-socketio" target="_blank">an additional service</a>.
+						</p>
 
 						<b-form-group
 							id="nfc-server-group"
@@ -109,6 +114,33 @@
 					<b-button type="reset" variant="danger">Reset</b-button>
 				</b-form>
 
+				<hr v-if="licenseStatus" />
+
+				<b-form-fieldset v-if="licenseStatus">
+					<legend>License</legend>
+					<div v-if="licenseStatus.valid">
+						<b-alert variant="success" :show="true">
+							<i class="fas fa-check-circle mr-1"></i> License is active.
+						</b-alert>
+						<p v-if="licenseStatus.expirationDate">
+							<strong>Expires:</strong> {{ formatDate(licenseStatus.expirationDate) }}
+						</p>
+					</div>
+					<div v-else>
+						<b-alert variant="warning" :show="true">
+							<i class="fas fa-exclamation-triangle mr-1"></i> No active license.
+						</b-alert>
+						<p>
+							<strong>Cards scanned:</strong> {{ licenseStatus.scannedCards }} / {{ licenseStatus.maxCards }}<br />
+							<strong>Remaining:</strong> {{ licenseStatus.remainingCards }}
+						</p>
+						<p class="text-muted">
+							Please purchase a license to remove the card scan limit.
+							Visit the management portal to buy and activate a license for this device.
+						</p>
+					</div>
+				</b-form-fieldset>
+
 				<hr />
 
 				<b-form-fieldset>
@@ -128,7 +160,7 @@
 
 <script>
 
-	import { clearAuthData } from '../services/DeviceAuth';
+	import { clearAuthData } from '../../../shared/js/services/DeviceAuth';
 
 	export default {
 
@@ -136,37 +168,57 @@
 
 		],
 
-
 		async mounted() {
 
 			this.settingService = this.$settingService;
 
-			this.settingService.load()
-				.then(function() {
-					this.onReset();
-					this.loaded = true;
-				}.bind(this));
+			await this.settingService.load();
+			this.onReset();
+
+			// Load device name from the global set during app initialization
+			if (window.DEVICE_NAME) {
+				this.deviceName = window.DEVICE_NAME;
+			}
+
+			// Load license status if LicenseService is available
+			if (typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.LicenseService) {
+				try {
+					const licenseService = new window.CATLAB_DRINKS_APP.LicenseService();
+					this.licenseStatus = await licenseService.getLicenseStatus();
+				} catch (e) {
+					console.error('Failed to load license status:', e);
+				}
+			}
+
+			this.loaded = true;
 		},
 
 		data() {
 			return {
 				loaded: false,
-				name: '',
+				deviceName: '',
 				nfcServer: '',
 				nfcPassword: '',
 
 				allowLiveOrders: false,
-				allowRemoteOrders: false
+				allowRemoteOrders: false,
+
+				licenseStatus: null
 			}
 		},
 
 		watch: {
 
-
-
 		},
 
 		methods: {
+
+			formatDate(value) {
+				if (value) {
+					return new Date(value).toLocaleDateString();
+				}
+				return '';
+			},
 
 			logout() {
 				if (confirm('Are you sure you want to logout? This device will need to be re-paired to connect again.')) {
@@ -179,7 +231,6 @@
 			onSubmit(evt) {
 				evt.preventDefault();
 
-				this.settingService.terminalName = this.name;
 				this.settingService.nfcServer = this.nfcServer;
 				this.settingService.nfcPassword = this.nfcPassword;
 
@@ -193,26 +244,15 @@
 
 			},
 
-			onSubmitOrgSettings(evt) {
-				evt.preventDefault();
-			},
-
 			onReset(evt = null) {
 				if (evt) {
 					evt.preventDefault();
 				}
 
-				this.name = this.settingService.terminalName;
 				this.nfcServer = this.settingService.nfcServer;
 				this.nfcPassword = this.settingService.nfcPassword;
 				this.allowLiveOrders = this.settingService.allowLiveOrders;
 				this.allowRemoteOrders = this.settingService.allowRemoteOrders;
-			},
-
-			onResetOrgSettings(evt = null) {
-				if (evt) {
-					evt.preventDefault();
-				}
 			}
 
 		}
