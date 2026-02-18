@@ -325,7 +325,7 @@
 
 				if (license && deviceId) {
 					try {
-						await this.service.update(deviceId, { license_key: license });
+						await this.service.setLicense(deviceId, license);
 						await this.refreshDevices();
 					} catch (e) {
 						console.error('Failed to store license:', e);
@@ -404,7 +404,7 @@
 				}
 
 				try {
-					await this.service.update(this.licenseDevice.id, { license_key: this.licenseKey.trim() });
+					await this.service.setLicense(this.licenseDevice.id, this.licenseKey.trim());
 					this.resetLicenseForm();
 					await this.refreshDevices();
 				} catch (e) {

@@ -28,6 +28,8 @@ use App\Models\Organisation;
 use App\Models\User;
 
 use CatLab\Charon\Collections\RouteCollection;
+use CatLab\Charon\Enums\Action;
+use CatLab\Charon\Laravel\Models\ResourceResponse;
 use CatLab\Requirements\Collections\MessageCollection;
 use CatLab\Requirements\Exceptions\ResourceValidationException;
 use CatLab\Requirements\Models\Message;
@@ -70,6 +72,14 @@ class DeviceController extends ResourceController
 		);
 
 		$childResource->tag('devices');
+
+		$routes->post(
+			'devices/{' . self::RESOURCE_ID . '}/license',
+			'DeviceController@setLicense'
+		)	->summary('Set a license key for a device')
+			->parameters()->path(self::RESOURCE_ID)->required()->describe('The device id')
+			->returns()->one(DeviceResourceDefinition::class)
+			->tag('devices');
 	}
 
 	/**
@@ -100,6 +110,34 @@ class DeviceController extends ResourceController
 	public function getRelationshipKey(): string
 	{
 		return self::PARENT_RESOURCE_ID;
+	}
+
+	/**
+	 * @param Request $request
+	 * @param int $deviceId
+	 * @return ResourceResponse
+	 * @throws ResourceValidationException
+	 */
+	public function setLicense(Request $request, int $deviceId)
+	{
+		$device = Device::findOrFail($deviceId);
+		$this->authorize('edit', $device);
+
+		$licenseKey = $request->input('license_key');
+		if (empty($licenseKey)) {
+			$messages = new MessageCollection();
+			$messages->add(new Message('Property \'license_key\' must exist.'));
+			throw ResourceValidationException::make($messages);
+		}
+
+		$device->license_key = $licenseKey;
+		$this->validateLicenseKey($device);
+		$device->save();
+
+		$context = $this->getContext(Action::VIEW);
+		$resource = $this->toResource($device, $context);
+
+		return new ResourceResponse($resource);
 	}
 
 	/**
