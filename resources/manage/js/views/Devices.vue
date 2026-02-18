@@ -27,7 +27,7 @@
 			Point of sale devices
 
 			<b-button size="sm" class="btn-success" @click="createNew" title="Pair a device">
-				<span>🔗</span>
+				<span>＋</span>
 				<span class="sr-only">Link or authenticate a device</span>
 			</b-button>
 		</h1>
