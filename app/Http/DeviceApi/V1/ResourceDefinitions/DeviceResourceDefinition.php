@@ -37,5 +37,10 @@ class DeviceResourceDefinition extends ResourceDefinition
 			->visible(false)
 			->writeable(false);
 
+		$this->field('license_key')
+			->string()
+			->visible(true)
+			->writeable(false);
+
 	}
 }

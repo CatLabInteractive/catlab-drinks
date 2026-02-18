@@ -43,6 +43,15 @@
 						{{ row.item.name }}
 					</template>
 
+					<template v-slot:cell(license)="row">
+						<span v-if="row.item.license_key" class="text-success">
+							<i class="fas fa-check-circle"></i> Licensed
+						</span>
+						<span v-else class="text-muted">
+							<i class="fas fa-times-circle"></i> No license
+						</span>
+					</template>
+
 					<template v-slot:cell(actions)="row">
 
 						<b-dropdown text="Actions" size="sm" right>
@@ -50,6 +59,11 @@
 							<b-dropdown-item class="" @click="edit(row.item)" title="Edit">
 								<i class="fas fa-edit"></i>
 								Edit
+							</b-dropdown-item>
+
+							<b-dropdown-item :href="buyLicenseUrl(row.item)" title="Buy License">
+								<i class="fas fa-key"></i>
+								Buy License
 							</b-dropdown-item>
 
 							<b-dropdown-item @click="remove(row.item)" title="Remove">
@@ -147,7 +161,9 @@
 		mounted() {
 
 			this.service = new DeviceService(window.ORGANISATION_ID);
-			this.refreshDevices();
+			this.refreshDevices().then(() => {
+				this.handleLicenseReturn();
+			});
 
 		},
 
@@ -159,6 +175,10 @@
 					{
 						key: 'name',
 						label: 'Device',
+					},
+					{
+						key: 'license',
+						label: 'License',
 					},
 					{
 						key: 'actions',
@@ -264,6 +284,29 @@
 
 			selectConnectUrl(evt) {
 				evt.target.select();
+			},
+
+			buyLicenseUrl(device) {
+				const returnUrl = window.location.origin + window.CATLAB_DRINKS_CONFIG.ROUTER_BASE + 'devices?device_id=' + encodeURIComponent(device.id);
+				return 'https://accounts.catlab.eu/licenses/10/buy?data[device_uid]=' + encodeURIComponent(device.uid) + '&return=' + encodeURIComponent(returnUrl);
+			},
+
+			async handleLicenseReturn() {
+				const urlParams = new URLSearchParams(window.location.search);
+				const license = urlParams.get('license');
+				const deviceId = urlParams.get('device_id');
+
+				if (license && deviceId) {
+					try {
+						await this.service.update(deviceId, { license_key: license });
+						await this.refreshDevices();
+					} catch (e) {
+						console.error('Failed to store license:', e);
+					}
+
+					// Clean URL parameters
+					window.history.replaceState({}, document.title, window.location.pathname);
+				}
 			},
 
 		}

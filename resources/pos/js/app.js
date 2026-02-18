@@ -205,6 +205,16 @@ function launch() {
 					.then(response => {
 						window.ORGANISATION_ID = response.data.organisation.id;
 						window.DEVICE_SECRET = response.data.secret_key;
+
+						// Set device license if LicenseService is available
+						if (response.data.license_key && typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.LicenseService) {
+							try {
+								const licenseService = new window.CATLAB_DRINKS_APP.LicenseService();
+								licenseService.setLicense(response.data.license_key);
+							} catch (e) {
+								console.error('Failed to set device license:', e);
+							}
+						}
 					});
 			}
 		)

@@ -34,10 +34,10 @@ class DeviceConnectRequest extends Model
 	}
 
 	/**
-	 * @return string 
+	 * @return string
 	 */
 	public function getState() : string {
-	
+
 		if ($this->device_id) {
 			return self::STATE_ACCEPTED;
 		}
@@ -45,16 +45,16 @@ class DeviceConnectRequest extends Model
 		if ($this->pairing_code) {
 			return self::STATE_REQUIRES_PAIRING_CODE;
 		}
-		
+
 		return self::STATE_PENDING;
 
 	}
 
 	/**
-	 * 
-	 * @param string $code 
-	 * @param string $deviceName 
-	 * @return true 
+	 *
+	 * @param string $code
+	 * @param string $deviceName
+	 * @return true
 	 */
 	public function verifyPairingCode(string $code, string $deviceName)
 	{
@@ -74,13 +74,13 @@ class DeviceConnectRequest extends Model
 
 	/**
 	 * Process a claim.
-	 * @param DeviceConnectClaim $claim 
-	 * @return Device | null 
+	 * @param DeviceConnectClaim $claim
+	 * @return Device | null
 	 */
 	public function processClaim(DeviceConnectClaim $claim): Device | null
 	{
 		// Do we have a registered device?
-		
+
 		/** @var Organisation $organisation */
 		$organisation = $this->organisation;
 
@@ -100,7 +100,7 @@ class DeviceConnectRequest extends Model
 			$claim->pairing_code = $this->pairing_code;
 
 			$this->save();
-			
+
 			return null;
 
 		}
@@ -130,14 +130,9 @@ class DeviceConnectRequest extends Model
 			return null;
 		}
 
-		// Request has not been claimed yet; check if the provided device uid is 
+		// Request has not been claimed yet; check if the provided device uid is
 		// already registered to this organisation.
-		$device = Device::where('uid', $claim->device_uid)
-			->first();
-
-		if (!$device) {
-			throw new LogicException('Device not found.');
-		}
+		$device = Device::firstOrNew([ 'uid' => $claim->device_uid ]);
 
 		// Now that is out of the way, check if this device is registered to this organisation.
 		$device = Device::where('uid', $claim->device_uid)
@@ -149,7 +144,7 @@ class DeviceConnectRequest extends Model
 			return $this->acceptClaim($claim);
 		}
 
-		// Existing, but unrecognized device. 
+		// Existing, but unrecognized device.
 		// We need to set a pairing code.
 		$this->device_uid = $claim->device_uid;
 		$this->generatePairingCode();
@@ -161,8 +156,8 @@ class DeviceConnectRequest extends Model
 
 	/**
 	 * Get the URL for this request.
-	 * @return string 
-	 * @throws BindingResolutionException 
+	 * @return string
+	 * @throws BindingResolutionException
 	 */
 	public function getUrl(): string
 	{
@@ -174,13 +169,13 @@ class DeviceConnectRequest extends Model
 
 	/**
 	 * Accept a claim.
-	 * @param DeviceConnectClaim $claim 
-	 * @return Device 
+	 * @param DeviceConnectClaim $claim
+	 * @return Device
 	 */
 	protected function acceptClaim(DeviceConnectClaim $claim): Device
 	{
 		$device = Device::getFromUid($claim->device_uid, $this->organisation);
-		
+
 		$this->device_id = $device->id;
 		$this->accepted_at = \Carbon\Carbon::now();
 
@@ -190,7 +185,7 @@ class DeviceConnectRequest extends Model
 	}
 
 	/**
-	 * @return void 
+	 * @return void
 	 */
 	protected function generatePairingCode(): void
 	{
