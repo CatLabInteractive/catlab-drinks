@@ -107,7 +107,6 @@ class Device extends Model implements
 	{
 		// Revoke all existing tokens.
 		$this->accessTokens()->delete();
-		$this->connectRequests()->delete();
 
 		if (!$lifetimeSeconds) {
 			$lifetimeSeconds = 60 * 60 * 24 * 7; // 7 days
