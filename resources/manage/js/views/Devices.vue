@@ -66,6 +66,11 @@
 								Buy License
 							</b-dropdown-item>
 
+							<b-dropdown-item @click="enterLicense(row.item)" title="Enter License">
+								<i class="fas fa-paste"></i>
+								Enter License
+							</b-dropdown-item>
+
 							<b-dropdown-item @click="remove(row.item)" title="Remove">
 								<i class="fas fa-trash"></i>
 								Delete
@@ -145,6 +150,25 @@
 		</template>
 	</b-modal>
 
+	<!-- Enter license modal -->
+	<b-modal :title="'Enter license for ' + (licenseDevice ? licenseDevice.name : '')" @hide="resetLicenseForm" ref="licenseFormModal">
+
+		<b-form-group label="License Key" label-for="license-key-input" description="Paste the base64-encoded license text block here">
+			<b-form-textarea id="license-key-input" v-model="licenseKey" placeholder="Paste license key here" rows="6" />
+		</b-form-group>
+
+		<b-alert variant="danger" :show="!!licenseError">
+			<i class="fas fa-exclamation-triangle mr-1"></i> {{ licenseError }}
+		</b-alert>
+
+		<template #modal-footer>
+			<b-btn type="button" variant="light" @click="resetLicenseForm()">Cancel</b-btn>
+			<b-btn type="button" variant="success" @click="submitLicense()" :disabled="!licenseKey">
+				<i class="fas fa-check mr-1"></i> Apply License
+			</b-btn>
+		</template>
+	</b-modal>
+
 </template>
 
 <script>
@@ -191,7 +215,10 @@
 				pinger: null,
 				pairingCode: null,
 				deviceName: null,
-				editModel: {}
+				editModel: {},
+				licenseDevice: null,
+				licenseKey: null,
+				licenseError: null
 			}
 		},
 
@@ -306,6 +333,84 @@
 
 					// Clean URL parameters
 					window.history.replaceState({}, document.title, window.location.pathname);
+				}
+			},
+
+			enterLicense(item) {
+				this.licenseDevice = item;
+				this.licenseKey = null;
+				this.licenseError = null;
+				this.$refs.licenseFormModal.show();
+			},
+
+			resetLicenseForm() {
+				this.$refs.licenseFormModal.hide();
+				this.licenseDevice = null;
+				this.licenseKey = null;
+				this.licenseError = null;
+			},
+
+			validateLicenseLocally(licenseText, device) {
+				let decoded;
+				try {
+					decoded = atob(licenseText.trim());
+				} catch (e) {
+					return 'Invalid license key: not valid base64.';
+				}
+
+				let license;
+				try {
+					license = JSON.parse(decoded);
+				} catch (e) {
+					return 'Invalid license key: invalid JSON structure.';
+				}
+
+				if (!license.data) {
+					return 'Invalid license key: missing license data.';
+				}
+
+				if (!license.signature) {
+					return 'Invalid license key: missing signature.';
+				}
+
+				if (!license.data.device_uid) {
+					return 'Invalid license key: missing device_uid in license data.';
+				}
+
+				if (license.data.device_uid !== device.uid) {
+					return 'Invalid license key: this license is for a different device.';
+				}
+
+				if (license.data.expiration_date !== null && license.data.expiration_date !== undefined) {
+					const expirationDate = new Date(license.data.expiration_date);
+					if (isNaN(expirationDate.getTime())) {
+						return 'Invalid license key: invalid expiration date format.';
+					}
+					if (expirationDate < new Date()) {
+						return 'Invalid license key: license has expired.';
+					}
+				}
+
+				return null;
+			},
+
+			async submitLicense() {
+				this.licenseError = null;
+
+				const validationError = this.validateLicenseLocally(this.licenseKey, this.licenseDevice);
+				if (validationError) {
+					this.licenseError = validationError;
+					return;
+				}
+
+				try {
+					await this.service.update(this.licenseDevice.id, { license_key: this.licenseKey.trim() });
+					this.resetLicenseForm();
+					await this.refreshDevices();
+				} catch (e) {
+					this.licenseError = e.response && e.response.data && e.response.data.error
+						? e.response.data.error.message
+						: 'Failed to save license. Please try again.';
 				}
 			},
 

@@ -141,6 +141,12 @@ class DeviceController extends ResourceController
 			throw ResourceValidationException::make($messages);
 		}
 
+		if (!isset($license['signature']) || empty($license['signature'])) {
+			$messages = new MessageCollection();
+			$messages->add(new Message('Invalid license key: missing signature.'));
+			throw ResourceValidationException::make($messages);
+		}
+
 		$data = $license['data'];
 		if (!is_array($data) || !isset($data['device_uid'])) {
 			$messages = new MessageCollection();
@@ -152,6 +158,21 @@ class DeviceController extends ResourceController
 			$messages = new MessageCollection();
 			$messages->add(new Message('Invalid license key: device_uid does not match this device.'));
 			throw ResourceValidationException::make($messages);
+		}
+
+		if (isset($data['expiration_date']) && $data['expiration_date'] !== null) {
+			$expirationDate = strtotime($data['expiration_date']);
+			if ($expirationDate === false) {
+				$messages = new MessageCollection();
+				$messages->add(new Message('Invalid license key: invalid expiration_date format.'));
+				throw ResourceValidationException::make($messages);
+			}
+
+			if ($expirationDate < time()) {
+				$messages = new MessageCollection();
+				$messages->add(new Message('Invalid license key: license has expired.'));
+				throw ResourceValidationException::make($messages);
+			}
 		}
 	}
 }
