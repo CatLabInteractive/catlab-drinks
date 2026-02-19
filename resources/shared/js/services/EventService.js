@@ -42,12 +42,30 @@ export class EventService extends AbstractService {
         return this.execute('post', 'events/' + eventId + '/attendees', attendee);
     }
 
+    bulkCreateAttendees(eventId, attendees) {
+        return this.client({
+            method: 'post',
+            url: 'events/' + eventId + '/attendees',
+            data: { items: attendees },
+            headers: { 'X-Bulk-Request': '1' }
+        }).then(response => response.data);
+    }
+
     updateAttendee(eventId, attendeeId, attendee) {
         return this.execute('put', 'events/' + eventId + '/attendees/' + attendeeId, attendee);
     }
 
     deleteAttendee(eventId, attendeeId) {
         return this.execute('delete', 'events/' + eventId + '/attendees/' + attendeeId);
+    }
+
+    bulkDeleteAttendees(eventId, ids) {
+        return this.client({
+            method: 'delete',
+            url: 'events/' + eventId + '/attendees',
+            data: { ids: ids },
+            headers: { 'X-Bulk-Request': '1' }
+        }).then(response => response.data);
     }
 
     importAttendees(eventId, attendeeInput, parameters ) {

@@ -13,26 +13,28 @@ The attendees module allows event organisers to register "card aliases" with NFC
 - **Resource Definition**: `app/Http/ManagementApi/V1/ResourceDefinitions/AttendeeResourceDefinition.php` — defines API field visibility
 - **Policy**: `app/Policies/AttendeePolicy.php` — authorization checks
 - **Frontend Service**: `resources/shared/js/services/EventService.js` — API communication
-- **Frontend View**: `resources/shared/js/views/Attendees.vue` — the spreadsheet UI
+- **Frontend View**: `resources/shared/js/views/Attendees.vue` — the attendee-specific page
+- **Reusable Component**: `resources/shared/js/components/Spreadsheet.vue` — generic spreadsheet component
 
 ## Changes Made
 
 ### Backend
 1. **AttendeeController**: Expanded route registration from `['index', 'view']` to `['index', 'view', 'store', 'edit', 'destroy']` to enable individual attendee CRUD operations.
-2. **AttendeePolicy**: Fixed `view`, `edit`, and `destroy` methods that incorrectly referenced `MenuItem` instead of `Attendee` — changed parameter types to `Attendee` and accessed `$attendee->event` instead of `$menuItem->event`.
+2. **AttendeeController**: Added `bulkDestroy()` method — accepts `DELETE /events/{parentId}/attendees` with a JSON body `{ "ids": [...] }` and `X-Bulk-Request` header to delete multiple attendees at once.
+3. **AttendeePolicy**: Fixed `view`, `edit`, and `destroy` methods that incorrectly referenced `MenuItem` instead of `Attendee`.
 
-### Frontend
-3. **EventService**: Added `createAttendee()`, `updateAttendee()`, and `deleteAttendee()` methods for individual attendee CRUD.
-4. **Attendees.vue**: Completely redesigned from a single textarea to a spreadsheet-like editable table:
-   - Loads existing attendees into a table on page load
-   - Each row has editable input fields for alias, name, and email
-   - Arrow key navigation (Up/Down) and Tab/Shift+Tab between cells
-   - Enter moves to the next row
-   - Copy-paste support from Excel/spreadsheets (detects tab-separated multi-cell data)
-   - Delete and undo-delete buttons per row
-   - Dirty tracking (highlights modified rows)
-   - "Save changes" button that creates, updates, and deletes attendees as needed
-   - Auto-adds empty rows at the bottom for new entries
-   - Bulk import section preserved for replacing all attendees at once
-   - Added informational section explaining how attendees/aliases work
-   - Added link to QuizWitz.com as an example tool for generating aliases
+### Frontend — Reusable Spreadsheet Component
+4. **Spreadsheet.vue** (`resources/shared/js/components/Spreadsheet.vue`): New abstract, reusable spreadsheet component:
+   - Accepts `columns` (array of `{ key, label }`) and `rows` as props
+   - Arrow key, Tab/Shift+Tab, Enter navigation between cells
+   - Paste import dialog: auto-detects delimiters (`:` for first column, tab for others), allows user to select delimiters, shows preview of parsed data before importing
+   - Handles the QuizWitz format `alias: Name\tEmail` by default
+   - Delete/undo-delete buttons, dirty tracking, empty row management
+   - Emits `save` and `reset` events for parent to handle
+
+### Frontend — Attendees Page
+5. **Attendees.vue**: Refactored to use the reusable Spreadsheet component, keeping only attendee-specific logic (loading data, save operations).
+6. **EventService**: Added `bulkCreateAttendees()` and `bulkDeleteAttendees()` methods that use `X-Bulk-Request` header. Bulk create sends `{ "items": [...] }` via POST; bulk delete sends `{ "ids": [...] }` via DELETE.
+
+### Documentation
+7. **`.ai/charon-bulk-delete-instructions.md`**: Instructions for extending the Charon framework to support bulk delete natively, including proposed code changes for `CrudController`, `ChildCrudController`, route registration, and frontend usage patterns.
