@@ -52,11 +52,11 @@ export class EventService extends AbstractService {
     }
 
     updateAttendee(eventId, attendeeId, attendee) {
-        return this.execute('put', 'events/' + eventId + '/attendees/' + attendeeId, attendee);
+        return this.execute('put', 'attendees/' + attendeeId, attendee);
     }
 
     deleteAttendee(eventId, attendeeId) {
-        return this.execute('delete', 'events/' + eventId + '/attendees/' + attendeeId);
+        return this.execute('delete', 'attendees/' + attendeeId);
     }
 
     bulkDeleteAttendees(eventId, ids) {

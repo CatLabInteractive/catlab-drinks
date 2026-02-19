@@ -70,6 +70,7 @@
             </b-btn>
             <b-btn variant="light" @click="$emit('reset')">Reset</b-btn>
             <b-btn variant="outline-secondary" @click="addRows(5)">Add rows</b-btn>
+            <b-btn variant="outline-danger" @click="confirmDeleteAll" class="float-right">Delete all</b-btn>
 
             <b-alert v-if="saved" variant="success" show class="d-inline-block ml-2 mb-0 py-1 px-2">Saved</b-alert>
         </div>
@@ -402,6 +403,12 @@
              */
             createEmptyRow() {
                 return createEmptyRow(this.columnKeys);
+            },
+
+            confirmDeleteAll() {
+                if (confirm('Are you sure you want to delete ALL rows? This cannot be undone after saving.')) {
+                    this.$emit('delete-all');
+                }
             }
         }
     }

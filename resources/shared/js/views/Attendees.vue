@@ -64,6 +64,7 @@
                         :saved="saved"
                         @save="saveChanges"
                         @reset="refresh"
+                        @delete-all="deleteAll"
                     />
 
                 </div>
@@ -213,6 +214,30 @@
                     setTimeout(() => { this.saved = false; }, 2500);
                 } catch (err) {
                     console.error('Error saving attendees:', err);
+                } finally {
+                    this.saving = false;
+                }
+            },
+
+            async deleteAll() {
+                this.saving = true;
+                this.saved = false;
+
+                try {
+                    const allIds = this.rows
+                        .filter(row => row._id)
+                        .map(row => row._id);
+
+                    if (allIds.length > 0) {
+                        await this.service.bulkDeleteAttendees(this.event.id, allIds);
+                    }
+
+                    await this.refresh();
+
+                    this.saved = true;
+                    setTimeout(() => { this.saved = false; }, 2500);
+                } catch (err) {
+                    console.error('Error deleting all attendees:', err);
                 } finally {
                     this.saving = false;
                 }
