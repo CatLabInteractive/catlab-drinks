@@ -63,8 +63,7 @@ export class EventService extends AbstractService {
         return this.client({
             method: 'delete',
             url: 'events/' + eventId + '/attendees',
-            data: { ids: ids },
-            headers: { 'X-Bulk-Request': '1' }
+            data: { items: ids.map(id => ({ id: id })) }
         }).then(response => response.data);
     }
 

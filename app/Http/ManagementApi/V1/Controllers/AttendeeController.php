@@ -65,10 +65,6 @@ class AttendeeController extends ResourceController
 
         $childResource->put('events/{parentId}/attendees/import', 'AttendeeController@import')
             ->parameters()->post('attendees');
-
-        $childResource->delete('events/{parentId}/attendees', 'AttendeeController@bulkDestroy')
-            ->summary('Bulk delete attendees')
-            ->parameters()->post('ids');
     }
 
     public static function setPublicRoutes(RouteCollection $routes)
@@ -159,28 +155,5 @@ class AttendeeController extends ResourceController
         }
 
         return \Response::json([ 'success' => true ]);
-    }
-
-    /**
-     * Bulk delete attendees by IDs.
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function bulkDestroy(Request $request)
-    {
-        /** @var Event $event */
-        $event = $this->getParent($request);
-        $ids = $request->json('ids', []);
-
-        if (!is_array($ids) || empty($ids)) {
-            return \Response::json(['error' => 'No IDs provided.'], 400);
-        }
-
-        // Only delete attendees that belong to this event
-        $event->attendees()
-            ->whereIn('id', $ids)
-            ->delete();
-
-        return \Response::json(['success' => true]);
     }
 }
