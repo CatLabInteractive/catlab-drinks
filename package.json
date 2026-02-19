@@ -1,4 +1,5 @@
 {
+	"name": "catlab-drinks",
     "private": true,
     "scripts": {
         "dev": "npm run development",

@@ -43,11 +43,11 @@
 
 						<b-nav-item :to="{ name: 'settings' }">{{ $t('Settings') }}</b-nav-item>
 
+						<language-toggle />
+
 						<li class="nav-item">
 							<logout-link />
 						</li>
-
-						<language-toggle />
 
 					</b-navbar-nav>
 				</b-navbar-nav>
