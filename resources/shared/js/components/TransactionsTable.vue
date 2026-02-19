@@ -23,10 +23,10 @@
 
     <div>
         <div class="text-center" v-if="!loaded">
-            <b-spinner label="Loading data" />
+            <b-spinner :label="$t('Loading data')" />
         </div>
 
-        <div class="alert alert-warning" v-if="loaded && transactions.length === 0">We have not recorded any transactions yet.</div>
+        <div class="alert alert-warning" v-if="loaded && transactions.length === 0">{{ $t('We have not recorded any transactions yet.') }}</div>
 
         <b-table striped hover :items="transactions" :fields="fields" v-if="transactions.length > 0">
 
@@ -52,18 +52,18 @@
         </b-table>
 
         <!-- Modal Component -->
-        <b-modal ref="orderModal" title="Order details" ok-only>
+        <b-modal ref="orderModal" :title="$t('Order details')" ok-only>
             <div v-if="orderDetails">
                 <order-details :order="orderDetails"></order-details>
             </div>
         </b-modal>
 
         <!-- Modal Component -->
-        <b-modal ref="cardModal" title="Card details" ok-only size="lg">
+        <b-modal ref="cardModal" :title="$t('Card details')" ok-only size="lg">
             <div v-if="cardDetails">
                 <card-details :cardUid="cardDetails.uid"></card-details>
 
-				<h3>Transactions</h3>
+				<h3>{{ $t('Transactions') }}</h3>
 				<transactions-table :cardId="cardDetails.id" />
             </div>
         </b-modal>

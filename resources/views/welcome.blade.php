@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>CatLab Drinks</title>
+        <title>{{ __('welcome.title') }} — {{ __('welcome.tagline') }}</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet" type="text/css">
@@ -38,112 +38,148 @@
                 <a href="#" class="navbar-brand d-flex align-items-center">
                     <strong>CatLab Drinks</strong>
                 </a>
+                <div class="d-flex align-items-center">
+                    <span class="text-light mr-2">{{ __('welcome.language') }}:</span>
+                    @foreach(['en' => 'English', 'nl' => 'Nederlands', 'fr' => 'Français', 'de' => 'Deutsch', 'es' => 'Español'] as $code => $label)
+                        @if($code === app()->getLocale())
+                            <span class="btn btn-sm btn-light ml-1">{{ $label }}</span>
+                        @else
+                            <a href="?lang={{ $code }}" class="btn btn-sm btn-outline-light ml-1">{{ $label }}</a>
+                        @endif
+                    @endforeach
+                </div>
             </div>
         </div>
     </header>
 
     <div class="container">
 
-        <div class="row">
-
-            <div class="col-md-12">
-
-                <br />
-                <h1>CatLab Drinks</h1>
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <h1>{{ __('welcome.title') }}</h1>
+                <p class="lead">{{ __('welcome.tagline') }}</p>
+                <p>{{ __('welcome.subtitle') }}</p>
                 <p>
-                    Simple open source cash register system for events / quizzes / parties. Source code available at
-                    <a href="https://github.com/catlab-drinks/catlab-drinks">GitHub</a>.
-                </p>
-
-            </div>
-
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-
-                <h2>What is CatLab Drinks?</h2>
-
-                <h3>Goal</h3>
-                <p>
-                    CatLab Drinks aims to be an open source cash register system for small events. The project tries to
-                    provide a solution for:
-                </p>
-
-                <ul>
-                    <li>Avoid calculation errors with vouchers / payments / order totals</li>
-                    <li>Keep track of all sales & locations</li>
-                    <li>Allow attendeeds to place orders from their own smartphone</li>
-                    <li>Optionally, allow the user of NFC topup cards (NFC NTAG 213 tags)</li>
-                    <li>All systems should stay opperational even in offline scenarios</li>
-
-                </ul>
-
-                <div class="alert alert-warning">
-                    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-                    BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-                    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-                    DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-                    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-                </div>
-
-                <p>
-                    <a href="{{ action('ClientController@manage') }}" class="btn btn-primary">Open web app</a>
-					<a href="https://play.google.com/store/apps/details?id=eu.catlab.drinks" class="btn btn-primary">Install Android app</a>
+                    <a href="{{ action('ClientController@manage') }}" class="btn btn-primary btn-lg">{{ __('welcome.open_web_app') }}</a>
+                    <a href="https://play.google.com/store/apps/details?id=eu.catlab.drinks" class="btn btn-success btn-lg">{{ __('welcome.install_android') }}</a>
+                    <a href="https://github.com/CatLabInteractive/catlab-drinks" class="btn btn-outline-dark btn-lg">{{ __('welcome.view_on_github') }}</a>
                 </p>
             </div>
         </div>
 
+        <hr />
+
         <div class="row">
             <div class="col-md-12">
-                <h2>Screenshots</h2>
+                <h2>{{ __('welcome.why_title') }}</h2>
+                <p>{{ __('welcome.why_intro') }}</p>
             </div>
         </div>
 
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <h4>✅ {{ __('welcome.why_1_title') }}</h4>
+                <p>{{ __('welcome.why_1_desc') }}</p>
+            </div>
+            <div class="col-md-4 mb-3">
+                <h4>📊 {{ __('welcome.why_2_title') }}</h4>
+                <p>{{ __('welcome.why_2_desc') }}</p>
+            </div>
+            <div class="col-md-4 mb-3">
+                <h4>📱 {{ __('welcome.why_3_title') }}</h4>
+                <p>{{ __('welcome.why_3_desc') }}</p>
+            </div>
+            <div class="col-md-4 mb-3">
+                <h4>💳 {{ __('welcome.why_4_title') }}</h4>
+                <p>{{ __('welcome.why_4_desc') }}</p>
+            </div>
+            <div class="col-md-4 mb-3">
+                <h4>📡 {{ __('welcome.why_5_title') }}</h4>
+                <p>{{ __('welcome.why_5_desc') }}</p>
+            </div>
+            <div class="col-md-4 mb-3">
+                <h4>🔓 {{ __('welcome.why_6_title') }}</h4>
+                <p>{{ __('welcome.why_6_desc') }}</p>
+            </div>
+        </div>
+
+        <hr />
+
         <div class="row">
+            <div class="col-md-12">
+                <h2>{{ __('welcome.screenshots_title') }}</h2>
+            </div>
+        </div>
+
+        <div class="row mb-4">
             <div class="col-md-6"><img class="img-fluid" src="/images/screenshot1.png" /></div>
             <div class="col-md-6"><img class="img-fluid" src="/images/screenshot2.png" /></div>
         </div>
 
+        <hr />
+
         <div class="row">
             <div class="col-md-12">
-
-                <h3>Background</h3>
-                <p>
-                    CatLab Drinks is developed for use during the quiz events of <a href="https://www.quizfabriek.be">De Quizfabriek</a>.
-                    At these quizzes all attending teams must bring a tablet or smartphone to answer the quiz questions.
-                    Using CatLab Drinks we have given the attendees the ability to send drink orders straight to the bar.
-                    By giving each quiz team their own NFC topup card, and linking that card to the team in our internal
-                    system, these orders are paid immediately and no money has to change hands. If a team prefers to order
-                    drinks at the bar, he can still use the NFC topup card to pay for his drinks at the bar.
-                </p>
-
-                <h2>Setup</h2>
-                <h3>Create an account</h3>
-                <p>
-                    After you've created an account you arrive at the <code>events</code> overview. Each event has its own
-                    price list (<code>menu</code>) which you can change by clicking the <code>menu</code> icon. When you're done with
-                    setting the correct prices for each item, you can op the <code>Bar HQ</code> by clicking on the
-                    event name. This screen should be used at the bars. At this screen you can <code>open</code> or <code>close</code>
-                    remote orders by clicking the status button. (It might be handy to close down remote orders
-                    during very busy times.)
-                </p>
-
-                <h3>Digital NFC topup cards</h3>
-                <p>
-                    CatLab drinks implements a closed loop RFIC/NFC payment system.
-                </p>
-
-                <p>
-                    To use the NFC topup cards you will need an acr122u card reader for each bar or cash register
-                    (other readers might work too, but have not been tested) and for each team / attendee you'll need an
-                    NTAG213 NFC chip. Communication between the card reader and the browser happens over a socket.io
-                    connection, so you will need to <a href="https://github.com/catlab-drinks/nfc-socketio">install a separate service</a>
-                    for that to work. We use a Raspberry Pi, but you can also run the service on a laptop.
-                </p>
-
+                <h2>{{ __('welcome.deploy_title') }}</h2>
+                <p>{{ __('welcome.deploy_intro') }}</p>
+                <ol>
+                    <li>{{ __('welcome.deploy_step_1') }}</li>
+                    <li>{{ __('welcome.deploy_step_2') }}</li>
+                    <li>{{ __('welcome.deploy_step_3') }}</li>
+                    <li>{{ __('welcome.deploy_step_4') }}</li>
+                </ol>
+                <p>{{ __('welcome.deploy_docker') }}</p>
             </div>
+        </div>
 
+        <hr />
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2>{{ __('welcome.nfc_title') }}</h2>
+                <p>{{ __('welcome.nfc_intro') }}</p>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <h4>{{ __('welcome.nfc_1_title') }}</h4>
+                <p>{{ __('welcome.nfc_1_desc') }}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+                <h4>{{ __('welcome.nfc_2_title') }}</h4>
+                <p>{{ __('welcome.nfc_2_desc') }}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+                <h4>{{ __('welcome.nfc_3_title') }}</h4>
+                <p>{{ __('welcome.nfc_3_desc') }}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+                <h4>{{ __('welcome.nfc_4_title') }}</h4>
+                <p>{{ __('welcome.nfc_4_desc') }}</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <p>
+                    {{ __('welcome.nfc_companion') }}
+                    <a href="https://github.com/catlab-drinks/nfc-socketio">{{ __('welcome.nfc_companion_link') }}</a>
+                    {{ __('welcome.nfc_companion_after') }}
+                </p>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h2>{{ __('welcome.license_title') }}</h2>
+                <p>{{ __('welcome.license_text') }}</p>
+                <div class="alert alert-warning">
+                    {{ __('welcome.license_warranty') }}
+                </div>
+            </div>
         </div>
 
     </div>

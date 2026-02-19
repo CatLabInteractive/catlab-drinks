@@ -24,10 +24,10 @@
     <b-container fluid>
 
         <h1>CatLab Drinks</h1>
-        <h2>Bestellen</h2>
+        <h2>{{ $t('Order') }}</h2>
 
         <div class="text-center" v-if="!loaded">
-            <b-spinner label="Loading data" />
+            <b-spinner :label="$t('Loading data')" />
         </div>
 
         <b-alert variant="danger" :show="error !== null">
@@ -75,7 +75,7 @@
 
             <b-row>
                 <b-col>
-                    <b-form-group label="Tafelnummer">
+                    <b-form-group :label="$t('Table number')">
                         <b-form-input type="text" v-model="tableNumber"></b-form-input>
                     </b-form-group>
                 </b-col>
@@ -89,21 +89,21 @@
                     </b-alert>
                     -->
 
-                    <p><b-btn type="submit" variant="success" @click="submit()" size="lg">Bestellen</b-btn></p>
+                    <p><b-btn type="submit" variant="success" @click="submit()" size="lg">{{ $t('Place order') }}</b-btn></p>
                 </b-col>
             </b-row>
 
         </div>
 
         <!-- Modal Component -->
-        <b-modal ref="warningModal" title="Woops" @ok="closeModal" button-size="lg" ok-only no-close-on-esc no-close-on-backdrop hide-header-close ok-variant="danger">
+        <b-modal ref="warningModal" :title="$t('Oops')" @ok="closeModal" button-size="lg" ok-only no-close-on-esc no-close-on-backdrop hide-header-close ok-variant="danger">
             <b-alert variant="danger" :show="warning !== null">
                 {{warning}}
             </b-alert>
         </b-modal>
 
         <!-- Modal Component -->
-        <b-modal ref="confirmModal" title="Bevestig bestelling" @ok="confirmOrder" button-size="lg" no-close-on-esc no-close-on-backdrop hide-header-close ok-variant="success" cancel-variant="danger">
+        <b-modal ref="confirmModal" :title="$t('Confirm order')" @ok="confirmOrder" button-size="lg" no-close-on-esc no-close-on-backdrop hide-header-close ok-variant="success" cancel-variant="danger">
 
             <div v-if="loadingOrder" class="text-center">
                 <b-spinner />
@@ -116,17 +116,17 @@
                     </li>
                 </ul>
 
-                <p>Uw tafelnummer: {{ tableNumber }}</p>
+                <p>{{ $t('Your table number: {tableNumber}', { tableNumber: tableNumber }) }}</p>
             </div>
         </b-modal>
 
-        <b-modal ref="successModal" title="We komen eraan!" @ok="closeModal" button-size="lg" ok-only ok-title="Nieuwe bestelling" ok-variant="success" no-close-on-esc no-close-on-backdrop>
+        <b-modal ref="successModal" :title="$t('We\'re on our way!')" @ok="closeModal" button-size="lg" ok-only :ok-title="$t('New order')" ok-variant="success" no-close-on-esc no-close-on-backdrop>
             <b-alert variant="success" :show="true">
-                We hebben je bestelling ontvangen ({{orderIds}}). Je bestelling staat in onze wachtlijst, we komen er zo snel mogelijk aan.
+                {{ $t('We have received your order ({orderIds}). Your order is in our queue, we will be there as soon as possible.', { orderIds: orderIds }) }}
             </b-alert>
         </b-modal>
 
-        <b-modal ref="processingOrderModal" title="Even wachten" no-close-on-esc no-close-on-backdrop hide-footer hide-header>
+        <b-modal ref="processingOrderModal" :title="$t('Please wait')" no-close-on-esc no-close-on-backdrop hide-footer hide-header>
             <div class="text-center">
                 <b-spinner />
             </div>
@@ -181,28 +181,32 @@
                 orderIds: null,
                 orderData: null,
                 items: [],
-                fields: [
-                    {
-                        key: 'name',
-                        label: 'Product',
-                    },
-                    {
-                        key: 'amount',
-                        label: 'Aantal',
-                        class: 'text-center'
-                    },
-
-                    {
-                        key: 'actions',
-                        label: '',
-                        class: 'text-right order-buttons'
-                    }
-                ],
                 model: {},
                 tableNumber: '',
                 warning: null,
                 error:  null,
                 loadingOrder: false
+            }
+        },
+
+        computed: {
+            fields() {
+                return [
+                    {
+                        key: 'name',
+                        label: this.$t('Product'),
+                    },
+                    {
+                        key: 'amount',
+                        label: this.$t('Amount'),
+                        class: 'text-center'
+                    },
+                    {
+                        key: 'actions',
+                        label: '',
+                        class: 'text-right order-buttons'
+                    }
+                ];
             }
         },
 
@@ -228,7 +232,7 @@
 
                 this.totals = {
                     isTotals: true,
-                    name: 'Totaal',
+                    name: this.$t('Total'),
                     amount: 0,
                     price: 0.0,
                     _rowVariant: 'success'
@@ -357,13 +361,13 @@
                 window.scrollTo(0, 0);
 
                 if (!this.tableNumber || this.tableNumber === '') {
-                    this.warning = 'Gelieve een tafelnummer in te voeren.';
+                    this.warning = this.$t('Please enter a table number.');
                     this.$refs.warningModal.show();
                     return;
                 }
 
                 if (this.totals.amount === 0) {
-                    this.warning = 'Gelieve minstens 1 item te bestellen.';
+                    this.warning = this.$t('Please order at least 1 item.');
                     this.$refs.warningModal.show();
                     return;
                 }
@@ -420,7 +424,7 @@
                 } catch (e) {
                     this.$refs.processingOrderModal.hide();
 
-                    this.warning = 'Network connection error. Please check network connection.';
+                    this.warning = this.$t('Network connection error. Please check network connection.');
                     if (
                         e.response &&
                         e.response.data &&

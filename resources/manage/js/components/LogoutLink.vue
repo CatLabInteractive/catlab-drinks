@@ -1,5 +1,5 @@
 <template>
-    <a href="#" @click.prevent="logout" class="nav-link">Logout</a>
+    <a href="#" @click.prevent="logout" class="nav-link">{{ $t('Logout') }}</a>
 </template>
 <script>
     export default {

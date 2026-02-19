@@ -24,8 +24,8 @@
     <b-container fluid>
 
         <p v-if="card">
-            <a class="btn btn-danger" @click="startTest()" v-if="!running">Start test</a>
-            <a class="btn btn-danger" @click="stopTest()" v-if="running">Stop test</a>
+            <a class="btn btn-danger" @click="startTest()" v-if="!running">{{ $t('Start test') }}</a>
+            <a class="btn btn-danger" @click="stopTest()" v-if="running">{{ $t('Stop test') }}</a>
         </p>
 
         <ul>
@@ -34,7 +34,7 @@
             </li>
         </ul>
 
-        <p v-if="!card">Scan card to start test</p>
+        <p v-if="!card">{{ $t('Scan card to start test') }}</p>
 
     </b-container>
 
@@ -57,7 +57,7 @@
 
         methods: {
             async startTest() {
-                if (confirm('Warning! This will apply random transactions to any card that is presented. Do you want to continue?')) {
+                if (confirm(this.$t('Warning! This will apply random transactions to any card that is presented. Do you want to continue?'))) {
 
                     try {
                         this.running = true;

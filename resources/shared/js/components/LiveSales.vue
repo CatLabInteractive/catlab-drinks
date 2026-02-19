@@ -22,14 +22,14 @@
 <template>
 	<div>
 		<h2>
-			Menu
+			{{ $t('Menu') }}
 			<b-button v-if="this.event" size="sm" class="btn-light" :to="{ name: 'menu', params: { id: this.event.id } }">
 				<span>✏️</span>
-				<span class="sr-only">Menu items</span>
+				<span class="sr-only">{{ $t('Menu items') }}</span>
 			</b-button>
 		</h2>
 		<div class="text-center" v-if="!loaded">
-			<b-spinner label="Loading data" />
+			<b-spinner :label="$t('Loading data')" />
 		</div>
 
 		<b-row v-if="loaded">
@@ -63,13 +63,13 @@
 		<b-row>
 			<b-col cols="12">
 				<div class="total">
-					<p>Total: {{totals.amount}} items = €{{totals.price.toFixed(2)}}</p>
+					<p>{{ $t('Total: {amount} items = €{price}', { amount: totals.amount, price: totals.price.toFixed(2) }) }}</p>
 				</div>
 
 				<p>
-					<button class="btn btn-success btn-lg" v-on:click="submit">Confirm</button>
+					<button class="btn btn-success btn-lg" v-on:click="submit">{{ $t('Confirm') }}</button>
 
-					<b-alert v-if="saving" variant="none" show>Saving</b-alert>
+					<b-alert v-if="saving" variant="none" show>{{ $t('Saving') }}</b-alert>
 					<b-alert v-if="saved" variant="none" :show="2">{{ savedMessage }}</b-alert>
 				</p>
 
@@ -82,26 +82,26 @@
 
 
 		<!-- Modal Component -->
-		<b-modal ref="confirmModal" class="order-confirm-modal" title="Confirm order" @ok="confirm" @cancel="cancel" button-size="lg" no-close-on-backdrop>
+		<b-modal ref="confirmModal" class="order-confirm-modal" :title="$t('Confirm order')" @ok="confirm" @cancel="cancel" button-size="lg" no-close-on-backdrop>
 			<ul>
 				<li v-for="(item, index) in selectedItems">
 					{{item.amount}} x {{item.menuItem.name}}
 				</li>
 			</ul>
 
-			<p class="total">Total: {{totals.amount}} items = €{{totals.price.toFixed(2)}}</p>
+			<p class="total">{{ $t('Total: {amount} items = €{price}', { amount: totals.amount, price: totals.price.toFixed(2) }) }}</p>
 		</b-modal>
 
 		<!-- Modal Component -->
-		<b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" title="Betaling geslaagd" ok-variant="success" no-close-on-backdrop>
+		<b-modal ref="processedModal" class="order-confirm-modal" ok-only button-size="lg" :title="$t('Payment successful')" ok-variant="success" no-close-on-backdrop>
 			<p class="text-center"><span class="huge">👍</span></p>
-			<p class="text-center alert alert-success">Order registered successfully.</p>
+			<p class="text-center alert alert-success">{{ $t('Order registered successfully.') }}</p>
 		</b-modal>
 
 		<!-- Modal Component -->
-		<b-modal ref="declinedModal" class="order-confirm-modal" ok-only button-size="lg" title="Payment failed" ok-variant="danger" no-close-on-backdrop>
+		<b-modal ref="declinedModal" class="order-confirm-modal" ok-only button-size="lg" :title="$t('Payment failed')" ok-variant="danger" no-close-on-backdrop>
 			<p class="text-center"><span class="huge">⚠️</span></p>
-			<p class="text-center alert alert-danger">Payment has failed. Please re-enter the order.</p>
+			<p class="text-center alert alert-danger">{{ $t('Payment has failed. Please re-enter the order.') }}</p>
 		</b-modal>
 	</div>
 
@@ -337,7 +337,7 @@
 
 					this.saving = false;
 					this.saved = true;
-					this.savedMessage = 'Order saved';
+					this.savedMessage = this.$t('Order saved');
 
 					setTimeout(
 						() => {
