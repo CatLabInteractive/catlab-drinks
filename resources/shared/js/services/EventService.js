@@ -38,6 +38,18 @@ export class EventService extends AbstractService {
         return this.execute('get', 'events/' + eventId + '/attendees?records=1000');
     }
 
+    createAttendee(eventId, attendee) {
+        return this.execute('post', 'events/' + eventId + '/attendees', attendee);
+    }
+
+    updateAttendee(eventId, attendeeId, attendee) {
+        return this.execute('put', 'events/' + eventId + '/attendees/' + attendeeId, attendee);
+    }
+
+    deleteAttendee(eventId, attendeeId) {
+        return this.execute('delete', 'events/' + eventId + '/attendees/' + attendeeId);
+    }
+
     importAttendees(eventId, attendeeInput, parameters ) {
 
         if (typeof(parameters) === 'undefined') {
