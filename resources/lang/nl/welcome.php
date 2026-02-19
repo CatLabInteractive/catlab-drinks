@@ -39,10 +39,10 @@ return [
     'nfc_2_title' => 'Encryptie & integriteit',
     'nfc_2_desc' => 'Kaartgegevens worden beschermd met AES-encryptie met een organisatiebrede geheime sleutel. Elke transactie werkt het saldo en een rollende teller bij, die wordt ondertekend om manipulatie of replay-aanvallen te voorkomen. Kaarten van de ene organisatie kunnen niet bij een andere worden gebruikt.',
     'nfc_3_title' => 'Hardware-vereisten',
-    'nfc_3_desc' => 'Je hebt een ACR122U (of compatibele) NFC-kaartlezer nodig bij elk verkooppunt, en NTAG213 NFC-tags voor elke deelnemer. Communicatie tussen de lezer en de POS-browser verloopt via een socket.io-verbinding door een lichtgewicht begeleidingsservice.',
+    'nfc_3_desc' => 'Je hebt NTAG213 NFC-tags nodig voor elke deelnemer. Voor het lezen van kaarten kun je de CatLab Drinks Android-app gebruiken op elk apparaat met een ingebouwde NFC-lezer. Als alternatief kun je een ACR122U (of compatibele) USB NFC-kaartlezer gebruiken met een lichtgewicht begeleidingsservice die via een socket.io-verbinding communiceert met de POS-browser.',
     'nfc_4_title' => 'Offline-ondersteuning',
     'nfc_4_desc' => 'Omdat het saldo op de kaart zelf is opgeslagen, kunnen transacties worden verwerkt zelfs wanneer de internetverbinding onderbroken is. Transacties worden gesynchroniseerd met de server wanneer de verbinding hersteld is.',
-    'nfc_companion' => 'De NFC-lezer begeleidingsservice draait op een Raspberry Pi of een machine met USB-toegang. Zie de',
+    'nfc_companion' => 'Voor USB NFC-lezers draait de begeleidingsservice op een Raspberry Pi of een machine met USB-toegang. Zie de',
     'nfc_companion_link' => 'NFC socket.io service-repository',
     'nfc_companion_after' => 'voor installatie-instructies.',
 

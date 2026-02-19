@@ -39,10 +39,10 @@ return [
     'nfc_2_title' => 'Chiffrement et intégrité',
     'nfc_2_desc' => 'Les données de la carte sont protégées par un chiffrement AES avec une clé secrète au niveau de l\'organisation. Chaque transaction met à jour le solde et un compteur rotatif, qui est signé pour empêcher la falsification ou les attaques par rejeu. Les cartes d\'une organisation ne peuvent pas être utilisées dans une autre.',
     'nfc_3_title' => 'Matériel requis',
-    'nfc_3_desc' => 'Vous avez besoin d\'un lecteur de cartes NFC ACR122U (ou compatible) à chaque point de vente, et de tags NFC NTAG213 pour chaque participant. La communication entre le lecteur et le navigateur POS se fait via une connexion socket.io à travers un service compagnon léger.',
+    'nfc_3_desc' => 'Vous avez besoin de tags NFC NTAG213 pour chaque participant. Pour lire les cartes, vous pouvez utiliser l\'application Android CatLab Drinks sur tout appareil doté d\'un lecteur NFC intégré. Alternativement, vous pouvez utiliser un lecteur de cartes NFC USB ACR122U (ou compatible) avec un service compagnon léger qui communique avec le navigateur POS via une connexion socket.io.',
     'nfc_4_title' => 'Support hors ligne',
     'nfc_4_desc' => 'Le solde étant stocké sur la carte elle-même, les transactions peuvent être traitées même lorsque la connexion Internet est intermittente. Les transactions sont synchronisées avec le serveur lorsque la connectivité est rétablie.',
-    'nfc_companion' => 'Le service compagnon du lecteur NFC fonctionne sur un Raspberry Pi ou toute machine avec accès USB. Voir le',
+    'nfc_companion' => 'Pour les lecteurs NFC USB, le service compagnon fonctionne sur un Raspberry Pi ou toute machine avec accès USB. Voir le',
     'nfc_companion_link' => 'dépôt du service NFC socket.io',
     'nfc_companion_after' => 'pour les instructions d\'installation.',
 

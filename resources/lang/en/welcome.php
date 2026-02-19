@@ -39,10 +39,10 @@ return [
     'nfc_2_title' => 'Encryption & integrity',
     'nfc_2_desc' => 'Card data is protected using AES encryption with an organisation-level secret key. Each transaction updates the balance and a rolling counter, which is signed to prevent tampering or replay attacks. Cards from one organisation cannot be used at another.',
     'nfc_3_title' => 'Hardware requirements',
-    'nfc_3_desc' => 'You need an ACR122U (or compatible) NFC card reader at each point of sale, and NTAG213 NFC tags for each attendee. Communication between the reader and the POS browser happens over a socket.io connection through a lightweight companion service.',
+    'nfc_3_desc' => 'You need NTAG213 NFC tags for each attendee. For reading cards, you can use the CatLab Drinks Android app on any device with a built-in NFC reader. Alternatively, you can use an ACR122U (or compatible) USB NFC card reader with a lightweight companion service that communicates with the POS browser over a socket.io connection.',
     'nfc_4_title' => 'Offline support',
     'nfc_4_desc' => 'Because the balance is stored on the card itself, transactions can be processed even when the internet connection is intermittent. Transactions are synced to the server when connectivity is restored.',
-    'nfc_companion' => 'The NFC reader companion service runs on a Raspberry Pi or any machine with USB access. See the',
+    'nfc_companion' => 'For USB NFC readers, the companion service runs on a Raspberry Pi or any machine with USB access. See the',
     'nfc_companion_link' => 'NFC socket.io service repository',
     'nfc_companion_after' => 'for setup instructions.',
 
