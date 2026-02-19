@@ -67,15 +67,31 @@ Devices receive access tokens stored in localStorage:
 
 On 401 responses, all keys are cleared and the device returns to the pairing screen.
 
-Setup
------
+Setup with Docker
+-----------------
+The easiest way to get started is with Docker Compose:
+
+```bash
+docker-compose up
+```
+
+That's it! On the first run this will automatically:
+- Copy `.env.example` to `.env` (if no `.env` exists)
+- Generate an application key
+- Install Composer and NPM dependencies
+- Run database migrations
+- Generate Passport encryption keys
+- Build the frontend assets
+
+Once the containers are running, the application is available at [http://localhost:8095](http://localhost:8095).
+
+> **WARNING:** The application key (in `.env`) encrypts secrets in the database and NFC card data.
+> Losing this key makes existing NFC cards unusable. **Back it up immediately.**
+
+### Manual Setup (without Docker)
 1. `composer install` — install PHP dependencies
 2. Copy `.env.example` to `.env` and fill in database credentials
 3. `php artisan key:generate` — create application key
-
-   **WARNING:** The application key encrypts secrets in the database and NFC card data.
-   Losing this key makes existing NFC cards unusable. **Back it up immediately.**
-
 4. `php artisan migrate` — initialize the database
 5. `php artisan passport:keys` — generate OAuth encryption keys
 6. `npm install` — install JS dependencies
