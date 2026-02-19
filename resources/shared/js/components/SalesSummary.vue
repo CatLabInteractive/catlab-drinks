@@ -23,16 +23,16 @@
 
 	<div>
 		<h2>
-			<span v-if="event">{{event.name}} - </span>Sales summary
+			<span v-if="event">{{event.name}} - </span>{{ $t('Sales summary') }}
 		</h2>
 
 		<ul class="nav nav-tabs">
-			<b-nav-item :to="{ name: 'summary', params: { id: this.eventId } }" :active="this.summaryType === 'items'">Sold items</b-nav-item>
-			<b-nav-item :to="{ name: 'summary-names', params: { id: this.eventId } }" :active="this.summaryType === 'names'">Orderer names</b-nav-item>
+			<b-nav-item :to="{ name: 'summary', params: { id: this.eventId } }" :active="this.summaryType === 'items'">{{ $t('Sold items') }}</b-nav-item>
+			<b-nav-item :to="{ name: 'summary-names', params: { id: this.eventId } }" :active="this.summaryType === 'names'">{{ $t('Orderer names') }}</b-nav-item>
 		</ul>
 
 		<div class="text-center" v-if="!loaded">
-			<b-spinner label="Loading data" />
+			<b-spinner :label="$t('Loading data')" />
 		</div>
 
 		<div class="order-summary" v-if="summary">
@@ -40,14 +40,14 @@
 			<table class="table table-striped">
 				<thead>
 					<tr>
-						<th>Rank</th>
-						<th>Item</th>
-						<th>Amount</th>
-						<th>Price</th>
-						<th>VAT %</th>
-						<th class="text-right">Netto</th>
-						<th class="text-right">VAT</th>
-						<th class="text-right">Total</th>
+						<th>{{ $t('Rank') }}</th>
+						<th>{{ $t('Item') }}</th>
+						<th>{{ $t('Amount') }}</th>
+						<th>{{ $t('Price') }}</th>
+						<th>{{ $t('VAT %') }}</th>
+						<th class="text-right">{{ $t('Netto') }}</th>
+						<th class="text-right">{{ $t('VAT') }}</th>
+						<th class="text-right">{{ $t('Total') }}</th>
 					</tr>
 				</thead>
 
@@ -78,7 +78,7 @@
 
 				<tfoot>
 					<tr>
-						<th>Total</th>
+						<th>{{ $t('Total') }}</th>
 						<th> </th>
 						<th>{{summary.amount}}</th>
 						<th>&nbsp;</th>
@@ -94,7 +94,7 @@
 
 
 		<!-- Modal Component -->
-		<b-modal ref="detailModal" title="Order details" ok-only size="lg">
+		<b-modal ref="detailModal" :title="$t('Order details')" ok-only size="lg">
 			<div v-if="orderFilters">
 				<sales-history-modal :filter="orderFilters" :eventId="eventId"></sales-history-modal>
 			</div>
@@ -221,7 +221,7 @@
 								this.groupedItems.push({
 									name: summaryLine.name,
 									hasName: true,
-									visibleName: summaryLine.name ? summaryLine.name : 'Unknown / manual',
+									visibleName: summaryLine.name ? summaryLine.name : this.$t('Unknown / manual'),
 									sales: [summaryLine]
 								})
 							}

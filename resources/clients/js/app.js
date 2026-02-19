@@ -28,6 +28,7 @@ import App from './views/App'
 import Order from './views/Order'
 import AirbrakeClient from 'airbrake-js';
 import VueCookies from 'vue-cookies'
+import i18n from "../../shared/js/i18n/index";
 
 
 if (typeof (AIRBRAKE_CONFIG) !== 'undefined' && AIRBRAKE_CONFIG !== null) {
@@ -76,4 +77,5 @@ const app = createApp({
 });
 
 app.use(router);
+app.use(i18n);
 app.mount('#app');

@@ -27,14 +27,14 @@
             <b-col cols="12" id="attendees-page">
 
                 <div class="text-center" v-if="!loaded">
-                    <b-spinner label="Loading data" />
+                    <b-spinner :label="$t('Loading data')" />
                 </div>
 
                 <div v-if="loaded">
 
-                    <b-link class="btn btn-success mb-3" :to="{ name: 'checkIn', params: { id: this.eventId } }" title="Check-in">
+                    <b-link class="btn btn-success mb-3" :to="{ name: 'checkIn', params: { id: this.eventId } }" :title="$t('Check-In')">
                         <span>🛂</span>
-                        Check-In
+                        {{ $t('Check-In') }}
                     </b-link>
 
                     <h2>Attendees: {{ event.name }}</h2>

@@ -24,15 +24,15 @@
 	<b-container fluid>
 
 		<h1>
-			Point of sale devices
+			{{ $t('Point of sale devices') }}
 
-			<b-button size="sm" class="btn-success" @click="createNew" title="Pair a device">
+			<b-button size="sm" class="btn-success" @click="createNew" :title="$t('Pair a device')">
 				<span>＋</span>
-				<span class="sr-only">Link or authenticate a device</span>
+				<span class="sr-only">{{ $t('Link or authenticate a device') }}</span>
 			</b-button>
 		</h1>
 		<div class="text-center" v-if="!loaded">
-			<b-spinner label="Loading data" />
+			<b-spinner :label="$t('Loading data')" />
 		</div>
 
 		<b-row>
@@ -45,35 +45,35 @@
 
 					<template v-slot:cell(license)="row">
 						<span v-if="row.item.license_key" class="text-success">
-							✅ Licensed
+							✅ {{ $t('Licensed') }}
 						</span>
 						<span v-else class="text-muted">
-							❌ No license
+							❌ {{ $t('No license') }}
 						</span>
 					</template>
 
 					<template v-slot:cell(actions)="row">
 
-						<b-dropdown text="Actions" size="sm" right>
+						<b-dropdown :text="$t('Actions')" size="sm" right>
 
-							<b-dropdown-item class="" @click="edit(row.item)" title="Edit">
+							<b-dropdown-item class="" @click="edit(row.item)" :title="$t('Edit')">
 								✏️
-								Edit
+								{{ $t('Edit') }}
 							</b-dropdown-item>
 
-							<b-dropdown-item :href="buyLicenseUrl(row.item)" title="Buy License">
+							<b-dropdown-item :href="buyLicenseUrl(row.item)" :title="$t('Buy License')">
 								🔑
-								Buy License
+								{{ $t('Buy License') }}
 							</b-dropdown-item>
 
-							<b-dropdown-item @click="enterLicense(row.item)" title="Enter License">
+							<b-dropdown-item @click="enterLicense(row.item)" :title="$t('Enter License')">
 								📋
-								Enter License
+								{{ $t('Enter License') }}
 							</b-dropdown-item>
 
-							<b-dropdown-item @click="remove(row.item)" title="Remove">
+							<b-dropdown-item @click="remove(row.item)" :title="$t('Delete')">
 								🗑️
-								Delete
+								{{ $t('Delete') }}
 							</b-dropdown-item>
 
 						</b-dropdown>
@@ -87,74 +87,74 @@
 	</b-container>
 
 	<!-- Connect / pair device modal -->
-	<b-modal :title="'Connect & authenticate a device'" @hide="resetConnectForm" ref="connectFormModal">
+	<b-modal :title="$t('Connect & authenticate a device')" @hide="resetConnectForm" ref="connectFormModal">
 
 		<div class="text-center">
-			<b-spinner v-if="creatingRequest" label="Creating connect token" />
+			<b-spinner v-if="creatingRequest" :label="$t('Creating connect token')" />
 		</div>
 
 		<div v-if="!creatingRequest && connectRequest">
 
 			<div v-if="connectRequest.state === 'pending'" class="text-center">
-				<p>Scan this QR code with the POS device to connect:</p>
+				<p>{{ $t('Scan this QR code with the POS device to connect:') }}</p>
 				<qrcode-vue :value="connectUrl" :size="256" level="M" />
 				<div class="mt-2">
-					<b-form-group label="Connection URL" label-for="connect-url" description="You can also copy this URL and paste it in the POS device's manual token entry">
+					<b-form-group :label="$t('Connection URL')" label-for="connect-url" :description="$t('You can also copy this URL and paste it in the POS device\'s manual token entry')">
 						<b-form-input id="connect-url" type="text" :value="connectUrl" readonly @click="selectConnectUrl" />
 					</b-form-group>
 				</div>
 
-				<p>- or -</p>
-				<p><a target="_blank" :href="connectUrl" class="btn btn-primary">Open POS on this device</a></p>
+				<p>{{ $t('- or -') }}</p>
+				<p><a target="_blank" :href="connectUrl" class="btn btn-primary">{{ $t('Open POS on this device') }}</a></p>
 			</div>
 
 			<div v-if="connectRequest.state === 'requires_pairing_code'">
 
 				<b-alert variant="info" show>
 					<span class="mr-1">ℹ️</span>
-					This is a new device and needs to be paired. Enter the pairing code displayed on the POS device below.
+					{{ $t('This is a new device and needs to be paired. Enter the pairing code displayed on the POS device below.') }}
 				</b-alert>
 
-				<b-form-group label="Pairing Code" label-for="pairing-code" description="The code shown on the POS device screen">
-					<b-form-input id="pairing-code" type="text" v-model="pairingCode" placeholder="Enter pairing code" />
+				<b-form-group :label="$t('Pairing Code')" label-for="pairing-code" :description="$t('The code shown on the POS device screen')">
+					<b-form-input id="pairing-code" type="text" v-model="pairingCode" :placeholder="$t('Enter pairing code')" />
 				</b-form-group>
 
-				<b-form-group label="Device Name" label-for="device-name" description="A descriptive name to identify this device (e.g. 'Bar Terminal 1')">
-					<b-form-input id="device-name" type="text" v-model="deviceName" placeholder="Enter device name" />
+				<b-form-group :label="$t('Device Name')" label-for="device-name" :description="$t('A descriptive name to identify this device (e.g. \'Bar Terminal 1\')')">
+					<b-form-input id="device-name" type="text" v-model="deviceName" :placeholder="$t('Enter device name')" />
 				</b-form-group>
 
 				<b-button variant="primary" @click="submitPairingCode" block>
-					<span class="mr-1">✓</span> Pair Device
+					<span class="mr-1">✓</span> {{ $t('Pair Device') }}
 				</b-button>
 			</div>
 
 		</div>
 
 		<template #modal-footer>
-			<b-btn type="button" variant="light" @click="resetConnectForm()">Cancel</b-btn>
+			<b-btn type="button" variant="light" @click="resetConnectForm()">{{ $t('Cancel') }}</b-btn>
 		</template>
 	</b-modal>
 
 	<!-- Edit device modal -->
-	<b-modal :title="'Edit device'" @hide="resetEditForm" ref="editFormModal">
+	<b-modal :title="$t('Edit device')" @hide="resetEditForm" ref="editFormModal">
 
-		<b-form-group label="Device Name" label-for="edit-device-name" description="A descriptive name to identify this device">
-			<b-form-input id="edit-device-name" type="text" v-model="editModel.name" placeholder="Enter device name" />
+		<b-form-group :label="$t('Device Name')" label-for="edit-device-name" :description="$t('A descriptive name to identify this device')">
+			<b-form-input id="edit-device-name" type="text" v-model="editModel.name" :placeholder="$t('Enter device name')" />
 		</b-form-group>
 
 		<template #modal-footer>
-			<b-btn type="button" variant="light" @click="resetEditForm()">Cancel</b-btn>
+			<b-btn type="button" variant="light" @click="resetEditForm()">{{ $t('Cancel') }}</b-btn>
 			<b-btn type="button" variant="success" @click="saveEdit()">
-				<span class="mr-1">💾</span> Save
+				<span class="mr-1">💾</span> {{ $t('Save') }}
 			</b-btn>
 		</template>
 	</b-modal>
 
 	<!-- Enter license modal -->
-	<b-modal :title="'Enter license for ' + (licenseDevice ? licenseDevice.name : '')" @hide="resetLicenseForm" ref="licenseFormModal">
+	<b-modal :title="$t('Enter license for {name}', { name: licenseDevice ? licenseDevice.name : '' })" @hide="resetLicenseForm" ref="licenseFormModal">
 
-		<b-form-group label="License Key" label-for="license-key-input" description="Paste the base64-encoded license text block here">
-			<b-form-textarea id="license-key-input" v-model="licenseKey" placeholder="Paste license key here" rows="6" />
+		<b-form-group :label="$t('License Key')" label-for="license-key-input" :description="$t('Paste the base64-encoded license text block here')">
+			<b-form-textarea id="license-key-input" v-model="licenseKey" :placeholder="$t('Paste license key here')" rows="6" />
 		</b-form-group>
 
 		<b-alert variant="danger" :show="!!licenseError">
@@ -162,9 +162,9 @@
 		</b-alert>
 
 		<template #modal-footer>
-			<b-btn type="button" variant="light" @click="resetLicenseForm()">Cancel</b-btn>
+			<b-btn type="button" variant="light" @click="resetLicenseForm()">{{ $t('Cancel') }}</b-btn>
 			<b-btn type="button" variant="success" @click="submitLicense()" :disabled="!licenseKey">
-				<span class="mr-1">✓</span> Apply License
+				<span class="mr-1">✓</span> {{ $t('Apply License') }}
 			</b-btn>
 		</template>
 	</b-modal>
@@ -198,15 +198,15 @@
 				fields: [
 					{
 						key: 'name',
-						label: 'Device',
+						label: this.$t('Device'),
 					},
 					{
 						key: 'license',
-						label: 'License',
+						label: this.$t('License'),
 					},
 					{
 						key: 'actions',
-						label: 'Actions',
+						label: this.$t('Actions'),
 						class: 'text-right'
 					}
 				],
@@ -302,7 +302,7 @@
 
 			async remove(item) {
 
-				if (confirm('Are you sure you want to delete device "' + item.name + '"?\n\nThis will revoke the device\'s access token and it will no longer be able to connect. The device will need to be re-paired to use it again.')) {
+				if (confirm(this.$t('Are you sure you want to delete device "{name}"?\n\nThis will revoke the device\'s access token and it will no longer be able to connect. The device will need to be re-paired to use it again.', { name: item.name }))) {
 					await this.service.delete(item.id);
 					await this.refreshDevices();
 				}
@@ -355,39 +355,39 @@
 				try {
 					decoded = atob(licenseText.trim());
 				} catch (e) {
-					return 'Invalid license key: not valid base64.';
+					return this.$t('Invalid license key: not valid base64.');
 				}
 
 				let license;
 				try {
 					license = JSON.parse(decoded);
 				} catch (e) {
-					return 'Invalid license key: invalid JSON structure.';
+					return this.$t('Invalid license key: invalid JSON structure.');
 				}
 
 				if (!license.data) {
-					return 'Invalid license key: missing license data.';
+					return this.$t('Invalid license key: missing license data.');
 				}
 
 				if (!license.signature) {
-					return 'Invalid license key: missing signature.';
+					return this.$t('Invalid license key: missing signature.');
 				}
 
 				if (!license.data.device_uid) {
-					return 'Invalid license key: missing device_uid in license data.';
+					return this.$t('Invalid license key: missing device_uid in license data.');
 				}
 
 				if (license.data.device_uid !== device.uid) {
-					return 'Invalid license key: this license is for a different device.';
+					return this.$t('Invalid license key: this license is for a different device.');
 				}
 
 				if (license.data.expiration_date !== null && license.data.expiration_date !== undefined) {
 					const expirationDate = new Date(license.data.expiration_date);
 					if (isNaN(expirationDate.getTime())) {
-						return 'Invalid license key: invalid expiration date format.';
+						return this.$t('Invalid license key: invalid expiration date format.');
 					}
 					if (expirationDate < new Date()) {
-						return 'Invalid license key: license has expired.';
+						return this.$t('Invalid license key: license has expired.');
 					}
 				}
 
@@ -410,7 +410,7 @@
 				} catch (e) {
 					this.licenseError = e.response && e.response.data && e.response.data.error
 						? e.response.data.error.message
-						: 'Failed to save license. Please try again.';
+						: this.$t('Failed to save license. Please try again.');
 				}
 			},
 

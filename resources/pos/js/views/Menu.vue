@@ -24,34 +24,34 @@
 	<b-container fluid>
 
 		<h2>
-			Menu
+			{{ $t('Menu') }}
 
 			<b-link class="btn btn-sm btn-info" :to="{ name: 'hq', params: { id: eventId } }">
-				Bar HQ
+				{{ $t('Bar HQ') }}
 			</b-link>
 		</h2>
 
 		<div class="text-center" v-if="!loaded">
-			<b-spinner label="Loading data" />
+			<b-spinner :label="$t('Loading data')" />
 		</div>
 
 		<b-row>
 			<b-col>
 
 				<b-alert variant="info" show>
-					Editing the menu can only be done from the management console.<br />
-					Here you can only change the availability of products.
+					{{ $t('Editing the menu can only be done from the management console.') }}<br />
+					{{ $t('Here you can only change the availability of products.') }}
 				</b-alert>
 
 				<b-table striped hover :items="items" :fields="fields" v-if="loaded">
 
 					<template v-slot:cell(is_selling)="row">
 						<b-button v-if="!row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)" class="btn-danger">
-							Not selling
+							{{ $t('Not selling') }}
 						</b-button>
 
 						<b-button v-if="row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)" class="btn-success">
-							Selling
+							{{ $t('Selling') }}
 						</b-button>
 
 						<b-spinner v-if="toggling === row.item.id" small></b-spinner>
@@ -118,26 +118,26 @@
 				fields: [
 					{
 						key: 'name',
-						label: 'Product name',
+						label: this.$t('Product name'),
 					},
 					{
 						key: 'price',
-						label: 'Price',
+						label: this.$t('Price'),
 						class: 'text-center'
 					},
 					{
 						key: 'vat_percentage',
-						label: 'VAT %',
+						label: this.$t('VAT %'),
 						class: 'text-center'
 					},
 					{
 						key: 'is_selling',
-						label: 'Status',
+						label: this.$t('Status'),
 						class: 'text-center'
 					},
 					{
 						key: 'category',
-						label: 'Category',
+						label: this.$t('Category'),
 						class: 'text-center'
 					},
 				],

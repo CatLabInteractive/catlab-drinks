@@ -23,23 +23,20 @@
 
     <div v-if="card">
 
-        <h2>Card #<strong>{{ card.uid }}</strong></h2>
+        <h2>{{ $t('Card #{uid}', { uid: card.uid }) }}</h2>
         <div v-if="card && corrupted">
             <div class="alert alert-danger col-lg-6" role="alert">
                 <p>
-                    This card is corrupted, it might belong to a different organisation. If you are sure the card
-                    should be correct, you can try to rebuild the card data from the available online data.
-                    Note that if you have bars that are operating online, you might lose transactions
-                    and the balance might not be correct after rebuilding.
+                    {{ $t('This card is corrupted, it might belong to a different organisation. If you are sure the card should be correct, you can try to rebuild the card data from the available online data. Note that if you have bars that are operating online, you might lose transactions and the balance might not be correct after rebuilding.') }}
                 </p>
-                <button v-on:click="rebuild()" class="btn btn-danger">Rebuild</button>
+                <button v-on:click="rebuild()" class="btn btn-danger">{{ $t('Rebuild') }}</button>
             </div>
         </div>
 
         <div v-if="ready" class="row">
 
             <div class="col-md-8">
-                <h2>Topup</h2>
+                <h2>{{ $t('Topup') }}</h2>
                 <div class="topup-amounts">
                     <div v-for="amount in defaultAmounts" v-on:click="topupForAmount(amount)" class="amount">
                         €{{ amount.toFixed(2) }}
@@ -48,32 +45,32 @@
 
                 <div style="clear: both;"></div>
 
-                <h3>Custom amount</h3>
-                <label for="customAmount">Custom amount</label><br />
+                <h3>{{ $t('Custom amount') }}</h3>
+                <label for="customAmount">{{ $t('Custom amount') }}</label><br />
                 <input type="number" step="0.01" placeholder="10.00" id="customAmount" v-model="topupAmountString" />
 
-                <button class="btn btn-primary" v-on:click="topup()">Topup</button>
+                <button class="btn btn-primary" v-on:click="topup()">{{ $t('Topup') }}</button>
 
-                <h3>Aliases</h3>
-                <p>(expire 24h after creation)</p>
+                <h3>{{ $t('Aliases') }}</h3>
+                <p>{{ $t('(expire 24h after creation)') }}</p>
                 <ul>
                     <li v-for="alias in card.orderTokenAliases">{{alias}} <a href="javascript:void(0);" v-on:click="removeOrderTokenAlias(alias)" class="btn btn-danger btn-sm">x</a></li>
 
                     <li>
                         <input type="text" v-model="creatingOrderTokenAlias" />
-                        <button class="btn btn-primary btn-sm" v-on:click="addOrderTokenAlias">Add</button>
+                        <button class="btn btn-primary btn-sm" v-on:click="addOrderTokenAlias">{{ $t('Add') }}</button>
                     </li>
                 </ul>
 
-                <h3>Discount</h3>
+                <h3>{{ $t('Discount') }}</h3>
                 <p>
-                    Card gives <input type="number" step="1" min="0.0" max="100.0" v-model="card.discountPercentage" />% at all sales.
-                    <button class="btn btn-primary btn-sm" v-on:click="saveCardData">Save</button>
+                    {{ $t('Card gives') }} <input type="number" step="1" min="0.0" max="100.0" v-model="card.discountPercentage" />{{ $t('% at all sales.') }}
+                    <button class="btn btn-primary btn-sm" v-on:click="saveCardData">{{ $t('Save') }}</button>
                 </p>
 
                 <p>
-                    <span v-if="storeState === 'storing'">Saving</span>
-                    <span v-if="storeState === 'stored'">Saved</span>
+                    <span v-if="storeState === 'storing'">{{ $t('Saving') }}</span>
+                    <span v-if="storeState === 'stored'">{{ $t('Saved') }}</span>
                 </p>
             </div>
 
@@ -83,41 +80,41 @@
 
 					<tbody>
 						<tr>
-							<td>ID</td>
+							<td>{{ $t('ID') }}</td>
 							<td>{{ card.id }}</td>
 						</tr>
 
 						<tr>
-							<td>Balance</td>
+							<td>{{ $t('Balance') }}</td>
 							<td>{{ card.getVisibleBalance() }}</td>
 						</tr>
 
 						<tr>
-							<td>Last transaction</td>
+							<td>{{ $t('Last transaction') }}</td>
 							<td>{{ $filters.formatDate(card.getLastTransactionDate()) }}</td>
 						</tr>
 					</tbody>
 
                 </table>
 
-                <h3>Transactions</h3>
+                <h3>{{ $t('Transactions') }}</h3>
                 <transactions-table v-if="loaded" :cardId="card.id" />
 
                 <p>
-                    <button v-on:click="reset()" class="btn btn-info btn-sm">Reset</button>
-                    <button v-on:click="rebuild()" class="btn btn-danger btn-sm">Rebuild</button>
+                    <button v-on:click="reset()" class="btn btn-info btn-sm">{{ $t('Reset') }}</button>
+                    <button v-on:click="rebuild()" class="btn btn-danger btn-sm">{{ $t('Rebuild') }}</button>
                 </p>
 
             </div>
         </div>
 
         <!-- Modal Component -->
-        <b-modal ref="confirmModal" class="order-confirm-modal" title="Topup bevestigen" @ok="confirmTopup" @cancel="cancelTopup" button-size="lg" no-close-on-backdrop>
-            <p>Are you sure you want to topup for <strong>€{{ topupAmount.toFixed(2) }}</strong>?</p>
+        <b-modal ref="confirmModal" class="order-confirm-modal" :title="$t('Confirm topup')" @ok="confirmTopup" @cancel="cancelTopup" button-size="lg" no-close-on-backdrop>
+            <p>{{ $t('Are you sure you want to topup for €{amount}?', { amount: topupAmount.toFixed(2) }) }}</p>
         </b-modal>
 
         <!-- Modal Component -->
-        <b-modal ref="processingModal" title="Even wachten" no-close-on-esc no-close-on-backdrop hide-footer hide-header>
+        <b-modal ref="processingModal" :title="$t('Please wait')" no-close-on-esc no-close-on-backdrop hide-footer hide-header>
             <div class="text-center">
                 <b-spinner />
             </div>
@@ -180,8 +177,8 @@
                     75,
                     100
                 ],
-                processedMessage: 'Topup successful.',
-                errorMessage: 'Topup failed.',
+                processedMessage: '',
+                errorMessage: '',
             }
         },
 
@@ -234,17 +231,17 @@
 
             async rebuild() {
 
-                if (confirm('Danger! Rebuilding will only keep all transactions that are available online. Are you sure you want to do that?')) {
+                if (confirm(this.$t('Danger! Rebuilding will only keep all transactions that are available online. Are you sure you want to do that?'))) {
 
                     try {
                         console.log('Rebuilding card');
                         await this.$cardService.rebuild(this.card);
                         console.log('Done rebuilding card');
 
-                        alert('Card is rebuilt from online data.');
+                        alert(this.$t('Card is rebuilt from online data.'));
                     } catch (e) {
                         console.error(e);
-                        alert('Rebuild error: ' + e.message);
+                        alert(this.$t('Rebuild error: {message}', { message: e.message }));
                     }
                 }
             },
@@ -258,7 +255,7 @@
 
             async reset() {
 
-                if (confirm('Are you sure you want to set the card value to 0?')) {
+                if (confirm(this.$t('Are you sure you want to set the card value to 0?'))) {
                     await this.confirmReset();
                 }
             },
@@ -280,8 +277,8 @@
 
                     this.$refs.processingModal.hide();
 
-                    this.processedMessage = 'Card reset successful.';
-                    this.errorMessage = 'Card reset failed.';
+                    this.processedMessage = this.$t('Card reset successful.');
+                    this.errorMessage = this.$t('Card reset failed.');
 
                     this.$refs.processedModal.show();
                     setTimeout(() => {
@@ -348,8 +345,8 @@
 
                     this.$refs.processingModal.hide();
 
-                    this.processedMessage = 'Topup successful.';
-                    this.errorMessage = 'Topup failed.';
+                    this.processedMessage = this.$t('Topup successful.');
+                    this.errorMessage = this.$t('Topup failed.');
 
                     this.$refs.processedModal.show();
                     setTimeout(() => {
@@ -380,7 +377,7 @@
                     await this.card.validate();
                 } catch (e) {
                     if (e instanceof CardValidationException) {
-                        alert('Validation error: ' + e.message);
+                        alert(this.$t('Validation error: {message}', { message: e.message }));
                     } else {
                         throw e;
                     }

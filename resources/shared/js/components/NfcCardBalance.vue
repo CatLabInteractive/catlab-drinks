@@ -21,13 +21,13 @@
 
 <template>
 
-	<div v-if="connected === true" class="btn btn-sm btn-success">NFC</div>
-	<div v-if="connected === false" class="btn btn-sm btn-danger">NFC</div>
+	<div v-if="connected === true" class="btn btn-sm btn-success">{{ $t('NFC') }}</div>
+	<div v-if="connected === false" class="btn btn-sm btn-danger">{{ $t('NFC') }}</div>
 	
-	<div v-if="apiConnected === false" class="btn btn-sm btn-danger">API Offline</div>
+	<div v-if="apiConnected === false" class="btn btn-sm btn-danger">{{ $t('API Offline') }}</div>
 
-	<div v-if="!corrupt && balance !== null" class="btn btn-sm btn-warning">Balance: {{ balance }}</div>
-	<div v-if="corrupt" class="btn btn-sm btn-danger">Corrupt card, contact support</div>
+	<div v-if="!corrupt && balance !== null" class="btn btn-sm btn-warning">{{ $t('Balance: {balance}', { balance: balance }) }}</div>
+	<div v-if="corrupt" class="btn btn-sm btn-danger">{{ $t('Corrupt card, contact support') }}</div>
 
 	<b-spinner v-if="loading" small />
 

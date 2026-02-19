@@ -23,11 +23,23 @@
 
     <div>
 
+        <b-navbar class="p-2">
+            <b-navbar-nav class="ml-auto">
+                <language-toggle />
+            </b-navbar-nav>
+        </b-navbar>
+
         <router-view></router-view>
 
     </div>
 
 </template>
 <script>
-    export default {}
+    import LanguageToggle from '../../../shared/js/components/LanguageToggle.vue';
+
+    export default {
+        components: {
+            'language-toggle': LanguageToggle,
+        }
+    }
 </script>

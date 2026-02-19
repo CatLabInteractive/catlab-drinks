@@ -24,15 +24,15 @@
 	<b-container fluid>
 
 		<h1>
-			Events
+			{{ $t('Events') }}
 
-			<b-button size="sm" class="btn-success" @click="createNew" title="Create new event">
+			<b-button size="sm" class="btn-success" @click="createNew" :title="$t('Create new event')">
 				<span>＋</span>
-				<span class="sr-only">Create new event</span>
+				<span class="sr-only">{{ $t('Create new event') }}</span>
 			</b-button>
 		</h1>
 		<div class="text-center" v-if="!loaded">
-			<b-spinner label="Loading data"/>
+			<b-spinner :label="$t('Loading data')"/>
 		</div>
 
 		<b-row>
@@ -55,59 +55,59 @@
 
 					<template v-slot:cell(actions)="row">
 
-						<b-dropdown text="Actions" size="sm" right>
+						<b-dropdown :text="$t('Actions')" size="sm" right>
 
-							<b-dropdown-item class="" @click="edit(row.item, row.index)" title="Edit">
+							<b-dropdown-item class="" @click="edit(row.item, row.index)" :title="$t('Edit')">
 								✏️
-								Edit
+								{{ $t('Edit') }}
 							</b-dropdown-item>
 
-							<b-dropdown-item @click="remove(row.item)" title="Remove">
+							<b-dropdown-item @click="remove(row.item)" :title="$t('Delete')">
 								🗑️
-								Delete
+								{{ $t('Delete') }}
 							</b-dropdown-item>
 
 							<b-dropdown-divider></b-dropdown-divider>
 
-							<b-dropdown-group header="Sales">
+							<b-dropdown-group :header="$t('Sales')">
 
-								<b-dropdown-item :to="{ name: 'menu', params: { id: row.item.id } }" title="Edit menu">
+								<b-dropdown-item :to="{ name: 'menu', params: { id: row.item.id } }" :title="$t('Edit menu')">
 									📜
-									Edit menu
+									{{ $t('Edit menu') }}
 								</b-dropdown-item>
 
 								<b-dropdown-item :to="{ name: 'summary', params: { id: row.item.id } }"
-												 title="Sales overview">
+												 :title="$t('Sales overview')">
 									📊
-									Sales overview
+									{{ $t('Sales overview') }}
 								</b-dropdown-item>
 
-								<b-dropdown-item :href="row.item.order_url" target="_blank" title="Client panel">
+								<b-dropdown-item :href="row.item.order_url" target="_blank" :title="$t('Client order form')">
 									👤
-									Client order form
+									{{ $t('Client order form') }}
 								</b-dropdown-item>
 
 
 								<b-dropdown-item :to="{ name: 'sales', params: { id: row.item.id } }">
 									📋
-									Order history
+									{{ $t('Order history') }}
 								</b-dropdown-item>
 
 							</b-dropdown-group>
 
 							<b-dropdown-divider></b-dropdown-divider>
 
-							<b-dropdown-group header="Attendees">
+							<b-dropdown-group :header="$t('Attendees')">
 								<b-dropdown-item :to="{ name: 'attendees', params: { id: row.item.id } }"
-												 title="Attendees">
+												 :title="$t('Register attendees')">
 									👥
-									Register attendees
+									{{ $t('Register attendees') }}
 								</b-dropdown-item>
 
 								<b-dropdown-item :to="{ name: 'checkIn', params: { id: row.item.id } }"
-												 title="Check-In">
+												 :title="$t('Check-In attendees')">
 									🛂
-									Check-In attendees
+									{{ $t('Check-In attendees') }}
 								</b-dropdown-item>
 							</b-dropdown-group>
 
@@ -120,12 +120,12 @@
 
 						<b-button v-if="!row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)"
 								  class="btn-danger">
-							Closed
+							{{ $t('Closed') }}
 						</b-button>
 
 						<b-button v-if="row.item.is_selling" size="sm" @click="toggleIsSelling(row.item)"
 								  class="btn-success">
-							Open
+							{{ $t('Open') }}
 						</b-button>
 
 						<b-spinner v-if="toggling === row.item.id" small></b-spinner>
@@ -138,14 +138,13 @@
 		<b-row class="mt-4">
 			<b-col>
 				<b-card>
-					<h5><span class="mr-1">📱</span> POS Device Pairing</h5>
+					<h5><span class="mr-1">📱</span> {{ $t('POS Device Pairing') }}</h5>
 					<p class="text-muted">
-						POS (Point of Sale) devices authenticate separately from your management account.
-						Each POS terminal requires its own pairing to ensure secure, independent operation—even
-						if the management session expires, POS devices continue to function.
+						{{ $t('POS (Point of Sale) devices authenticate separately from your management account.') }}
+						{{ $t('Each POS terminal requires its own pairing to ensure secure, independent operation—even if the management session expires, POS devices continue to function.') }}
 					</p>
 					<b-button variant="primary" :to="{ name: 'devices' }">
-						<span class="mr-1">🔗</span> Manage &amp; Pair Devices
+						<span class="mr-1">🔗</span> {{ $t('Manage & Pair Devices') }}
 					</b-button>
 				</b-card>
 			</b-col>
@@ -153,61 +152,61 @@
 
 	</b-container>
 
-	<b-modal :title="(model.id ? 'Edit event ID#' + model.id : 'New event')" @hide="resetForm" ref="editFormModal">
+	<b-modal :title="(model.id ? $t('Edit event ID#{id}', { id: model.id }) : $t('New event'))" @hide="resetForm" ref="editFormModal">
 		<form @submit.prevent="save">
-			<b-form-group label="Name">
+			<b-form-group :label="$t('Name')">
 				<b-form-input type="text" v-model="model.name"></b-form-input>
 			</b-form-group>
 
 			<b-form-group>
 				<label>
 					<input type="checkbox" v-model="model.payment_cards">
-					Allow payment with NFC topup cards<br/>
+					{{ $t('Allow payment with NFC topup cards') }}<br/>
 				</label>
 			</b-form-group>
 
 			<b-form-group>
 				<label>
 					<input type="checkbox" v-model="model.payment_cash">
-					Allow payment in cash
+					{{ $t('Allow payment in cash') }}
 				</label>
 			</b-form-group>
 
 			<b-form-group>
 				<label>
 					<input type="checkbox" v-model="model.payment_vouchers">
-					Allow payment with vouchers
+					{{ $t('Allow payment with vouchers') }}
 				</label>
 			</b-form-group>
 
 			<b-form-group>
 				<label>
 					<input type="checkbox" v-model="model.allow_unpaid_online_orders">
-					Allow unpaid online orders (without providing card alias)
+					{{ $t('Allow unpaid online orders (without providing card alias)') }}
 				</label>
 			</b-form-group>
 
 			<b-form-group>
 				<label>
 					<input type="checkbox" v-model="model.split_orders_by_categories">
-					Split orders by product categories (e.g drinks for the bar, food for the kitchen)
+					{{ $t('Split orders by product categories (e.g drinks for the bar, food for the kitchen)') }}
 				</label>
 			</b-form-group>
 
-			<b-form-group label="Voucher value">
+			<b-form-group :label="$t('Voucher value')">
 				<b-form-input type="number" v-model="model.payment_voucher_value" step="0.01"></b-form-input>
 			</b-form-group>
 
-			<b-form-group label="Checkin URL (callback)">
+			<b-form-group :label="$t('Checkin URL (callback)')">
 				<b-form-input type="text" v-model="model.checkin_url"></b-form-input>
 			</b-form-group>
 		</form>
 
 		<template #modal-footer>
-			<b-btn type="button" variant="light" @click="resetForm()">Reset</b-btn>
-			<b-btn type="submit" variant="success" @click="save()">Save</b-btn>
+			<b-btn type="button" variant="light" @click="resetForm()">{{ $t('Reset') }}</b-btn>
+			<b-btn type="submit" variant="success" @click="save()">{{ $t('Save') }}</b-btn>
 
-			<b-alert v-if="saving" variant="none" show>Saving</b-alert>
+			<b-alert v-if="saving" variant="none" show>{{ $t('Saving') }}</b-alert>
 		</template>
 	</b-modal>
 
@@ -236,20 +235,20 @@ export default {
 			fields: [
 				{
 					key: 'name',
-					label: 'Event',
+					label: this.$t('Event'),
 				},
 				{
 					key: 'order_token',
-					label: 'Order token',
+					label: this.$t('Order token'),
 				},
 				{
 					key: 'is_selling',
-					label: 'Remote orders',
+					label: this.$t('Remote orders'),
 					class: 'text-center'
 				},
 				{
 					key: 'actions',
-					label: 'Actions',
+					label: this.$t('Actions'),
 					class: 'text-right'
 				}
 			],
@@ -296,7 +295,7 @@ export default {
 
 		async remove(model) {
 
-			if (confirm('Are you sure you want to remove this event?')) {
+			if (confirm(this.$t('Are you sure you want to remove this event?'))) {
 				if (this.model.id === model.id) {
 					this.model = {};
 				}

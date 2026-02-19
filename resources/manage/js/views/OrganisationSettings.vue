@@ -22,16 +22,16 @@
 <template>
 	<b-container fluid>
 
-		<h1>Organisation Settings</h1>
+		<h1>{{ $t('Organisation Settings') }}</h1>
 
 		<div class="text-center" v-if="!loaded">
-			<b-spinner label="Loading data" />
+			<b-spinner :label="$t('Loading data')" />
 		</div>
 
 		<div v-if="loaded">
 
-			<h2>Payment Gateways</h2>
-			<p class="text-muted">Configure payment gateways for online top-ups. Credentials are stored encrypted and are never exposed via the API.</p>
+			<h2>{{ $t('Payment Gateways') }}</h2>
+			<p class="text-muted">{{ $t('Configure payment gateways for online top-ups. Credentials are stored encrypted and are never exposed via the API.') }}</p>
 
 			<b-table striped hover :items="gateways" :fields="gatewayFields" v-if="gateways.length > 0">
 
@@ -41,29 +41,29 @@
 
 				<template v-slot:cell(has_valid_credentials)="row">
 					<b-badge :variant="row.item.has_valid_credentials ? 'success' : 'danger'">
-						{{ row.item.has_valid_credentials ? 'Valid' : 'Incomplete' }}
+						{{ row.item.has_valid_credentials ? $t('Valid') : $t('Incomplete') }}
 					</b-badge>
 				</template>
 
 				<template v-slot:cell(is_testing)="row">
 					<b-badge :variant="row.item.is_testing ? 'warning' : 'info'">
-						{{ row.item.is_testing ? 'Test' : 'Live' }}
+						{{ row.item.is_testing ? $t('Test') : $t('Live') }}
 					</b-badge>
 				</template>
 
 				<template v-slot:cell(is_active)="row">
 					<b-badge :variant="row.item.is_active ? 'success' : 'secondary'">
-						{{ row.item.is_active ? 'Active' : 'Inactive' }}
+						{{ row.item.is_active ? $t('Active') : $t('Inactive') }}
 					</b-badge>
 				</template>
 
 				<template v-slot:cell(actions)="row">
-					<b-dropdown text="Actions" size="sm" right>
+					<b-dropdown :text="$t('Actions')" size="sm" right>
 						<b-dropdown-item @click="editGateway(row.item)">
-							✏️ Edit
+							✏️ {{ $t('Edit') }}
 						</b-dropdown-item>
 						<b-dropdown-item @click="removeGateway(row.item)">
-							🗑️ Delete
+							🗑️ {{ $t('Delete') }}
 						</b-dropdown-item>
 					</b-dropdown>
 				</template>
@@ -71,56 +71,56 @@
 			</b-table>
 
 			<b-alert v-if="gateways.length === 0" show variant="info">
-				No payment gateways configured. Add one to enable online top-ups.
+				{{ $t('No payment gateways configured. Add one to enable online top-ups.') }}
 			</b-alert>
 
 			<b-button size="sm" variant="success" @click="addGateway">
-				<span>＋</span> Add Payment Gateway
+				<span>＋</span> {{ $t('Add Payment Gateway') }}
 			</b-button>
 
 		</div>
 
 		<!-- Add/Edit Gateway Modal -->
-		<b-modal :title="editingGateway ? 'Edit Payment Gateway' : 'Add Payment Gateway'" ref="gatewayModal" @hide="resetForm">
+		<b-modal :title="editingGateway ? $t('Edit Payment Gateway') : $t('Add Payment Gateway')" ref="gatewayModal" @hide="resetForm">
 
-			<b-form-group label="Gateway" label-for="gateway-type" v-if="!editingGateway">
+			<b-form-group :label="$t('Gateway')" label-for="gateway-type" v-if="!editingGateway">
 				<b-form-select id="gateway-type" v-model="form.gateway" :options="availableGateways" />
 			</b-form-group>
 
 			<div v-if="form.gateway === 'paynl'">
-				<b-form-group label="API Token" label-for="paynl-api-token" description="Your Pay.nl token code">
-					<b-form-input id="paynl-api-token" v-model="form.credentials.apiToken" type="text" :placeholder="editingGateway ? '(unchanged)' : ''" />
+				<b-form-group :label="$t('API Token')" label-for="paynl-api-token" :description="$t('Your Pay.nl token code')">
+					<b-form-input id="paynl-api-token" v-model="form.credentials.apiToken" type="text" :placeholder="editingGateway ? $t('(unchanged)') : ''" />
 				</b-form-group>
 
-				<b-form-group label="API Secret" label-for="paynl-api-secret" description="Your Pay.nl API token/secret">
-					<b-form-input id="paynl-api-secret" v-model="form.credentials.apiSecret" type="password" :placeholder="editingGateway ? '(unchanged)' : ''" />
+				<b-form-group :label="$t('API Secret')" label-for="paynl-api-secret" :description="$t('Your Pay.nl API token/secret')">
+					<b-form-input id="paynl-api-secret" v-model="form.credentials.apiSecret" type="password" :placeholder="editingGateway ? $t('(unchanged)') : ''" />
 				</b-form-group>
 
-				<b-form-group label="Service ID" label-for="paynl-service-id" description="Your Pay.nl service ID (e.g. SL-xxxx-xxxx)">
-					<b-form-input id="paynl-service-id" v-model="form.credentials.serviceId" type="text" :placeholder="editingGateway ? '(unchanged)' : ''" />
+				<b-form-group :label="$t('Service ID')" label-for="paynl-service-id" :description="$t('Your Pay.nl service ID (e.g. SL-xxxx-xxxx)')">
+					<b-form-input id="paynl-service-id" v-model="form.credentials.serviceId" type="text" :placeholder="editingGateway ? $t('(unchanged)') : ''" />
 				</b-form-group>
 			</div>
 
 			<b-form-group>
 				<label>
 					<input type="checkbox" v-model="form.is_testing" />
-					Test mode
+					{{ $t('Test mode') }}
 				</label>
 			</b-form-group>
 
 			<b-form-group>
 				<label>
 					<input type="checkbox" v-model="form.is_active" />
-					Active
+					{{ $t('Active') }}
 				</label>
 			</b-form-group>
 
 			<template #modal-footer>
-				<b-btn variant="light" @click="resetForm">Cancel</b-btn>
+				<b-btn variant="light" @click="resetForm">{{ $t('Cancel') }}</b-btn>
 				<b-btn variant="success" @click="saveGateway" :disabled="saving">
 					<b-spinner small v-if="saving" />
 					<span class="mr-1" v-if="!saving">💾</span>
-					Save
+					{{ $t('Save') }}
 				</b-btn>
 			</template>
 
@@ -147,11 +147,11 @@
 				gateways: [],
 				editingGateway: null,
 				gatewayFields: [
-					{ key: 'gateway', label: 'Gateway' },
-					{ key: 'has_valid_credentials', label: 'Credentials' },
-					{ key: 'is_testing', label: 'Mode' },
-					{ key: 'is_active', label: 'Status' },
-					{ key: 'actions', label: 'Actions', class: 'text-right' }
+					{ key: 'gateway', label: this.$t('Gateway') },
+					{ key: 'has_valid_credentials', label: this.$t('Credentials') },
+					{ key: 'is_testing', label: this.$t('Mode') },
+					{ key: 'is_active', label: this.$t('Status') },
+					{ key: 'actions', label: this.$t('Actions'), class: 'text-right' }
 				],
 				availableGateways: [
 					{ value: 'paynl', text: 'Pay.nl' }
@@ -235,7 +235,7 @@
 			},
 
 			async removeGateway(item) {
-				if (confirm('Are you sure you want to remove the ' + this.formatGatewayName(item.gateway) + ' payment gateway?')) {
+				if (confirm(this.$t('Are you sure you want to remove the {gateway} payment gateway?', { gateway: this.formatGatewayName(item.gateway) }))) {
 					await this.service.delete(item.id);
 					await this.loadGateways();
 				}

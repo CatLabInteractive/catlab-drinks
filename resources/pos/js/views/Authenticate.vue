@@ -25,21 +25,21 @@
 		<div class="authenticate-card">
 			<h1 class="authenticate-title">
 				<span>🔗</span>
-				Connect Device
+				{{ $t('Connect Device') }}
 			</h1>
-			<p class="authenticate-subtitle">Pair this device with your CatLab Drinks instance</p>
+			<p class="authenticate-subtitle">{{ $t('Pair this device with your CatLab Drinks instance') }}</p>
 
 			<!-- Connecting state -->
 			<div v-if="connecting" class="text-center py-4">
-				<b-spinner label="Connecting..." />
-				<p class="mt-3 text-muted">Connecting to server&hellip;</p>
+				<b-spinner :label="$t('Connecting...')" />
+				<p class="mt-3 text-muted">{{ $t('Connecting to server…') }}</p>
 			</div>
 
 			<!-- Pairing code display -->
 			<div v-else-if="showPairingCode" class="text-center py-4">
-				<p class="text-muted mb-2">Enter this code in the management panel to pair this device:</p>
+				<p class="text-muted mb-2">{{ $t('Enter this code in the management panel to pair this device:') }}</p>
 				<div class="pairing-code-display">{{ pairingCode }}</div>
-				<p class="text-muted mt-3"><small>Waiting for confirmation&hellip;</small></p>
+				<p class="text-muted mt-3"><small>{{ $t('Waiting for confirmation…') }}</small></p>
 				<b-spinner small class="mt-1" />
 			</div>
 
@@ -48,11 +48,11 @@
 				<div class="authenticate-actions">
 					<button class="btn btn-primary btn-lg btn-block mb-3" @click="showScannerView">
 						<span class="mr-2">📷</span>
-						Scan QR Code
+						{{ $t('Scan QR Code') }}
 					</button>
 					<button class="btn btn-outline-secondary btn-block" @click="showManualEntry">
 						<span class="mr-2">⌨️</span>
-						Enter Token Manually
+						{{ $t('Enter Token Manually') }}
 					</button>
 				</div>
 			</div>
@@ -62,7 +62,7 @@
 				<qr-scanner @scanned="onQrScanned" @error="onQrError" />
 				<div class="text-center mt-3">
 					<button class="btn btn-outline-secondary" @click="showMainOptions">
-						<span class="mr-1">←</span> Back
+						<span class="mr-1">←</span> {{ $t('Back') }}
 					</button>
 				</div>
 			</div>
@@ -70,15 +70,15 @@
 			<!-- Manual token entry -->
 			<div v-else-if="showTokenForm">
 				<div class="form-group">
-					<label for="tokenInput">Connection URL or Token</label>
-					<input id="tokenInput" type="text" class="form-control" placeholder="Paste connection URL or token" v-model="token" />
+					<label for="tokenInput">{{ $t('Connection URL or Token') }}</label>
+					<input id="tokenInput" type="text" class="form-control" :placeholder="$t('Paste connection URL or token')" v-model="token" />
 				</div>
 				<button class="btn btn-primary btn-block mb-3" @click="requestDeviceToken">
-					<span class="mr-1">→</span> Authenticate
+					<span class="mr-1">→</span> {{ $t('Authenticate') }}
 				</button>
 				<div class="text-center">
 					<button class="btn btn-outline-secondary" @click="showMainOptions">
-						<span class="mr-1">←</span> Back
+						<span class="mr-1">←</span> {{ $t('Back') }}
 					</button>
 				</div>
 			</div>
@@ -190,7 +190,7 @@ export default {
 					let json = atob(this.token);
 					data = JSON.parse(json);
 				} catch (e) {
-					this.error = 'Invalid token. Paste the connection URL or the base64 connect token.';
+					this.error = this.$t('Invalid token. Paste the connection URL or the base64 connect token.');
 					return;
 				}
 			}
@@ -199,13 +199,13 @@ export default {
 			const token = data.token;
 
 			if (!api || !token) {
-				this.error = 'Invalid connection data: missing api or token.';
+				this.error = this.$t('Invalid connection data: missing api or token.');
 				return;
 			}
 
 			// Check if api appears valid
 			if (!api.startsWith('http')) {
-				this.error = 'Invalid API URL.';
+				this.error = this.$t('Invalid API URL.');
 				return;
 			}
 
@@ -242,7 +242,7 @@ export default {
 					this.device_uid = responseData.device_uid;
 				} else {
 
-					this.error = 'Invalid response...';
+					this.error = this.$t('Invalid response...');
 					this.connecting = false;
 					this.showTokenForm = true;
 					clearInterval(this.pinger);

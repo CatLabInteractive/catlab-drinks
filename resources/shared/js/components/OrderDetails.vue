@@ -26,58 +26,58 @@
 
             <tbody>
                 <tr>
-                    <td>ID</td>
+                    <td>{{ $t('ID') }}</td>
                     <td>{{ order.id}}</td>
                 </tr>
 
                 <tr>
-                    <td>Status</td>
+                    <td>{{ $t('Status') }}</td>
                     <td>{{ order.status}}</td>
                 </tr>
 
                 <tr>
-                    <td>Date</td>
+                    <td>{{ $t('Date') }}</td>
                     <td>{{ $filters.formatDate(order.date) }}</td>
                 </tr>
 
                 <tr>
-                    <td>Table</td>
+                    <td>{{ $t('Table') }}</td>
                     <td>{{order.location}}</td>
                 </tr>
 
                 <tr v-if="order.requester">
-                    <td>Client</td>
+                    <td>{{ $t('Client') }}</td>
                     <td>{{order.requester}}</td>
                 </tr>
 
                 <tr v-if="order.discount > 0">
-                    <td>Discount</td>
+                    <td>{{ $t('Discount') }}</td>
                     <td>{{ order.discount }}%</td>
                 </tr>
 
                 <tr>
-                    <td>Total</td>
+                    <td>{{ $t('Total') }}</td>
                     <td>{{totalPrice.toFixed(2)}}</td>
                 </tr>
 
                 <tr>
-                    <td>Payment type</td>
+                    <td>{{ $t('Payment type') }}</td>
                     <td>{{order.payment_type}}</td>
                 </tr>
 
                 <tr>
-                    <td>Table</td>
+                    <td>{{ $t('Table') }}</td>
                     <td>{{order.location}}</td>
                 </tr>
 
                 <tr>
-                    <td>Payment</td>
+                    <td>{{ $t('Payment') }}</td>
                     <td>
-                        <span v-if="order.paid">☑️ Paid
-                            <span v-if="order.cardTransaction">by card</span>
-                            <span v-if="!order.cardTransaction">in cash</span>
+                        <span v-if="order.paid">☑️ {{ $t('Paid') }}
+                            <span v-if="order.cardTransaction">{{ $t('by card') }}</span>
+                            <span v-if="!order.cardTransaction">{{ $t('in cash') }}</span>
                         </span>
-                        <span v-if="!order.paid">✗ Not paid</span>
+                        <span v-if="!order.paid">✗ {{ $t('Not paid') }}</span>
                     </td>
                 </tr>
 

@@ -49,8 +49,23 @@ class HomeController extends Controller
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function welcome()
+    public function welcome(Request $request)
     {
+        $supported = ['en', 'nl', 'fr', 'de', 'es'];
+        $lang = $request->query('lang') ?? $request->query('language');
+
+        if ($lang) {
+            $lang = strtolower(explode('-', $lang)[0]);
+            if (in_array($lang, $supported)) {
+                app()->setLocale($lang);
+            }
+        } elseif ($request->hasHeader('Accept-Language')) {
+            $preferred = $request->getPreferredLanguage($supported);
+            if ($preferred) {
+                app()->setLocale($preferred);
+            }
+        }
+
         return view('welcome');
     }
 }

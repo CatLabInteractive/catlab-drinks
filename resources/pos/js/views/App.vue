@@ -25,11 +25,11 @@
 
 		<b-alert variant="warning" :show="showLicenseWarning" class="mb-0 rounded-0 text-center">
 			<span class="mr-1">⚠️</span>
-			<strong>No active license.</strong>
+			<strong>{{ $t('No active license.') }}</strong>
 			<span v-if="licenseStatus">
-				{{ licenseStatus.remainingCards }} of {{ licenseStatus.maxCards }} card scans remaining.
+				{{ $t('{remaining} of {max} card scans remaining.', { remaining: licenseStatus.remainingCards, max: licenseStatus.maxCards }) }}
 			</span>
-			Please purchase a license in the management portal to remove this limit.
+			{{ $t('Please purchase a license in the management portal to remove this limit.') }}
 		</b-alert>
 
 		<b-navbar toggleable="lg">
@@ -41,7 +41,7 @@
 			<b-collapse is-nav id="nav_collapse">
 				<b-navbar-nav>
 
-					<b-nav-item :to="{ name: 'events' }"  v-if="!kioskMode">Events</b-nav-item>
+					<b-nav-item :to="{ name: 'events' }"  v-if="!kioskMode">{{ $t('Events') }}</b-nav-item>
 
 				</b-navbar-nav>
 
@@ -50,8 +50,9 @@
 
 					<b-navbar-nav>
 
-						<b-nav-item :to="{ name: 'cards' }">Cards</b-nav-item>
-						<b-nav-item :to="{ name: 'settings' }">Settings</b-nav-item>
+						<b-nav-item :to="{ name: 'cards' }">{{ $t('Cards') }}</b-nav-item>
+						<b-nav-item :to="{ name: 'settings' }">{{ $t('Settings') }}</b-nav-item>
+						<language-toggle />
 
 						<li class="nav-item">
 							
@@ -67,17 +68,17 @@
 
 		<b-modal
 			v-model="showLicenseErrorModal"
-			title="License Required"
+			:title="$t('License Required')"
 			ok-only
 			ok-variant="warning"
 			ok-title="OK"
 		>
 			<p>
 				<span class="text-danger mr-2">⚠️</span>
-				Card limit exceeded. Please activate a license to continue scanning cards.
+				{{ $t('Card limit exceeded. Please activate a license to continue scanning cards.') }}
 			</p>
 			<p class="text-muted">
-				You can purchase and activate a license from the management portal under Devices.
+				{{ $t('You can purchase and activate a license from the management portal under Devices.') }}
 			</p>
 		</b-modal>
 
@@ -88,12 +89,14 @@
 
 	import NfcCardBalance from '../../../shared/js/components/NfcCardBalance.vue';
 	import PaymentPopup from '../../../shared/js/components/PaymentPopup.vue';
+	import LanguageToggle from '../../../shared/js/components/LanguageToggle.vue';
 
 	export default {
 
 		components: {
 			'payment-popup': PaymentPopup,
 			'nfc-card-balance': NfcCardBalance,
+			'language-toggle': LanguageToggle,
 		},
 
 		data() {
