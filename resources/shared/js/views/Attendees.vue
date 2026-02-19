@@ -110,32 +110,6 @@
                         <b-alert v-if="saved" variant="success" show class="d-inline-block ml-2 mb-0 py-1 px-2">Saved</b-alert>
                     </div>
 
-                    <hr />
-
-                    <div class="mb-3">
-                        <h4>Bulk import</h4>
-                        <p class="text-muted">
-                            Paste tab-separated data to replace <strong>all</strong> existing attendees. Format:
-                            <code>alias: Name&#9;Email</code> (one per line).
-                        </p>
-                        <form @submit.prevent="replaceAttendees">
-                            <div class="alert alert-danger">
-                                This will remove ALL existing attendees and replace them with new ones.
-                            </div>
-
-                            <b-form-group label="Replace attendees">
-                                <b-textarea v-model="attendeeInput" :placeholder="'alias-1: Name of attendee 1\tEmail address (optional)\nalias-2: Name of attendee 2\tEmail address (optional)\n...'" rows="6"></b-textarea>
-                            </b-form-group>
-
-                            <div>
-                                <b-btn type="submit" variant="warning">Replace all attendees</b-btn>
-
-                                <b-alert v-if="importSaving" variant="none" show class="d-inline-block ml-2 mb-0 py-1 px-2">Saving</b-alert>
-                                <b-alert v-if="importSaved" variant="none" show class="d-inline-block ml-2 mb-0 py-1 px-2">Saved</b-alert>
-                            </div>
-                        </form>
-                    </div>
-
                 </div>
 
             </b-col>
@@ -185,10 +159,7 @@
                 activeRow: -1,
                 activeCol: -1,
                 saving: false,
-                saved: false,
-                attendeeInput: '',
-                importSaving: false,
-                importSaved: false
+                saved: false
             }
         },
 
@@ -411,28 +382,6 @@
                 } finally {
                     this.saving = false;
                 }
-            },
-
-            async replaceAttendees() {
-
-                this.importSaving = true;
-
-                await this.service.importAttendees(this.event.id, this.attendeeInput);
-
-                this.attendeeInput = '';
-                this.importSaving = false;
-                this.importSaved = true;
-
-                // Reload the spreadsheet data
-                await this.refresh();
-
-                setTimeout(
-                    () => {
-                        this.importSaved = false;
-                    },
-                    2500
-                );
-
             }
         }
     }
