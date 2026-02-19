@@ -57,7 +57,7 @@ class AttendeeController extends ResourceController
             'AttendeeController',
             [
                 'id' => self::RESOURCE_ID,
-                'only' => [ 'index', 'view' ]
+                'only' => [ 'index', 'view', 'store', 'edit', 'destroy' ]
             ]
         );
 
