@@ -90,15 +90,20 @@ class DeviceController extends ResourceController {
 		$needsReassignment = false;
 
 		if ($request->has('category_filter_id')) {
-			$categoryFilterId = $request->input('category_filter_id');
-			$device->category_filter_id = $categoryFilterId ?: null;
-			$needsReassignment = true;
+			$categoryFilterId = $request->input('category_filter_id') ?: null;
+			if ($device->category_filter_id != $categoryFilterId) {
+				$device->category_filter_id = $categoryFilterId;
+				$needsReassignment = true;
+			}
 		}
 
 		if ($request->has('allow_remote_orders')) {
-			$device->allow_remote_orders = $request->boolean('allow_remote_orders');
-			if (!$device->allow_remote_orders) {
-				$needsReassignment = true;
+			$newValue = $request->boolean('allow_remote_orders');
+			if ($device->allow_remote_orders !== $newValue) {
+				$device->allow_remote_orders = $newValue;
+				if (!$newValue) {
+					$needsReassignment = true;
+				}
 			}
 		}
 
