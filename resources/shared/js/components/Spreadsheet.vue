@@ -53,11 +53,11 @@
                             <button v-if="!row._deleted && hasContent(row)"
                                 class="btn btn-sm btn-outline-danger"
                                 @click="deleteRow(rowIndex)"
-                                title="Delete row">✕</button>
+                                :title="$t('Delete row')">✕</button>
                             <button v-if="row._deleted"
                                 class="btn btn-sm btn-outline-secondary"
                                 @click="undeleteRow(rowIndex)"
-                                title="Undo delete">↩</button>
+                                :title="$t('Undo delete')">↩</button>
                         </td>
                     </tr>
                 </tbody>
@@ -66,42 +66,42 @@
 
         <div class="mb-3">
             <b-btn variant="success" @click="$emit('save')" :disabled="saving">
-                {{ saving ? 'Saving...' : 'Save changes' }}
+                {{ saving ? $t('Saving') : $t('Save changes') }}
             </b-btn>
-            <b-btn variant="light" @click="$emit('reset')">Reset</b-btn>
-            <b-btn variant="outline-secondary" @click="addRows(5)">Add rows</b-btn>
-            <b-btn variant="outline-danger" @click="confirmDeleteAll" class="float-right">Delete all</b-btn>
+            <b-btn variant="light" @click="$emit('reset')">{{ $t('Reset') }}</b-btn>
+            <b-btn variant="outline-secondary" @click="addRows(5)">{{ $t('Add rows') }}</b-btn>
+            <b-btn variant="outline-danger" @click="confirmDeleteAll" class="float-right">{{ $t('Delete all') }}</b-btn>
 
-            <b-alert v-if="saved" variant="success" show class="d-inline-block ml-2 mb-0 py-1 px-2">Saved</b-alert>
+            <b-alert v-if="saved" variant="success" show class="d-inline-block ml-2 mb-0 py-1 px-2">{{ $t('Saved') }}</b-alert>
         </div>
 
         <!-- Paste Import Dialog -->
-        <b-modal ref="pasteDialog" title="Import pasted data" size="lg" @ok="applyPasteImport" @cancel="cancelPasteImport" ok-title="Import" cancel-title="Cancel">
+        <b-modal ref="pasteDialog" :title="$t('Import pasted data')" size="lg" @ok="applyPasteImport" @cancel="cancelPasteImport" :ok-title="$t('Import')" :cancel-title="$t('Cancel')">
             <div class="mb-3">
                 <div class="row">
                     <div class="col-md-6">
-                        <label class="form-label"><strong>First column separator</strong></label>
+                        <label class="form-label"><strong>{{ $t('First column separator') }}</strong></label>
                         <select class="form-control" v-model="pasteOptions.firstColumnSeparator" @change="updatePastePreview">
-                            <option value=":">Colon (:)</option>
-                            <option value="\t">Tab</option>
-                            <option value=";">Semicolon (;)</option>
-                            <option value=",">Comma (,)</option>
-                            <option value="">None (use column separator for all)</option>
+                            <option value=":">{{ $t('Colon (:)') }}</option>
+                            <option value="\t">{{ $t('Tab') }}</option>
+                            <option value=";">{{ $t('Semicolon (;)') }}</option>
+                            <option value=",">{{ $t('Comma (,)') }}</option>
+                            <option value="">{{ $t('None (use column separator for all)') }}</option>
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><strong>Column separator</strong></label>
+                        <label class="form-label"><strong>{{ $t('Column separator') }}</strong></label>
                         <select class="form-control" v-model="pasteOptions.columnSeparator" @change="updatePastePreview">
-                            <option value="\t">Tab</option>
-                            <option value=";">Semicolon (;)</option>
-                            <option value=",">Comma (,)</option>
+                            <option value="\t">{{ $t('Tab') }}</option>
+                            <option value=";">{{ $t('Semicolon (;)') }}</option>
+                            <option value=",">{{ $t('Comma (,)') }}</option>
                         </select>
                     </div>
                 </div>
             </div>
 
             <div v-if="pastePreviewRows.length > 0">
-                <label class="form-label"><strong>Preview</strong> ({{ pastePreviewRows.length }} rows)</label>
+                <label class="form-label"><strong>{{ $t('Preview') }}</strong> ({{ $t('{rows} rows', { rows: pastePreviewRows.length }) }})</label>
                 <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
                     <table class="table table-bordered table-sm">
                         <thead>
@@ -406,7 +406,7 @@
             },
 
             confirmDeleteAll() {
-                if (confirm('Are you sure you want to delete ALL rows? This cannot be undone after saving.')) {
+                if (confirm(this.$t('Are you sure you want to delete ALL rows? This cannot be undone after saving.'))) {
                     this.$emit('delete-all');
                 }
             }
