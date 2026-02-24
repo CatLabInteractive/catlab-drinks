@@ -13,7 +13,7 @@
         "php": "^8.1",
         "ext-json": "*",
         "appstract/laravel-opcache": "^4.0",
-        "catlabinteractive/charon-laravel": "~1.7.3",
+        "catlabinteractive/charon-laravel": "~1.8.0",
         "catlabinteractive/cursor-pagination": "^1.0.8",
         "catlabinteractive/laravel-catlab-accounts": "^4.0",
         "catlabinteractive/requirements": "^1.0.3",
