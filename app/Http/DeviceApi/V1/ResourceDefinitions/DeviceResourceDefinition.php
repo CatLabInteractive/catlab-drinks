@@ -43,5 +43,16 @@ class DeviceResourceDefinition extends ResourceDefinition
 			->visible(true)
 			->writeable(false);
 
+		$this->field('category_filter_id')
+			->number()
+			->visible(true)
+			->writeable(true, true);
+
+		$this->field('isOnline')
+			->display('is_online')
+			->bool()
+			->visible(true)
+			->writeable(false);
+
 	}
 }

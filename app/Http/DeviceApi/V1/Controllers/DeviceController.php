@@ -4,6 +4,8 @@ namespace App\Http\DeviceApi\V1\Controllers;
 
 use App\Http\DeviceApi\V1\ResourceDefinitions\DeviceResourceDefinition;
 use App\Http\Shared\V1\Controllers\Base\ResourceController;
+use App\Models\Event;
+use App\Services\OrderAssignmentService;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Exceptions\InvalidContextAction;
@@ -36,6 +38,10 @@ class DeviceController extends ResourceController {
 		$routes->get('devices/current', 'DeviceController@currentDevice')
 			->returns()->one(DeviceResourceDefinition::class);
 
+		$routes->put('devices/current/category-filter', 'DeviceController@updateCategoryFilter')
+			->summary('Update the category filter for the current device')
+			->returns()->one(DeviceResourceDefinition::class);
+
 	}
 
     /**
@@ -63,6 +69,32 @@ class DeviceController extends ResourceController {
 		$resource = $this->toResource($entity, $readContext);
 
         return $this->getResourceResponse($resource, $readContext);
+	}
+
+	/**
+	 * Update the category filter for the current device.
+	 * @param Request $request
+	 * @return mixed
+	 */
+	public function updateCategoryFilter(Request $request)
+	{
+		$device = \Auth::user();
+
+		$categoryFilterId = $request->input('category_filter_id');
+		$device->category_filter_id = $categoryFilterId ?: null;
+		$device->save();
+
+		// Re-evaluate order assignments for all events in this organisation
+		$events = Event::where('organisation_id', $device->organisation_id)->get();
+		$assignmentService = new OrderAssignmentService();
+		foreach ($events as $event) {
+			$assignmentService->reevaluateAssignments($event);
+		}
+
+		$readContext = $this->getContext(Action::VIEW);
+		$resource = $this->toResource($device, $readContext);
+
+		return $this->getResourceResponse($resource, $readContext);
 	}
 
 }

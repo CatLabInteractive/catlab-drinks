@@ -26,6 +26,7 @@ use App\Factories\OrderEntityFactory;
 use App\Http\Shared\V1\Controllers\Base\ResourceController;
 use App\Http\Shared\V1\ResourceDefinitions\OrderResourceDefinition;
 use App\Models\Event;
+use App\Services\OrderAssignmentService;
 use Auth;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Exceptions\InvalidContextAction;
@@ -97,6 +98,22 @@ abstract class OrderController extends ResourceController
     {
         $eventId = $request->route(self::PARENT_RESOURCE_ID);
         return Event::findOrFail($eventId);
+    }
+
+    /**
+     * Override index to trigger reassignment of orders from offline devices.
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function index(Request $request)
+    {
+        $event = $this->getParent($request);
+
+        // Reassign orders from offline devices (lightweight check)
+        $assignmentService = new OrderAssignmentService();
+        $assignmentService->reassignOfflineDeviceOrders($event);
+
+        return parent::index($request);
     }
 
 

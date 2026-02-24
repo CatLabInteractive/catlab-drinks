@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
@@ -22,6 +23,12 @@ class Device extends Model implements
 		'uid',
 		'name',
 		'secret_key',
+		'category_filter_id',
+	];
+
+	protected $casts = [
+		'last_ping' => 'datetime',
+		'last_activity' => 'datetime',
 	];
 
 	protected static function booted()
@@ -98,6 +105,46 @@ class Device extends Model implements
 	public function connectRequests()
 	{
 		return $this->hasMany(DeviceConnectRequest::class);
+	}
+
+	/**
+	 * @return BelongsTo
+	 */
+	public function categoryFilter()
+	{
+		return $this->belongsTo(Category::class, 'category_filter_id');
+	}
+
+	/**
+	 * @return HasMany
+	 */
+	public function assignedOrders()
+	{
+		return $this->hasMany(Order::class);
+	}
+
+	/**
+	 * Check if this device is considered online.
+	 * @return bool
+	 */
+	public function isOnline(): bool
+	{
+		if (!$this->last_ping) {
+			return false;
+		}
+
+		$gracePeriod = config('devices.offline_grace_period', 300);
+		return $this->last_ping->gt(Carbon::now()->subSeconds($gracePeriod));
+	}
+
+	/**
+	 * Touch the last_ping timestamp.
+	 * @return void
+	 */
+	public function touchLastPing(): void
+	{
+		$this->last_ping = Carbon::now();
+		$this->saveQuietly();
 	}
 
 	/**

@@ -67,5 +67,21 @@ class DeviceResourceDefinition extends ResourceDefinition
             ->string()
             ->visible(true)
             ->writeable(true, true);
+
+        $this->field('last_ping')
+            ->datetime()
+            ->visible(true)
+            ->writeable(false);
+
+        $this->field('isOnline')
+            ->display('is_online')
+            ->bool()
+            ->visible(true)
+            ->writeable(false);
+
+        $this->field('category_filter_id')
+            ->number()
+            ->visible(true)
+            ->writeable(true, true);
     }
 }

@@ -49,6 +49,12 @@ class Order extends Model
                 $transaction->save();
             }
 
+            // Assign this order to an online POS device
+            if ($order->status === self::STATUS_PENDING && !$order->device_id) {
+                $assignmentService = new \App\Services\OrderAssignmentService();
+                $assignmentService->assignOrder($order);
+            }
+
         });
 
         self::updating(function(Order $order) {
@@ -102,6 +108,14 @@ class Order extends Model
     public function event()
     {
         return $this->belongsTo(Event::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function device()
+    {
+        return $this->belongsTo(Device::class);
     }
 
     /**
