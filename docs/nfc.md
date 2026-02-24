@@ -14,6 +14,10 @@ Security
 --------
 Each organisation in the project MUST have a unique secret that is used for all NFC related actions.
 
+Starting with card data version 1, the system uses **asymmetric encryption (ECDSA P-256)** instead of 
+the shared symmetric key. Each POS terminal generates its own unique key pair, and uses its private key 
+to sign card data. Other terminals verify signatures using approved public keys from the server.
+
 Password
 --------
 The [nfc-socketio](https://github.com/catlab-drinks/nfc-socketio) service SHOULD password protect writing data to
@@ -28,14 +32,83 @@ CatLab Drinks writes 2 NDEF records to the tag.
 card via online payment gateway.
 - The second record contains a signed bytestring containing the balance of the card.
 
-This bytestring contains:
-- current card balance
-- transaction count
-- timestamp last transaction (unix timestamp)
-- last 5 transaction amounts
+Card Data Versioning
+--------------------
+The second NDEF record (balance data) uses a versioned format. The version is determined by the first 2 bytes:
 
-All data is stored in 32bit signed integers. The bytestring is then signed using HmacSHA256 with 
-the organisation specific secret key.
+### Version 0 (Legacy)
+
+The original format, still supported for reading. Uses HMAC-SHA256 with the organisation's shared symmetric key.
+
+| Field | Size | Description |
+|---|---|---|
+| Balance | 4 bytes | Current card balance (32-bit signed integer) |
+| Transaction Count | 4 bytes | Number of transactions (32-bit signed integer) |
+| Timestamp | 4 bytes | Unix timestamp of last transaction (32-bit signed integer) |
+| Previous Transactions | 20 bytes | Last 5 transaction amounts (5 × 4 bytes, 32-bit signed integers) |
+| Discount Percentage | 1 byte | Discount percentage (0-100) |
+| HMAC-SHA256 Signature | 32 bytes | HMAC-SHA256 signature of the payload using org secret |
+
+**Total payload: 65 bytes**
+
+**Version detection:** Since no user has >83k credits, the leading 2 bytes of the balance field are always 
+`0x0000`, distinguishing this from version 1.
+
+### Version 1 (Asymmetric)
+
+The new format using per-device ECDSA P-256 asymmetric keys. All new writes use this format regardless of 
+the version that was read.
+
+| Field | Size | Description |
+|---|---|---|
+| Version Header | 2 bytes | Always `0x0001` |
+| Signer Device UID | 36 bytes | UUID of the POS device that signed this data |
+| Balance | 4 bytes | Current card balance (32-bit signed integer) |
+| Transaction Count | 4 bytes | Number of transactions (32-bit signed integer) |
+| Timestamp | 4 bytes | Unix timestamp of last transaction (32-bit signed integer) |
+| Previous Transactions | 20 bytes | Last 5 transaction amounts (5 × 4 bytes, 32-bit signed integers) |
+| Discount Percentage | 1 byte | Discount percentage (0-100) |
+| ECDSA Signature | 64 bytes | ECDSA P-256 signature (r: 32 bytes, s: 32 bytes) |
+
+**Total payload: 135 bytes**
+
+**Signature covers:** `version_header + device_uid + card_data_payload + card_uid`  
+The card UID is included in the signed data but NOT stored on the card (it's the card's hardware identifier), 
+preventing signature replay attacks across different cards.
+
+Key Management
+--------------
+### Key Generation
+Each POS terminal generates an ECDSA P-256 key pair on first initialization. The private key is encrypted 
+with the device secret (provided by the server via `GET /pos-api/v1/devices/current`) using AES and stored 
+in the browser's localStorage.
+
+### Key Registration Flow
+1. POS device generates key pair and stores encrypted private key locally
+2. POS uploads its public key via `PUT /pos-api/v1/devices/current`
+3. Public key enters "Pending" state on the server
+4. Organisation admin reviews and approves the key in the admin dashboard
+5. Once approved, the public key is distributed to all POS terminals via 
+   `GET /pos-api/v1/organisations/{id}/approved-public-keys`
+
+### Key Revocation
+Admins can revoke a key if a terminal is compromised. **WARNING:** Revoking a key invalidates all cards 
+that were last signed by that device. The admin dashboard shows the number of affected cards before confirmation.
+
+### Device Soft-Delete
+Deleting a device soft-deletes it (preserving the public key record). This ensures cards signed by the deleted 
+device can still be tracked. The admin dashboard shows deleted devices with a "Deleted" badge.
+
+Migration Strategy
+------------------
+The system supports seamless rolling migration as users interact with POS terminals:
+
+**Reading:** The POS checks the first 2 bytes:
+- If `0x0000` → Version 0 (Legacy): Decrypt using the old symmetric key (HMAC-SHA256)
+- If `0x0001` → Version 1 (Asymmetric): Verify using the signer device's approved public key
+
+**Writing:** Regardless of how a card was read, all new writes use Version 1 format with the POS 
+terminal's own private key. This ensures gradual migration as cards are scanned.
 
 Both NDEF messages are publicly readable; the password only write-protects the sectors, otherwise the 
 first record would not be readable to phones and the topup link wouldn't work.
