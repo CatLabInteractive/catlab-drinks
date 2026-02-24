@@ -42,6 +42,9 @@ class DeviceController extends ResourceController {
 			->summary('Update the category filter for the current device')
 			->returns()->one(DeviceResourceDefinition::class);
 
+		$routes->get('events/{event}/stranded-orders', 'DeviceController@strandedOrders')
+			->summary('Check for orders that cannot be processed by any online POS');
+
 	}
 
     /**
@@ -84,17 +87,36 @@ class DeviceController extends ResourceController {
 		$device->category_filter_id = $categoryFilterId ?: null;
 		$device->save();
 
-		// Re-evaluate order assignments for all events in this organisation
+		// Re-evaluate order assignments for all events in this organisation,
+		// passing the changed device so its non-matching orders get reassigned
 		$events = Event::where('organisation_id', $device->organisation_id)->get();
 		$assignmentService = new OrderAssignmentService();
 		foreach ($events as $event) {
-			$assignmentService->reevaluateAssignments($event);
+			$assignmentService->reevaluateAssignments($event, $device);
 		}
 
 		$readContext = $this->getContext(Action::VIEW);
 		$resource = $this->toResource($device, $readContext);
 
 		return $this->getResourceResponse($resource, $readContext);
+	}
+
+	/**
+	 * Check for stranded orders that cannot be processed by any online POS.
+	 * @param Request $request
+	 * @param int $event
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function strandedOrders(Request $request, $event)
+	{
+		$event = Event::findOrFail($event);
+
+		$assignmentService = new OrderAssignmentService();
+		$count = $assignmentService->countStrandedOrders($event);
+
+		return response()->json([
+			'stranded_orders_count' => $count
+		]);
 	}
 
 }

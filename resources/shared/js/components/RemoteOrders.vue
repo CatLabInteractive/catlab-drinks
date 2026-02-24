@@ -31,6 +31,11 @@
 			</b-button>
 		</h2>
 
+		<!-- Stranded orders warning (POS only) -->
+		<b-alert v-if="strandedOrdersCount > 0" variant="warning" show>
+			⚠️ {{ $t('{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.', { count: strandedOrdersCount }) }}
+		</b-alert>
+
 		<!-- Filter on category-->
 		<b-form-group v-if="categories.length > 1">
 			<select @change="changeFilterCategory($event, model)" v-model="categoryFilter" class="full-width form-control">
@@ -168,7 +173,8 @@
 				categories: [],
 				items: [],
 				onlyAssignedOrders: true,
-				currentDeviceId: this.deviceId || null
+				currentDeviceId: this.deviceId || null,
+				strandedOrdersCount: 0
 			}
 		},
 
@@ -255,6 +261,23 @@
 
 				this.items = items;
 
+				// Check for stranded orders (POS only)
+				if (this.currentDeviceId) {
+					this.checkStrandedOrders();
+				}
+
+			},
+
+			async checkStrandedOrders() {
+				try {
+					const response = await window.axios.get(
+						CATLAB_DRINKS_CONFIG.API_PATH + '/events/' + this.event.id + '/stranded-orders'
+					);
+					this.strandedOrdersCount = response.data.stranded_orders_count || 0;
+				} catch (e) {
+					// Silently fail — don't block the UI for this check
+					console.error('Failed to check stranded orders:', e);
+				}
 			},
 
 			showAcceptUnpaidOrder(order) {

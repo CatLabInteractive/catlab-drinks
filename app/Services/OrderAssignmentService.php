@@ -32,7 +32,8 @@ class OrderAssignmentService
 	}
 
 	/**
-	 * Reassign pending orders from offline devices to online devices.
+	 * Reassign pending orders from offline devices to online devices,
+	 * and attempt to assign any stranded (unassigned) orders.
 	 * Should be called during order listing to keep assignments current.
 	 * @param Event $event
 	 * @return void
@@ -42,19 +43,23 @@ class OrderAssignmentService
 		$gracePeriod = config('devices.reassignment_grace_period', 300);
 		$cutoff = Carbon::now()->subSeconds($gracePeriod);
 
-		// Find pending orders assigned to devices that have gone offline
-		$offlineOrders = Order::where('event_id', $event->id)
+		// Find pending orders that are either:
+		// 1. Assigned to devices that have gone offline (past reassignment grace period)
+		// 2. Unassigned (stranded) — try to find a compatible online device
+		$ordersToReassign = Order::where('event_id', $event->id)
 			->where('status', Order::STATUS_PENDING)
-			->whereNotNull('assigned_device_id')
-			->whereHas('assignedDevice', function ($query) use ($cutoff) {
-				$query->where(function ($q) use ($cutoff) {
-					$q->whereNull('last_ping')
-						->orWhere('last_ping', '<', $cutoff);
-				});
+			->where(function ($query) use ($cutoff) {
+				$query->whereNull('assigned_device_id')
+					->orWhereHas('assignedDevice', function ($q) use ($cutoff) {
+						$q->where(function ($inner) use ($cutoff) {
+							$inner->whereNull('last_ping')
+								->orWhere('last_ping', '<', $cutoff);
+						});
+					});
 			})
 			->get();
 
-		foreach ($offlineOrders as $order) {
+		foreach ($ordersToReassign as $order) {
 			$orderCategoryIds = $this->getOrderCategoryIds($order);
 			$device = $this->findBestDevice($event, $orderCategoryIds);
 
@@ -66,22 +71,35 @@ class OrderAssignmentService
 	/**
 	 * Re-evaluate all pending order assignments for an event.
 	 * Called when a device changes its category filter.
+	 * Orders assigned to the device that changed filter and no longer matching
+	 * are reassigned, even if the device is online.
 	 * @param Event $event
+	 * @param Device|null $changedDevice The device that changed its filter
 	 * @return void
 	 */
-	public function reevaluateAssignments(Event $event): void
+	public function reevaluateAssignments(Event $event, ?Device $changedDevice = null): void
 	{
 		$pendingOrders = Order::where('event_id', $event->id)
 			->where('status', Order::STATUS_PENDING)
 			->get();
 
 		foreach ($pendingOrders as $order) {
-			// Only reassign orders from offline devices or unassigned orders
 			if ($order->assigned_device_id) {
 				$device = Device::find($order->assigned_device_id);
 				if ($device && $device->isOnline()) {
-					// Don't reassign from online devices - crew might be working on it
-					continue;
+					// If this order belongs to the device that just changed its filter,
+					// check if the order still matches the new filter
+					if ($changedDevice && $device->id === $changedDevice->id) {
+						$orderCategoryIds = $this->getOrderCategoryIds($order);
+						if ($this->deviceMatchesOrder($device, $orderCategoryIds)) {
+							// Still matches, keep assignment
+							continue;
+						}
+						// No longer matches — fall through to reassign
+					} else {
+						// Don't reassign from other online devices - crew might be working on it
+						continue;
+					}
 				}
 			}
 
@@ -91,6 +109,41 @@ class OrderAssignmentService
 			$order->assigned_device_id = $device ? $device->id : null;
 			$order->saveQuietly();
 		}
+	}
+
+	/**
+	 * Count pending orders that are stranded (unassigned because no online
+	 * device accepts their category).
+	 * @param Event $event
+	 * @return int
+	 */
+	public function countStrandedOrders(Event $event): int
+	{
+		return Order::where('event_id', $event->id)
+			->where('status', Order::STATUS_PENDING)
+			->whereNull('assigned_device_id')
+			->count();
+	}
+
+	/**
+	 * Check if a device's category filter matches an order's categories.
+	 * @param Device $device
+	 * @param array $orderCategoryIds
+	 * @return bool
+	 */
+	private function deviceMatchesOrder(Device $device, array $orderCategoryIds): bool
+	{
+		// Device with no category filter accepts all orders
+		if (!$device->category_filter_id) {
+			return true;
+		}
+
+		// If order has no category items, any device can handle it
+		if (empty($orderCategoryIds)) {
+			return true;
+		}
+
+		return in_array($device->category_filter_id, $orderCategoryIds);
 	}
 
 	/**
@@ -110,7 +163,8 @@ class OrderAssignmentService
 	}
 
 	/**
-	 * Find the best device to handle an order based on workload and category compatibility.
+	 * Find the best online device to handle an order based on workload and category compatibility.
+	 * Returns null if no compatible online device is found (order stays unassigned / stranded).
 	 * @param Event $event
 	 * @param array $orderCategoryIds
 	 * @return Device|null
@@ -129,32 +183,30 @@ class OrderAssignmentService
 			return null;
 		}
 
-		// Filter devices by category compatibility
+		// Filter online devices by category compatibility
 		$compatibleDevices = $onlineDevices->filter(function (Device $device) use ($orderCategoryIds) {
-			// Device with no category filter accepts all orders
-			if (!$device->category_filter_id) {
-				return true;
-			}
-
-			// If order has no category items, any device can handle it
-			if (empty($orderCategoryIds)) {
-				return true;
-			}
-
-			// Device must accept at least one of the order's categories
-			return in_array($device->category_filter_id, $orderCategoryIds);
+			return $this->deviceMatchesOrder($device, $orderCategoryIds);
 		});
 
 		if ($compatibleDevices->isEmpty()) {
-			// Fall back to any online device if no category-compatible device found
-			$compatibleDevices = $onlineDevices;
+			// No category-compatible online device found — order will be stranded (NULL)
+			return null;
 		}
 
-		// Find the device with the least pending orders (load balancing)
+		return $this->deviceWithLowestWorkload($compatibleDevices);
+	}
+
+	/**
+	 * Pick the device with the fewest pending orders from a collection.
+	 * @param Collection $devices
+	 * @return Device|null
+	 */
+	private function deviceWithLowestWorkload(Collection $devices): ?Device
+	{
 		$bestDevice = null;
 		$lowestWorkload = PHP_INT_MAX;
 
-		foreach ($compatibleDevices as $device) {
+		foreach ($devices as $device) {
 			$workload = Order::where('assigned_device_id', $device->id)
 				->where('status', Order::STATUS_PENDING)
 				->count();
