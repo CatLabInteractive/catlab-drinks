@@ -24,6 +24,7 @@ namespace App\Models;
 
 use CatLab\Charon\Laravel\Database\Model;
 use DB;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -32,6 +33,8 @@ use Ramsey\Uuid\Uuid;
  */
 class Order extends Model
 {
+    use HasFactory;
+
     /**
      *
      */

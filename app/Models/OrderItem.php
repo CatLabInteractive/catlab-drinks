@@ -23,6 +23,7 @@
 namespace App\Models;
 
 use CatLab\Charon\Laravel\Database\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class OrderItem
@@ -30,6 +31,8 @@ use CatLab\Charon\Laravel\Database\Model;
  */
 class OrderItem extends Model
 {
+    use HasFactory;
+
     public static function boot()
     {
         parent::boot();

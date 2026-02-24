@@ -12,6 +12,7 @@ use App\Models\Organisation;
 use App\Services\OrderAssignmentService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
@@ -37,18 +38,11 @@ class OrderAssignmentServiceTest extends TestCase
 
 		$this->service = new OrderAssignmentService();
 
-		// Create organisation
-		$this->organisation = new Organisation();
-		$this->organisation->name = 'Test Org';
-		$this->organisation->save();
+		$this->organisation = Organisation::factory()->create();
 
-		// Create event
-		$this->event = new Event();
-		$this->event->name = 'Test Event';
-		$this->event->organisation_id = $this->organisation->id;
-		$this->event->order_token = \Illuminate\Support\Str::random(32);
-		$this->event->waiter_token = \Illuminate\Support\Str::random(32);
-		$this->event->save();
+		$this->event = Event::factory()->create([
+			'organisation_id' => $this->organisation->id,
+		]);
 	}
 
 	protected function tearDown(): void
@@ -58,21 +52,13 @@ class OrderAssignmentServiceTest extends TestCase
 	}
 
 	/**
-	 * Create a test device.
+	 * Create a test device with organisation defaulting to $this->organisation.
 	 */
 	private function createDevice(array $attrs = []): Device
 	{
-		$device = new Device();
-		$device->uid = $attrs['uid'] ?? \Illuminate\Support\Str::uuid();
-		$device->name = $attrs['name'] ?? 'Test POS';
-		$device->organisation_id = $this->organisation->id;
-		$device->last_ping = array_key_exists('last_ping', $attrs) ? $attrs['last_ping'] : Carbon::now();
-		$device->allow_remote_orders = $attrs['allow_remote_orders'] ?? true;
-		$device->allow_live_orders = $attrs['allow_live_orders'] ?? true;
-		$device->category_filter_id = $attrs['category_filter_id'] ?? null;
-		$device->secret_key = 'test-secret-' . rand(1000, 9999);
-		$device->save();
-		return $device;
+		return Device::factory()->create(array_merge([
+			'organisation_id' => $this->organisation->id,
+		], $attrs));
 	}
 
 	/**
@@ -80,54 +66,11 @@ class OrderAssignmentServiceTest extends TestCase
 	 */
 	private function createOrder(array $attrs = []): Order
 	{
-		$order = new Order();
-		$order->uid = $attrs['uid'] ?? \Illuminate\Support\Str::uuid();
-		$order->event_id = $this->event->id;
-		$order->status = $attrs['status'] ?? Order::STATUS_PENDING;
-		$order->assigned_device_id = $attrs['assigned_device_id'] ?? null;
-		$order->location = $attrs['location'] ?? 'Table 1';
-		$order->saveQuietly(); // Skip boot hooks (auto-assignment)
+		$order = Order::factory()->make(array_merge([
+			'event_id' => $this->event->id,
+		], $attrs));
+		$order->saveQuietly();
 		return $order;
-	}
-
-	/**
-	 * Create a category.
-	 */
-	private function createCategory(string $name): Category
-	{
-		$category = new Category();
-		$category->name = $name;
-		$category->event_id = $this->event->id;
-		$category->save();
-		return $category;
-	}
-
-	/**
-	 * Create a menu item in a category.
-	 */
-	private function createMenuItem(Category $category): MenuItem
-	{
-		$item = new MenuItem();
-		$item->name = 'Test Item';
-		$item->price = 500;
-		$item->event_id = $this->event->id;
-		$item->category_id = $category->id;
-		$item->save();
-		return $item;
-	}
-
-	/**
-	 * Add an order item to an order.
-	 */
-	private function addOrderItem(Order $order, MenuItem $menuItem, int $amount = 1): OrderItem
-	{
-		$item = new OrderItem();
-		$item->order_id = $order->id;
-		$item->menu_item_id = $menuItem->id;
-		$item->amount = $amount;
-		$item->price = $menuItem->price * $amount;
-		$item->save();
-		return $item;
 	}
 
 	// ──────────────────────────────────────────────────
@@ -320,8 +263,8 @@ class OrderAssignmentServiceTest extends TestCase
 	 */
 	public function testAssignOrderRespectsCategory(): void
 	{
-		$foodCategory = $this->createCategory('Food');
-		$drinkCategory = $this->createCategory('Drinks');
+		$foodCategory = Category::factory()->create(['name' => 'Food', 'event_id' => $this->event->id]);
+		$drinkCategory = Category::factory()->create(['name' => 'Drinks', 'event_id' => $this->event->id]);
 
 		// Device only accepts food
 		$foodDevice = $this->createDevice([
@@ -335,11 +278,11 @@ class OrderAssignmentServiceTest extends TestCase
 			'category_filter_id' => $drinkCategory->id,
 		]);
 
-		$foodItem = $this->createMenuItem($foodCategory);
+		$foodItem = MenuItem::factory()->create(['event_id' => $this->event->id, 'category_id' => $foodCategory->id]);
 
 		// Create order with a food item
 		$order = $this->createOrder();
-		$this->addOrderItem($order, $foodItem);
+		OrderItem::factory()->create(['order_id' => $order->id, 'menu_item_id' => $foodItem->id, 'amount' => 1, 'price' => $foodItem->price]);
 
 		$this->service->assignOrder($order);
 
@@ -353,15 +296,15 @@ class OrderAssignmentServiceTest extends TestCase
 	 */
 	public function testDeviceWithNoFilterAcceptsAll(): void
 	{
-		$foodCategory = $this->createCategory('Food');
-		$foodItem = $this->createMenuItem($foodCategory);
+		$foodCategory = Category::factory()->create(['name' => 'Food', 'event_id' => $this->event->id]);
+		$foodItem = MenuItem::factory()->create(['event_id' => $this->event->id, 'category_id' => $foodCategory->id]);
 
 		// Device with no category filter
 		$device = $this->createDevice(['name' => 'General POS']);
 
 		// Create order with a food item
 		$order = $this->createOrder();
-		$this->addOrderItem($order, $foodItem);
+		OrderItem::factory()->create(['order_id' => $order->id, 'menu_item_id' => $foodItem->id, 'amount' => 1, 'price' => $foodItem->price]);
 
 		$this->service->assignOrder($order);
 
@@ -374,7 +317,7 @@ class OrderAssignmentServiceTest extends TestCase
 	 */
 	public function testOrderWithNoCategoryGoesToAnyDevice(): void
 	{
-		$category = $this->createCategory('Food');
+		$category = Category::factory()->create(['name' => 'Food', 'event_id' => $this->event->id]);
 		$device = $this->createDevice([
 			'name' => 'Food POS',
 			'category_filter_id' => $category->id,
@@ -394,9 +337,9 @@ class OrderAssignmentServiceTest extends TestCase
 	 */
 	public function testOrderStrandedWhenNoCategoryMatch(): void
 	{
-		$foodCategory = $this->createCategory('Food');
-		$drinkCategory = $this->createCategory('Drinks');
-		$drinkItem = $this->createMenuItem($drinkCategory);
+		$foodCategory = Category::factory()->create(['name' => 'Food', 'event_id' => $this->event->id]);
+		$drinkCategory = Category::factory()->create(['name' => 'Drinks', 'event_id' => $this->event->id]);
+		$drinkItem = MenuItem::factory()->create(['event_id' => $this->event->id, 'category_id' => $drinkCategory->id]);
 
 		// Only a food device is online
 		$this->createDevice([
@@ -406,7 +349,7 @@ class OrderAssignmentServiceTest extends TestCase
 
 		// Create a drinks order
 		$order = $this->createOrder();
-		$this->addOrderItem($order, $drinkItem);
+		OrderItem::factory()->create(['order_id' => $order->id, 'menu_item_id' => $drinkItem->id, 'amount' => 1, 'price' => $drinkItem->price]);
 
 		$this->service->assignOrder($order);
 
@@ -517,9 +460,9 @@ class OrderAssignmentServiceTest extends TestCase
 	 */
 	public function testReevaluateReassignsOnCategoryChange(): void
 	{
-		$foodCategory = $this->createCategory('Food');
-		$drinkCategory = $this->createCategory('Drinks');
-		$drinkItem = $this->createMenuItem($drinkCategory);
+		$foodCategory = Category::factory()->create(['name' => 'Food', 'event_id' => $this->event->id]);
+		$drinkCategory = Category::factory()->create(['name' => 'Drinks', 'event_id' => $this->event->id]);
+		$drinkItem = MenuItem::factory()->create(['event_id' => $this->event->id, 'category_id' => $drinkCategory->id]);
 
 		$device1 = $this->createDevice([
 			'name' => 'POS 1',
@@ -532,7 +475,7 @@ class OrderAssignmentServiceTest extends TestCase
 
 		// Order has drink items, assigned to device1
 		$order = $this->createOrder(['assigned_device_id' => $device1->id]);
-		$this->addOrderItem($order, $drinkItem);
+		OrderItem::factory()->create(['order_id' => $order->id, 'menu_item_id' => $drinkItem->id, 'amount' => 1, 'price' => $drinkItem->price]);
 
 		// Device1 now only accepts food
 		$device1->category_filter_id = $foodCategory->id;
@@ -643,11 +586,10 @@ class OrderAssignmentServiceTest extends TestCase
 	 */
 	public function testAssignOrderWithNoEvent(): void
 	{
-		$order = new Order();
-		$order->uid = \Illuminate\Support\Str::uuid();
-		$order->status = Order::STATUS_PENDING;
-		$order->event_id = null;
-		$order->location = 'Table 1';
+		$order = Order::factory()->make([
+			'event_id' => null,
+			'location' => 'Table 1',
+		]);
 		$order->saveQuietly();
 
 		// Should not throw or crash
