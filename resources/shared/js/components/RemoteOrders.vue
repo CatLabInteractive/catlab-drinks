@@ -132,6 +132,7 @@
 	import {MenuService} from "../services/MenuService";
 	import {OrderService} from "../services/OrderService";
 	import {CategoryService} from "../services/CategoryService";
+	import {PosDeviceService} from "../services/PosDeviceService";
 
 	import RemoteOrderDescription from './RemoteOrderDescription.vue';
 	import RemoteOrderStatus from './RemoteOrderStatus.vue';
@@ -195,6 +196,7 @@
 				this.menuService = new MenuService(event.id);
 				this.orderService = new OrderService(event.id);
 				this.categoryService = new CategoryService(event.id);
+				this.posDeviceService = new PosDeviceService();
 
 				if (this.interval) {
 					clearInterval(this.interval);
@@ -270,10 +272,8 @@
 
 			async checkStrandedOrders() {
 				try {
-					const response = await window.axios.get(
-						CATLAB_DRINKS_CONFIG.API_PATH + '/events/' + this.event.id + '/stranded-orders'
-					);
-					this.strandedOrdersCount = response.data.stranded_orders_count || 0;
+					const response = await this.orderService.strandedOrders();
+					this.strandedOrdersCount = response.stranded_orders_count || 0;
 				} catch (e) {
 					// Silently fail — don't block the UI for this check
 					console.error('Failed to check stranded orders:', e);
@@ -333,9 +333,8 @@
 
 			async saveCategoryFilter(categoryId) {
 				try {
-					await window.axios.put(
-						CATLAB_DRINKS_CONFIG.API_PATH + '/devices/current/category-filter',
-						{ category_filter_id: categoryId === '0' ? null : categoryId }
+					await this.posDeviceService.updateCategoryFilter(
+						categoryId === '0' ? null : categoryId
 					);
 					this.serverCategoryFilter = categoryId;
 				} catch (e) {
