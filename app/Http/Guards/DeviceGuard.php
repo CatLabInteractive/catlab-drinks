@@ -38,6 +38,9 @@ class DeviceGuard implements Guard
 
 		$this->user = $token->device;
 
+		// Update last_ping on every authenticated request
+		$this->user->touchLastPing();
+
 		return true;
 	}
 

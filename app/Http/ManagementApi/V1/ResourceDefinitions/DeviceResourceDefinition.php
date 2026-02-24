@@ -67,5 +67,37 @@ class DeviceResourceDefinition extends ResourceDefinition
             ->string()
             ->visible(true)
             ->writeable(true, true);
+
+        $this->field('last_ping')
+            ->datetime()
+            ->visible(true)
+            ->writeable(false);
+
+        $this->field('isOnline')
+            ->display('is_online')
+            ->bool()
+            ->visible(true)
+            ->writeable(false);
+
+        $this->field('category_filter_id')
+            ->number()
+            ->visible(true)
+            ->writeable(true, true);
+
+        $this->field('allow_remote_orders')
+            ->bool()
+            ->visible(true)
+            ->writeable(true, true);
+
+        $this->field('allow_live_orders')
+            ->bool()
+            ->visible(true)
+            ->writeable(true, true);
+
+        $this->field('pendingOrdersCount')
+            ->display('pending_orders_count')
+            ->number()
+            ->visible(true)
+            ->writeable(false);
     }
 }

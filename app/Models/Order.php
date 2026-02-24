@@ -24,6 +24,7 @@ namespace App\Models;
 
 use CatLab\Charon\Laravel\Database\Model;
 use DB;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -32,6 +33,8 @@ use Ramsey\Uuid\Uuid;
  */
 class Order extends Model
 {
+    use HasFactory;
+
     /**
      *
      */
@@ -47,6 +50,12 @@ class Order extends Model
                 /** @var Transaction $transaction */
                 $transaction->order()->associate($order);
                 $transaction->save();
+            }
+
+            // Assign this order to an online POS device
+            if ($order->status === self::STATUS_PENDING && !$order->assigned_device_id) {
+                $assignmentService = new \App\Services\OrderAssignmentService();
+                $assignmentService->assignOrder($order);
             }
 
         });
@@ -102,6 +111,14 @@ class Order extends Model
     public function event()
     {
         return $this->belongsTo(Event::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function assignedDevice()
+    {
+        return $this->belongsTo(Device::class, 'assigned_device_id');
     }
 
     /**

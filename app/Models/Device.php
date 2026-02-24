@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
@@ -16,12 +18,22 @@ class Device extends Model implements
     AuthenticatableContract,
     AuthorizableContract
 {
-    use Authenticatable, Authorizable;
+    use Authenticatable, Authorizable, HasFactory;
 
 	protected $fillable = [
 		'uid',
 		'name',
 		'secret_key',
+		'category_filter_id',
+		'allow_remote_orders',
+		'allow_live_orders',
+	];
+
+	protected $casts = [
+		'last_ping' => 'datetime',
+		'last_activity' => 'datetime',
+		'allow_remote_orders' => 'boolean',
+		'allow_live_orders' => 'boolean',
 	];
 
 	protected static function booted()
@@ -29,6 +41,20 @@ class Device extends Model implements
 		static::deleting(function (Device $device) {
 			$device->accessTokens()->delete();
 			$device->connectRequests()->delete();
+		});
+
+		static::updated(function (Device $device) {
+			// If settings affecting order assignment changed, re-evaluate assignments
+			$needsReassignment = $device->wasChanged('category_filter_id')
+				|| ($device->wasChanged('allow_remote_orders') && !$device->allow_remote_orders);
+
+			if ($needsReassignment) {
+				$assignmentService = new \App\Services\OrderAssignmentService();
+				$events = \App\Models\Event::where('organisation_id', $device->organisation_id)->get();
+				foreach ($events as $event) {
+					$assignmentService->reevaluateAssignments($event, $device);
+				}
+			}
 		});
 	}
 
@@ -98,6 +124,57 @@ class Device extends Model implements
 	public function connectRequests()
 	{
 		return $this->hasMany(DeviceConnectRequest::class);
+	}
+
+	/**
+	 * @return BelongsTo
+	 */
+	public function categoryFilter()
+	{
+		return $this->belongsTo(Category::class, 'category_filter_id');
+	}
+
+	/**
+	 * @return HasMany
+	 */
+	public function assignedOrders()
+	{
+		return $this->hasMany(Order::class, 'assigned_device_id');
+	}
+
+	/**
+	 * Check if this device is considered online (for display purposes).
+	 * @return bool
+	 */
+	public function isOnline(): bool
+	{
+		if (!$this->last_ping) {
+			return false;
+		}
+
+		$gracePeriod = config('devices.display_grace_period', 60);
+		return $this->last_ping->gt(Carbon::now()->subSeconds($gracePeriod));
+	}
+
+	/**
+	 * Get the count of pending orders assigned to this device.
+	 * @return int
+	 */
+	public function getPendingOrdersCountAttribute(): int
+	{
+		return $this->assignedOrders()
+			->where('status', Order::STATUS_PENDING)
+			->count();
+	}
+
+	/**
+	 * Touch the last_ping timestamp.
+	 * @return void
+	 */
+	public function touchLastPing(): void
+	{
+		$this->last_ping = Carbon::now();
+		$this->saveQuietly();
 	}
 
 	/**
