@@ -18,12 +18,15 @@ use CatLab\Charon\Exceptions\InvalidTransformer;
 use CatLab\Charon\Exceptions\IterableExpected;
 use CatLab\Charon\Exceptions\VariableNotFoundInContext;
 use CatLab\Charon\Laravel\Controllers\CrudController;
+use CatLab\Requirements\Exceptions\ResourceValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 
 class DeviceController extends ResourceController {
 
-	use CrudController;
+	use CrudController {
+		beforeSaveEntity as traitBeforeSaveEntity;
+	}
 
 	public function __construct()
 	{
@@ -79,7 +82,8 @@ class DeviceController extends ResourceController {
 
 	/**
 	 * Update settings for the current device.
-	 * Accepts any combination of: category_filter_id, allow_remote_orders, allow_live_orders.
+	 * Uses the resource definition to parse writeable fields from the request body.
+	 * Reassignment logic is handled by the Device model's updated event.
 	 * @param Request $request
 	 * @return mixed
 	 */
@@ -87,44 +91,29 @@ class DeviceController extends ResourceController {
 	{
 		$device = \Auth::user();
 
-		$needsReassignment = false;
+		$this->authorizeEdit($request, $device);
 
-		if ($request->has('category_filter_id')) {
-			$categoryFilterId = $request->input('category_filter_id') ?: null;
-			if ($device->category_filter_id != $categoryFilterId) {
-				$device->category_filter_id = $categoryFilterId;
-				$needsReassignment = true;
-			}
+		$writeContext = $this->getContext(Action::EDIT);
+
+		$inputResource = $this->resourceTransformer
+			->fromInput($this->getResourceDefinitionFactory(), $writeContext, $request)
+			->first();
+
+		try {
+			$inputResource->validate($writeContext, $device);
+		} catch (ResourceValidationException $e) {
+			return $this->getValidationErrorResponse($e);
 		}
 
-		if ($request->has('allow_remote_orders')) {
-			$newValue = $request->boolean('allow_remote_orders');
-			if ($device->allow_remote_orders !== $newValue) {
-				$device->allow_remote_orders = $newValue;
-				if (!$newValue) {
-					$needsReassignment = true;
-				}
-			}
+		$device = $this->toEntity($inputResource, $writeContext, $device);
+
+		try {
+			$device = $this->saveEntity($request, $device);
+		} catch (ResourceValidationException $e) {
+			return $this->getValidationErrorResponse($e);
 		}
 
-		if ($request->has('allow_live_orders')) {
-			$device->allow_live_orders = $request->boolean('allow_live_orders');
-		}
-
-		$device->save();
-
-		if ($needsReassignment) {
-			$events = Event::where('organisation_id', $device->organisation_id)->get();
-			$assignmentService = new OrderAssignmentService();
-			foreach ($events as $event) {
-				$assignmentService->reevaluateAssignments($event, $device);
-			}
-		}
-
-		$readContext = $this->getContext(Action::VIEW);
-		$resource = $this->toResource($device, $readContext);
-
-		return $this->getResourceResponse($resource, $readContext);
+		return $this->createViewEntityResponse($device);
 	}
 
 	/**

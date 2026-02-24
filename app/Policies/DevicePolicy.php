@@ -84,6 +84,11 @@ class DevicePolicy extends BasePolicy
 
 	public function edit(?Authorizable $user, Device $device)
 	{
+		// A device can edit itself
+		if ($user instanceof Device) {
+			return $user->id === $device->id;
+		}
+
 		return $this->isMyOrganisation($user, $device->organisation);
 	}
 

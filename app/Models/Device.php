@@ -41,6 +41,20 @@ class Device extends Model implements
 			$device->accessTokens()->delete();
 			$device->connectRequests()->delete();
 		});
+
+		static::updated(function (Device $device) {
+			// If settings affecting order assignment changed, re-evaluate assignments
+			$needsReassignment = $device->wasChanged('category_filter_id')
+				|| ($device->wasChanged('allow_remote_orders') && !$device->allow_remote_orders);
+
+			if ($needsReassignment) {
+				$assignmentService = new \App\Services\OrderAssignmentService();
+				$events = \App\Models\Event::where('organisation_id', $device->organisation_id)->get();
+				foreach ($events as $event) {
+					$assignmentService->reevaluateAssignments($event, $device);
+				}
+			}
+		});
 	}
 
 	/**

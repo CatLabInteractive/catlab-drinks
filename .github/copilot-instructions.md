@@ -67,6 +67,25 @@ The backend uses CatLab Charon for REST API scaffolding:
 - Use `'only'` parameter to restrict which routes are generated
 - Route collections have a `namespace` property; controller action strings (e.g. `'OrderController@index'`) are resolved relative to it
 
+**Charon edit/update flow** (used by `CrudController::edit()` and custom update endpoints):
+1. Parse request body via `$this->resourceTransformer->fromInput($resourceDefinitionFactory, $writeContext, $request)`
+2. Validate with `$inputResource->validate($writeContext, $entity)`
+3. Apply writeable fields to entity via `$this->toEntity($inputResource, $writeContext, $existingEntity)`
+4. Save via `$this->saveEntity($request, $entity)` which wraps in a DB transaction and calls `beforeSaveEntity()`/`afterSaveEntity()` hooks
+5. Return via `$this->createViewEntityResponse($entity)`
+
+**`beforeSaveEntity` / `afterSaveEntity` hooks:**
+- Override these in controllers to add custom logic (e.g., validation, side effects)
+- When using the CrudController trait, alias it: `use CrudController { beforeSaveEntity as traitBeforeSaveEntity; }`
+- Call `$this->traitBeforeSaveEntity($request, $entity, $isNew)` to preserve the trait's default behavior
+- Use `$entity->isDirty('field')` in `beforeSaveEntity` to check if a field changed before save
+- Use `$entity->wasChanged('field')` in model `updated` events to check if a field actually changed after save
+
+**Model events for side effects:**
+- Prefer Eloquent model events (`created`, `updated`, etc.) over controller-level side effects for logic that should trigger regardless of which API endpoint or context modifies the model
+- Register model events in the model's `boot()` or `booted()` method
+- Use `wasChanged()` (not `isDirty()`) in `updated` events, since `isDirty()` is cleared after save
+
 ### Adding a New API Endpoint
 1. Create or update the ResourceDefinition (in Shared if used by both APIs, otherwise in the specific API namespace)
 2. Create or update the Controller using Charon traits (in Shared if used by both APIs)
@@ -85,6 +104,11 @@ Policies live in `app/Policies/` and extend `BasePolicy`.
 - When `$allowDevices = false` (default), only `User` principals are accepted (uses `isMyOrganisation()`)
 - **Read-only** POS endpoints should pass `$allowDevices = true`
 - **Write/admin** endpoints should use the default `false`
+
+**Device self-management:**
+- `DevicePolicy::view()` and `DevicePolicy::edit()` allow a device to view/edit itself (`$user->id === $device->id`)
+- This enables POS devices to update their own settings (category filter, order preferences) via `PUT /pos-api/v1/devices/current`
+- Always call `authorizeEdit($request, $entity)` or `authorizeView($request, $entity)` in device API endpoints
 
 **Example:** `EventPolicy::orderSummary()` passes `$allowDevices = true` so POS devices can view sales summaries.
 
