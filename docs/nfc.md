@@ -14,7 +14,7 @@ Security
 --------
 Each organisation in the project MUST have a unique secret that is used for all NFC related actions.
 
-Starting with card data version 1, the system uses **asymmetric encryption (ECDSA P-256)** instead of 
+Starting with card data version 1, the system uses **asymmetric encryption (ECDSA P-192)** instead of 
 the shared symmetric key. Each POS terminal generates its own unique key pair, and uses its private key 
 to sign card data. Other terminals verify signatures using approved public keys from the server.
 
@@ -56,7 +56,7 @@ The original format, still supported for reading. Uses HMAC-SHA256 with the orga
 
 ### Version 1 (Asymmetric)
 
-The new format using per-device ECDSA P-256 asymmetric keys. All new writes use this format regardless of 
+The new format using per-device ECDSA P-192 asymmetric keys. All new writes use this format regardless of 
 the version that was read.
 
 | Field | Size | Description |
@@ -66,21 +66,35 @@ the version that was read.
 | Balance | 4 bytes | Current card balance (32-bit signed integer) |
 | Transaction Count | 4 bytes | Number of transactions (32-bit signed integer) |
 | Timestamp | 4 bytes | Unix timestamp of last transaction (32-bit signed integer) |
-| Previous Transactions | 8 bytes | Last 2 transaction amounts (2 × 4 bytes, 32-bit signed integers) |
+| Previous Transactions | 20 bytes | Last 5 transaction amounts (5 × 4 bytes, 32-bit signed integers) |
 | Discount Percentage | 1 byte | Discount percentage (0-100) |
-| ECDSA Signature | 64 bytes | ECDSA P-256 signature (r: 32 bytes, s: 32 bytes) |
+| ECDSA Signature | 48 bytes | ECDSA P-192 signature (r: 24 bytes, s: 24 bytes) |
 
-**Total payload: 91 bytes** (fits NTAG213's 144-byte limit with NDEF overhead + topup URL)
+**Total payload: 87 bytes** (fits NTAG213's 144-byte limit with NDEF overhead + topup URL)
 
 **Signature covers:** `version_header + device_id + card_data_payload + card_uid`  
 The card UID is included in the signed data but NOT stored on the card (it's the card's hardware identifier), 
 preventing signature replay attacks across different cards.
 
+### NTAG213 Space Budget
+
+NTAG213 provides 144 bytes of user memory. The NDEF message (URI record + external data record) plus 
+TLV wrapper overhead (3 bytes) must fit within this limit:
+
+- Max NDEF message size: **141 bytes**
+- External record (87-byte payload + 19 bytes overhead): **106 bytes**
+- Available for URI record: **35 bytes** (= 141 - 106)
+- URI record overhead: **5 bytes** (header + type + prefix byte)
+- Max topup URL content (domain + "/" + uid): **30 characters**
+
+With the default domain `d.ctlb.eu` (9 chars), card UIDs up to **20 characters** are supported.
+The POS validates this at runtime and shows an error if the topup URL is too long.
+
 Key Management
 --------------
 ### Key Generation
 Key generation is a manual, explicit action. When a POS terminal first opens the NFC card component,
-a modal is shown prompting the user to press "Generate Credentials". The generated ECDSA P-256 private key 
+a modal is shown prompting the user to press "Generate Credentials". The generated ECDSA P-192 private key 
 is encrypted with the device secret (provided by the server via `GET /pos-api/v1/devices/current`) using 
 AES and stored in the browser's localStorage.
 

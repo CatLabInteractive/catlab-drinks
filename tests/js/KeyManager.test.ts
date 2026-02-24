@@ -99,7 +99,7 @@ describe('KeyManager', () => {
 			keyManager2.loadPublicKeys(publicKeys);
 		});
 
-		test('should sign data and produce a 64-byte signature', () => {
+		test('should sign data and produce a 48-byte signature', () => {
 			const data = 'test data payload';
 			const signature = keyManager1.sign(data);
 

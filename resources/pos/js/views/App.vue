@@ -127,7 +127,7 @@
 			</div>
 
 			<!-- Status: Approved -->
-			<div v-if="keyModalStatus === 'approved'">
+			<div v-if="keyModalStatus === 'approved' && !nfcSpaceError">
 				<div class="text-center mb-3">
 					<span style="font-size: 3rem;">✅</span>
 				</div>
@@ -137,9 +137,23 @@
 				<p>{{ $t('Your signing credentials have been approved. This device can now read and write NFC cards.') }}</p>
 			</div>
 
+			<!-- NFC space limit error -->
+			<div v-if="nfcSpaceError">
+				<div class="text-center mb-3">
+					<span style="font-size: 3rem;">⚠️</span>
+				</div>
+				<b-alert variant="danger" show>
+					<strong>{{ $t('NFC Space Limit Exceeded') }}</strong>
+				</b-alert>
+				<p>{{ $t('The topup URL is too long to fit on the NFC card together with the signed card data.') }}</p>
+				<p>{{ nfcSpaceError }}</p>
+				<p class="text-muted small">{{ $t('Please configure a shorter topup domain in the organisation settings to resolve this issue.') }}</p>
+			</div>
+
 			<template #modal-footer>
-				<b-btn v-if="keyModalStatus === 'approved'" variant="success" @click="$refs.keyModal.hide()">{{ $t('Close') }}</b-btn>
+				<b-btn v-if="keyModalStatus === 'approved' && !nfcSpaceError" variant="success" @click="$refs.keyModal.hide()">{{ $t('Close') }}</b-btn>
 				<b-btn v-else-if="keyModalStatus === 'pending'" variant="light" @click="$refs.keyModal.hide()">{{ $t('Close') }}</b-btn>
+				<b-btn v-else-if="nfcSpaceError" variant="light" @click="$refs.keyModal.hide()">{{ $t('Close') }}</b-btn>
 			</template>
 		</b-modal>
 
@@ -168,7 +182,8 @@
 				licenseStatus: null,
 				keyModalStatus: 'none',
 				generatingKey: false,
-				checkingApproval: false
+				checkingApproval: false,
+				nfcSpaceError: null
 			}
 		},
 
@@ -191,6 +206,11 @@
 
 				this.eventListeners.push(this.$cardService.on('keyStatus:change', (status) => {
 					this.keyModalStatus = status;
+				}));
+
+				this.eventListeners.push(this.$cardService.on('card:spaceError', (error) => {
+					this.nfcSpaceError = error;
+					this.$refs.keyModal.show();
 				}));
 			}
 

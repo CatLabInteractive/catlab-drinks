@@ -150,6 +150,14 @@ export class CardService extends Eventable {
 				return;
 			}
 
+			// Check if the topup URL + v1 card data fits within NTAG213 memory
+			const spaceError = this.checkNfcSpaceLimit(card.getUid());
+			if (spaceError) {
+				card.setCorrupted();
+				this.trigger('card:spaceError', spaceError);
+				return;
+			}
+
 			// Inject key manager for v1 signing/verification
 			if (this.keyManager) {
 				card.setKeyManager(this.keyManager);
@@ -450,8 +458,39 @@ export class CardService extends Eventable {
 	 */
 	setTopupDomain(domain: string) {
 		this.nfcReader.setTopupDomain(domain);
+		this.topupDomain = domain;
 		return this;
 	}
+
+	/**
+	 * Check if the topup URL + v1 card data fits within NTAG213's memory limit.
+	 * @param cardUid The card UID to check against
+	 * @returns null if it fits, or an error message string if it doesn't
+	 */
+	checkNfcSpaceLimit(cardUid: string): string | null {
+		const domain = this.topupDomain || 'd.ctlb.eu';
+		// URI record overhead: header(1) + type_len(1) + payload_len(1) + type('U'=1) + prefix_byte(1) = 5 bytes
+		// URI content: domain + "/" + uid
+		const uriContentLength = domain.length + 1 + cardUid.length;
+		const uriRecordSize = 5 + uriContentLength;
+
+		// External record overhead: header(1) + type_len(1) + payload_len(1) + type('eu.catlab.drinks'=16) = 19 bytes
+		// V1 payload: version(2) + deviceId(4) + balance(4) + txCount(4) + timestamp(4) + prev_tx(20) + discount(1) + sig(48) = 87 bytes
+		const v1PayloadSize = 87;
+		const externalRecordSize = 19 + v1PayloadSize;
+
+		const totalNdefSize = uriRecordSize + externalRecordSize;
+
+		// NTAG213: 144 bytes user memory, minus 3 bytes TLV overhead = 141 bytes max NDEF message
+		const NTAG213_MAX_NDEF = 141;
+
+		if (totalNdefSize > NTAG213_MAX_NDEF) {
+			return 'NFC card data (' + totalNdefSize + ' bytes) exceeds NTAG213 memory limit (' + NTAG213_MAX_NDEF + ' bytes). The topup URL is too long. Please use a shorter topup domain.';
+		}
+		return null;
+	}
+
+	private topupDomain: string = 'd.ctlb.eu';
 
 	getCard() {
 		if (!this.isCardLoaded) {

@@ -36,10 +36,10 @@ export const CARD_VERSION_ASYMMETRIC = 1;
 
 /** Signature sizes per version */
 const HMAC_SIGNATURE_LENGTH = 32;
-const ECDSA_SIGNATURE_LENGTH = 64;
+const ECDSA_SIGNATURE_LENGTH = 48;
 const VERSION_HEADER_LENGTH = 2;
 const DEVICE_ID_LENGTH = 4; // 4-byte numeric device ID (big-endian)
-const V1_PREV_TX_COUNT = 2; // v1 cards store only 2 previous transactions (vs 5 in v0) to fit in NTAG213
+const V1_PREV_TX_COUNT = 5; // v1 cards store 5 previous transactions (same as v0)
 
 /**
  *
@@ -198,8 +198,8 @@ export class Card extends Eventable {
     }
 
     /**
-     * Compact v1 serialize: stores only 2 most recent previous transactions.
-     * Total: balance(4) + txcount(4) + timestamp(4) + prev_tx(8) + discount(1) = 21 bytes
+     * V1 serialize: stores 5 previous transactions (same as v0).
+     * Total: balance(4) + txcount(4) + timestamp(4) + prev_tx(20) + discount(1) = 33 bytes
      */
     private serializeV1() {
 
@@ -255,7 +255,7 @@ export class Card extends Eventable {
     }
 
     /**
-     * Unserialize compact v1 card data (2 previous transactions).
+     * Unserialize v1 card data (5 previous transactions).
      * @param data
      */
     private unserializeV1(data: string) {
@@ -271,13 +271,9 @@ export class Card extends Eventable {
         for (let i = 0; i < V1_PREV_TX_COUNT; i ++) {
             this.previousTransactions.push(this.fromBytesInt32(data.substr(12 + (i * 4), 4)));
         }
-        // Fill remaining slots with 0
-        while (this.previousTransactions.length < 5) {
-            this.previousTransactions.push(0);
-        }
 
-        if (data.length > 20) {
-            this.discountPercentage = this.fromBytesInt8(data.substr(20, 1));
+        if (data.length > 32) {
+            this.discountPercentage = this.fromBytesInt8(data.substr(32, 1));
         }
     }
 
@@ -301,10 +297,10 @@ export class Card extends Eventable {
             // 4-byte numeric device ID (big-endian)
             out += this.toBytesInt32(this.keyManager.getDeviceId());
 
-            // Card data payload (v1 compact: only 2 previous transactions)
+            // Card data payload (v1: 5 previous transactions)
             out += this.serializeV1();
 
-            // 64-byte ECDSA signature over (version + deviceId + payload + cardUid)
+            // 48-byte ECDSA P-192 signature over (version + deviceId + payload + cardUid)
             const dataToSign = out + this.uid;
             const signature = this.keyManager.sign(dataToSign);
             out += signature;

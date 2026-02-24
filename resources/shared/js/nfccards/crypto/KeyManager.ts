@@ -22,10 +22,10 @@
 import { ec as EC } from 'elliptic';
 import * as CryptoJS from 'crypto-js';
 
-const curve = new EC('p256');
+const curve = new EC('p192');
 
-/** ECDSA signature: 32 bytes r + 32 bytes s = 64 bytes */
-export const ECDSA_SIGNATURE_LENGTH = 64;
+/** ECDSA signature: 24 bytes r + 24 bytes s = 48 bytes */
+export const ECDSA_SIGNATURE_LENGTH = 48;
 
 /**
  * Key pair entry for a device.
@@ -40,8 +40,8 @@ export interface PublicKeyEntry {
 /**
  * Manages ECDSA key pairs for NFC card signing.
  *
- * Uses standard ECDSA P-256 signatures (64 bytes: r + s).
- * V1 card format uses compact card data (2 prev transactions) to fit within NTAG213's 144-byte limit.
+ * Uses ECDSA P-192 signatures (48 bytes: 24 r + 24 s).
+ * V1 card format stores 5 previous transactions and fits within NTAG213's 144-byte limit.
  * Private keys are encrypted with the device secret (from server) and stored in localStorage.
  * Public keys are uploaded to the server for admin approval.
  */
@@ -158,9 +158,9 @@ export class KeyManager {
 
 	/**
 	 * Sign data with the device's private key.
-	 * Returns a standard ECDSA signature (64 bytes: 32 bytes r + 32 bytes s).
+	 * Returns an ECDSA P-192 signature (48 bytes: 24 bytes r + 24 bytes s).
 	 * @param data The data string to sign
-	 * @returns Signature as a 64-byte string
+	 * @returns Signature as a 48-byte string
 	 */
 	public sign(data: string): string {
 		if (!this.keyPair) {
@@ -170,9 +170,9 @@ export class KeyManager {
 		const hash = CryptoJS.SHA256(data).toString(CryptoJS.enc.Hex);
 		const signature = this.keyPair.sign(hash, { canonical: true });
 
-		// Standard format: 32 bytes r + 32 bytes s = 64 bytes
-		const r = signature.r.toString('hex').padStart(64, '0');
-		const s = signature.s.toString('hex').padStart(64, '0');
+		// P-192 format: 24 bytes r + 24 bytes s = 48 bytes
+		const r = signature.r.toString('hex').padStart(48, '0');
+		const s = signature.s.toString('hex').padStart(48, '0');
 
 		return this.hexToByteString(r + s);
 	}
@@ -181,7 +181,7 @@ export class KeyManager {
 	 * Verify an ECDSA signature against data using a specific device's public key.
 	 * @param signerDeviceId The numeric ID or UID of the device that signed the data
 	 * @param data The original data string
-	 * @param signatureBytes The signature as a byte string (64 bytes: r + s)
+	 * @param signatureBytes The signature as a byte string (48 bytes: r + s)
 	 * @returns True if the signature is valid
 	 */
 	public verify(signerDeviceId: number | string, data: string, signatureBytes: string): boolean {
@@ -200,8 +200,8 @@ export class KeyManager {
 		const hash = CryptoJS.SHA256(data).toString(CryptoJS.enc.Hex);
 		const sigHex = this.byteStringToHex(signatureBytes);
 
-		const r = sigHex.substring(0, 64);
-		const s = sigHex.substring(64, 128);
+		const r = sigHex.substring(0, 48);
+		const s = sigHex.substring(48, 96);
 
 		try {
 			return publicKey.verify(hash, { r: r, s: s });

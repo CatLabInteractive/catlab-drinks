@@ -14,8 +14,8 @@ describe('Card Version Constants', () => {
 		expect(CARD_VERSION_ASYMMETRIC).toBe(1);
 	});
 
-	test('ECDSA signature should be 64 bytes', () => {
-		expect(ECDSA_SIGNATURE_LENGTH).toBe(64);
+	test('ECDSA signature should be 48 bytes', () => {
+		expect(ECDSA_SIGNATURE_LENGTH).toBe(48);
 	});
 });
 
@@ -187,10 +187,10 @@ describe('KeyManager cross-device signing verification', () => {
 		}
 	});
 
-	test('v1 total payload should fit in NTAG213 (91 bytes payload, within 144 bytes total with NDEF overhead)', () => {
-		// version(2) + deviceId(4) + balance(4) + txCount(4) + timestamp(4) + prevTx_2(8) + discount(1) + sig(64) = 91
-		const expectedPayloadSize = 2 + 4 + 4 + 4 + 4 + 8 + 1 + ECDSA_SIGNATURE_LENGTH;
-		expect(expectedPayloadSize).toBe(91);
+	test('v1 total payload should fit in NTAG213 (87 bytes payload, within 144 bytes total with NDEF overhead)', () => {
+		// version(2) + deviceId(4) + balance(4) + txCount(4) + timestamp(4) + prevTx_5(20) + discount(1) + sig(48) = 87
+		const expectedPayloadSize = 2 + 4 + 4 + 4 + 4 + 20 + 1 + ECDSA_SIGNATURE_LENGTH;
+		expect(expectedPayloadSize).toBe(87);
 		expect(expectedPayloadSize).toBeLessThanOrEqual(92);
 	});
 });
