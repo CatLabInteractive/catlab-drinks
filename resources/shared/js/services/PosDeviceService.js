@@ -35,4 +35,20 @@ export class PosDeviceService extends AbstractService {
 		);
 	}
 
+	updateAllowRemoteOrders(allowRemoteOrders) {
+		return this.execute(
+			'put',
+			'devices/current/allow-remote-orders',
+			{ allow_remote_orders: allowRemoteOrders }
+		);
+	}
+
+	updateAllowLiveOrders(allowLiveOrders) {
+		return this.execute(
+			'put',
+			'devices/current/allow-live-orders',
+			{ allow_live_orders: allowLiveOrders }
+		);
+	}
+
 }

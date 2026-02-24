@@ -24,11 +24,15 @@ class Device extends Model implements
 		'name',
 		'secret_key',
 		'category_filter_id',
+		'allow_remote_orders',
+		'allow_live_orders',
 	];
 
 	protected $casts = [
 		'last_ping' => 'datetime',
 		'last_activity' => 'datetime',
+		'allow_remote_orders' => 'boolean',
+		'allow_live_orders' => 'boolean',
 	];
 
 	protected static function booted()

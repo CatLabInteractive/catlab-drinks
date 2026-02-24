@@ -87,15 +87,20 @@ class OrderAssignmentService
 			if ($order->assigned_device_id) {
 				$device = Device::find($order->assigned_device_id);
 				if ($device && $device->isOnline()) {
-					// If this order belongs to the device that just changed its filter,
-					// check if the order still matches the new filter
+					// If this order belongs to the device that just changed its settings,
+					// check if the device still accepts this order
 					if ($changedDevice && $device->id === $changedDevice->id) {
-						$orderCategoryIds = $this->getOrderCategoryIds($order);
-						if ($this->deviceMatchesOrder($device, $orderCategoryIds)) {
-							// Still matches, keep assignment
-							continue;
+						// Device disabled remote orders — must reassign
+						if (!$device->allow_remote_orders) {
+							// Fall through to reassign
+						} else {
+							$orderCategoryIds = $this->getOrderCategoryIds($order);
+							if ($this->deviceMatchesOrder($device, $orderCategoryIds)) {
+								// Still matches, keep assignment
+								continue;
+							}
+							// No longer matches — fall through to reassign
 						}
-						// No longer matches — fall through to reassign
 					} else {
 						// Don't reassign from other online devices - crew might be working on it
 						continue;
@@ -174,9 +179,10 @@ class OrderAssignmentService
 		$gracePeriod = config('devices.reassignment_grace_period', 300);
 		$cutoff = Carbon::now()->subSeconds($gracePeriod);
 
-		// Get all online devices for this organisation
+		// Get all online devices for this organisation that accept remote orders
 		$onlineDevices = Device::where('organisation_id', $event->organisation_id)
 			->where('last_ping', '>', $cutoff)
+			->where('allow_remote_orders', true)
 			->get();
 
 		if ($onlineDevices->isEmpty()) {

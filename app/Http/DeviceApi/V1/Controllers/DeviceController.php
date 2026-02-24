@@ -3,8 +3,10 @@
 namespace App\Http\DeviceApi\V1\Controllers;
 
 use App\Http\DeviceApi\V1\ResourceDefinitions\DeviceResourceDefinition;
+use App\Http\DeviceApi\V1\ResourceDefinitions\StrandedOrdersSummaryResourceDefinition;
 use App\Http\Shared\V1\Controllers\Base\ResourceController;
 use App\Models\Event;
+use App\Models\StrandedOrdersSummary;
 use App\Services\OrderAssignmentService;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
@@ -42,8 +44,17 @@ class DeviceController extends ResourceController {
 			->summary('Update the category filter for the current device')
 			->returns()->one(DeviceResourceDefinition::class);
 
+		$routes->put('devices/current/allow-remote-orders', 'DeviceController@updateAllowRemoteOrders')
+			->summary('Update the allow_remote_orders setting for the current device')
+			->returns()->one(DeviceResourceDefinition::class);
+
+		$routes->put('devices/current/allow-live-orders', 'DeviceController@updateAllowLiveOrders')
+			->summary('Update the allow_live_orders setting for the current device')
+			->returns()->one(DeviceResourceDefinition::class);
+
 		$routes->get('events/{event}/stranded-orders', 'DeviceController@strandedOrders')
-			->summary('Check for orders that cannot be processed by any online POS');
+			->summary('Check for orders that cannot be processed by any online POS')
+			->returns()->one(StrandedOrdersSummaryResourceDefinition::class);
 
 	}
 
@@ -102,21 +113,70 @@ class DeviceController extends ResourceController {
 	}
 
 	/**
+	 * Update the allow_remote_orders setting for the current device.
+	 * @param Request $request
+	 * @return mixed
+	 */
+	public function updateAllowRemoteOrders(Request $request)
+	{
+		$device = \Auth::user();
+
+		$device->allow_remote_orders = $request->boolean('allow_remote_orders');
+		$device->save();
+
+		// If remote orders were disabled, re-evaluate assignments so orders
+		// assigned to this device get reassigned to other devices
+		if (!$device->allow_remote_orders) {
+			$events = Event::where('organisation_id', $device->organisation_id)->get();
+			$assignmentService = new OrderAssignmentService();
+			foreach ($events as $event) {
+				$assignmentService->reevaluateAssignments($event, $device);
+			}
+		}
+
+		$readContext = $this->getContext(Action::VIEW);
+		$resource = $this->toResource($device, $readContext);
+
+		return $this->getResourceResponse($resource, $readContext);
+	}
+
+	/**
+	 * Update the allow_live_orders setting for the current device.
+	 * @param Request $request
+	 * @return mixed
+	 */
+	public function updateAllowLiveOrders(Request $request)
+	{
+		$device = \Auth::user();
+
+		$device->allow_live_orders = $request->boolean('allow_live_orders');
+		$device->save();
+
+		$readContext = $this->getContext(Action::VIEW);
+		$resource = $this->toResource($device, $readContext);
+
+		return $this->getResourceResponse($resource, $readContext);
+	}
+
+	/**
 	 * Check for stranded orders that cannot be processed by any online POS.
 	 * @param Request $request
 	 * @param int $event
-	 * @return \Illuminate\Http\JsonResponse
+	 * @return mixed
 	 */
 	public function strandedOrders(Request $request, $event)
 	{
 		$event = Event::findOrFail($event);
 
 		$assignmentService = new OrderAssignmentService();
-		$count = $assignmentService->countStrandedOrders($event);
 
-		return response()->json([
-			'stranded_orders_count' => $count
-		]);
+		$summary = new StrandedOrdersSummary();
+		$summary->count = $assignmentService->countStrandedOrders($event);
+
+		$context = $this->getContext(Action::VIEW);
+		$resource = $this->toResource($summary, $context, StrandedOrdersSummaryResourceDefinition::class);
+
+		return $this->getResourceResponse($resource, $context);
 	}
 
 }

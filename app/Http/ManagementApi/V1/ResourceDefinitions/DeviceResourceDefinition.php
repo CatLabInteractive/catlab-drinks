@@ -84,6 +84,16 @@ class DeviceResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->writeable(true, true);
 
+        $this->field('allow_remote_orders')
+            ->bool()
+            ->visible(true)
+            ->writeable(true, true);
+
+        $this->field('allow_live_orders')
+            ->bool()
+            ->visible(true)
+            ->writeable(true, true);
+
         $this->field('pendingOrdersCount')
             ->display('pending_orders_count')
             ->number()

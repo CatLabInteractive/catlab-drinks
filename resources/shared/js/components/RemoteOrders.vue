@@ -273,7 +273,7 @@
 			async checkStrandedOrders() {
 				try {
 					const response = await this.orderService.strandedOrders();
-					this.strandedOrdersCount = response.stranded_orders_count || 0;
+					this.strandedOrdersCount = response.count || 0;
 				} catch (e) {
 					// Silently fail — don't block the UI for this check
 					console.error('Failed to check stranded orders:', e);

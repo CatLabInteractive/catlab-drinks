@@ -161,6 +161,7 @@
 <script>
 
 	import { clearAuthData } from '../../../shared/js/services/DeviceAuth';
+	import { PosDeviceService } from '../../../shared/js/services/PosDeviceService';
 
 	export default {
 
@@ -237,10 +238,18 @@
 				this.settingService.allowLiveOrders = this.allowLiveOrders;
 				this.settingService.allowRemoteOrders = this.allowRemoteOrders;
 
-				this.settingService.save()
-					.then(function() {
-						window.location.reload();
-					})
+				// Sync order settings to the server
+				const posDeviceService = new PosDeviceService();
+				Promise.all([
+					this.settingService.save(),
+					posDeviceService.updateAllowRemoteOrders(this.allowRemoteOrders),
+					posDeviceService.updateAllowLiveOrders(this.allowLiveOrders)
+				]).then(function() {
+					window.location.reload();
+				}).catch(function(e) {
+					console.error('Failed to save settings:', e);
+					alert('Failed to save settings. Please try again.');
+				});
 
 			},
 
