@@ -20,12 +20,44 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-namespace App\Http\ManagementApi\V1\ResourceDefinitions;
+namespace App\Http\Shared\V1\ResourceDefinitions;
+
+use App\Models\Attendee;
+use CatLab\Charon\Models\ResourceDefinition;
 
 /**
  *
  */
-class AttendeeResourceDefinition extends \App\Http\Shared\V1\ResourceDefinitions\AttendeeResourceDefinition
+class AttendeeResourceDefinition extends ResourceDefinition
 {
+    /**
+     * @param $entityClassName
+     */
+    public function __construct()
+    {
+        parent::__construct(Attendee::class);
 
+        $this
+            ->identifier('id')
+            ->int();
+
+        $this->field('name')
+            ->string()
+            ->required()
+            ->visible(true)
+            ->writeable(true, true)
+        ;
+
+        $this->field('alias')
+            ->string()
+            ->required()
+            ->visible(true)
+            ->writeable(true, true);
+
+        $this->field('email')
+            ->string()
+            ->visible(true)
+            ->writeable(true, true)
+        ;
+    }
 }

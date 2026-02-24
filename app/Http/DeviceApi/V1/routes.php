@@ -76,6 +76,7 @@ $routes->group(
 
 				\App\Http\DeviceApi\V1\Controllers\OrderSummaryController::setRoutes($routes);
 
+				\App\Http\DeviceApi\V1\Controllers\AttendeeController::setRoutes($routes);
 
 			}
 		);

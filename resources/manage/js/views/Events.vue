@@ -103,12 +103,6 @@
 									👥
 									{{ $t('Register attendees') }}
 								</b-dropdown-item>
-
-								<b-dropdown-item :to="{ name: 'checkIn', params: { id: row.item.id } }"
-												 :title="$t('Check-In attendees')">
-									🛂
-									{{ $t('Check-In attendees') }}
-								</b-dropdown-item>
 							</b-dropdown-group>
 
 						</b-dropdown>

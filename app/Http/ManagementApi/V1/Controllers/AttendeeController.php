@@ -23,95 +23,34 @@
 namespace App\Http\ManagementApi\V1\Controllers;
 
 use App\Http\ManagementApi\V1\ResourceDefinitions\AttendeeResourceDefinition;
-use App\Http\Shared\V1\Controllers\Base\ResourceController;
 use App\Models\Event;
 use CatLab\Charon\Collections\RouteCollection;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 
 /**
  * Class AttendeeController
  * @package App\Http\ManagementApi\V1\Controllers
  */
-class AttendeeController extends ResourceController
+class AttendeeController extends \App\Http\Shared\V1\Controllers\AttendeeController
 {
     const RESOURCE_DEFINITION = AttendeeResourceDefinition::class;
-    const RESOURCE_ID = 'id';
-    const PARENT_RESOURCE_ID = 'event';
-
-    use \CatLab\Charon\Laravel\Controllers\ChildCrudController {
-        beforeSaveEntity as traitBeforeSaveEntity;
-    }
 
     /**
      * @param RouteCollection $routes
+     * @param string[] $only
+     * @return RouteCollection
      * @throws \CatLab\Charon\Exceptions\InvalidContextAction
      */
-    public static function setRoutes(RouteCollection $routes)
+    public static function setRoutes(RouteCollection $routes, array $only = [
+        'index', 'view', 'store', 'edit', 'destroy'
+    ]): RouteCollection
     {
-        $childResource = $routes->childResource(
-            static::RESOURCE_DEFINITION,
-            'events/{parentId}/attendees',
-            'attendees',
-            'AttendeeController',
-            [
-                'id' => self::RESOURCE_ID,
-                'only' => [ 'index', 'view', 'store', 'edit', 'destroy' ]
-            ]
-        );
-
-        $childResource->tag('menu');
+        $childResource = parent::setRoutes($routes, $only);
 
         $childResource->put('events/{parentId}/attendees/import', 'AttendeeController@import')
             ->parameters()->post('attendees');
-    }
 
-    public static function setPublicRoutes(RouteCollection $routes)
-    {
-    }
-
-    /**
-     * @param Request $request
-     * @return Relation
-     */
-    public function getRelationship(Request $request): Relation
-    {
-        /** @var Event $event */
-        $event = $this->getParent($request);
-        return $event->attendees();
-    }
-
-    /**
-     * @param Request $request
-     * @return Model
-     */
-    public function getParent(Request $request): Model
-    {
-        $eventId = $request->route('parentId');
-        return Event::findOrFail($eventId);
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getRelationshipKey(): string
-    {
-        return self::PARENT_RESOURCE_ID;
-    }
-
-    /**
-     * Called before saveEntity
-     * @param Request $request
-     * @param \Illuminate\Database\Eloquent\Model $entity
-     * @param $isNew
-     * @return Model
-     */
-    protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
-    {
-        $this->traitBeforeSaveEntity($request, $entity, $isNew);
-        return $entity;
+        return $childResource;
     }
 
     /**

@@ -40,7 +40,7 @@ class AttendeePolicy extends BasePolicy
      */
     public function index(?Authorizable $user, Event $event)
     {
-        return $this->isMyEvent($user, $event);
+        return $this->isMyEvent($user, $event, true);
     }
 
     /**
