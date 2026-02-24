@@ -40,7 +40,8 @@ export interface PublicKeyEntry {
 /**
  * Manages ECDSA key pairs for NFC card signing.
  *
- * Uses compact recovery signatures (33 bytes) to fit within NTAG213's 144-byte limit.
+ * Uses standard ECDSA P-256 signatures (64 bytes: r + s).
+ * V1 card format uses compact card data (2 prev transactions) to fit within NTAG213's 144-byte limit.
  * Private keys are encrypted with the device secret (from server) and stored in localStorage.
  * Public keys are uploaded to the server for admin approval.
  */

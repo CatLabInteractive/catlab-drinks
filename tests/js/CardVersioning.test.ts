@@ -187,7 +187,7 @@ describe('KeyManager cross-device signing verification', () => {
 		}
 	});
 
-	test('v1 total payload should fit in NTAG213 (max ~92 bytes with 14-char UID)', () => {
+	test('v1 total payload should fit in NTAG213 (91 bytes payload, within 144 bytes total with NDEF overhead)', () => {
 		// version(2) + deviceId(4) + balance(4) + txCount(4) + timestamp(4) + prevTx_2(8) + discount(1) + sig(64) = 91
 		const expectedPayloadSize = 2 + 4 + 4 + 4 + 4 + 8 + 1 + ECDSA_SIGNATURE_LENGTH;
 		expect(expectedPayloadSize).toBe(91);
