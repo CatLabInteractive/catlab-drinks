@@ -82,7 +82,7 @@
     import Spreadsheet from "../components/Spreadsheet.vue";
 
     const COLUMNS = [
-        { key: 'alias', label: 'Alias' },
+        { key: 'alias', label: 'NFC Card Alias' },
         { key: 'name', label: 'Name' },
         { key: 'email', label: 'Email' }
     ];
