@@ -97,4 +97,56 @@ export class DeviceService extends AbstractService {
 		);
 
 	}
+
+	approveKey(deviceId, parameters) {
+
+		if (typeof(parameters) === 'undefined') {
+			parameters = {};
+		}
+
+		return this.execute(
+			'post',
+			'devices/' + deviceId + '/approve-key' + "?" + $.param(parameters)
+		);
+
+	}
+
+	revokeKey(deviceId, parameters) {
+
+		if (typeof(parameters) === 'undefined') {
+			parameters = {};
+		}
+
+		return this.execute(
+			'post',
+			'devices/' + deviceId + '/revoke-key' + "?" + $.param(parameters)
+		);
+
+	}
+
+	getSignedCards(deviceId, parameters) {
+
+		if (typeof(parameters) === 'undefined') {
+			parameters = {};
+		}
+
+		return this.execute(
+			'get',
+			'devices/' + deviceId + '/signed-cards' + "?" + $.param(parameters)
+		);
+
+	}
+
+	getPublicKeys(parameters) {
+
+		if (typeof(parameters) === 'undefined') {
+			parameters = {};
+		}
+
+		return this.execute(
+			'get',
+			'organisations/' + this.organisationId + '/public-keys' + "?" + $.param(parameters)
+		);
+
+	}
 }

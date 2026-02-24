@@ -29,6 +29,7 @@ import AirbrakeClient from 'airbrake-js';
 
 import {SettingService} from "../../shared/js/services/SettingService";
 import {OrganisationService} from "../../shared/js/services/OrganisationService";
+import {CardService} from "../../shared/js/nfccards/CardService";
 import i18n from "../../shared/js/i18n/index";
 
 import App from './views/App'
@@ -46,6 +47,7 @@ import CheckIn from "../../shared/js/views/CheckIn";
 import SalesSummaryNames from "../../shared/js/views/SalesSummaryNames";
 import Menu from "./views/Menu.vue";
 import Devices from "./views/Devices";
+import PublicKeys from "./views/PublicKeys";
 
 function launch() {
 
@@ -152,6 +154,12 @@ function launch() {
 				name: 'devices',
 				component: Devices
 			},
+
+			{
+				path: '/public-keys',
+				name: 'publicKeys',
+				component: PublicKeys
+			},
 		],
 	});
 
@@ -172,6 +180,12 @@ function launch() {
 				return axios.get('/api/v1/users/me')
 					.then(response => {
 						window.ORGANISATION_ID = response.data.organisations.items[0].id;
+
+						// Initialize CardService for transaction viewing (no NFC reader needed)
+						Vue.prototype.$cardService = new CardService(
+							axios,
+							window.ORGANISATION_ID
+						);
 					});
 			}
 		)
