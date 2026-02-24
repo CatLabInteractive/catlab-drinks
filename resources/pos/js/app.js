@@ -209,6 +209,7 @@ async function launch() {
 				return axios.get('/pos-api/v1/devices/current')
 					.then(response => {
 						window.ORGANISATION_ID = response.data.organisation.id;
+						window.DEVICE_ID = response.data.id;
 						window.DEVICE_SECRET = response.data.secret_key;
 						window.DEVICE_NAME = response.data.name;
 

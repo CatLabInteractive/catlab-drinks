@@ -26,7 +26,7 @@ class OrderAssignmentService
 		$device = $this->findBestDevice($event, $orderCategoryIds);
 
 		if ($device) {
-			$order->device_id = $device->id;
+			$order->assigned_device_id = $device->id;
 			$order->saveQuietly();
 		}
 	}
@@ -45,8 +45,8 @@ class OrderAssignmentService
 		// Find pending orders assigned to devices that have gone offline
 		$offlineOrders = Order::where('event_id', $event->id)
 			->where('status', Order::STATUS_PENDING)
-			->whereNotNull('device_id')
-			->whereHas('device', function ($query) use ($cutoff) {
+			->whereNotNull('assigned_device_id')
+			->whereHas('assignedDevice', function ($query) use ($cutoff) {
 				$query->where(function ($q) use ($cutoff) {
 					$q->whereNull('last_ping')
 						->orWhere('last_ping', '<', $cutoff);
@@ -58,7 +58,7 @@ class OrderAssignmentService
 			$orderCategoryIds = $this->getOrderCategoryIds($order);
 			$device = $this->findBestDevice($event, $orderCategoryIds);
 
-			$order->device_id = $device ? $device->id : null;
+			$order->assigned_device_id = $device ? $device->id : null;
 			$order->saveQuietly();
 		}
 	}
@@ -77,8 +77,8 @@ class OrderAssignmentService
 
 		foreach ($pendingOrders as $order) {
 			// Only reassign orders from offline devices or unassigned orders
-			if ($order->device_id) {
-				$device = Device::find($order->device_id);
+			if ($order->assigned_device_id) {
+				$device = Device::find($order->assigned_device_id);
 				if ($device && $device->isOnline()) {
 					// Don't reassign from online devices - crew might be working on it
 					continue;
@@ -88,7 +88,7 @@ class OrderAssignmentService
 			$orderCategoryIds = $this->getOrderCategoryIds($order);
 			$device = $this->findBestDevice($event, $orderCategoryIds);
 
-			$order->device_id = $device ? $device->id : null;
+			$order->assigned_device_id = $device ? $device->id : null;
 			$order->saveQuietly();
 		}
 	}
@@ -155,7 +155,7 @@ class OrderAssignmentService
 		$lowestWorkload = PHP_INT_MAX;
 
 		foreach ($compatibleDevices as $device) {
-			$workload = Order::where('device_id', $device->id)
+			$workload = Order::where('assigned_device_id', $device->id)
 				->where('status', Order::STATUS_PENDING)
 				->count();
 

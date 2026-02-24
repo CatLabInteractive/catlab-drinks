@@ -19,8 +19,8 @@ return new class extends Migration
 		});
 
 		Schema::table('orders', function (Blueprint $table) {
-			$table->unsignedBigInteger('device_id')->nullable()->after('event_id');
-			$table->foreign('device_id')->references('id')->on('devices')->nullOnDelete();
+			$table->unsignedBigInteger('assigned_device_id')->nullable()->after('event_id');
+			$table->foreign('assigned_device_id')->references('id')->on('devices')->nullOnDelete();
 		});
 	}
 
@@ -32,8 +32,8 @@ return new class extends Migration
 	public function down()
 	{
 		Schema::table('orders', function (Blueprint $table) {
-			$table->dropForeign(['device_id']);
-			$table->dropColumn('device_id');
+			$table->dropForeign(['assigned_device_id']);
+			$table->dropColumn('assigned_device_id');
 		});
 
 		Schema::table('devices', function (Blueprint $table) {

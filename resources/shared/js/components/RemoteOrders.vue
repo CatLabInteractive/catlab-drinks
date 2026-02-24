@@ -40,6 +40,13 @@
 			</select>
 		</b-form-group>
 
+		<!-- Filter assigned orders (POS only) -->
+		<b-form-group v-if="currentDeviceId">
+			<b-form-checkbox v-model="onlyAssignedOrders" @change="refresh()">
+				{{ $t('Only show assigned orders') }}
+			</b-form-checkbox>
+		</b-form-group>
+
 		<div class="text-center" v-if="!loaded">
 			<b-spinner :label="$t('Loading data')" />
 		</div>
@@ -134,7 +141,8 @@
 		},
 
 		props: [
-			'event'
+			'event',
+			'deviceId'
 		],
 
 		mounted() {
@@ -155,7 +163,9 @@
 				currentOrder: null,
 				categoryFilter: '0',
 				categories: [],
-				items: []
+				items: [],
+				onlyAssignedOrders: true,
+				currentDeviceId: this.deviceId || null
 			}
 		},
 
@@ -197,11 +207,20 @@
 
 				this.loaded = true;
 
-				const items = (await this.orderService.index({
+				const params = {
 					sort: 'id',
 					status: 'pending'
-				})).items.filter(
+				};
+
+				const items = (await this.orderService.index(params)).items.filter(
 					(item) => {
+						// Filter on assigned orders
+						if (this.onlyAssignedOrders && this.currentDeviceId) {
+							if (item.assigned_device_id !== this.currentDeviceId) {
+								return false;
+							}
+						}
+
 						// Filter on category
 						if (!this.categoryFilter || this.categoryFilter == '0') {
 							return true;
@@ -279,6 +298,22 @@
 			changeFilterCategory(event) {
 				this.categoryFilter = event.target.value;
 				this.refresh();
+
+				// If this is a POS device, save the category filter to the server
+				if (this.currentDeviceId) {
+					this.saveCategoryFilter(this.categoryFilter);
+				}
+			},
+
+			async saveCategoryFilter(categoryId) {
+				try {
+					await window.axios.put(
+						CATLAB_DRINKS_CONFIG.API_PATH + '/devices/current/category-filter',
+						{ category_filter_id: categoryId === '0' ? null : categoryId }
+					);
+				} catch (e) {
+					console.error('Failed to save category filter:', e);
+				}
 			},
 
 			// *****************************************************

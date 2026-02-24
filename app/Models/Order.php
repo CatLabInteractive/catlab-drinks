@@ -50,7 +50,7 @@ class Order extends Model
             }
 
             // Assign this order to an online POS device
-            if ($order->status === self::STATUS_PENDING && !$order->device_id) {
+            if ($order->status === self::STATUS_PENDING && !$order->assigned_device_id) {
                 $assignmentService = new \App\Services\OrderAssignmentService();
                 $assignmentService->assignOrder($order);
             }
@@ -113,9 +113,9 @@ class Order extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function device()
+    public function assignedDevice()
     {
-        return $this->belongsTo(Device::class);
+        return $this->belongsTo(Device::class, 'assigned_device_id');
     }
 
     /**

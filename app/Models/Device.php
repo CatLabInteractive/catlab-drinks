@@ -120,7 +120,7 @@ class Device extends Model implements
 	 */
 	public function assignedOrders()
 	{
-		return $this->hasMany(Order::class);
+		return $this->hasMany(Order::class, 'assigned_device_id');
 	}
 
 	/**

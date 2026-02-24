@@ -101,7 +101,7 @@ class OrderResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->writeable(true, false);
 
-        $this->field('device_id')
+        $this->field('assigned_device_id')
             ->number()
             ->visible(true)
             ->filterable()
