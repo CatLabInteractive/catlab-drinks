@@ -65,7 +65,7 @@ abstract class AttendeeController extends ResourceController
             ]
         );
 
-        $childResource->tag('menu');
+        $childResource->tag('attendees');
 
         return $childResource;
     }
