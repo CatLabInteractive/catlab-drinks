@@ -87,6 +87,27 @@ class Organisation extends Model
 		return $this->hasMany(Device::class);
 	}
 
+	/**
+	 * Get all devices including soft-deleted ones.
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function allDevices()
+	{
+		return $this->hasMany(Device::class)->withTrashed();
+	}
+
+	/**
+	 * Get devices with approved public keys (including soft-deleted).
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function approvedDevicesWithKeys()
+	{
+		return $this->hasMany(Device::class)
+			->withTrashed()
+			->whereNotNull('public_key')
+			->whereNotNull('approved_at');
+	}
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

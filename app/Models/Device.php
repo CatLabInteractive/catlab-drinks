@@ -10,6 +10,7 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
@@ -18,7 +19,7 @@ class Device extends Model implements
     AuthenticatableContract,
     AuthorizableContract
 {
-    use Authenticatable, Authorizable, HasFactory;
+    use Authenticatable, Authorizable, HasFactory, SoftDeletes;
 
 	protected $fillable = [
 		'uid',
@@ -39,8 +40,13 @@ class Device extends Model implements
 	protected static function booted()
 	{
 		static::deleting(function (Device $device) {
-			$device->accessTokens()->delete();
-			$device->connectRequests()->delete();
+			if ($device->isForceDeleting()) {
+				$device->accessTokens()->delete();
+				$device->connectRequests()->delete();
+			} else {
+				// Soft delete: revoke access tokens but keep public key
+				$device->accessTokens()->delete();
+			}
 		});
 
 		static::updated(function (Device $device) {
@@ -140,6 +146,57 @@ class Device extends Model implements
 	public function assignedOrders()
 	{
 		return $this->hasMany(Order::class, 'assigned_device_id');
+	}
+
+	/**
+	 * Get all cards that were last signed by this device.
+	 * @return HasMany
+	 */
+	public function signedCards()
+	{
+		return $this->hasMany(Card::class, 'last_signing_device_id');
+	}
+
+	/**
+	 * Get the count of cards last signed by this device.
+	 * @return int
+	 */
+	public function getSignedCardsCountAttribute(): int
+	{
+		return $this->signedCards()->count();
+	}
+
+	/**
+	 * Check if this device's public key has been approved.
+	 * @return bool
+	 */
+	public function isApproved(): bool
+	{
+		return $this->approved_at !== null;
+	}
+
+	/**
+	 * Approve this device's public key.
+	 * @param User $approver
+	 * @return void
+	 */
+	public function approvePublicKey(User $approver): void
+	{
+		$this->approved_at = Carbon::now();
+		$this->approved_by = $approver->id;
+		$this->save();
+	}
+
+	/**
+	 * Revoke this device's public key approval.
+	 * @return void
+	 */
+	public function revokePublicKey(): void
+	{
+		$this->public_key = null;
+		$this->approved_at = null;
+		$this->approved_by = null;
+		$this->save();
 	}
 
 	/**

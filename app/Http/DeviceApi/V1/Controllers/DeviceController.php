@@ -6,6 +6,7 @@ use App\Http\DeviceApi\V1\ResourceDefinitions\DeviceResourceDefinition;
 use App\Http\DeviceApi\V1\ResourceDefinitions\StrandedOrdersSummaryResourceDefinition;
 use App\Http\Shared\V1\Controllers\Base\ResourceController;
 use App\Models\Event;
+use App\Models\Organisation;
 use App\Models\StrandedOrdersSummary;
 use App\Services\OrderAssignmentService;
 use CatLab\Charon\Collections\RouteCollection;
@@ -46,6 +47,11 @@ class DeviceController extends ResourceController {
 		$routes->put('devices/current', 'DeviceController@updateCurrentDevice')
 			->summary('Update settings for the current device')
 			->returns()->one(DeviceResourceDefinition::class);
+
+		$routes->get('organisations/{organisation}/approved-public-keys', 'DeviceController@approvedPublicKeys')
+			->summary('Get all approved public keys for the organisation')
+			->parameters()->path('organisation')->required()
+			->tag('devices');
 
 		$routes->get('events/{event}/stranded-orders', 'DeviceController@strandedOrders')
 			->summary('Check for orders that cannot be processed by any online POS')
@@ -135,6 +141,32 @@ class DeviceController extends ResourceController {
 		$resource = $this->toResource($summary, $context, StrandedOrdersSummaryResourceDefinition::class);
 
 		return $this->getResourceResponse($resource, $context);
+	}
+
+	/**
+	 * Get all approved public keys for the organisation.
+	 * POS devices use this to verify card signatures from other terminals.
+	 * @param Request $request
+	 * @param int $organisationId
+	 * @return mixed
+	 */
+	public function approvedPublicKeys(Request $request, $organisationId)
+	{
+		$organisation = Organisation::findOrFail($organisationId);
+		$this->authorize('viewPublicKeys', [\App\Models\Device::class, $organisation]);
+
+		$devices = $organisation->approvedDevicesWithKeys()->get();
+
+		$data = $devices->map(function ($device) {
+			return [
+				'id' => $device->id,
+				'uid' => $device->uid,
+				'public_key' => $device->public_key,
+				'approved_at' => $device->approved_at,
+			];
+		});
+
+		return response()->json(['items' => $data]);
 	}
 
 }

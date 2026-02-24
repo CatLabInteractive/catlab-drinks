@@ -43,6 +43,16 @@ class DeviceResourceDefinition extends ResourceDefinition
 			->visible(true)
 			->writeable(false);
 
+		$this->field('public_key')
+			->string()
+			->visible(true)
+			->writeable(true, true);
+
+		$this->field('approved_at')
+			->datetime()
+			->visible(true)
+			->writeable(false);
+
 		$this->field('category_filter_id')
 			->number()
 			->visible(true)
