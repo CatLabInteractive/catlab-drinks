@@ -39,7 +39,7 @@ class OrderAssignmentService
 	 */
 	public function reassignOfflineDeviceOrders(Event $event): void
 	{
-		$gracePeriod = config('devices.offline_grace_period', 300);
+		$gracePeriod = config('devices.reassignment_grace_period', 300);
 		$cutoff = Carbon::now()->subSeconds($gracePeriod);
 
 		// Find pending orders assigned to devices that have gone offline
@@ -117,7 +117,7 @@ class OrderAssignmentService
 	 */
 	private function findBestDevice(Event $event, array $orderCategoryIds): ?Device
 	{
-		$gracePeriod = config('devices.offline_grace_period', 300);
+		$gracePeriod = config('devices.reassignment_grace_period', 300);
 		$cutoff = Carbon::now()->subSeconds($gracePeriod);
 
 		// Get all online devices for this organisation

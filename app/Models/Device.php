@@ -124,7 +124,7 @@ class Device extends Model implements
 	}
 
 	/**
-	 * Check if this device is considered online.
+	 * Check if this device is considered online (for display purposes).
 	 * @return bool
 	 */
 	public function isOnline(): bool
@@ -133,8 +133,19 @@ class Device extends Model implements
 			return false;
 		}
 
-		$gracePeriod = config('devices.offline_grace_period', 300);
+		$gracePeriod = config('devices.display_grace_period', 60);
 		return $this->last_ping->gt(Carbon::now()->subSeconds($gracePeriod));
+	}
+
+	/**
+	 * Get the count of pending orders assigned to this device.
+	 * @return int
+	 */
+	public function getPendingOrdersCountAttribute(): int
+	{
+		return $this->assignedOrders()
+			->where('status', Order::STATUS_PENDING)
+			->count();
 	}
 
 	/**

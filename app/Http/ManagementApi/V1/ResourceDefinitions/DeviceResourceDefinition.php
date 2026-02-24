@@ -83,5 +83,11 @@ class DeviceResourceDefinition extends ResourceDefinition
             ->number()
             ->visible(true)
             ->writeable(true, true);
+
+        $this->field('pendingOrdersCount')
+            ->display('pending_orders_count')
+            ->number()
+            ->visible(true)
+            ->writeable(false);
     }
 }

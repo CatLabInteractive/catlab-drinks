@@ -52,6 +52,10 @@
 						</span>
 					</template>
 
+					<template v-slot:cell(pending_orders)="row">
+						{{ row.item.pending_orders_count || 0 }}
+					</template>
+
 					<template v-slot:cell(license)="row">
 						<span v-if="row.item.license_key" class="text-success">
 							✅ {{ $t('Licensed') }}
@@ -223,6 +227,10 @@
 					{
 						key: 'status',
 						label: this.$t('Status'),
+					},
+					{
+						key: 'pending_orders',
+						label: this.$t('Pending orders'),
 					},
 					{
 						key: 'license',
