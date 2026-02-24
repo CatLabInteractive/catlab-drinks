@@ -142,7 +142,8 @@
 
 		props: [
 			'event',
-			'deviceId'
+			'deviceId',
+			'initialCategoryFilter'
 		],
 
 		mounted() {
@@ -158,10 +159,12 @@
 		},
 
 		data() {
+			const initialFilter = this.initialCategoryFilter ? String(this.initialCategoryFilter) : '0';
 			return {
 				loaded: false,
 				currentOrder: null,
-				categoryFilter: '0',
+				categoryFilter: initialFilter,
+				serverCategoryFilter: initialFilter,
 				categories: [],
 				items: [],
 				onlyAssignedOrders: true,
@@ -311,8 +314,12 @@
 						CATLAB_DRINKS_CONFIG.API_PATH + '/devices/current/category-filter',
 						{ category_filter_id: categoryId === '0' ? null : categoryId }
 					);
+					this.serverCategoryFilter = categoryId;
 				} catch (e) {
 					console.error('Failed to save category filter:', e);
+					alert(this.$t('Failed to save category filter. Reverting to previous value.'));
+					this.categoryFilter = this.serverCategoryFilter;
+					this.refresh();
 				}
 			},
 

@@ -210,6 +210,7 @@ async function launch() {
 					.then(response => {
 						window.ORGANISATION_ID = response.data.organisation.id;
 						window.DEVICE_ID = response.data.id;
+						window.DEVICE_CATEGORY_FILTER_ID = response.data.category_filter_id || null;
 						window.DEVICE_SECRET = response.data.secret_key;
 						window.DEVICE_NAME = response.data.name;
 
