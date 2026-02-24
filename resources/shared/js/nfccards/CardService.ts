@@ -88,6 +88,12 @@ export class CardService extends Eventable {
 	private keyManager: KeyManager | null = null;
 
 	/**
+	 * Tracks the key approval status from the server.
+	 * 'none' = no key generated, 'pending' = awaiting approval, 'approved' = ready to use.
+	 */
+	private keyApprovalStatus: 'none' | 'pending' | 'approved' = 'none';
+
+	/**
 	 *
 	 */
 	constructor(
@@ -136,6 +142,13 @@ export class CardService extends Eventable {
 		});
 
 		this.nfcReader.on('card:loaded', async (card: Card) => {
+
+			// Block card operations if key is not approved
+			if (!this.isCardOperationAllowed()) {
+				card.setCorrupted();
+				this.trigger('card:blocked', card);
+				return;
+			}
 
 			// Inject key manager for v1 signing/verification
 			if (this.keyManager) {
@@ -316,6 +329,8 @@ export class CardService extends Eventable {
 
 	/**
 	 * Initialize asymmetric key management for this device.
+	 * Only loads an existing key pair - does NOT generate one.
+	 * Call generateAndRegisterKey() for explicit key generation.
 	 * @param deviceUid The device's unique identifier
 	 * @param deviceId The device's numeric ID
 	 * @param deviceSecret The device secret (from server API)
@@ -331,6 +346,33 @@ export class CardService extends Eventable {
 	 */
 	getKeyManager(): KeyManager | null {
 		return this.keyManager;
+	}
+
+	/**
+	 * Check if this device has a stored key pair (without decrypting it).
+	 * @param deviceUid The device's unique identifier
+	 */
+	hasStoredKeyPair(deviceUid: string): boolean {
+		if (this.keyManager) {
+			return this.keyManager.hasStoredKeyPair(deviceUid);
+		}
+		return new KeyManager().hasStoredKeyPair(deviceUid);
+	}
+
+	/**
+	 * Generate a new key pair and register it with the server.
+	 * This is the explicit "Generate Credentials" action.
+	 * @param deviceUid The device's unique identifier
+	 * @param deviceId The device's numeric ID
+	 * @param deviceSecret The device secret (from server API)
+	 */
+	async generateAndRegisterKey(deviceUid: string, deviceId: number, deviceSecret: string): Promise<any> {
+		if (!this.keyManager) {
+			this.keyManager = new KeyManager();
+		}
+
+		this.keyManager.generateKeyPair(deviceUid, deviceId, deviceSecret);
+		return await this.registerPublicKey();
 	}
 
 	/**
@@ -375,6 +417,32 @@ export class CardService extends Eventable {
 			'organisations/' + organisationId + '/approved-public-keys'
 		);
 		return response.data.items || [];
+	}
+
+	/**
+	 * Get the key approval status.
+	 * Returns 'none' if no key pair exists, 'pending' if key exists but not approved,
+	 * 'approved' if key is approved.
+	 */
+	getKeyStatus(): 'none' | 'pending' | 'approved' {
+		return this.keyApprovalStatus;
+	}
+
+	/**
+	 * Set the key approval status.
+	 * Should be called after checking the device's approved_at from the server.
+	 */
+	setKeyApprovalStatus(status: 'none' | 'pending' | 'approved') {
+		this.keyApprovalStatus = status;
+		this.trigger('keyStatus:change', status);
+	}
+
+	/**
+	 * Check whether card operations (scan/sign) should be allowed.
+	 * Only allowed when key is approved.
+	 */
+	isCardOperationAllowed(): boolean {
+		return this.keyApprovalStatus === 'approved';
 	}
 
 	/**

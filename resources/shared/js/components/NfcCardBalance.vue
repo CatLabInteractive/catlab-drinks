@@ -21,8 +21,10 @@
 
 <template>
 
-	<div v-if="connected === true" class="btn btn-sm btn-success">{{ $t('NFC') }}</div>
-	<div v-if="connected === false" class="btn btn-sm btn-danger">{{ $t('NFC') }}</div>
+	<div v-if="keyStatus === 'approved' && connected === true" class="btn btn-sm btn-success">{{ $t('NFC') }}</div>
+	<div v-else-if="keyStatus === 'pending'" class="btn btn-sm btn-warning" @click="$emit('showKeyModal')">{{ $t('NFC ⏳') }}</div>
+	<div v-else-if="keyStatus === 'none'" class="btn btn-sm btn-danger" @click="$emit('showKeyModal')">{{ $t('NFC 🔑') }}</div>
+	<div v-else-if="connected === false" class="btn btn-sm btn-danger">{{ $t('NFC') }}</div>
 	
 	<div v-if="apiConnected === false" class="btn btn-sm btn-danger">{{ $t('API Offline') }}</div>
 
@@ -52,6 +54,7 @@
 
 			this.connected = this.$cardService.isConnected();
 			this.apiConnected = this.$cardService.hasApiConnection();
+			this.keyStatus = this.$cardService.getKeyStatus();
 
 			this.eventListeners.push(this.$cardService.on('connection:change', function(isOnline) {
 				//console.log('is online', isOnline);
@@ -61,6 +64,10 @@
 			this.eventListeners.push(this.$cardService.on('apiConnection:change', function(isOnline) {
 				//console.log('is online', isOnline);
 				this.apiConnected = this.$cardService.hasApiConnection();
+			}.bind(this)));
+
+			this.eventListeners.push(this.$cardService.on('keyStatus:change', function(status) {
+				this.keyStatus = status;
 			}.bind(this)));
 
 			this.eventListeners.push(this.$cardService.on('card:connect', function(card) {
@@ -92,7 +99,8 @@
 				connected: null,
 				apiConnected: null,
 				corrupt: false,
-				loading: false
+				loading: false,
+				keyStatus: 'none'
 			};
 		}
 	}

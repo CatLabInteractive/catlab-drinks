@@ -62,33 +62,41 @@ the version that was read.
 | Field | Size | Description |
 |---|---|---|
 | Version Header | 2 bytes | Always `0x0001` |
-| Signer Device UID | 36 bytes | UUID of the POS device that signed this data |
+| Signer Device ID | 4 bytes | Numeric device ID (32-bit big-endian) |
 | Balance | 4 bytes | Current card balance (32-bit signed integer) |
 | Transaction Count | 4 bytes | Number of transactions (32-bit signed integer) |
 | Timestamp | 4 bytes | Unix timestamp of last transaction (32-bit signed integer) |
-| Previous Transactions | 20 bytes | Last 5 transaction amounts (5 × 4 bytes, 32-bit signed integers) |
+| Previous Transactions | 8 bytes | Last 2 transaction amounts (2 × 4 bytes, 32-bit signed integers) |
 | Discount Percentage | 1 byte | Discount percentage (0-100) |
 | ECDSA Signature | 64 bytes | ECDSA P-256 signature (r: 32 bytes, s: 32 bytes) |
 
-**Total payload: 135 bytes**
+**Total payload: 91 bytes** (fits NTAG213's 144-byte limit with NDEF overhead + topup URL)
 
-**Signature covers:** `version_header + device_uid + card_data_payload + card_uid`  
+**Signature covers:** `version_header + device_id + card_data_payload + card_uid`  
 The card UID is included in the signed data but NOT stored on the card (it's the card's hardware identifier), 
 preventing signature replay attacks across different cards.
 
 Key Management
 --------------
 ### Key Generation
-Each POS terminal generates an ECDSA P-256 key pair on first initialization. The private key is encrypted 
-with the device secret (provided by the server via `GET /pos-api/v1/devices/current`) using AES and stored 
-in the browser's localStorage.
+Key generation is a manual, explicit action. When a POS terminal first opens the NFC card component,
+a modal is shown prompting the user to press "Generate Credentials". The generated ECDSA P-256 private key 
+is encrypted with the device secret (provided by the server via `GET /pos-api/v1/devices/current`) using 
+AES and stored in the browser's localStorage.
+
+### NFC Status Indicator
+The NFC status label in the toolbar uses colors to indicate the key status:
+- **Red** 🔑: No credentials generated — card operations blocked
+- **Orange** ⏳: Credentials generated, pending admin approval — card operations blocked
+- **Green**: Credentials approved — card operations allowed
 
 ### Key Registration Flow
-1. POS device generates key pair and stores encrypted private key locally
-2. POS uploads its public key via `PUT /pos-api/v1/devices/current`
-3. Public key enters "Pending" state on the server
-4. Organisation admin reviews and approves the key in the admin dashboard
-5. Once approved, the public key is distributed to all POS terminals via 
+1. User manually triggers "Generate Credentials" on the POS terminal
+2. POS generates key pair and stores encrypted private key locally
+3. POS uploads its public key via `PUT /pos-api/v1/devices/current`
+4. Public key enters "Pending" state on the server
+5. Organisation admin reviews and approves the key in the admin dashboard
+6. Once approved, the public key is distributed to all POS terminals via 
    `GET /pos-api/v1/organisations/{id}/approved-public-keys`
 
 ### Key Revocation

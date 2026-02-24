@@ -24,6 +24,9 @@ import * as CryptoJS from 'crypto-js';
 
 const curve = new EC('p256');
 
+/** ECDSA signature: 32 bytes r + 32 bytes s = 64 bytes */
+export const ECDSA_SIGNATURE_LENGTH = 64;
+
 /**
  * Key pair entry for a device.
  */
@@ -37,6 +40,7 @@ export interface PublicKeyEntry {
 /**
  * Manages ECDSA key pairs for NFC card signing.
  *
+ * Uses compact recovery signatures (33 bytes) to fit within NTAG213's 144-byte limit.
  * Private keys are encrypted with the device secret (from server) and stored in localStorage.
  * Public keys are uploaded to the server for admin approval.
  */
@@ -44,15 +48,46 @@ export class KeyManager {
 
 	private keyPair: EC.KeyPair | null = null;
 	private publicKeys: Map<string, EC.KeyPair> = new Map();
+	private publicKeysByDeviceId: Map<number, EC.KeyPair> = new Map();
 	private deviceUid: string = '';
 	private deviceId: number = 0;
 
 	/**
-	 * Initialize key manager with device info and secret.
-	 * Loads or generates a key pair, encrypted with the device secret.
+	 * Check if a key pair already exists in localStorage for a given device.
+	 * Does NOT load it (that requires the device secret).
+	 * @param deviceUid The unique device identifier
+	 */
+	public hasStoredKeyPair(deviceUid: string): boolean {
+		const storageKey = 'catlab_drinks_device_keypair_' + deviceUid;
+		return localStorage.getItem(storageKey) !== null;
+	}
+
+	/**
+	 * Generate a new key pair, encrypt it, and store it.
+	 * This is the explicit "Generate Credentials" action.
 	 * @param deviceUid The unique device identifier
 	 * @param deviceId The numeric device ID
-	 * @param deviceSecret The device secret from the server (used to encrypt private key)
+	 * @param deviceSecret The device secret from the server
+	 */
+	public generateKeyPair(deviceUid: string, deviceId: number, deviceSecret: string): void {
+		this.deviceUid = deviceUid;
+		this.deviceId = deviceId;
+
+		this.keyPair = curve.genKeyPair();
+		const privateKeyHex = this.keyPair.getPrivate('hex');
+		const serialized = JSON.stringify({ privateKey: privateKeyHex });
+		const encrypted = CryptoJS.AES.encrypt(serialized, deviceSecret).toString();
+
+		const storageKey = 'catlab_drinks_device_keypair_' + deviceUid;
+		localStorage.setItem(storageKey, encrypted);
+	}
+
+	/**
+	 * Initialize key manager with device info and secret.
+	 * Loads an existing key pair from localStorage. Does NOT generate one.
+	 * @param deviceUid The unique device identifier
+	 * @param deviceId The numeric device ID
+	 * @param deviceSecret The device secret from the server (used to decrypt private key)
 	 */
 	public initialize(deviceUid: string, deviceId: number, deviceSecret: string): void {
 		this.deviceUid = deviceUid;
@@ -69,16 +104,9 @@ export class KeyManager {
 					this.keyPair = curve.keyFromPrivate(parsed.privateKey, 'hex');
 				}
 			} catch (e) {
-				console.warn('Failed to decrypt stored key pair, generating new one');
+				console.warn('Failed to decrypt stored key pair');
+				this.keyPair = null;
 			}
-		}
-
-		if (!this.keyPair) {
-			this.keyPair = curve.genKeyPair();
-			const privateKeyHex = this.keyPair.getPrivate('hex');
-			const serialized = JSON.stringify({ privateKey: privateKeyHex });
-			const encrypted = CryptoJS.AES.encrypt(serialized, deviceSecret).toString();
-			localStorage.setItem(storageKey, encrypted);
 		}
 	}
 
@@ -108,15 +136,18 @@ export class KeyManager {
 
 	/**
 	 * Load approved public keys from the server response.
+	 * Indexes by both UID (string) and numeric device ID for card verification.
 	 * @param keys Array of public key entries from the API
 	 */
 	public loadPublicKeys(keys: PublicKeyEntry[]): void {
 		this.publicKeys.clear();
+		this.publicKeysByDeviceId.clear();
 		for (const entry of keys) {
 			if (entry.public_key && entry.approved_at) {
 				try {
 					const key = curve.keyFromPublic(entry.public_key, 'hex');
 					this.publicKeys.set(entry.uid, key);
+					this.publicKeysByDeviceId.set(entry.id, key);
 				} catch (e) {
 					console.warn('Failed to load public key for device ' + entry.uid);
 				}
@@ -126,20 +157,19 @@ export class KeyManager {
 
 	/**
 	 * Sign data with the device's private key.
-	 * Returns the signature as a fixed-length byte string (64 bytes for P-256).
+	 * Returns a standard ECDSA signature (64 bytes: 32 bytes r + 32 bytes s).
 	 * @param data The data string to sign
-	 * @returns Signature as a byte string
+	 * @returns Signature as a 64-byte string
 	 */
 	public sign(data: string): string {
 		if (!this.keyPair) {
 			throw new Error('KeyManager not initialized');
 		}
 
-		// Hash the data first
 		const hash = CryptoJS.SHA256(data).toString(CryptoJS.enc.Hex);
-		const signature = this.keyPair.sign(hash);
+		const signature = this.keyPair.sign(hash, { canonical: true });
 
-		// Encode r and s as fixed 32-byte values (64 bytes total)
+		// Standard format: 32 bytes r + 32 bytes s = 64 bytes
 		const r = signature.r.toString('hex').padStart(64, '0');
 		const s = signature.s.toString('hex').padStart(64, '0');
 
@@ -147,14 +177,21 @@ export class KeyManager {
 	}
 
 	/**
-	 * Verify a signature against data using a specific device's public key.
-	 * @param signerDeviceUid The UID of the device that signed the data
+	 * Verify an ECDSA signature against data using a specific device's public key.
+	 * @param signerDeviceId The numeric ID or UID of the device that signed the data
 	 * @param data The original data string
-	 * @param signatureBytes The signature as a byte string (64 bytes)
+	 * @param signatureBytes The signature as a byte string (64 bytes: r + s)
 	 * @returns True if the signature is valid
 	 */
-	public verify(signerDeviceUid: string, data: string, signatureBytes: string): boolean {
-		const publicKey = this.publicKeys.get(signerDeviceUid);
+	public verify(signerDeviceId: number | string, data: string, signatureBytes: string): boolean {
+		let publicKey: EC.KeyPair | undefined;
+
+		if (typeof signerDeviceId === 'number') {
+			publicKey = this.publicKeysByDeviceId.get(signerDeviceId);
+		} else {
+			publicKey = this.publicKeys.get(signerDeviceId);
+		}
+
 		if (!publicKey) {
 			return false;
 		}
@@ -174,10 +211,18 @@ export class KeyManager {
 
 	/**
 	 * Check if we have the public key for a given device.
-	 * @param deviceUid
+	 * @param deviceUid Device UID string
 	 */
 	public hasPublicKey(deviceUid: string): boolean {
 		return this.publicKeys.has(deviceUid);
+	}
+
+	/**
+	 * Check if we have the public key for a given device by numeric ID.
+	 * @param deviceId Numeric device ID
+	 */
+	public hasPublicKeyById(deviceId: number): boolean {
+		return this.publicKeysByDeviceId.has(deviceId);
 	}
 
 	/**

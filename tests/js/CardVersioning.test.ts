@@ -1,4 +1,4 @@
-import { KeyManager, PublicKeyEntry } from '../../resources/shared/js/nfccards/crypto/KeyManager';
+import { KeyManager, PublicKeyEntry, ECDSA_SIGNATURE_LENGTH } from '../../resources/shared/js/nfccards/crypto/KeyManager';
 
 // Card version constants (duplicated here to avoid importing Card.ts which pulls in NDEF and NFC modules)
 const CARD_VERSION_LEGACY = 0;
@@ -12,6 +12,10 @@ describe('Card Version Constants', () => {
 
 	test('asymmetric version should be 1', () => {
 		expect(CARD_VERSION_ASYMMETRIC).toBe(1);
+	});
+
+	test('ECDSA signature should be 64 bytes', () => {
+		expect(ECDSA_SIGNATURE_LENGTH).toBe(64);
 	});
 });
 
@@ -32,12 +36,12 @@ describe('KeyManager cross-device signing verification', () => {
 		Object.defineProperty(global, 'localStorage', { value: mockLocalStorage, writable: true });
 	});
 
-	test('device A signs, device B verifies with approved key', () => {
+	test('device A signs, device B verifies with approved key (by UID)', () => {
 		const deviceA = new KeyManager();
-		deviceA.initialize('device-a-uid', 1, 'secret-a');
+		deviceA.generateKeyPair('device-a-uid', 1, 'secret-a');
 
 		const deviceB = new KeyManager();
-		deviceB.initialize('device-b-uid', 2, 'secret-b');
+		deviceB.generateKeyPair('device-b-uid', 2, 'secret-b');
 
 		// Share A's public key with B (as approved)
 		deviceB.loadPublicKeys([{
@@ -47,24 +51,46 @@ describe('KeyManager cross-device signing verification', () => {
 			approved_at: '2024-01-01'
 		}]);
 
-		// Simulate card data
+		// Simulate card data with compact format: version(2) + deviceId(4) + balance(4)
 		const cardData = '\x00\x01' + // version
-			'device-a-uid\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' + // 36 bytes device UID
+			'\x00\x00\x00\x01' + // device ID = 1
 			'\x00\x00\x03\xe8'; // balance 1000
 
 		const signature = deviceA.sign(cardData + 'card-hardware-uid');
 
-		// Verify
+		// Verify by UID
 		const valid = deviceB.verify('device-a-uid', cardData + 'card-hardware-uid', signature);
+		expect(valid).toBe(true);
+	});
+
+	test('device A signs, device B verifies with approved key (by numeric ID)', () => {
+		const deviceA = new KeyManager();
+		deviceA.generateKeyPair('device-a-uid', 1, 'secret-a');
+
+		const deviceB = new KeyManager();
+		deviceB.generateKeyPair('device-b-uid', 2, 'secret-b');
+
+		deviceB.loadPublicKeys([{
+			id: 1,
+			uid: 'device-a-uid',
+			public_key: deviceA.getPublicKeyHex(),
+			approved_at: '2024-01-01'
+		}]);
+
+		const cardData = '\x00\x01\x00\x00\x00\x01\x00\x00\x03\xe8';
+		const signature = deviceA.sign(cardData + 'card-hardware-uid');
+
+		// Verify by numeric device ID
+		const valid = deviceB.verify(1, cardData + 'card-hardware-uid', signature);
 		expect(valid).toBe(true);
 	});
 
 	test('signature fails when card data is tampered', () => {
 		const deviceA = new KeyManager();
-		deviceA.initialize('device-a-uid', 1, 'secret-a');
+		deviceA.generateKeyPair('device-a-uid', 1, 'secret-a');
 
 		const deviceB = new KeyManager();
-		deviceB.initialize('device-b-uid', 2, 'secret-b');
+		deviceB.generateKeyPair('device-b-uid', 2, 'secret-b');
 
 		deviceB.loadPublicKeys([{
 			id: 1,
@@ -84,10 +110,10 @@ describe('KeyManager cross-device signing verification', () => {
 
 	test('signature fails for different card UID (replay attack prevention)', () => {
 		const deviceA = new KeyManager();
-		deviceA.initialize('device-a-uid', 1, 'secret-a');
+		deviceA.generateKeyPair('device-a-uid', 1, 'secret-a');
 
 		const deviceB = new KeyManager();
-		deviceB.initialize('device-b-uid', 2, 'secret-b');
+		deviceB.generateKeyPair('device-b-uid', 2, 'secret-b');
 
 		deviceB.loadPublicKeys([{
 			id: 1,
@@ -107,10 +133,10 @@ describe('KeyManager cross-device signing verification', () => {
 
 	test('verification fails for unapproved key', () => {
 		const deviceA = new KeyManager();
-		deviceA.initialize('device-a-uid', 1, 'secret-a');
+		deviceA.generateKeyPair('device-a-uid', 1, 'secret-a');
 
 		const deviceB = new KeyManager();
-		deviceB.initialize('device-b-uid', 2, 'secret-b');
+		deviceB.generateKeyPair('device-b-uid', 2, 'secret-b');
 
 		// Load A's key but NOT approved (approved_at is null)
 		deviceB.loadPublicKeys([{
@@ -135,7 +161,7 @@ describe('KeyManager cross-device signing verification', () => {
 		// Create 3 devices
 		for (let i = 0; i < 3; i++) {
 			const km = new KeyManager();
-			km.initialize(`device-${i}`, i, `secret-${i}`);
+			km.generateKeyPair(`device-${i}`, i, `secret-${i}`);
 			devices.push(km);
 			publicKeys.push({
 				id: i,
@@ -159,5 +185,12 @@ describe('KeyManager cross-device signing verification', () => {
 				expect(valid).toBe(true);
 			}
 		}
+	});
+
+	test('v1 total payload should fit in NTAG213 (max ~92 bytes with 14-char UID)', () => {
+		// version(2) + deviceId(4) + balance(4) + txCount(4) + timestamp(4) + prevTx_2(8) + discount(1) + sig(64) = 91
+		const expectedPayloadSize = 2 + 4 + 4 + 4 + 4 + 8 + 1 + ECDSA_SIGNATURE_LENGTH;
+		expect(expectedPayloadSize).toBe(91);
+		expect(expectedPayloadSize).toBeLessThanOrEqual(92);
 	});
 });

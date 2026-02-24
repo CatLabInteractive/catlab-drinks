@@ -1,4 +1,4 @@
-import { KeyManager, PublicKeyEntry } from '../../resources/shared/js/nfccards/crypto/KeyManager';
+import { KeyManager, PublicKeyEntry, ECDSA_SIGNATURE_LENGTH } from '../../resources/shared/js/nfccards/crypto/KeyManager';
 
 describe('KeyManager', () => {
 
@@ -21,8 +21,13 @@ describe('KeyManager', () => {
 	});
 
 	describe('initialization', () => {
-		test('should generate a new key pair on first initialization', () => {
+		test('should not be initialized before generateKeyPair is called', () => {
 			keyManager.initialize('test-device-uid', 1, 'test-secret');
+			expect(keyManager.isInitialized()).toBe(false);
+		});
+
+		test('should generate a new key pair on explicit generateKeyPair call', () => {
+			keyManager.generateKeyPair('test-device-uid', 1, 'test-secret');
 
 			expect(keyManager.isInitialized()).toBe(true);
 			expect(keyManager.getPublicKeyHex()).toBeTruthy();
@@ -30,8 +35,8 @@ describe('KeyManager', () => {
 			expect(keyManager.getDeviceId()).toBe(1);
 		});
 
-		test('should store encrypted key in localStorage', () => {
-			keyManager.initialize('test-device-uid', 1, 'test-secret');
+		test('should store encrypted key in localStorage on generate', () => {
+			keyManager.generateKeyPair('test-device-uid', 1, 'test-secret');
 
 			expect(localStorage.setItem).toHaveBeenCalledWith(
 				'catlab_drinks_device_keypair_test-device-uid',
@@ -39,12 +44,12 @@ describe('KeyManager', () => {
 			);
 		});
 
-		test('should load existing key pair from localStorage', () => {
-			// Initialize first time
-			keyManager.initialize('test-device-uid', 1, 'test-secret');
+		test('should load existing key pair from localStorage via initialize', () => {
+			// Generate first
+			keyManager.generateKeyPair('test-device-uid', 1, 'test-secret');
 			const firstPublicKey = keyManager.getPublicKeyHex();
 
-			// Create new instance and initialize with same credentials
+			// Create new instance and initialize (load) with same credentials
 			const keyManager2 = new KeyManager();
 			keyManager2.initialize('test-device-uid', 1, 'test-secret');
 			const secondPublicKey = keyManager2.getPublicKeyHex();
@@ -52,16 +57,22 @@ describe('KeyManager', () => {
 			expect(firstPublicKey).toBe(secondPublicKey);
 		});
 
-		test('should generate new key if decryption fails with wrong secret', () => {
-			keyManager.initialize('test-device-uid', 1, 'test-secret');
-			const firstPublicKey = keyManager.getPublicKeyHex();
+		test('should not load key pair with wrong secret', () => {
+			keyManager.generateKeyPair('test-device-uid', 1, 'test-secret');
 
 			const keyManager2 = new KeyManager();
 			keyManager2.initialize('test-device-uid', 1, 'wrong-secret');
-			const secondPublicKey = keyManager2.getPublicKeyHex();
 
-			// Keys should be different since decryption failed
-			expect(firstPublicKey).not.toBe(secondPublicKey);
+			// Key should NOT be loaded since decryption failed
+			expect(keyManager2.isInitialized()).toBe(false);
+		});
+
+		test('hasStoredKeyPair should detect existing stored key', () => {
+			expect(keyManager.hasStoredKeyPair('test-device-uid')).toBe(false);
+
+			keyManager.generateKeyPair('test-device-uid', 1, 'test-secret');
+
+			expect(keyManager.hasStoredKeyPair('test-device-uid')).toBe(true);
 		});
 	});
 
@@ -71,10 +82,10 @@ describe('KeyManager', () => {
 
 		beforeEach(() => {
 			keyManager1 = new KeyManager();
-			keyManager1.initialize('device-1', 1, 'secret-1');
+			keyManager1.generateKeyPair('device-1', 1, 'secret-1');
 
 			keyManager2 = new KeyManager();
-			keyManager2.initialize('device-2', 2, 'secret-2');
+			keyManager2.generateKeyPair('device-2', 2, 'secret-2');
 
 			// Load device-1's public key into device-2's key manager
 			const publicKeys: PublicKeyEntry[] = [
@@ -92,14 +103,22 @@ describe('KeyManager', () => {
 			const data = 'test data payload';
 			const signature = keyManager1.sign(data);
 
-			expect(signature.length).toBe(64);
+			expect(signature.length).toBe(ECDSA_SIGNATURE_LENGTH);
 		});
 
-		test('should verify a valid signature', () => {
+		test('should verify a valid signature by device UID', () => {
 			const data = 'test data payload';
 			const signature = keyManager1.sign(data);
 
 			const result = keyManager2.verify('device-1', data, signature);
+			expect(result).toBe(true);
+		});
+
+		test('should verify a valid signature by numeric device ID', () => {
+			const data = 'test data payload';
+			const signature = keyManager1.sign(data);
+
+			const result = keyManager2.verify(1, data, signature);
 			expect(result).toBe(true);
 		});
 
@@ -123,8 +142,6 @@ describe('KeyManager', () => {
 			const data = 'test data payload';
 			const signature = keyManager2.sign(data);
 
-			// keyManager2's key is not loaded as device-2 in keyManager2's own store
-			// Let's try to verify device-2's signature as if it came from device-1
 			const result = keyManager2.verify('device-1', data, signature);
 			expect(result).toBe(false);
 		});
@@ -133,13 +150,13 @@ describe('KeyManager', () => {
 	describe('public key management', () => {
 		test('should load multiple public keys', () => {
 			const km1 = new KeyManager();
-			km1.initialize('dev-a', 1, 'sec-a');
+			km1.generateKeyPair('dev-a', 1, 'sec-a');
 
 			const km2 = new KeyManager();
-			km2.initialize('dev-b', 2, 'sec-b');
+			km2.generateKeyPair('dev-b', 2, 'sec-b');
 
 			const km3 = new KeyManager();
-			km3.initialize('dev-c', 3, 'sec-c');
+			km3.generateKeyPair('dev-c', 3, 'sec-c');
 
 			const keys: PublicKeyEntry[] = [
 				{ id: 1, uid: 'dev-a', public_key: km1.getPublicKeyHex(), approved_at: '2024-01-01T00:00:00Z' },
@@ -151,14 +168,17 @@ describe('KeyManager', () => {
 			expect(km3.hasPublicKey('dev-a')).toBe(true);
 			expect(km3.hasPublicKey('dev-b')).toBe(true);
 			expect(km3.hasPublicKey('dev-c')).toBe(false);
+			expect(km3.hasPublicKeyById(1)).toBe(true);
+			expect(km3.hasPublicKeyById(2)).toBe(true);
+			expect(km3.hasPublicKeyById(3)).toBe(false);
 		});
 
 		test('should not load unapproved keys', () => {
 			const km1 = new KeyManager();
-			km1.initialize('dev-a', 1, 'sec-a');
+			km1.generateKeyPair('dev-a', 1, 'sec-a');
 
 			const km2 = new KeyManager();
-			km2.initialize('dev-b', 2, 'sec-b');
+			km2.generateKeyPair('dev-b', 2, 'sec-b');
 
 			const keys: PublicKeyEntry[] = [
 				{ id: 1, uid: 'dev-a', public_key: km1.getPublicKeyHex(), approved_at: '2024-01-01T00:00:00Z' },
@@ -166,7 +186,7 @@ describe('KeyManager', () => {
 			];
 
 			const km3 = new KeyManager();
-			km3.initialize('dev-c', 3, 'sec-c');
+			km3.generateKeyPair('dev-c', 3, 'sec-c');
 			km3.loadPublicKeys(keys);
 
 			expect(km3.hasPublicKey('dev-a')).toBe(true);
@@ -179,7 +199,7 @@ describe('KeyManager', () => {
 			];
 
 			const km = new KeyManager();
-			km.initialize('my-device', 1, 'secret');
+			km.generateKeyPair('my-device', 1, 'secret');
 			km.loadPublicKeys(keys);
 
 			expect(km.hasPublicKey('bad-device')).toBe(false);

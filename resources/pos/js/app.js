@@ -210,9 +210,11 @@ async function launch() {
 					.then(response => {
 						window.ORGANISATION_ID = response.data.organisation.id;
 						window.DEVICE_ID = response.data.id;
+						window.DEVICE_UID = response.data.uid;
 						window.DEVICE_CATEGORY_FILTER_ID = response.data.category_filter_id || null;
 						window.DEVICE_SECRET = response.data.secret_key;
 						window.DEVICE_NAME = response.data.name;
+						window.DEVICE_APPROVED_AT = response.data.approved_at || null;
 
 						// Set device license if LicenseService is available
 						if (response.data.license_key && typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.LicenseService) {
@@ -238,6 +240,32 @@ async function launch() {
 				);
 
 				Vue.prototype.$kioskModeService = new KioskService();
+
+				// Initialize key manager (load existing key, don't generate)
+				if (window.DEVICE_UID && window.DEVICE_SECRET) {
+					Vue.prototype.$cardService.initializeKeyManager(
+						window.DEVICE_UID,
+						window.DEVICE_ID,
+						window.DEVICE_SECRET
+					);
+
+					// Determine key approval status
+					const keyManager = Vue.prototype.$cardService.getKeyManager();
+					if (keyManager && keyManager.isInitialized()) {
+						if (window.DEVICE_APPROVED_AT) {
+							Vue.prototype.$cardService.setKeyApprovalStatus('approved');
+
+							// Load approved public keys for verification
+							Vue.prototype.$cardService.fetchApprovedPublicKeys(window.ORGANISATION_ID)
+								.then(keys => Vue.prototype.$cardService.loadPublicKeys(keys))
+								.catch(e => console.warn('Failed to load public keys:', e));
+						} else {
+							Vue.prototype.$cardService.setKeyApprovalStatus('pending');
+						}
+					} else {
+						Vue.prototype.$cardService.setKeyApprovalStatus('none');
+					}
+				}
 
 				// Only try to connect to the nfc reader if config variables are set.
 				if (

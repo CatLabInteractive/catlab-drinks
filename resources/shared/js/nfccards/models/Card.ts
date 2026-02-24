@@ -38,7 +38,8 @@ export const CARD_VERSION_ASYMMETRIC = 1;
 const HMAC_SIGNATURE_LENGTH = 32;
 const ECDSA_SIGNATURE_LENGTH = 64;
 const VERSION_HEADER_LENGTH = 2;
-const DEVICE_UID_LENGTH = 36;
+const DEVICE_ID_LENGTH = 4; // 4-byte numeric device ID (big-endian)
+const V1_PREV_TX_COUNT = 2; // v1 cards store only 2 previous transactions (vs 5 in v0) to fit in NTAG213
 
 /**
  *
@@ -83,9 +84,9 @@ export class Card extends Eventable {
     public dataVersion: number = CARD_VERSION_LEGACY;
 
     /**
-     * The device UID that last signed this card (v1 only).
+     * The numeric device ID that last signed this card (v1 only).
      */
-    public signerDeviceUid: string = '';
+    public signerDeviceId: number = 0;
 
     private corrupted: boolean;
 
@@ -175,7 +176,7 @@ export class Card extends Eventable {
     }
 
     /**
-     * Return this cards data in compact string format.
+     * Return this cards data in compact string format (v0 format: 5 prev tx).
      */
     private serialize() {
 
@@ -189,6 +190,30 @@ export class Card extends Eventable {
 
         for (let i = 0; i < this.previousTransactions.length; i ++) {
             out += this.toBytesInt32(this.previousTransactions[i]);
+        }
+
+        // discount
+        out += this.toBytesInt8(this.discountPercentage);
+        return out;
+    }
+
+    /**
+     * Compact v1 serialize: stores only 2 most recent previous transactions.
+     * Total: balance(4) + txcount(4) + timestamp(4) + prev_tx(8) + discount(1) = 21 bytes
+     */
+    private serializeV1() {
+
+        let out = '';
+
+        out += this.toBytesInt32(this.balance);
+        out += this.toBytesInt32(this.transactionCount);
+
+        const timestamp = Math.floor(this.lastTransaction.getTime() / 1000);
+        out += this.toBytesInt32(timestamp);
+
+        // Only store last 2 previous transactions for compact v1 format
+        for (let i = 0; i < V1_PREV_TX_COUNT; i ++) {
+            out += this.toBytesInt32(this.previousTransactions[i] || 0);
         }
 
         // discount
@@ -230,6 +255,33 @@ export class Card extends Eventable {
     }
 
     /**
+     * Unserialize compact v1 card data (2 previous transactions).
+     * @param data
+     */
+    private unserializeV1(data: string) {
+        this.balance = this.fromBytesInt32(data.substr(0, 4));
+        this.transactionCount = this.fromBytesInt32(data.substr(4, 4));
+
+        const timestamp = this.fromBytesInt32(data.substr(8, 4));
+
+        this.lastTransaction = new Date();
+        this.lastTransaction.setTime(timestamp * 1000);
+
+        this.previousTransactions = [];
+        for (let i = 0; i < V1_PREV_TX_COUNT; i ++) {
+            this.previousTransactions.push(this.fromBytesInt32(data.substr(12 + (i * 4), 4)));
+        }
+        // Fill remaining slots with 0
+        while (this.previousTransactions.length < 5) {
+            this.previousTransactions.push(0);
+        }
+
+        if (data.length > 20) {
+            this.discountPercentage = this.fromBytesInt8(data.substr(20, 1));
+        }
+    }
+
+    /**
      * SIGNING AND DATA CONVERSION
      */
 
@@ -238,23 +290,21 @@ export class Card extends Eventable {
      * Always writes in the latest version format.
      */
     private getSignedData() {
-        let payload = this.serialize();
 
         if (this.keyManager && this.keyManager.isInitialized()) {
-            // Version 1: Asymmetric ECDSA signing
+            // Version 1: Asymmetric ECDSA signing with compact card data
             let out = '';
 
             // 2-byte version header
             out += this.toBytesInt16(CARD_VERSION_ASYMMETRIC);
 
-            // 36-byte device UID
-            const deviceUid = this.keyManager.getDeviceUid();
-            out += this.padOrTruncate(deviceUid, DEVICE_UID_LENGTH);
+            // 4-byte numeric device ID (big-endian)
+            out += this.toBytesInt32(this.keyManager.getDeviceId());
 
-            // Card data payload
-            out += payload;
+            // Card data payload (v1 compact: only 2 previous transactions)
+            out += this.serializeV1();
 
-            // 64-byte ECDSA signature over (version + deviceUid + payload + cardUid)
+            // 64-byte ECDSA signature over (version + deviceId + payload + cardUid)
             const dataToSign = out + this.uid;
             const signature = this.keyManager.sign(dataToSign);
             out += signature;
@@ -262,6 +312,7 @@ export class Card extends Eventable {
             return out;
         } else {
             // Version 0: Legacy HMAC signing
+            let payload = this.serialize();
             const signature = this.nfcReader.hmac(this, payload).toString(CryptoJS.enc.Latin1);
             payload += signature;
             return payload;
@@ -321,34 +372,34 @@ export class Card extends Eventable {
     }
 
     /**
-     * Parse v1 payload (ECDSA asymmetric signed).
+     * Parse v1 payload (ECDSA signed, compact card data).
      */
     private parseV1Payload(byteArray: number[]) {
         this.dataVersion = CARD_VERSION_ASYMMETRIC;
 
-        // Split: version(2) + deviceUid(36) + data(variable) + signature(64)
+        // Split: version(2) + deviceId(4) + data(variable) + signature(64)
         const versionBytes = byteArray.splice(0, VERSION_HEADER_LENGTH);
-        const deviceUidBytes = byteArray.splice(0, DEVICE_UID_LENGTH);
+        const deviceIdBytes = byteArray.splice(0, DEVICE_ID_LENGTH);
         const signatureBytes = byteArray.splice(byteArray.length - ECDSA_SIGNATURE_LENGTH, ECDSA_SIGNATURE_LENGTH);
         const payloadBytes = byteArray;
 
-        this.signerDeviceUid = this.toByteString(deviceUidBytes).replace(/\0+$/, '');
+        this.signerDeviceId = this.fromBytesInt32(this.toByteString(deviceIdBytes));
 
         const payloadBytestring = this.toByteString(payloadBytes);
         const signatureBytestring = this.toByteString(signatureBytes);
 
-        // Reconstruct what was signed: version + deviceUid + payload + cardUid
+        // Reconstruct what was signed: version + deviceId + payload + cardUid
         const versionStr = this.toByteString(versionBytes);
-        const deviceUidStr = this.toByteString(deviceUidBytes);
-        const dataToVerify = versionStr + deviceUidStr + payloadBytestring + this.uid;
+        const deviceIdStr = this.toByteString(deviceIdBytes);
+        const dataToVerify = versionStr + deviceIdStr + payloadBytestring + this.uid;
 
-        // Try asymmetric verification first
-        if (this.keyManager && this.keyManager.verify(this.signerDeviceUid, dataToVerify, signatureBytestring)) {
-            this.unserialize(payloadBytestring);
+        // Try asymmetric verification using numeric device ID
+        if (this.keyManager && this.keyManager.verify(this.signerDeviceId, dataToVerify, signatureBytestring)) {
+            this.unserializeV1(payloadBytestring);
             return;
         }
 
-        throw new SignatureMismatchException('V1 signature verification failed for device ' + this.signerDeviceUid);
+        throw new SignatureMismatchException('V1 signature verification failed for device ID ' + this.signerDeviceId);
     }
 
     /**
@@ -494,21 +545,6 @@ export class Card extends Eventable {
      */
     private toBytesInt16(num: number) {
         return String.fromCharCode((num >> 8) & 255) + String.fromCharCode(num & 255);
-    }
-
-    /**
-     * Pad or truncate a string to a fixed length.
-     * @param str
-     * @param length
-     */
-    private padOrTruncate(str: string, length: number): string {
-        if (str.length > length) {
-            return str.substr(0, length);
-        }
-        while (str.length < length) {
-            str += '\0';
-        }
-        return str;
     }
 
     /**
