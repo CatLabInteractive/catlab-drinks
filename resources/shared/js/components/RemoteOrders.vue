@@ -333,9 +333,9 @@
 
 			async saveCategoryFilter(categoryId) {
 				try {
-					await this.posDeviceService.updateCategoryFilter(
-						categoryId === '0' ? null : categoryId
-					);
+					await this.posDeviceService.updateCurrentDevice({
+						category_filter_id: categoryId === '0' ? null : categoryId
+					});
 					this.serverCategoryFilter = categoryId;
 				} catch (e) {
 					console.error('Failed to save category filter:', e);

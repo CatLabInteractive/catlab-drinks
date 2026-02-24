@@ -40,16 +40,8 @@ class DeviceController extends ResourceController {
 		$routes->get('devices/current', 'DeviceController@currentDevice')
 			->returns()->one(DeviceResourceDefinition::class);
 
-		$routes->put('devices/current/category-filter', 'DeviceController@updateCategoryFilter')
-			->summary('Update the category filter for the current device')
-			->returns()->one(DeviceResourceDefinition::class);
-
-		$routes->put('devices/current/allow-remote-orders', 'DeviceController@updateAllowRemoteOrders')
-			->summary('Update the allow_remote_orders setting for the current device')
-			->returns()->one(DeviceResourceDefinition::class);
-
-		$routes->put('devices/current/allow-live-orders', 'DeviceController@updateAllowLiveOrders')
-			->summary('Update the allow_live_orders setting for the current device')
+		$routes->put('devices/current', 'DeviceController@updateCurrentDevice')
+			->summary('Update settings for the current device')
 			->returns()->one(DeviceResourceDefinition::class);
 
 		$routes->get('events/{event}/stranded-orders', 'DeviceController@strandedOrders')
@@ -86,71 +78,43 @@ class DeviceController extends ResourceController {
 	}
 
 	/**
-	 * Update the category filter for the current device.
+	 * Update settings for the current device.
+	 * Accepts any combination of: category_filter_id, allow_remote_orders, allow_live_orders.
 	 * @param Request $request
 	 * @return mixed
 	 */
-	public function updateCategoryFilter(Request $request)
+	public function updateCurrentDevice(Request $request)
 	{
 		$device = \Auth::user();
 
-		$categoryFilterId = $request->input('category_filter_id');
-		$device->category_filter_id = $categoryFilterId ?: null;
-		$device->save();
+		$needsReassignment = false;
 
-		// Re-evaluate order assignments for all events in this organisation,
-		// passing the changed device so its non-matching orders get reassigned
-		$events = Event::where('organisation_id', $device->organisation_id)->get();
-		$assignmentService = new OrderAssignmentService();
-		foreach ($events as $event) {
-			$assignmentService->reevaluateAssignments($event, $device);
+		if ($request->has('category_filter_id')) {
+			$categoryFilterId = $request->input('category_filter_id');
+			$device->category_filter_id = $categoryFilterId ?: null;
+			$needsReassignment = true;
 		}
 
-		$readContext = $this->getContext(Action::VIEW);
-		$resource = $this->toResource($device, $readContext);
+		if ($request->has('allow_remote_orders')) {
+			$device->allow_remote_orders = $request->boolean('allow_remote_orders');
+			if (!$device->allow_remote_orders) {
+				$needsReassignment = true;
+			}
+		}
 
-		return $this->getResourceResponse($resource, $readContext);
-	}
+		if ($request->has('allow_live_orders')) {
+			$device->allow_live_orders = $request->boolean('allow_live_orders');
+		}
 
-	/**
-	 * Update the allow_remote_orders setting for the current device.
-	 * @param Request $request
-	 * @return mixed
-	 */
-	public function updateAllowRemoteOrders(Request $request)
-	{
-		$device = \Auth::user();
-
-		$device->allow_remote_orders = $request->boolean('allow_remote_orders');
 		$device->save();
 
-		// If remote orders were disabled, re-evaluate assignments so orders
-		// assigned to this device get reassigned to other devices
-		if (!$device->allow_remote_orders) {
+		if ($needsReassignment) {
 			$events = Event::where('organisation_id', $device->organisation_id)->get();
 			$assignmentService = new OrderAssignmentService();
 			foreach ($events as $event) {
 				$assignmentService->reevaluateAssignments($event, $device);
 			}
 		}
-
-		$readContext = $this->getContext(Action::VIEW);
-		$resource = $this->toResource($device, $readContext);
-
-		return $this->getResourceResponse($resource, $readContext);
-	}
-
-	/**
-	 * Update the allow_live_orders setting for the current device.
-	 * @param Request $request
-	 * @return mixed
-	 */
-	public function updateAllowLiveOrders(Request $request)
-	{
-		$device = \Auth::user();
-
-		$device->allow_live_orders = $request->boolean('allow_live_orders');
-		$device->save();
 
 		$readContext = $this->getContext(Action::VIEW);
 		$resource = $this->toResource($device, $readContext);

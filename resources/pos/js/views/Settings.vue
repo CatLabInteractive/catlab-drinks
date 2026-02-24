@@ -242,8 +242,10 @@
 				const posDeviceService = new PosDeviceService();
 				Promise.all([
 					this.settingService.save(),
-					posDeviceService.updateAllowRemoteOrders(this.allowRemoteOrders),
-					posDeviceService.updateAllowLiveOrders(this.allowLiveOrders)
+					posDeviceService.updateCurrentDevice({
+						allow_remote_orders: this.allowRemoteOrders,
+						allow_live_orders: this.allowLiveOrders
+					})
 				]).then(function() {
 					window.location.reload();
 				}).catch(function(e) {
