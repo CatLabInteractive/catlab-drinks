@@ -101,6 +101,12 @@ class OrderResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->writeable(true, false);
 
+        $this->field('assigned_device_id')
+            ->number()
+            ->visible(true)
+            ->filterable()
+            ->writeable(false);
+
         $this->field('created_at')
             ->display('date')
             ->datetime(DateTimeTransformer::class)

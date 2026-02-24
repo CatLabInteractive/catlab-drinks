@@ -31,6 +31,11 @@
 			</b-button>
 		</h2>
 
+		<!-- Stranded orders warning (POS only) -->
+		<b-alert v-if="strandedOrdersCount > 0" variant="warning" show>
+			⚠️ {{ $t('{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.', { count: strandedOrdersCount }) }}
+		</b-alert>
+
 		<!-- Filter on category-->
 		<b-form-group v-if="categories.length > 1">
 			<select @change="changeFilterCategory($event, model)" v-model="categoryFilter" class="full-width form-control">
@@ -38,6 +43,13 @@
 					{{ category.text }}
 				</option>
 			</select>
+		</b-form-group>
+
+		<!-- Filter assigned orders (POS only) -->
+		<b-form-group v-if="currentDeviceId">
+			<b-form-checkbox v-model="onlyAssignedOrders" @change="refresh()">
+				{{ $t('Only show assigned orders') }}
+			</b-form-checkbox>
 		</b-form-group>
 
 		<div class="text-center" v-if="!loaded">
@@ -120,6 +132,7 @@
 	import {MenuService} from "../services/MenuService";
 	import {OrderService} from "../services/OrderService";
 	import {CategoryService} from "../services/CategoryService";
+	import {PosDeviceService} from "../services/PosDeviceService";
 
 	import RemoteOrderDescription from './RemoteOrderDescription.vue';
 	import RemoteOrderStatus from './RemoteOrderStatus.vue';
@@ -134,7 +147,9 @@
 		},
 
 		props: [
-			'event'
+			'event',
+			'deviceId',
+			'initialCategoryFilter'
 		],
 
 		mounted() {
@@ -150,12 +165,17 @@
 		},
 
 		data() {
+			const initialFilter = this.initialCategoryFilter ? String(this.initialCategoryFilter) : '0';
 			return {
 				loaded: false,
 				currentOrder: null,
-				categoryFilter: '0',
+				categoryFilter: initialFilter,
+				serverCategoryFilter: initialFilter,
 				categories: [],
-				items: []
+				items: [],
+				onlyAssignedOrders: true,
+				currentDeviceId: this.deviceId || null,
+				strandedOrdersCount: 0
 			}
 		},
 
@@ -176,6 +196,7 @@
 				this.menuService = new MenuService(event.id);
 				this.orderService = new OrderService(event.id);
 				this.categoryService = new CategoryService(event.id);
+				this.posDeviceService = new PosDeviceService();
 
 				if (this.interval) {
 					clearInterval(this.interval);
@@ -197,11 +218,20 @@
 
 				this.loaded = true;
 
-				const items = (await this.orderService.index({
+				const params = {
 					sort: 'id',
 					status: 'pending'
-				})).items.filter(
+				};
+
+				const items = (await this.orderService.index(params)).items.filter(
 					(item) => {
+						// Filter on assigned orders
+						if (this.onlyAssignedOrders && this.currentDeviceId) {
+							if (item.assigned_device_id !== this.currentDeviceId) {
+								return false;
+							}
+						}
+
 						// Filter on category
 						if (!this.categoryFilter || this.categoryFilter == '0') {
 							return true;
@@ -233,6 +263,21 @@
 
 				this.items = items;
 
+				// Check for stranded orders (POS only)
+				if (this.currentDeviceId) {
+					this.checkStrandedOrders();
+				}
+
+			},
+
+			async checkStrandedOrders() {
+				try {
+					const response = await this.orderService.strandedOrders();
+					this.strandedOrdersCount = response.count || 0;
+				} catch (e) {
+					// Silently fail — don't block the UI for this check
+					console.error('Failed to check stranded orders:', e);
+				}
 			},
 
 			showAcceptUnpaidOrder(order) {
@@ -279,6 +324,25 @@
 			changeFilterCategory(event) {
 				this.categoryFilter = event.target.value;
 				this.refresh();
+
+				// If this is a POS device, save the category filter to the server
+				if (this.currentDeviceId) {
+					this.saveCategoryFilter(this.categoryFilter);
+				}
+			},
+
+			async saveCategoryFilter(categoryId) {
+				try {
+					await this.posDeviceService.updateCurrentDevice({
+						category_filter_id: categoryId === '0' ? null : categoryId
+					});
+					this.serverCategoryFilter = categoryId;
+				} catch (e) {
+					console.error('Failed to save category filter:', e);
+					alert(this.$t('Failed to save category filter. Reverting to previous value.'));
+					this.categoryFilter = this.serverCategoryFilter;
+					this.refresh();
+				}
 			},
 
 			// *****************************************************

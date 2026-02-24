@@ -40,7 +40,7 @@
 
 			<b-col v-if="showRemoteOrders" :cols="showLiveOrders ? 4 : 12" class="remote-orders">
 
-				<remote-orders v-bind:event="event"></remote-orders>
+				<remote-orders v-bind:event="event" v-bind:deviceId="deviceId" v-bind:initialCategoryFilter="deviceCategoryFilterId"></remote-orders>
 
 			</b-col>
 		</b-row>
@@ -71,6 +71,8 @@
 		data() {
 			return {
 				event: null,
+				deviceId: window.DEVICE_ID || null,
+				deviceCategoryFilterId: window.DEVICE_CATEGORY_FILTER_ID || null,
 				showLiveOrders: this.$settingService.allowLiveOrders,
 				showRemoteOrders: this.$settingService.allowRemoteOrders,
 			}

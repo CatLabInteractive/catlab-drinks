@@ -43,6 +43,19 @@
 						{{ row.item.name }}
 					</template>
 
+					<template v-slot:cell(status)="row">
+						<span v-if="row.item.is_online" class="text-success">
+							🟢 {{ $t('Online') }}
+						</span>
+						<span v-else class="text-muted">
+							🔴 {{ $t('Offline') }}
+						</span>
+					</template>
+
+					<template v-slot:cell(pending_orders)="row">
+						{{ row.item.pending_orders_count || 0 }}
+					</template>
+
 					<template v-slot:cell(license)="row">
 						<span v-if="row.item.license_key" class="text-success">
 							✅ {{ $t('Licensed') }}
@@ -189,6 +202,17 @@
 				this.handleLicenseReturn();
 			});
 
+			// Poll for device status updates every 10 seconds
+			this.statusPinger = setInterval(() => {
+				this.refreshDevices();
+			}, 10000);
+
+		},
+
+		beforeDestroy() {
+			if (this.statusPinger) {
+				clearInterval(this.statusPinger);
+			}
 		},
 
 		data() {
@@ -199,6 +223,14 @@
 					{
 						key: 'name',
 						label: this.$t('Device'),
+					},
+					{
+						key: 'status',
+						label: this.$t('Status'),
+					},
+					{
+						key: 'pending_orders',
+						label: this.$t('Pending orders'),
 					},
 					{
 						key: 'license',

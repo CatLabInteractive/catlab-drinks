@@ -19,37 +19,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import $ from "jquery";
-import {AbstractOfflineQueue} from "./AbstractOfflineQueue";
+import {AbstractService} from './AbstractService';
 
-const { v1: uuidv1 } = require('uuid');
+export class PosDeviceService extends AbstractService {
 
-export class OrderService extends AbstractOfflineQueue {
-
-	constructor(eventId) {
-		super('event_' + eventId);
-
-		this.eventId = eventId;
-		this.indexUrl = 'events/' + eventId + '/orders';
-		this.entityUrl = 'orders';
+	constructor() {
+		super();
 	}
 
-	summary(parameters = {}) {
-		return this.execute('get', 'events/' + this.eventId + '/ordersummary' + "?" + $.param(parameters))
-	}
-
-	summaryNames(parameters = {}) {
-		return this.execute('get', 'events/' + this.eventId + '/ordersummary/names' + "?" + $.param(parameters))
-	}
-
-	async prepare(content) {
-		content.uid = uuidv1();
-		return content;
-	}
-
-	strandedOrders(parameters = {}) {
-		return this.execute('get', 'events/' + this.eventId + '/stranded-orders' + "?" + $.param(parameters))
+	updateCurrentDevice(data) {
+		return this.execute(
+			'put',
+			'devices/current',
+			data
+		);
 	}
 
 }
-
