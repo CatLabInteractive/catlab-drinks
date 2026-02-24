@@ -33,6 +33,7 @@ import {Transaction} from "./models/Transaction";
 import {CorruptedCardException} from "./exceptions/CorruptedCardException";
 import {RemoteNfcReader} from "./nfc/RemoteNfcReader";
 import {AppNfcReader} from "./nfc/AppNfcReader";
+import {KeyManager, PublicKeyEntry} from "./crypto/KeyManager";
 
 /**
  *
@@ -84,6 +85,8 @@ export class CardService extends Eventable {
 
 	public hasCardReader: boolean = false;
 
+	private keyManager: KeyManager | null = null;
+
 	/**
 	 *
 	 */
@@ -133,6 +136,11 @@ export class CardService extends Eventable {
 		});
 
 		this.nfcReader.on('card:loaded', async (card: Card) => {
+
+			// Inject key manager for v1 signing/verification
+			if (this.keyManager) {
+				card.setKeyManager(this.keyManager);
+			}
 
 			// check if this card is corrupt
 			await this.checkIfCardIsCorrupt(card);
@@ -304,6 +312,69 @@ export class CardService extends Eventable {
 		this.password = password;
 		this.nfcReader.setPassword(password);
 		return this;
+	}
+
+	/**
+	 * Initialize asymmetric key management for this device.
+	 * @param deviceUid The device's unique identifier
+	 * @param deviceId The device's numeric ID
+	 * @param deviceSecret The device secret (from server API)
+	 */
+	initializeKeyManager(deviceUid: string, deviceId: number, deviceSecret: string) {
+		this.keyManager = new KeyManager();
+		this.keyManager.initialize(deviceUid, deviceId, deviceSecret);
+		return this;
+	}
+
+	/**
+	 * Get the key manager instance.
+	 */
+	getKeyManager(): KeyManager | null {
+		return this.keyManager;
+	}
+
+	/**
+	 * Load approved public keys from the server.
+	 * @param keys Array of public key entries
+	 */
+	loadPublicKeys(keys: PublicKeyEntry[]) {
+		if (this.keyManager) {
+			this.keyManager.loadPublicKeys(keys);
+		}
+		return this;
+	}
+
+	/**
+	 * Register this device's public key with the server.
+	 * @returns Promise with the updated device data
+	 */
+	async registerPublicKey(): Promise<any> {
+		if (!this.keyManager) {
+			throw new Error('Key manager not initialized');
+		}
+
+		const publicKey = this.keyManager.getPublicKeyHex();
+
+		const response = await this.axios({
+			method: 'put',
+			url: 'devices/current',
+			data: {
+				public_key: publicKey
+			}
+		});
+
+		return response.data;
+	}
+
+	/**
+	 * Fetch approved public keys from the server.
+	 * @param organisationId
+	 */
+	async fetchApprovedPublicKeys(organisationId: string): Promise<PublicKeyEntry[]> {
+		const response = await this.axios.get(
+			'organisations/' + organisationId + '/approved-public-keys'
+		);
+		return response.data.items || [];
 	}
 
 	/**
