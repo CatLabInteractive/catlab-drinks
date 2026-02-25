@@ -26,7 +26,7 @@ use App\Exceptions\TransactionMergeException;
 use App\Models\Card;
 use App\Models\Organisation;
 use App\Models\Transaction;
-use CatLab\Charon\Laravel\Exceptions\EntityNotFoundException;
+use CatLab\Charon\Exceptions\EntityNotFoundException;
 use DB;
 
 /**
