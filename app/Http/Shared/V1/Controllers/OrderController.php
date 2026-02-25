@@ -49,6 +49,7 @@ abstract class OrderController extends ResourceController
 
     use \CatLab\Charon\Laravel\Controllers\ChildCrudController {
         beforeSaveEntity as traitBeforeSaveEntity;
+		index as traitIndex;
     }
 
     /**
@@ -113,7 +114,7 @@ abstract class OrderController extends ResourceController
         $assignmentService = new OrderAssignmentService();
         $assignmentService->reassignOfflineDeviceOrders($event);
 
-        return parent::index($request);
+        return self::traitIndex($request);
     }
 
 
