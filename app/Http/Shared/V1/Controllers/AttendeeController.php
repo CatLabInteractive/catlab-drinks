@@ -22,62 +22,56 @@
 
 namespace App\Http\Shared\V1\Controllers;
 
-use App\Factories\OrderEntityFactory;
+use App\Http\Shared\V1\ResourceDefinitions\AttendeeResourceDefinition;
 use App\Http\Shared\V1\Controllers\Base\ResourceController;
-use App\Http\Shared\V1\ResourceDefinitions\OrderResourceDefinition;
 use App\Models\Event;
-use App\Services\OrderAssignmentService;
-use Auth;
 use CatLab\Charon\Collections\RouteCollection;
-use CatLab\Charon\Exceptions\InvalidContextAction;
-use CatLab\Charon\Interfaces\Context;
-use CatLab\Charon\Interfaces\ResourceDefinition as ResourceDefinitionContract;
-use CatLab\Charon\Models\RESTResource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 
 /**
- * Class OrderController
+ * Class AttendeeController
  * @package App\Http\Shared\V1\Controllers
  */
-abstract class OrderController extends ResourceController
+abstract class AttendeeController extends ResourceController
 {
-    const RESOURCE_DEFINITION = OrderResourceDefinition::class;
+    const RESOURCE_DEFINITION = AttendeeResourceDefinition::class;
     const RESOURCE_ID = 'id';
     const PARENT_RESOURCE_ID = 'event';
 
     use \CatLab\Charon\Laravel\Controllers\ChildCrudController {
         beforeSaveEntity as traitBeforeSaveEntity;
-		index as traitIndex;
     }
 
     /**
      * @param RouteCollection $routes
      * @param string[] $only
      * @return RouteCollection
-     * @throws InvalidContextAction
+     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
      */
     public static function setRoutes(RouteCollection $routes, array $only = [
-        'index', 'view'
-    ]) {
-        $parentPath = 'events/{' . self::PARENT_RESOURCE_ID . '}/orders';
-
+        'index', 'view', 'store', 'edit', 'destroy'
+    ]): RouteCollection
+    {
         $childResource = $routes->childResource(
             static::RESOURCE_DEFINITION,
-            $parentPath,
-            'orders',
-            'OrderController',
+            'events/{parentId}/attendees',
+            'attendees',
+            'AttendeeController',
             [
                 'id' => self::RESOURCE_ID,
-                'only' => $only,
-                'parentId' => self::PARENT_RESOURCE_ID
+                'only' => $only
             ]
         );
 
-        $childResource->tag('orders');
+        $childResource->tag('attendees');
 
         return $childResource;
+    }
+
+    public static function setPublicRoutes(RouteCollection $routes)
+    {
     }
 
     /**
@@ -88,7 +82,7 @@ abstract class OrderController extends ResourceController
     {
         /** @var Event $event */
         $event = $this->getParent($request);
-        return $event->orders();
+        return $event->attendees();
     }
 
     /**
@@ -97,24 +91,8 @@ abstract class OrderController extends ResourceController
      */
     public function getParent(Request $request): Model
     {
-        $eventId = $request->route(self::PARENT_RESOURCE_ID);
+        $eventId = $request->route('parentId');
         return Event::findOrFail($eventId);
-    }
-
-    /**
-     * Override index to trigger reassignment of orders from offline devices.
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function index(Request $request)
-    {
-        $event = $this->getParent($request);
-
-        // Reassign orders from offline devices (lightweight check)
-        $assignmentService = new OrderAssignmentService();
-        $assignmentService->reassignOfflineDeviceOrders($event);
-
-        return self::traitIndex($request);
     }
 
 
@@ -124,34 +102,6 @@ abstract class OrderController extends ResourceController
     public function getRelationshipKey(): string
     {
         return self::PARENT_RESOURCE_ID;
-    }
-
-    /**
-     * Transform a resource into (an existing?) entity.
-     * @param RESTResource $resource
-     * @param Context $context
-     * @param mixed|null $existingEntity
-     * @param ResourceDefinitionContract|null $resourceDefinition
-     * @param \CatLab\Charon\Interfaces\EntityFactory|null $entityFactory
-     * @return mixed
-     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
-     * @throws \CatLab\Charon\Exceptions\InvalidResourceDefinition
-     */
-    public function toEntity(
-        RESTResource $resource,
-        Context $context,
-        $existingEntity = null,
-        $resourceDefinition = null,
-        $entityFactory = null
-    ) {
-        $entityFactory = $entityFactory ?? new OrderEntityFactory();
-
-        return $this->resourceTransformer->toEntity(
-            $resource,
-            $entityFactory,
-            $context,
-            $existingEntity
-        );
     }
 
     /**

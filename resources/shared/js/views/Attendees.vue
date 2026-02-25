@@ -32,11 +32,6 @@
 
                 <div v-if="loaded">
 
-                    <b-link class="btn btn-success mb-3" :to="{ name: 'checkIn', params: { id: this.eventId } }" :title="$t('Check-In')">
-                        <span>🛂</span>
-                        {{ $t('Check-In') }}
-                    </b-link>
-
                     <h2>{{ $t('Attendees: {name}', { name: event.name }) }}</h2>
 
                     <div class="alert alert-info">

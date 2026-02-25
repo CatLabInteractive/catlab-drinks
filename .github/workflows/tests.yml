@@ -9,6 +9,21 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: catlab_drinks_test
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
 
     strategy:
       matrix:
@@ -41,4 +56,26 @@ jobs:
         run: composer install --no-interaction --prefer-dist --no-progress --ignore-platform-reqs
 
       - name: Run unit tests
-        run: vendor/bin/phpunit --testsuite Unit
+        run: vendor/bin/phpunit
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    name: Frontend Tests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run frontend tests
+        run: npm test

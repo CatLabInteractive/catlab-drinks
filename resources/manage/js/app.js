@@ -42,7 +42,6 @@ import Transactions from "../../shared/js/views/Transactions";
 import TestTransactions from "../../shared/js/views/TestTransactions";
 import FinancialOverview from "../../shared/js/views/FinancialOverview";
 import Attendees from "../../shared/js/views/Attendees";
-import CheckIn from "../../shared/js/views/CheckIn";
 import SalesSummaryNames from "../../shared/js/views/SalesSummaryNames";
 import Menu from "./views/Menu.vue";
 import Devices from "./views/Devices";
@@ -109,12 +108,6 @@ function launch() {
 				path: '/events/:id/attendees',
 				name: 'attendees',
 				component: Attendees,
-			},
-
-			{
-				path: '/events/:id/check-in',
-				name: 'checkIn',
-				component: CheckIn
 			},
 
 			{
