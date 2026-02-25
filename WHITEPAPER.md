@@ -290,7 +290,92 @@ The system supports **seamless rolling migration** from v0 to v1:
 
 ---
 
-## 11. Summary of Security Measures
+## 11. Additional Threat Mitigations
+
+### 11.1 Monotonic Transaction Counter
+
+Each card maintains a `transaction_count` that increments with every operation. The POS detects **counter regression** 
+(current count lower than the last seen count) as a corruption indicator. This prevents an attacker from rolling 
+back a card to a previous higher-balance state — the stale counter will be detected and the card flagged as corrupt.
+
+### 11.2 Server-Side Balance Reconciliation
+
+After every card scan, the POS uploads the complete card state to the server. The server maintains an independent 
+record of all transactions and expected balances. Discrepancies between the card's reported balance and the server's 
+calculated balance are recorded as "overflow" transactions, creating an audit trail of any unexplained balance changes.
+
+Administrators should periodically review overflow transactions for anomalies — a pattern of positive overflows 
+for a specific card could indicate attempted fraud.
+
+### 11.3 Insufficient Funds Enforcement
+
+The POS enforces a **balance check before every sale**. A card cannot be debited below zero (unless remote orders 
+have been placed while the terminal was offline). This client-side enforcement, combined with the ECDSA signature, 
+prevents attackers from writing negative balances to generate unbounded credits.
+
+### 11.4 Key Rotation Recommendations
+
+While ECDSA P-192 keys do not have a natural expiration, organisations should consider:
+- **Periodic key rotation** (e.g., annually) by generating new key pairs on terminals
+- **Event-based rotation** — generate fresh keys for each new event/festival
+- **Revocation of unused keys** — revoke keys from terminals that haven't been active for an extended period
+
+The admin dashboard shows the `last_activity` timestamp for each device to facilitate this.
+
+### 11.5 Rate Limiting & Key Registration Controls
+
+- Only **registered, known devices** can submit public keys for approval
+- Key registration requires prior device pairing (QR code + pairing code flow)
+- The admin must explicitly approve each key — no auto-approval mechanism exists
+- If a device submits a new public key, the previous key's `approved_at` is cleared, forcing re-approval
+
+### 11.6 Audit Trail
+
+All key management operations are recorded with timestamps and actor information:
+- `approved_at` and `approved_by` — who approved a key and when
+- `last_signing_device_id` on cards — which device last wrote to each card
+- `last_activity` on devices — when the device was last seen
+- Device soft-deletes preserve the complete history even after terminal decommissioning
+
+### 11.7 Version Downgrade Prevention
+
+The version byte (`0x01`) is included in the ECDSA signature. This prevents an attacker from:
+- Stripping the v1 signature and replacing it with a forged v0 HMAC signature
+- Modifying the version byte to bypass asymmetric verification
+
+Once all legacy v0 cards have been migrated, organisations can disable v0 support entirely by removing 
+the HMAC key from their configuration.
+
+### 11.8 Defence in Depth
+
+The system employs multiple layers of security that must all be defeated for a successful attack:
+
+1. **NFC write password** — prevents casual overwrites (low security, 4 bytes)
+2. **ECDSA signature** — prevents balance forgery without the private key (high security, 96-bit)
+3. **Hardware UID binding** — prevents cross-card replay attacks
+4. **Admin key approval** — prevents rogue terminal injection
+5. **Server reconciliation** — detects anomalies after the fact
+6. **Monotonic counter** — detects rollback/replay of stale card states
+
+### 11.9 Future Considerations
+
+Additional measures that could further strengthen the system:
+
+- **Transaction velocity monitoring**: Alerting on cards with unusually rapid or large transactions
+- **Anomaly detection**: ML-based detection of unusual card usage patterns (e.g., same card at 
+  multiple distant terminals simultaneously)
+- **Key fingerprint verification**: Displaying key fingerprints in the admin dashboard for 
+  out-of-band verification during approval
+- **Certificate pinning**: Pinning the server's TLS certificate in the POS app to prevent 
+  MITM attacks on key distribution
+- **Secure enclave integration**: Using hardware security modules (HSM) or browser WebAuthn 
+  for private key storage where available
+- **Expiring signatures**: Including a validity window in the signed data so cards must be 
+  re-scanned periodically
+
+---
+
+## 12. Summary of Security Measures
 
 | Measure | Protection Against |
 |---------|-------------------|
@@ -299,6 +384,10 @@ The system supports **seamless rolling migration** from v0 to v1:
 | Admin key approval | Rogue terminals |
 | Key revocation with impact tracking | Compromised terminals |
 | Device soft-delete | Loss of audit trail |
+| Monotonic transaction counter | Card state rollback/replay |
+| Server-side balance reconciliation | Undetected balance manipulation |
+| Insufficient funds enforcement | Negative balance exploitation |
+| Version byte in signature | Version downgrade attacks |
 | 3-byte device ID validation | Card data encoding failures |
 | Unsigned timestamp | Year 2038 overflow |
 | NFC space validation | Data truncation |
@@ -306,3 +395,4 @@ The system supports **seamless rolling migration** from v0 to v1:
 | Write failure recovery | Data loss from interrupted writes |
 | Transaction merger with locking | Race conditions, offline synchronization |
 | 5 previous transactions | Offline transaction recovery |
+| New key clears approval | Unauthorized key swap |
