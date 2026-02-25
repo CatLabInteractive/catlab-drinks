@@ -359,7 +359,29 @@ The system employs multiple layers of security that must all be defeated for a s
 5. **Server reconciliation** — detects anomalies after the fact
 6. **Monotonic counter** — detects rollback/replay of stale card states
 
-### 11.9 Future Considerations
+### 11.9 Maximum Balance Enforcement
+
+A **server-side maximum balance limit** should be configured per organisation. When a topup would push a card's 
+balance above this ceiling, the POS rejects the topup and displays an error. This limits the damage from any 
+successful attack — even if an attacker forges a valid signature, they cannot create cards with unrealistic balances.
+
+The balance ceiling also provides a useful sanity check: if a scanned card reports a balance above the configured 
+maximum, it can immediately be flagged as suspicious.
+
+### 11.10 Timestamp Freshness Validation
+
+The v1 card data includes an unsigned 32-bit Unix timestamp. POS terminals should reject cards with timestamps 
+that are unreasonably far in the past or future (e.g., more than 30 days ago or more than 5 minutes in the future). 
+This limits the window for replay attacks — even if an attacker copies valid card data, it becomes stale and 
+will be rejected by the system.
+
+### 11.11 Cross-Device Transaction Verification
+
+When a POS terminal reads a card signed by a different terminal, it verifies the signature using the approved 
+public key. If the signing device's key has been revoked since the card was last written, the card should be 
+flagged and the administrator notified. This provides early detection of cards written by compromised terminals.
+
+### 11.12 Future Considerations
 
 Additional measures that could further strengthen the system:
 
@@ -389,6 +411,9 @@ Additional measures that could further strengthen the system:
 | Monotonic transaction counter | Card state rollback/replay |
 | Server-side balance reconciliation | Undetected balance manipulation |
 | Insufficient funds enforcement | Negative balance exploitation |
+| Maximum balance enforcement | Unrealistic balance forgery |
+| Timestamp freshness validation | Stale card replay attacks |
+| Cross-device revocation check | Cards from compromised terminals |
 | Version byte in signature | Version downgrade attacks |
 | 3-byte device ID validation | Card data encoding failures |
 | Unsigned timestamp | Year 2038 overflow |
