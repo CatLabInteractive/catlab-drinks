@@ -35,6 +35,7 @@ class Device extends Model implements
 		'last_activity' => 'datetime',
 		'allow_remote_orders' => 'boolean',
 		'allow_live_orders' => 'boolean',
+		'approved_at' => 'datetime',
 	];
 
 	/**

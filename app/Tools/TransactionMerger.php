@@ -27,6 +27,7 @@ use App\Models\Card;
 use App\Models\Organisation;
 use App\Models\Transaction;
 use CatLab\Charon\Exceptions\EntityNotFoundException;
+use CatLab\Charon\Exceptions\TranslatableErrorMessage;
 use DB;
 
 /**
@@ -119,7 +120,9 @@ class TransactionMerger
     {
         // Load the card
         if (!$entity->card_uid) {
-            throw new EntityNotFoundException('No card uid provided.');
+            throw new EntityNotFoundException(new TranslatableErrorMessage(
+				'No card UID specified for transaction.'
+			));
         }
 
         /** @var Card $card */
