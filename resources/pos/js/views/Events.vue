@@ -62,6 +62,14 @@
 								{{ $t('Order history') }}
 							</b-dropdown-item>
 
+							<b-dropdown-divider></b-dropdown-divider>
+
+							<b-dropdown-item :to="{ name: 'checkIn', params: { id: row.item.id } }"
+											 :title="$t('Check-In attendees')">
+								🛂
+								{{ $t('Check-In attendees') }}
+							</b-dropdown-item>
+
 						</b-dropdown>
 
 					</template>
