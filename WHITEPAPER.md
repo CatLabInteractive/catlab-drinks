@@ -297,6 +297,8 @@ The system supports **seamless rolling migration** from v0 to v1:
 Each card maintains a `transaction_count` that increments with every operation. The POS detects **counter regression** 
 (current count lower than the last seen count) as a corruption indicator. This prevents an attacker from rolling 
 back a card to a previous higher-balance state — the stale counter will be detected and the card flagged as corrupt.
+All POS keep a list of all cards and their transaction count synchronized with the server, so any regression can 
+be detected regardless of which terminal is used.
 
 ### 11.2 Server-Side Balance Reconciliation
 
