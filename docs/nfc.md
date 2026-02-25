@@ -34,7 +34,7 @@ card via online payment gateway.
 
 Card Data Versioning
 --------------------
-The second NDEF record (balance data) uses a versioned format. The version is determined by the first 2 bytes:
+The second NDEF record (balance data) uses a versioned format. The version is determined by the first byte:
 
 ### Version 0 (Legacy)
 
@@ -51,26 +51,27 @@ The original format, still supported for reading. Uses HMAC-SHA256 with the orga
 
 **Total payload: 65 bytes**
 
-**Version detection:** Since no user has >83k credits, the leading 2 bytes of the balance field are always 
-`0x0000`, distinguishing this from version 1.
+**Version detection:** The first byte of v0 data is the high byte of the balance (32-bit signed integer).
+For positive balances under 16M cents (€167,772), the first byte is `0x00`. For negative balances, the 
+first byte is `0xFF` or similar. Only `0x01` is treated as version 1; any other value indicates version 0.
 
 ### Version 1 (Asymmetric)
 
 The new format using per-device ECDSA P-192 asymmetric keys. All new writes use this format regardless of 
-the version that was read.
+the version that was read. Fields are aligned to 4-byte boundaries where possible for efficient NFC page writes.
 
 | Field | Size | Description |
 |---|---|---|
-| Version Header | 2 bytes | Always `0x0001` |
-| Signer Device ID | 4 bytes | Numeric device ID (32-bit big-endian) |
+| Version Header | 1 byte | Always `0x01` |
+| Signer Device ID | 3 bytes | Unsigned device ID (24-bit big-endian, max 16,777,215) |
 | Balance | 4 bytes | Current card balance (32-bit signed integer) |
-| Transaction Count | 4 bytes | Number of transactions (32-bit signed integer) |
-| Timestamp | 4 bytes | Unix timestamp of last transaction (32-bit signed integer) |
+| Transaction Count | 4 bytes | Number of transactions (32-bit unsigned integer) |
+| Timestamp | 4 bytes | Unix timestamp of last transaction (32-bit unsigned integer, 2038-proof) |
 | Previous Transactions | 20 bytes | Last 5 transaction amounts (5 × 4 bytes, 32-bit signed integers) |
 | Discount Percentage | 1 byte | Discount percentage (0-100) |
 | ECDSA Signature | 48 bytes | ECDSA P-192 signature (r: 24 bytes, s: 24 bytes) |
 
-**Total payload: 87 bytes** (fits NTAG213's 144-byte limit with NDEF overhead + topup URL)
+**Total payload: 85 bytes** (fits NTAG213's 144-byte limit with NDEF overhead + topup URL)
 
 **Signature covers:** `version_header + device_id + card_data_payload + card_uid`  
 The card UID is included in the signed data but NOT stored on the card (it's the card's hardware identifier), 
@@ -82,12 +83,12 @@ NTAG213 provides 144 bytes of user memory. The NDEF message (URI record + extern
 TLV wrapper overhead (3 bytes) must fit within this limit:
 
 - Max NDEF message size: **141 bytes**
-- External record (87-byte payload + 19 bytes overhead): **106 bytes**
-- Available for URI record: **35 bytes** (= 141 - 106)
+- External record (85-byte payload + 19 bytes overhead): **104 bytes**
+- Available for URI record: **37 bytes** (= 141 - 104)
 - URI record overhead: **5 bytes** (header + type + prefix byte)
-- Max topup URL content (domain + "/" + uid): **30 characters**
+- Max topup URL content (domain + "/" + uid): **32 characters**
 
-With the default domain `d.ctlb.eu` (9 chars), card UIDs up to **20 characters** are supported.
+With the default domain `d.ctlb.eu` (9 chars), card UIDs up to **22 characters** are supported.
 The POS validates this at runtime and shows an error if the topup URL is too long.
 
 Key Management
@@ -125,9 +126,9 @@ Migration Strategy
 ------------------
 The system supports seamless rolling migration as users interact with POS terminals:
 
-**Reading:** The POS checks the first 2 bytes:
-- If `0x0000` → Version 0 (Legacy): Decrypt using the old symmetric key (HMAC-SHA256)
-- If `0x0001` → Version 1 (Asymmetric): Verify using the signer device's approved public key
+**Reading:** The POS checks the first byte:
+- If `0x01` → Version 1 (Asymmetric): Verify using the signer device's approved public key
+- Anything else → Version 0 (Legacy): Decrypt using the old symmetric key (HMAC-SHA256)
 
 **Writing:** Regardless of how a card was read, all new writes use Version 1 format with the POS 
 terminal's own private key. This ensures gradual migration as cards are scanned.

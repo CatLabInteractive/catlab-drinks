@@ -93,4 +93,13 @@ class DeviceKeyManagementTest extends TestCase
 		$this->assertNull($device->approved_at);
 		$this->assertNull($device->approved_by);
 	}
+
+	/**
+	 * Test that MAX_DEVICE_ID is correct for 3-byte unsigned integer.
+	 */
+	public function testMaxDeviceIdConstant(): void
+	{
+		$this->assertEquals(16777215, Device::MAX_DEVICE_ID);
+		$this->assertEquals(0xFFFFFF, Device::MAX_DEVICE_ID);
+	}
 }
