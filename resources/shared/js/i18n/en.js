@@ -26,5 +26,15 @@ export default {
     'None (use column separator for all)': 'None (use column separator for all)',
     'Preview': 'Preview',
     '{rows} rows': '{rows} rows',
-    'Are you sure you want to delete ALL rows? This cannot be undone after saving.': 'Are you sure you want to delete ALL rows? This cannot be undone after saving.'
+    'Are you sure you want to delete ALL rows? This cannot be undone after saving.': 'Are you sure you want to delete ALL rows? This cannot be undone after saving.',
+    'Approve the public key for device "{name}"? This will allow other terminals to verify cards signed by this device.': 'Approve the public key for device "{name}"? This will allow other terminals to verify cards signed by this device.',
+    'Approve the public key for device "{name}"?': 'Approve the public key for device "{name}"?',
+    'Revoke the public key for device "{name}"?': 'Revoke the public key for device "{name}"?',
+    'Are you sure you want to delete device "{name}"?\n\nThis will revoke the device\'s access token and it will no longer be able to connect. The device will need to be re-paired to use it again.': 'Are you sure you want to delete device "{name}"?\n\nThis will revoke the device\'s access token and it will no longer be able to connect. The device will need to be re-paired to use it again.',
+    'Cards signed by {name}:': 'Cards signed by {name}:',
+    'Enter license for {name}': 'Enter license for {name}',
+    'WARNING: Revoking this key will invalidate {count} cards that were last signed by this device. Are you sure?': 'WARNING: Revoking this key will invalidate {count} cards that were last signed by this device. Are you sure?',
+    '⚠️ WARNING: This is a destructive action!\n\nRevoking this key will invalidate {count} cards that were last signed by this device.\n\nAre you absolutely sure?': '⚠️ WARNING: This is a destructive action!\n\nRevoking this key will invalidate {count} cards that were last signed by this device.\n\nAre you absolutely sure?',
+    'Balance: {balance}': 'Balance: {balance}',
+    '{remaining} of {max} card scans remaining.': '{remaining} of {max} card scans remaining.'
 };

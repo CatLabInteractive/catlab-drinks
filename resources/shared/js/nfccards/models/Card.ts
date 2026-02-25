@@ -28,6 +28,18 @@ import {SignatureMismatchException} from "../exceptions/SignatureMismatchExcepti
 import {Eventable} from "../../utils/Eventable";
 import {VisibleAmount} from "../tools/VisibleAmount";
 import {CardValidationException} from "../exceptions/CardValidationException";
+import {KeyManager} from "../crypto/KeyManager";
+
+/** NFC card data format versions */
+export const CARD_VERSION_LEGACY = 0;
+export const CARD_VERSION_ASYMMETRIC = 1;
+
+/** Signature sizes per version */
+const HMAC_SIGNATURE_LENGTH = 32;
+const ECDSA_SIGNATURE_LENGTH = 48;
+const VERSION_HEADER_LENGTH = 1;
+const DEVICE_ID_LENGTH = 3; // 3-byte unsigned device ID (big-endian), max 16,777,215
+const V1_PREV_TX_COUNT = 5; // v1 cards store 5 previous transactions (same as v0)
 
 /**
  *
@@ -66,9 +78,21 @@ export class Card extends Eventable {
      */
     public discountPercentage = 0;
 
+    /**
+     * The version of the card data format that was read.
+     */
+    public dataVersion: number = CARD_VERSION_LEGACY;
+
+    /**
+     * The numeric device ID that last signed this card (v1 only).
+     */
+    public signerDeviceId: number = 0;
+
     private corrupted: boolean;
 
     private topupDomain: string = 'd.ctlb.eu';
+
+    private keyManager: KeyManager | null = null;
 
     /**
      * @param nfcReader
@@ -87,6 +111,14 @@ export class Card extends Eventable {
      */
     public getUid() {
         return this.uid;
+    }
+
+    /**
+     * Set the key manager for asymmetric signing.
+     * @param keyManager
+     */
+    public setKeyManager(keyManager: KeyManager) {
+        this.keyManager = keyManager;
     }
 
     /**
@@ -144,7 +176,7 @@ export class Card extends Eventable {
     }
 
     /**
-     * Return this cards data in compact string format.
+     * Return this cards data in compact string format (v0 format: 5 prev tx).
      */
     private serialize() {
 
@@ -158,6 +190,31 @@ export class Card extends Eventable {
 
         for (let i = 0; i < this.previousTransactions.length; i ++) {
             out += this.toBytesInt32(this.previousTransactions[i]);
+        }
+
+        // discount
+        out += this.toBytesInt8(this.discountPercentage);
+        return out;
+    }
+
+    /**
+     * V1 serialize: stores 5 previous transactions (same as v0).
+     * Uses unsigned integers for txCount and timestamp.
+     * Total: balance(4) + txcount(4) + timestamp(4) + prev_tx(20) + discount(1) = 33 bytes
+     */
+    private serializeV1() {
+
+        let out = '';
+
+        out += this.toBytesInt32(this.balance);
+        out += this.toBytesUint32(this.transactionCount);
+
+        const timestamp = Math.floor(this.lastTransaction.getTime() / 1000);
+        out += this.toBytesUint32(timestamp);
+
+        // Only store last 5 previous transactions for v1 format
+        for (let i = 0; i < V1_PREV_TX_COUNT; i ++) {
+            out += this.toBytesInt32(this.previousTransactions[i] || 0);
         }
 
         // discount
@@ -199,19 +256,65 @@ export class Card extends Eventable {
     }
 
     /**
+     * Unserialize v1 card data (5 previous transactions).
+     * Uses unsigned integers for txCount and timestamp.
+     * @param data
+     */
+    private unserializeV1(data: string) {
+        this.balance = this.fromBytesInt32(data.substr(0, 4));
+        this.transactionCount = this.fromBytesUint32(data.substr(4, 4));
+
+        const timestamp = this.fromBytesUint32(data.substr(8, 4));
+
+        this.lastTransaction = new Date();
+        this.lastTransaction.setTime(timestamp * 1000);
+
+        this.previousTransactions = [];
+        for (let i = 0; i < V1_PREV_TX_COUNT; i ++) {
+            this.previousTransactions.push(this.fromBytesInt32(data.substr(12 + (i * 4), 4)));
+        }
+
+        if (data.length > 32) {
+            this.discountPercentage = this.fromBytesInt8(data.substr(32, 1));
+        }
+    }
+
+    /**
      * SIGNING AND DATA CONVERSION
      */
 
     /**
-     *
+     * Get signed data for writing to the NFC card.
+     * Always writes in the latest version format.
      */
     private getSignedData() {
-        let out = this.serialize();
 
-        const signature = this.nfcReader.hmac(this, out).toString(CryptoJS.enc.Latin1);
-        out += signature;
+        if (this.keyManager && this.keyManager.isInitialized()) {
+            // Version 1: Asymmetric ECDSA signing with compact card data
+            let out = '';
 
-        return out;
+            // 1-byte version header
+            out += this.toBytesInt8(CARD_VERSION_ASYMMETRIC);
+
+            // 3-byte unsigned device ID (big-endian)
+            out += this.toBytesUint24(this.keyManager.getDeviceId());
+
+            // Card data payload (v1: 5 previous transactions)
+            out += this.serializeV1();
+
+            // 48-byte ECDSA P-192 signature over (version + deviceId + payload + cardUid)
+            const dataToSign = out + this.uid;
+            const signature = this.keyManager.sign(dataToSign);
+            out += signature;
+
+            return out;
+        } else {
+            // Version 0: Legacy HMAC signing
+            let payload = this.serialize();
+            const signature = this.nfcReader.hmac(this, payload).toString(CryptoJS.enc.Latin1);
+            payload += signature;
+            return payload;
+        }
     }
 
     /**
@@ -219,7 +322,41 @@ export class Card extends Eventable {
      */
     public parsePayload(byteArray: number[]) {
 
-        const payload = byteArray.splice(0, byteArray.length - 32);
+        // Detect version from the first 2 bytes
+        const version = this.detectVersion(byteArray);
+
+        if (version === CARD_VERSION_ASYMMETRIC) {
+            this.parseV1Payload(byteArray);
+        } else {
+            this.parseV0Payload(byteArray);
+        }
+    }
+
+    /**
+     * Detect the card version from the payload.
+     * V1 cards start with 0x01 in the first byte.
+     * V0 cards: the first byte is the high byte of the balance (signed int32).
+     * For positive balances < 16M cents (€167,772), the first byte is 0x00.
+     * For negative balances, the first byte is 0xFF (or similar).
+     * Only 0x01 is treated as v1; everything else is v0.
+     */
+    private detectVersion(byteArray: number[]): number {
+        if (byteArray.length < 1) {
+            return CARD_VERSION_LEGACY;
+        }
+        if (byteArray[0] === CARD_VERSION_ASYMMETRIC) {
+            return CARD_VERSION_ASYMMETRIC;
+        }
+        return CARD_VERSION_LEGACY;
+    }
+
+    /**
+     * Parse legacy v0 payload (HMAC-SHA256 signed).
+     */
+    private parseV0Payload(byteArray: number[]) {
+        this.dataVersion = CARD_VERSION_LEGACY;
+
+        const payload = byteArray.splice(0, byteArray.length - HMAC_SIGNATURE_LENGTH);
 
         const receivedSignature = this.toByteString(byteArray);
         const payloadBytestring = this.toByteString(payload);
@@ -231,6 +368,37 @@ export class Card extends Eventable {
         }
 
         this.unserialize(payloadBytestring);
+    }
+
+    /**
+     * Parse v1 payload (ECDSA signed, compact card data).
+     */
+    private parseV1Payload(byteArray: number[]) {
+        this.dataVersion = CARD_VERSION_ASYMMETRIC;
+
+        // Split: version(1) + deviceId(3) + data(variable) + signature(48)
+        const versionBytes = byteArray.splice(0, VERSION_HEADER_LENGTH);
+        const deviceIdBytes = byteArray.splice(0, DEVICE_ID_LENGTH);
+        const signatureBytes = byteArray.splice(byteArray.length - ECDSA_SIGNATURE_LENGTH, ECDSA_SIGNATURE_LENGTH);
+        const payloadBytes = byteArray;
+
+        this.signerDeviceId = this.fromBytesUint24(this.toByteString(deviceIdBytes));
+
+        const payloadBytestring = this.toByteString(payloadBytes);
+        const signatureBytestring = this.toByteString(signatureBytes);
+
+        // Reconstruct what was signed: version + deviceId + payload + cardUid
+        const versionStr = this.toByteString(versionBytes);
+        const deviceIdStr = this.toByteString(deviceIdBytes);
+        const dataToVerify = versionStr + deviceIdStr + payloadBytestring + this.uid;
+
+        // Try asymmetric verification using numeric device ID
+        if (this.keyManager && this.keyManager.verify(this.signerDeviceId, dataToVerify, signatureBytestring)) {
+            this.unserializeV1(payloadBytestring);
+            return;
+        }
+
+        throw new SignatureMismatchException('V1 signature verification failed for device ID ' + this.signerDeviceId);
     }
 
     /**
@@ -279,12 +447,14 @@ export class Card extends Eventable {
      * Return the data that will be sent to the server.
      */
     public getServerData(): any {
-        return {
+        const data: any = {
             transactionCount: this.transactionCount,
             balance: this.balance,
             previousTransactions: this.getPreviousTransactions(),
             discount: this.discountPercentage
         };
+
+        return data;
     }
 
     /**
@@ -369,6 +539,14 @@ export class Card extends Eventable {
     }
 
     /**
+     * Encode a 16-bit unsigned integer as a 2-byte big-endian string.
+     * @param num
+     */
+    private toBytesInt16(num: number) {
+        return String.fromCharCode((num >> 8) & 255) + String.fromCharCode(num & 255);
+    }
+
+    /**
      * @param num
      */
     private toBytesInt32(num: number) {
@@ -389,4 +567,52 @@ export class Card extends Eventable {
         }
         return result;
     };
+
+    /**
+     * Encode a 32-bit unsigned integer as a 4-byte big-endian string.
+     * Valid for values 0 to 4,294,967,295. Values above 2^31-1 require
+     * multiplication instead of bit shift to avoid sign extension.
+     * @param num
+     */
+    private toBytesUint32(num: number) {
+        return String.fromCharCode((num >>> 24) & 255) +
+               String.fromCharCode((num >>> 16) & 255) +
+               String.fromCharCode((num >>> 8) & 255) +
+               String.fromCharCode(num & 255);
+    }
+
+    /**
+     * Decode a 4-byte big-endian string as a 32-bit unsigned integer.
+     * Uses unsigned right shift to avoid sign extension.
+     * @param numString
+     */
+    private fromBytesUint32(numString: string) {
+        return (
+            (numString.charCodeAt(0) * 0x1000000) +
+            (numString.charCodeAt(1) * 0x10000) +
+            (numString.charCodeAt(2) * 0x100) +
+            numString.charCodeAt(3)
+        );
+    }
+
+    /**
+     * Encode a 24-bit unsigned integer as a 3-byte big-endian string.
+     * Max value: 16,777,215 (0xFFFFFF).
+     * @param num
+     */
+    private toBytesUint24(num: number) {
+        return String.fromCharCode((num >> 16) & 255) +
+               String.fromCharCode((num >> 8) & 255) +
+               String.fromCharCode(num & 255);
+    }
+
+    /**
+     * Decode a 3-byte big-endian string as a 24-bit unsigned integer.
+     * @param numString
+     */
+    private fromBytesUint24(numString: string) {
+        return ((numString.charCodeAt(0) << 16) |
+                (numString.charCodeAt(1) << 8) |
+                numString.charCodeAt(2)) >>> 0;
+    }
 }

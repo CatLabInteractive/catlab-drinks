@@ -41,7 +41,10 @@
 
 					<b-navbar-nav>
 
-						<b-nav-item :to="{ name: 'settings' }">{{ $t('Settings') }}</b-nav-item>
+						<b-nav-item-dropdown :text="$t('Settings')" right>
+							<b-dropdown-item :to="{ name: 'settings' }">{{ $t('Organisation Settings') }}</b-dropdown-item>
+							<b-dropdown-item :to="{ name: 'publicKeys' }">{{ $t('Public Keys') }}</b-dropdown-item>
+						</b-nav-item-dropdown>
 
 						<language-toggle />
 

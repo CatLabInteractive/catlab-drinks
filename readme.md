@@ -61,7 +61,7 @@ even when an admin's management session expires.
 ### Device API Authentication
 Devices receive access tokens stored in localStorage:
 - `catlab_drinks_device_pos_uid` — Unique device ID
-- `calab_drinks_pos_api_identifier` — API host identifier
+- `catlab_drinks_pos_api_identifier` — API host identifier
 - `catlab_drinks_pos_api_url[identifier]` — Full API URL
 - `catlab_drinks_pos_access_token[identifier]` — Bearer token
 

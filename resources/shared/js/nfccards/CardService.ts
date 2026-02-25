@@ -33,6 +33,7 @@ import {Transaction} from "./models/Transaction";
 import {CorruptedCardException} from "./exceptions/CorruptedCardException";
 import {RemoteNfcReader} from "./nfc/RemoteNfcReader";
 import {AppNfcReader} from "./nfc/AppNfcReader";
+import {KeyManager, PublicKeyEntry} from "./crypto/KeyManager";
 
 /**
  *
@@ -84,6 +85,14 @@ export class CardService extends Eventable {
 
 	public hasCardReader: boolean = false;
 
+	private keyManager: KeyManager | null = null;
+
+	/**
+	 * Tracks the key approval status from the server.
+	 * 'none' = no key generated, 'pending' = awaiting approval, 'approved' = ready to use, 'revoked' = key was revoked by admin.
+	 */
+	private keyApprovalStatus: 'none' | 'pending' | 'approved' | 'revoked' = 'none';
+
 	/**
 	 *
 	 */
@@ -133,6 +142,26 @@ export class CardService extends Eventable {
 		});
 
 		this.nfcReader.on('card:loaded', async (card: Card) => {
+
+			// Block card operations if key is not approved
+			if (!this.isCardOperationAllowed()) {
+				card.setCorrupted();
+				this.trigger('card:blocked', card);
+				return;
+			}
+
+			// Check if the topup URL + v1 card data fits within NTAG213 memory
+			const spaceError = this.checkNfcSpaceLimit(card.getUid());
+			if (spaceError) {
+				card.setCorrupted();
+				this.trigger('card:spaceError', spaceError);
+				return;
+			}
+
+			// Inject key manager for v1 signing/verification
+			if (this.keyManager) {
+				card.setKeyManager(this.keyManager);
+			}
 
 			// check if this card is corrupt
 			await this.checkIfCardIsCorrupt(card);
@@ -307,12 +336,161 @@ export class CardService extends Eventable {
 	}
 
 	/**
+	 * Initialize asymmetric key management for this device.
+	 * Only loads an existing key pair - does NOT generate one.
+	 * Call generateAndRegisterKey() for explicit key generation.
+	 * @param deviceUid The device's unique identifier
+	 * @param deviceId The device's numeric ID
+	 * @param deviceSecret The device secret (from server API)
+	 */
+	initializeKeyManager(deviceUid: string, deviceId: number, deviceSecret: string) {
+		this.keyManager = new KeyManager();
+		this.keyManager.initialize(deviceUid, deviceId, deviceSecret);
+		return this;
+	}
+
+	/**
+	 * Get the key manager instance.
+	 */
+	getKeyManager(): KeyManager | null {
+		return this.keyManager;
+	}
+
+	/**
+	 * Check if this device has a stored key pair (without decrypting it).
+	 * @param deviceUid The device's unique identifier
+	 */
+	hasStoredKeyPair(deviceUid: string): boolean {
+		if (this.keyManager) {
+			return this.keyManager.hasStoredKeyPair(deviceUid);
+		}
+		return new KeyManager().hasStoredKeyPair(deviceUid);
+	}
+
+	/**
+	 * Generate a new key pair and register it with the server.
+	 * This is the explicit "Generate Credentials" action.
+	 * @param deviceUid The device's unique identifier
+	 * @param deviceId The device's numeric ID
+	 * @param deviceSecret The device secret (from server API)
+	 */
+	async generateAndRegisterKey(deviceUid: string, deviceId: number, deviceSecret: string): Promise<any> {
+		if (!this.keyManager) {
+			this.keyManager = new KeyManager();
+		}
+
+		this.keyManager.generateKeyPair(deviceUid, deviceId, deviceSecret);
+		return await this.registerPublicKey();
+	}
+
+	/**
+	 * Load approved public keys from the server.
+	 * @param keys Array of public key entries
+	 */
+	loadPublicKeys(keys: PublicKeyEntry[]) {
+		if (this.keyManager) {
+			this.keyManager.loadPublicKeys(keys);
+		}
+		return this;
+	}
+
+	/**
+	 * Register this device's public key with the server.
+	 * @returns Promise with the updated device data
+	 */
+	async registerPublicKey(): Promise<any> {
+		if (!this.keyManager) {
+			throw new Error('Key manager not initialized');
+		}
+
+		const publicKey = this.keyManager.getPublicKeyHex();
+
+		const response = await this.axios({
+			method: 'put',
+			url: 'devices/current',
+			data: {
+				public_key: publicKey
+			}
+		});
+
+		return response.data;
+	}
+
+	/**
+	 * Fetch approved public keys from the server.
+	 * @param organisationId
+	 */
+	async fetchApprovedPublicKeys(organisationId: string): Promise<PublicKeyEntry[]> {
+		const response = await this.axios.get(
+			'organisations/' + organisationId + '/approved-public-keys'
+		);
+		return response.data.items || [];
+	}
+
+	/**
+	 * Get the key approval status.
+	 * Returns 'none' if no key pair exists, 'pending' if key exists but not approved,
+	 * 'approved' if key is approved.
+	 */
+	getKeyStatus(): 'none' | 'pending' | 'approved' | 'revoked' {
+		return this.keyApprovalStatus;
+	}
+
+	/**
+	 * Set the key approval status.
+	 * Should be called after checking the device's approved_at from the server.
+	 */
+	setKeyApprovalStatus(status: 'none' | 'pending' | 'approved' | 'revoked') {
+		this.keyApprovalStatus = status;
+		this.trigger('keyStatus:change', status);
+	}
+
+	/**
+	 * Check whether card operations (scan/sign) should be allowed.
+	 * Only allowed when key is approved.
+	 */
+	isCardOperationAllowed(): boolean {
+		return this.keyApprovalStatus === 'approved';
+	}
+
+	/**
 	 * @param domain
 	 */
 	setTopupDomain(domain: string) {
 		this.nfcReader.setTopupDomain(domain);
+		this.topupDomain = domain;
 		return this;
 	}
+
+	/**
+	 * Check if the topup URL + v1 card data fits within NTAG213's memory limit.
+	 * @param cardUid The card UID to check against
+	 * @returns null if it fits, or an error message string if it doesn't
+	 */
+	checkNfcSpaceLimit(cardUid: string): string | null {
+		const domain = this.topupDomain || 'd.ctlb.eu';
+		// URI record overhead: header(1) + type_len(1) + payload_len(1) + type('U'=1) + prefix_byte(1) = 5 bytes
+		// URI content: domain + "/" + uid
+		const uriContentLength = domain.length + 1 + cardUid.length;
+		const uriRecordSize = 5 + uriContentLength;
+
+		// External record overhead: header(1) + type_len(1) + payload_len(1) + type('eu.catlab.drinks'=16) = 19 bytes
+		// V1 payload: version(1) + deviceId(3) + balance(4) + txCount(4) + timestamp(4) + prev_tx(20) + discount(1) + sig(48) = 85 bytes
+		const v1PayloadSize = 85;
+		const externalRecordSize = 19 + v1PayloadSize;
+
+		const totalNdefSize = uriRecordSize + externalRecordSize;
+
+		// NTAG213: 144 bytes user memory, minus 3 bytes TLV overhead = 141 bytes max NDEF message
+		const NTAG213_MAX_NDEF = 141;
+
+		if (totalNdefSize > NTAG213_MAX_NDEF) {
+			return 'NFC card data (' + totalNdefSize + ' bytes) exceeds NTAG213 memory limit (' + NTAG213_MAX_NDEF + ' bytes). The topup URL is too long. Please use a shorter topup domain.';
+		}
+		return null;
+	}
+
+	private topupDomain: string = 'd.ctlb.eu';
 
 	getCard() {
 		if (!this.isCardLoaded) {

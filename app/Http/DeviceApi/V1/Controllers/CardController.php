@@ -158,7 +158,8 @@ class CardController extends ResourceController
         $this->authorizeEdit($request, $card);
 
         try {
-            $merger = new CardDataMerger($card);
+            $signingDevice = \Auth::user() instanceof \App\Models\Device ? \Auth::user() : null;
+            $merger = new CardDataMerger($card, $signingDevice);
             $merger->merge($cardData);
         } catch (TransactionCountException $e) {
             \Log::error('Transaction count is lower than our own transaction count: ' . print_r($cardData));

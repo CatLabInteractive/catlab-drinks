@@ -10,6 +10,7 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
@@ -18,7 +19,7 @@ class Device extends Model implements
     AuthenticatableContract,
     AuthorizableContract
 {
-    use Authenticatable, Authorizable, HasFactory;
+    use Authenticatable, Authorizable, HasFactory, SoftDeletes;
 
 	protected $fillable = [
 		'uid',
@@ -34,13 +35,36 @@ class Device extends Model implements
 		'last_activity' => 'datetime',
 		'allow_remote_orders' => 'boolean',
 		'allow_live_orders' => 'boolean',
+		'approved_at' => 'datetime',
 	];
+
+	/**
+	 * Maximum device ID that fits in 3 bytes (unsigned).
+	 * Used for compact device ID encoding in NFC card v1 format.
+	 */
+	const MAX_DEVICE_ID = 16777215; // 0xFFFFFF
 
 	protected static function booted()
 	{
+		static::creating(function (Device $device) {
+			// Validate that the auto-increment ID will fit in 3 bytes.
+			// Since we can't know the exact ID before creation, check the current max.
+			$maxId = Device::withTrashed()->max('id') ?? 0;
+			if ($maxId >= self::MAX_DEVICE_ID) {
+				throw new \RuntimeException(
+					'Cannot create more devices: next ID would exceed the 3-byte unsigned integer limit (' . self::MAX_DEVICE_ID . ').'
+				);
+			}
+		});
+
 		static::deleting(function (Device $device) {
-			$device->accessTokens()->delete();
-			$device->connectRequests()->delete();
+			if ($device->isForceDeleting()) {
+				$device->accessTokens()->delete();
+				$device->connectRequests()->delete();
+			} else {
+				// Soft delete: revoke access tokens but keep public key
+				$device->accessTokens()->delete();
+			}
 		});
 
 		static::updated(function (Device $device) {
@@ -82,12 +106,23 @@ class Device extends Model implements
 		?string $deviceName = null
 	) : Device
 	{
-		// Check if this device is registered to this organisation.
-		$device = Device::where('uid', $uid)
+		// Check if this device is registered to this organisation (including soft-deleted).
+		$device = Device::withTrashed()
+			->where('uid', $uid)
 			->where('organisation_id', $organisation->id)
 			->first();
 
-		if (!$device) {
+		if ($device) {
+			// Restore if soft-deleted
+			if ($device->trashed()) {
+				$device->restore();
+				$device->secret_key = Crypt::encryptString(Str::random(16));
+				if ($deviceName) {
+					$device->name = $deviceName;
+				}
+				$device->save();
+			}
+		} else {
 			// Create a new device.
 			$device = new Device();
 			$device->uid = $uid;
@@ -140,6 +175,57 @@ class Device extends Model implements
 	public function assignedOrders()
 	{
 		return $this->hasMany(Order::class, 'assigned_device_id');
+	}
+
+	/**
+	 * Get all cards that were last signed by this device.
+	 * @return HasMany
+	 */
+	public function signedCards()
+	{
+		return $this->hasMany(Card::class, 'last_signing_device_id');
+	}
+
+	/**
+	 * Get the count of cards last signed by this device.
+	 * @return int
+	 */
+	public function getSignedCardsCountAttribute(): int
+	{
+		return $this->signedCards()->count();
+	}
+
+	/**
+	 * Check if this device's public key has been approved.
+	 * @return bool
+	 */
+	public function isApproved(): bool
+	{
+		return $this->approved_at !== null;
+	}
+
+	/**
+	 * Approve this device's public key.
+	 * @param User $approver
+	 * @return void
+	 */
+	public function approvePublicKey(User $approver): void
+	{
+		$this->approved_at = Carbon::now();
+		$this->approved_by = $approver->id;
+		$this->save();
+	}
+
+	/**
+	 * Revoke this device's public key approval.
+	 * @return void
+	 */
+	public function revokePublicKey(): void
+	{
+		$this->public_key = null;
+		$this->approved_at = null;
+		$this->approved_by = null;
+		$this->save();
 	}
 
 	/**

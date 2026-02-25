@@ -14,6 +14,10 @@ Security
 --------
 Each organisation in the project MUST have a unique secret that is used for all NFC related actions.
 
+Starting with card data version 1, the system uses **asymmetric encryption (ECDSA P-192)** instead of 
+the shared symmetric key. Each POS terminal generates its own unique key pair, and uses its private key 
+to sign card data. Other terminals verify signatures using approved public keys from the server.
+
 Password
 --------
 The [nfc-socketio](https://github.com/catlab-drinks/nfc-socketio) service SHOULD password protect writing data to
@@ -28,14 +32,106 @@ CatLab Drinks writes 2 NDEF records to the tag.
 card via online payment gateway.
 - The second record contains a signed bytestring containing the balance of the card.
 
-This bytestring contains:
-- current card balance
-- transaction count
-- timestamp last transaction (unix timestamp)
-- last 5 transaction amounts
+Card Data Versioning
+--------------------
+The second NDEF record (balance data) uses a versioned format. The version is determined by the first byte:
 
-All data is stored in 32bit signed integers. The bytestring is then signed using HmacSHA256 with 
-the organisation specific secret key.
+### Version 0 (Legacy)
+
+The original format, still supported for reading. Uses HMAC-SHA256 with the organisation's shared symmetric key.
+
+| Field | Size | Description |
+|---|---|---|
+| Balance | 4 bytes | Current card balance (32-bit signed integer) |
+| Transaction Count | 4 bytes | Number of transactions (32-bit signed integer) |
+| Timestamp | 4 bytes | Unix timestamp of last transaction (32-bit signed integer) |
+| Previous Transactions | 20 bytes | Last 5 transaction amounts (5 × 4 bytes, 32-bit signed integers) |
+| Discount Percentage | 1 byte | Discount percentage (0-100) |
+| HMAC-SHA256 Signature | 32 bytes | HMAC-SHA256 signature of the payload using org secret |
+
+**Total payload: 65 bytes**
+
+**Version detection:** The first byte of v0 data is the high byte of the balance (32-bit signed integer).
+For positive balances under 16M cents (€167,772), the first byte is `0x00`. For negative balances, the 
+first byte is `0xFF` or similar. Only `0x01` is treated as version 1; any other value indicates version 0.
+
+### Version 1 (Asymmetric)
+
+The new format using per-device ECDSA P-192 asymmetric keys. All new writes use this format regardless of 
+the version that was read. Fields are aligned to 4-byte boundaries where possible for efficient NFC page writes.
+
+| Field | Size | Description |
+|---|---|---|
+| Version Header | 1 byte | Always `0x01` |
+| Signer Device ID | 3 bytes | Unsigned device ID (24-bit big-endian, max 16,777,215) |
+| Balance | 4 bytes | Current card balance (32-bit signed integer) |
+| Transaction Count | 4 bytes | Number of transactions (32-bit unsigned integer) |
+| Timestamp | 4 bytes | Unix timestamp of last transaction (32-bit unsigned integer, 2038-proof) |
+| Previous Transactions | 20 bytes | Last 5 transaction amounts (5 × 4 bytes, 32-bit signed integers) |
+| Discount Percentage | 1 byte | Discount percentage (0-100) |
+| ECDSA Signature | 48 bytes | ECDSA P-192 signature (r: 24 bytes, s: 24 bytes) |
+
+**Total payload: 85 bytes** (fits NTAG213's 144-byte limit with NDEF overhead + topup URL)
+
+**Signature covers:** `version_header + device_id + card_data_payload + card_uid`  
+The card UID is included in the signed data but NOT stored on the card (it's the card's hardware identifier), 
+preventing signature replay attacks across different cards.
+
+### NTAG213 Space Budget
+
+NTAG213 provides 144 bytes of user memory. The NDEF message (URI record + external data record) plus 
+TLV wrapper overhead (3 bytes) must fit within this limit:
+
+- Max NDEF message size: **141 bytes**
+- External record (85-byte payload + 19 bytes overhead): **104 bytes**
+- Available for URI record: **37 bytes** (= 141 - 104)
+- URI record overhead: **5 bytes** (header + type + prefix byte)
+- Max topup URL content (domain + "/" + uid): **32 characters**
+
+With the default domain `d.ctlb.eu` (9 chars), card UIDs up to **22 characters** are supported.
+The POS validates this at runtime and shows an error if the topup URL is too long.
+
+Key Management
+--------------
+### Key Generation
+Key generation is a manual, explicit action. When a POS terminal first opens the NFC card component,
+a modal is shown prompting the user to press "Generate Credentials". The generated ECDSA P-192 private key 
+is encrypted with the device secret (provided by the server via `GET /pos-api/v1/devices/current`) using 
+AES and stored in the browser's localStorage.
+
+### NFC Status Indicator
+The NFC status label in the toolbar uses colors to indicate the key status:
+- **Red** 🔑: No credentials generated — card operations blocked
+- **Orange** ⏳: Credentials generated, pending admin approval — card operations blocked
+- **Green**: Credentials approved — card operations allowed
+
+### Key Registration Flow
+1. User manually triggers "Generate Credentials" on the POS terminal
+2. POS generates key pair and stores encrypted private key locally
+3. POS uploads its public key via `PUT /pos-api/v1/devices/current`
+4. Public key enters "Pending" state on the server
+5. Organisation admin reviews and approves the key in the admin dashboard
+6. Once approved, the public key is distributed to all POS terminals via 
+   `GET /pos-api/v1/organisations/{id}/approved-public-keys`
+
+### Key Revocation
+Admins can revoke a key if a terminal is compromised. **WARNING:** Revoking a key invalidates all cards 
+that were last signed by that device. The admin dashboard shows the number of affected cards before confirmation.
+
+### Device Soft-Delete
+Deleting a device soft-deletes it (preserving the public key record). This ensures cards signed by the deleted 
+device can still be tracked. The admin dashboard shows deleted devices with a "Deleted" badge.
+
+Migration Strategy
+------------------
+The system supports seamless rolling migration as users interact with POS terminals:
+
+**Reading:** The POS checks the first byte:
+- If `0x01` → Version 1 (Asymmetric): Verify using the signer device's approved public key
+- Anything else → Version 0 (Legacy): Decrypt using the old symmetric key (HMAC-SHA256)
+
+**Writing:** Regardless of how a card was read, all new writes use Version 1 format with the POS 
+terminal's own private key. This ensures gradual migration as cards are scanned.
 
 Both NDEF messages are publicly readable; the password only write-protects the sectors, otherwise the 
 first record would not be readable to phones and the topup link wouldn't work.

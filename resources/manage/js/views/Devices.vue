@@ -41,6 +41,7 @@
 
 					<template v-slot:cell(name)="row">
 						{{ row.item.name }}
+						<span v-if="row.item.deleted_at" class="badge badge-danger ml-1">{{ $t('Deleted') }}</span>
 					</template>
 
 					<template v-slot:cell(status)="row">
@@ -54,6 +55,25 @@
 
 					<template v-slot:cell(pending_orders)="row">
 						{{ row.item.pending_orders_count || 0 }}
+					</template>
+
+					<template v-slot:cell(public_key_status)="row">
+						<span v-if="row.item.public_key && row.item.approved_at" class="badge badge-success">
+							✅ {{ $t('Approved') }}
+						</span>
+						<span v-else-if="row.item.public_key" class="badge badge-warning text-dark">
+							⏳ {{ $t('Pending') }}
+						</span>
+						<span v-else class="text-muted">
+							{{ $t('No key') }}
+						</span>
+					</template>
+
+					<template v-slot:cell(signed_cards)="row">
+						<a href="#" @click.prevent="showSignedCards(row.item)" v-if="row.item.signed_cards_count > 0">
+							{{ row.item.signed_cards_count }}
+						</a>
+						<span v-else>0</span>
 					</template>
 
 					<template v-slot:cell(license)="row">
@@ -83,6 +103,20 @@
 								📋
 								{{ $t('Enter License') }}
 							</b-dropdown-item>
+
+							<b-dropdown-divider v-if="row.item.public_key" />
+
+							<b-dropdown-item @click="approveKey(row.item)" v-if="row.item.public_key && !row.item.approved_at" :title="$t('Approve Key')">
+								✅
+								{{ $t('Approve Public Key') }}
+							</b-dropdown-item>
+
+							<b-dropdown-item @click="revokeKey(row.item)" v-if="row.item.public_key" :title="$t('Revoke Key')">
+								🚫
+								{{ $t('Revoke Public Key') }}
+							</b-dropdown-item>
+
+							<b-dropdown-divider />
 
 							<b-dropdown-item @click="remove(row.item)" :title="$t('Delete')">
 								🗑️
@@ -231,6 +265,14 @@
 					{
 						key: 'pending_orders',
 						label: this.$t('Pending orders'),
+					},
+					{
+						key: 'public_key_status',
+						label: this.$t('Public Key'),
+					},
+					{
+						key: 'signed_cards',
+						label: this.$t('Signed Cards'),
 					},
 					{
 						key: 'license',
@@ -444,6 +486,31 @@
 						? e.response.data.error.message
 						: this.$t('Failed to save license. Please try again.');
 				}
+			},
+
+			async approveKey(item) {
+				if (confirm(this.$t('Approve the public key for device "{name}"? This will allow other terminals to verify cards signed by this device.', { name: item.name }))) {
+					await this.service.approveKey(item.id);
+					await this.refreshDevices();
+				}
+			},
+
+			async revokeKey(item) {
+				const cardCount = item.signed_cards_count || 0;
+				const warning = cardCount > 0
+					? this.$t('WARNING: Revoking this key will invalidate {count} cards that were last signed by this device. Are you sure?', { count: cardCount })
+					: this.$t('Revoke the public key for device "{name}"?', { name: item.name });
+
+				if (confirm(warning)) {
+					await this.service.revokeKey(item.id);
+					await this.refreshDevices();
+				}
+			},
+
+			async showSignedCards(item) {
+				const cards = await this.service.getSignedCards(item.id);
+				alert(this.$t('Cards signed by {name}:', { name: item.name }) + '\n\n' +
+					cards.items.map(c => c.uid + ' (balance: ' + c.balance + ')').join('\n'));
 			},
 
 		}

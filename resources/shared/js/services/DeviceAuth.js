@@ -55,7 +55,7 @@ export async function getAuthData() {
     }
 
     // Fallback to localStorage
-    const apiIdentifier = window.localStorage.getItem('calab_drinks_pos_api_identifier');
+    const apiIdentifier = window.localStorage.getItem('catlab_drinks_pos_api_identifier');
     if (!apiIdentifier) {
         return null;
     }
@@ -86,7 +86,7 @@ export async function setAuthData(apiUrl, accessToken, apiIdentifier) {
     }
 
     // Fallback to localStorage
-    window.localStorage.setItem('calab_drinks_pos_api_identifier', apiIdentifier);
+    window.localStorage.setItem('catlab_drinks_pos_api_identifier', apiIdentifier);
     window.localStorage.setItem('catlab_drinks_pos_api_url[' + apiIdentifier + ']', apiUrl);
     window.localStorage.setItem('catlab_drinks_pos_access_token[' + apiIdentifier + ']', accessToken);
 }
@@ -104,9 +104,8 @@ export async function clearAuthData() {
     }
 
     // Fallback to localStorage
-    const apiIdentifier = window.localStorage.getItem('calab_drinks_pos_api_identifier');
-    window.localStorage.removeItem('catlab_drinks_device_pos_uid');
-    window.localStorage.removeItem('calab_drinks_pos_api_identifier');
+    const apiIdentifier = window.localStorage.getItem('catlab_drinks_pos_api_identifier');
+    window.localStorage.removeItem('catlab_drinks_pos_api_identifier');
     if (apiIdentifier) {
         window.localStorage.removeItem('catlab_drinks_pos_api_url[' + apiIdentifier + ']');
         window.localStorage.removeItem('catlab_drinks_pos_access_token[' + apiIdentifier + ']');

@@ -68,6 +68,16 @@ class DeviceResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->writeable(true, true);
 
+        $this->field('public_key')
+            ->string()
+            ->visible(true)
+            ->writeable(false);
+
+        $this->field('approved_at')
+            ->datetime()
+            ->visible(true)
+            ->writeable(false);
+
         $this->field('last_ping')
             ->datetime()
             ->visible(true)
@@ -97,6 +107,17 @@ class DeviceResourceDefinition extends ResourceDefinition
         $this->field('pendingOrdersCount')
             ->display('pending_orders_count')
             ->number()
+            ->visible(true)
+            ->writeable(false);
+
+        $this->field('signedCardsCount')
+            ->display('signed_cards_count')
+            ->number()
+            ->visible(true)
+            ->writeable(false);
+
+        $this->field('deleted_at')
+            ->datetime()
             ->visible(true)
             ->writeable(false);
     }
