@@ -212,7 +212,7 @@ export class Card extends Eventable {
         const timestamp = Math.floor(this.lastTransaction.getTime() / 1000);
         out += this.toBytesUint32(timestamp);
 
-        // Only store last 2 previous transactions for compact v1 format
+        // Only store last 5 previous transactions for v1 format
         for (let i = 0; i < V1_PREV_TX_COUNT; i ++) {
             out += this.toBytesInt32(this.previousTransactions[i] || 0);
         }

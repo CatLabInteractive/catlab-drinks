@@ -73,9 +73,7 @@ class DeviceControllerTest extends TestCase
 			->postJson('/api/v1/devices/' . $this->device->id . '/approve-key');
 
 		$response->assertStatus(422);
-		$response->assertJsonFragment([
-			'message' => 'Device has no public key to approve.',
-		]);
+		$response->assertJsonPath('error.message', 'Device has no public key to approve.');
 	}
 
 	public function testApproveKeyForbiddenForUnrelatedUser(): void

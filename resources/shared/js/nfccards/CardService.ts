@@ -89,9 +89,9 @@ export class CardService extends Eventable {
 
 	/**
 	 * Tracks the key approval status from the server.
-	 * 'none' = no key generated, 'pending' = awaiting approval, 'approved' = ready to use.
+	 * 'none' = no key generated, 'pending' = awaiting approval, 'approved' = ready to use, 'revoked' = key was revoked by admin.
 	 */
-	private keyApprovalStatus: 'none' | 'pending' | 'approved' = 'none';
+	private keyApprovalStatus: 'none' | 'pending' | 'approved' | 'revoked' = 'none';
 
 	/**
 	 *
@@ -432,7 +432,7 @@ export class CardService extends Eventable {
 	 * Returns 'none' if no key pair exists, 'pending' if key exists but not approved,
 	 * 'approved' if key is approved.
 	 */
-	getKeyStatus(): 'none' | 'pending' | 'approved' {
+	getKeyStatus(): 'none' | 'pending' | 'approved' | 'revoked' {
 		return this.keyApprovalStatus;
 	}
 
@@ -440,7 +440,7 @@ export class CardService extends Eventable {
 	 * Set the key approval status.
 	 * Should be called after checking the device's approved_at from the server.
 	 */
-	setKeyApprovalStatus(status: 'none' | 'pending' | 'approved') {
+	setKeyApprovalStatus(status: 'none' | 'pending' | 'approved' | 'revoked') {
 		this.keyApprovalStatus = status;
 		this.trigger('keyStatus:change', status);
 	}

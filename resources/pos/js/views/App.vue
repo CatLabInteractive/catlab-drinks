@@ -298,7 +298,7 @@
 					} else if (!response.data.public_key) {
 						// Key was revoked (removed from server)
 						this.keyModalStatus = 'revoked';
-						this.$cardService.setKeyApprovalStatus('none');
+						this.$cardService.setKeyApprovalStatus('revoked');
 					}
 				} catch (e) {
 					console.error('Failed to check approval status:', e);

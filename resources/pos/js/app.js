@@ -266,7 +266,7 @@ async function launch() {
 						Vue.prototype.$cardService.setKeyApprovalStatus('pending');
 					} else if (hasLocalKey && !hasServerKey) {
 						// Local key exists but server key was revoked
-						Vue.prototype.$cardService.setKeyApprovalStatus('none');
+						Vue.prototype.$cardService.setKeyApprovalStatus('revoked');
 					} else {
 						Vue.prototype.$cardService.setKeyApprovalStatus('none');
 					}
