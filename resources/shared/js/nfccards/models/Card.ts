@@ -37,8 +37,8 @@ export const CARD_VERSION_ASYMMETRIC = 1;
 /** Signature sizes per version */
 const HMAC_SIGNATURE_LENGTH = 32;
 const ECDSA_SIGNATURE_LENGTH = 48;
-const VERSION_HEADER_LENGTH = 2;
-const DEVICE_ID_LENGTH = 4; // 4-byte numeric device ID (big-endian)
+const VERSION_HEADER_LENGTH = 1;
+const DEVICE_ID_LENGTH = 3; // 3-byte unsigned device ID (big-endian), max 16,777,215
 const V1_PREV_TX_COUNT = 5; // v1 cards store 5 previous transactions (same as v0)
 
 /**
@@ -199,6 +199,7 @@ export class Card extends Eventable {
 
     /**
      * V1 serialize: stores 5 previous transactions (same as v0).
+     * Uses unsigned integers for txCount and timestamp.
      * Total: balance(4) + txcount(4) + timestamp(4) + prev_tx(20) + discount(1) = 33 bytes
      */
     private serializeV1() {
@@ -206,10 +207,10 @@ export class Card extends Eventable {
         let out = '';
 
         out += this.toBytesInt32(this.balance);
-        out += this.toBytesInt32(this.transactionCount);
+        out += this.toBytesUint32(this.transactionCount);
 
         const timestamp = Math.floor(this.lastTransaction.getTime() / 1000);
-        out += this.toBytesInt32(timestamp);
+        out += this.toBytesUint32(timestamp);
 
         // Only store last 2 previous transactions for compact v1 format
         for (let i = 0; i < V1_PREV_TX_COUNT; i ++) {
@@ -256,13 +257,14 @@ export class Card extends Eventable {
 
     /**
      * Unserialize v1 card data (5 previous transactions).
+     * Uses unsigned integers for txCount and timestamp.
      * @param data
      */
     private unserializeV1(data: string) {
         this.balance = this.fromBytesInt32(data.substr(0, 4));
-        this.transactionCount = this.fromBytesInt32(data.substr(4, 4));
+        this.transactionCount = this.fromBytesUint32(data.substr(4, 4));
 
-        const timestamp = this.fromBytesInt32(data.substr(8, 4));
+        const timestamp = this.fromBytesUint32(data.substr(8, 4));
 
         this.lastTransaction = new Date();
         this.lastTransaction.setTime(timestamp * 1000);
@@ -291,11 +293,11 @@ export class Card extends Eventable {
             // Version 1: Asymmetric ECDSA signing with compact card data
             let out = '';
 
-            // 2-byte version header
-            out += this.toBytesInt16(CARD_VERSION_ASYMMETRIC);
+            // 1-byte version header
+            out += this.toBytesInt8(CARD_VERSION_ASYMMETRIC);
 
-            // 4-byte numeric device ID (big-endian)
-            out += this.toBytesInt32(this.keyManager.getDeviceId());
+            // 3-byte unsigned device ID (big-endian)
+            out += this.toBytesUint24(this.keyManager.getDeviceId());
 
             // Card data payload (v1: 5 previous transactions)
             out += this.serializeV1();
@@ -332,16 +334,17 @@ export class Card extends Eventable {
 
     /**
      * Detect the card version from the payload.
-     * V1 cards start with 0x0001 in the first 2 bytes.
-     * V0 cards: since balance is stored as a 32-bit int and no user has >83k credits,
-     * the first 2 bytes are always 0x0000.
+     * V1 cards start with 0x01 in the first byte.
+     * V0 cards: the first byte is the high byte of the balance (signed int32).
+     * For positive balances < 16M cents (€167,772), the first byte is 0x00.
+     * For negative balances, the first byte is 0xFF (or similar).
+     * Only 0x01 is treated as v1; everything else is v0.
      */
     private detectVersion(byteArray: number[]): number {
-        if (byteArray.length < 2) {
+        if (byteArray.length < 1) {
             return CARD_VERSION_LEGACY;
         }
-        const versionValue = (byteArray[0] << 8) | byteArray[1];
-        if (versionValue === CARD_VERSION_ASYMMETRIC) {
+        if (byteArray[0] === CARD_VERSION_ASYMMETRIC) {
             return CARD_VERSION_ASYMMETRIC;
         }
         return CARD_VERSION_LEGACY;
@@ -373,13 +376,13 @@ export class Card extends Eventable {
     private parseV1Payload(byteArray: number[]) {
         this.dataVersion = CARD_VERSION_ASYMMETRIC;
 
-        // Split: version(2) + deviceId(4) + data(variable) + signature(64)
+        // Split: version(1) + deviceId(3) + data(variable) + signature(48)
         const versionBytes = byteArray.splice(0, VERSION_HEADER_LENGTH);
         const deviceIdBytes = byteArray.splice(0, DEVICE_ID_LENGTH);
         const signatureBytes = byteArray.splice(byteArray.length - ECDSA_SIGNATURE_LENGTH, ECDSA_SIGNATURE_LENGTH);
         const payloadBytes = byteArray;
 
-        this.signerDeviceId = this.fromBytesInt32(this.toByteString(deviceIdBytes));
+        this.signerDeviceId = this.fromBytesUint24(this.toByteString(deviceIdBytes));
 
         const payloadBytestring = this.toByteString(payloadBytes);
         const signatureBytestring = this.toByteString(signatureBytes);
@@ -564,4 +567,48 @@ export class Card extends Eventable {
         }
         return result;
     };
+
+    /**
+     * Encode a 32-bit unsigned integer as a 4-byte big-endian string.
+     * Works the same as toBytesInt32 for the byte representation.
+     * @param num
+     */
+    private toBytesUint32(num: number) {
+        return this.toBytesInt32(num);
+    }
+
+    /**
+     * Decode a 4-byte big-endian string as a 32-bit unsigned integer.
+     * Uses unsigned right shift to avoid sign extension.
+     * @param numString
+     */
+    private fromBytesUint32(numString: string) {
+        return (
+            (numString.charCodeAt(0) * 0x1000000) +
+            (numString.charCodeAt(1) * 0x10000) +
+            (numString.charCodeAt(2) * 0x100) +
+            numString.charCodeAt(3)
+        );
+    }
+
+    /**
+     * Encode a 24-bit unsigned integer as a 3-byte big-endian string.
+     * Max value: 16,777,215 (0xFFFFFF).
+     * @param num
+     */
+    private toBytesUint24(num: number) {
+        return String.fromCharCode((num >> 16) & 255) +
+               String.fromCharCode((num >> 8) & 255) +
+               String.fromCharCode(num & 255);
+    }
+
+    /**
+     * Decode a 3-byte big-endian string as a 24-bit unsigned integer.
+     * @param numString
+     */
+    private fromBytesUint24(numString: string) {
+        return (numString.charCodeAt(0) << 16) |
+               (numString.charCodeAt(1) << 8) |
+               numString.charCodeAt(2);
+    }
 }

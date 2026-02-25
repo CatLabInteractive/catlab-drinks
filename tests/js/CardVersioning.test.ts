@@ -187,10 +187,10 @@ describe('KeyManager cross-device signing verification', () => {
 		}
 	});
 
-	test('v1 total payload should fit in NTAG213 (87 bytes payload, within 144 bytes total with NDEF overhead)', () => {
-		// version(2) + deviceId(4) + balance(4) + txCount(4) + timestamp(4) + prevTx_5(20) + discount(1) + sig(48) = 87
-		const expectedPayloadSize = 2 + 4 + 4 + 4 + 4 + 20 + 1 + ECDSA_SIGNATURE_LENGTH;
-		expect(expectedPayloadSize).toBe(87);
+	test('v1 total payload should fit in NTAG213 (85 bytes payload, within 144 bytes total with NDEF overhead)', () => {
+		// version(1) + deviceId(3) + balance(4) + txCount(4) + timestamp(4) + prevTx_5(20) + discount(1) + sig(48) = 85
+		const expectedPayloadSize = 1 + 3 + 4 + 4 + 4 + 20 + 1 + ECDSA_SIGNATURE_LENGTH;
+		expect(expectedPayloadSize).toBe(85);
 		expect(expectedPayloadSize).toBeLessThanOrEqual(92);
 	});
 });

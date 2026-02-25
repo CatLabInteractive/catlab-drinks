@@ -475,8 +475,8 @@ export class CardService extends Eventable {
 		const uriRecordSize = 5 + uriContentLength;
 
 		// External record overhead: header(1) + type_len(1) + payload_len(1) + type('eu.catlab.drinks'=16) = 19 bytes
-		// V1 payload: version(2) + deviceId(4) + balance(4) + txCount(4) + timestamp(4) + prev_tx(20) + discount(1) + sig(48) = 87 bytes
-		const v1PayloadSize = 87;
+		// V1 payload: version(1) + deviceId(3) + balance(4) + txCount(4) + timestamp(4) + prev_tx(20) + discount(1) + sig(48) = 85 bytes
+		const v1PayloadSize = 85;
 		const externalRecordSize = 19 + v1PayloadSize;
 
 		const totalNdefSize = uriRecordSize + externalRecordSize;
