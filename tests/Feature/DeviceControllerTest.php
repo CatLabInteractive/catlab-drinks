@@ -9,6 +9,7 @@ use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 class DeviceControllerTest extends TestCase
@@ -54,7 +55,8 @@ class DeviceControllerTest extends TestCase
 		$this->device->public_key = 'test-public-key-data';
 		$this->device->save();
 
-		$response = $this->actingAs($this->user, 'api')
+		Passport::actingAs($this->user);
+		$response = $this
 			->postJson('/api/v1/devices/' . $this->device->id . '/approve-key');
 
 		$response->assertStatus(200);
@@ -66,7 +68,8 @@ class DeviceControllerTest extends TestCase
 
 	public function testApproveKeyFailsWithoutPublicKey(): void
 	{
-		$response = $this->actingAs($this->user, 'api')
+		Passport::actingAs($this->user);
+		$response = $this
 			->postJson('/api/v1/devices/' . $this->device->id . '/approve-key');
 
 		$response->assertStatus(422);
@@ -86,7 +89,8 @@ class DeviceControllerTest extends TestCase
 		$this->device->public_key = 'test-public-key-data';
 		$this->device->save();
 
-		$response = $this->actingAs($otherUser, 'api')
+		Passport::actingAs($otherUser);
+		$response = $this
 			->postJson('/api/v1/devices/' . $this->device->id . '/approve-key');
 
 		$response->assertStatus(403);
@@ -101,7 +105,8 @@ class DeviceControllerTest extends TestCase
 		$this->device->approved_by = $this->user->id;
 		$this->device->save();
 
-		$response = $this->actingAs($this->user, 'api')
+		Passport::actingAs($this->user);
+		$response = $this
 			->postJson('/api/v1/devices/' . $this->device->id . '/revoke-key');
 
 		$response->assertStatus(200);
@@ -120,7 +125,8 @@ class DeviceControllerTest extends TestCase
 			'password' => bcrypt('secret'),
 		]);
 
-		$response = $this->actingAs($otherUser, 'api')
+		Passport::actingAs($otherUser);
+		$response = $this
 			->postJson('/api/v1/devices/' . $this->device->id . '/revoke-key');
 
 		$response->assertStatus(403);
@@ -137,7 +143,8 @@ class DeviceControllerTest extends TestCase
 			'organisation_id' => $this->organisation->id,
 		]);
 
-		$response = $this->actingAs($this->user, 'api')
+		Passport::actingAs($this->user);
+		$response = $this
 			->getJson('/api/v1/organisations/' . $this->organisation->id . '/public-keys');
 
 		$response->assertStatus(200);
@@ -154,7 +161,8 @@ class DeviceControllerTest extends TestCase
 		$this->device->save();
 		$this->device->delete(); // soft delete
 
-		$response = $this->actingAs($this->user, 'api')
+		Passport::actingAs($this->user);
+		$response = $this
 			->getJson('/api/v1/organisations/' . $this->organisation->id . '/public-keys');
 
 		$response->assertStatus(200);
@@ -176,7 +184,8 @@ class DeviceControllerTest extends TestCase
 		$card->last_signing_device_id = $this->device->id;
 		$card->save();
 
-		$response = $this->actingAs($this->user, 'api')
+		Passport::actingAs($this->user);
+		$response = $this
 			->getJson('/api/v1/devices/' . $this->device->id . '/signed-cards');
 
 		$response->assertStatus(200);

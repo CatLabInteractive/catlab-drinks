@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\Device;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 /**
  * Tests for Device model key management methods.

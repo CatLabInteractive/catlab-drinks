@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Tools\TransactionMerger;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 /**
@@ -192,10 +193,10 @@ class TransactionMergerTest extends TestCase
 			->postJson('/pos-api/v1/organisations/' . $this->organisation->id . '/merge-transactions', [
 				'items' => [
 					[
-						'card_uid' => 'card-api-001',
-						'card_sync_id' => 1,
+						'card' => 'card-api-001',
+						'card_transaction' => 1,
 						'value' => 500,
-						'transaction_type' => 'topup',
+						'type' => 'topup',
 						'has_synced' => true,
 					],
 				],
@@ -214,15 +215,15 @@ class TransactionMergerTest extends TestCase
 		// Create a transaction directly
 		$tx = new Transaction();
 		$tx->card_id = $card->id;
-		$tx->card_uid = $card->uid;
 		$tx->card_sync_id = 1;
 		$tx->value = 500;
 		$tx->transaction_type = 'topup';
 		$tx->has_synced = true;
 		$tx->save();
 
+		Passport::actingAs($this->user);
+
 		$response = $this
-			->actingAs($this->user, 'api')
 			->getJson('/api/v1/organisations/' . $this->organisation->id . '/transactions');
 
 		$response->assertStatus(200);
@@ -237,15 +238,15 @@ class TransactionMergerTest extends TestCase
 
 		$tx = new Transaction();
 		$tx->card_id = $card->id;
-		$tx->card_uid = $card->uid;
 		$tx->card_sync_id = 1;
 		$tx->value = 1000;
 		$tx->transaction_type = 'topup';
 		$tx->has_synced = true;
 		$tx->save();
 
+		Passport::actingAs($this->user);
+
 		$response = $this
-			->actingAs($this->user, 'api')
 			->getJson('/api/v1/cards/' . $card->id . '/transactions');
 
 		$response->assertStatus(200);
