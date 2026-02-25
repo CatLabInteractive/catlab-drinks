@@ -157,16 +157,14 @@ class DeviceController extends ResourceController {
 
 		$devices = $organisation->approvedDevicesWithKeys()->get();
 
-		$data = $devices->map(function ($device) {
-			return [
-				'id' => $device->id,
-				'uid' => $device->uid,
-				'public_key' => $device->public_key,
-				'approved_at' => $device->approved_at,
-			];
-		});
+		$context = $this->getContext(\CatLab\Charon\Enums\Action::INDEX);
+		$resources = $this->toResources(
+			$devices,
+			$context,
+			\App\Http\Shared\V1\ResourceDefinitions\DevicePublicKeyResourceDefinition::class
+		);
 
-		return response()->json(['items' => $data]);
+		return $this->getResourceResponse($resources, $context);
 	}
 
 }

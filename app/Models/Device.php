@@ -37,8 +37,24 @@ class Device extends Model implements
 		'allow_live_orders' => 'boolean',
 	];
 
+	/**
+	 * Maximum device ID that fits in 3 bytes (unsigned).
+	 * Used for compact device ID encoding in NFC card v1 format.
+	 */
+	const MAX_DEVICE_ID = 16777215; // 0xFFFFFF
+
 	protected static function booted()
 	{
+		static::created(function (Device $device) {
+			// Ensure device ID fits in 3-byte unsigned integer for NFC card v1 format
+			if ($device->id > self::MAX_DEVICE_ID) {
+				$device->forceDelete();
+				throw new \RuntimeException(
+					'Device ID ' . $device->id . ' exceeds the 3-byte unsigned integer limit (' . self::MAX_DEVICE_ID . '). Cannot create more devices.'
+				);
+			}
+		});
+
 		static::deleting(function (Device $device) {
 			if ($device->isForceDeleting()) {
 				$device->accessTokens()->delete();
