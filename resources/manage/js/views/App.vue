@@ -33,7 +33,6 @@
 
 					<b-nav-item :to="{ name: 'events' }">{{ $t('Events') }}</b-nav-item>
 					<b-nav-item :to="{ name: 'devices' }">{{ $t('Points of sale') }}</b-nav-item>
-					<b-nav-item :to="{ name: 'publicKeys' }">{{ $t('Public Keys') }}</b-nav-item>
 
 				</b-navbar-nav>
 
@@ -42,6 +41,7 @@
 
 					<b-navbar-nav>
 
+						<b-nav-item :to="{ name: 'publicKeys' }">{{ $t('Public Keys') }}</b-nav-item>
 						<b-nav-item :to="{ name: 'settings' }">{{ $t('Settings') }}</b-nav-item>
 
 						<language-toggle />
