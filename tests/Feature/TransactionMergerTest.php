@@ -35,7 +35,7 @@ class TransactionMergerTest extends TestCase
 			'email' => 'test-' . Str::random(8) . '@example.com',
 			'password' => bcrypt('secret'),
 		]);
-		$this->organisation->users()->attach($this->user->id, ['role' => 'admin']);
+		$this->organisation->users()->attach($this->user->id);
 	}
 
 	private function createCard(string $uid = null): Card

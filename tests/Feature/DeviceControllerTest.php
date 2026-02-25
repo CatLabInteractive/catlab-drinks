@@ -36,7 +36,7 @@ class DeviceControllerTest extends TestCase
 			'password' => bcrypt('secret'),
 		]);
 
-		$this->organisation->users()->attach($this->user->id, ['role' => 'admin']);
+		$this->organisation->users()->attach($this->user->id);
 
 		$this->token = new DeviceAccessToken([
 			'device_id' => $this->device->id,
