@@ -24,7 +24,7 @@
 	<div v-if="spaceError" class="btn btn-sm btn-danger" @click="$emit('showKeyModal')">{{ $t('NFC ⚠️') }}</div>
 	<div v-else-if="keyStatus === 'approved' && connected === true" class="btn btn-sm btn-success">{{ $t('NFC') }}</div>
 	<div v-else-if="keyStatus === 'pending'" class="btn btn-sm btn-warning" @click="$emit('showKeyModal')">{{ $t('NFC ⏳') }}</div>
-	<div v-else-if="keyStatus === 'none'" class="btn btn-sm btn-danger" @click="$emit('showKeyModal')">{{ $t('NFC 🔑') }}</div>
+	<div v-else-if="keyStatus === 'none' || keyStatus === 'revoked'" class="btn btn-sm btn-danger" @click="$emit('showKeyModal')">{{ $t('NFC 🔑') }}</div>
 	<div v-else-if="connected === false" class="btn btn-sm btn-danger">{{ $t('NFC') }}</div>
 	
 	<div v-if="apiConnected === false" class="btn btn-sm btn-danger">{{ $t('API Offline') }}</div>

@@ -47,10 +47,10 @@
 					</template>
 
 					<template v-slot:cell(status)="row">
-						<span v-if="row.item.approved_at" class="text-success">
+						<span v-if="row.item.approved_at" class="badge badge-success">
 							✅ {{ $t('Approved') }}
 						</span>
-						<span v-else class="text-warning">
+						<span v-else class="badge badge-warning text-dark">
 							⏳ {{ $t('Pending Approval') }}
 						</span>
 					</template>

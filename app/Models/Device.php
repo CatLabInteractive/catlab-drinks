@@ -106,12 +106,23 @@ class Device extends Model implements
 		?string $deviceName = null
 	) : Device
 	{
-		// Check if this device is registered to this organisation.
-		$device = Device::where('uid', $uid)
+		// Check if this device is registered to this organisation (including soft-deleted).
+		$device = Device::withTrashed()
+			->where('uid', $uid)
 			->where('organisation_id', $organisation->id)
 			->first();
 
-		if (!$device) {
+		if ($device) {
+			// Restore if soft-deleted
+			if ($device->trashed()) {
+				$device->restore();
+				$device->secret_key = Crypt::encryptString(Str::random(16));
+				if ($deviceName) {
+					$device->name = $deviceName;
+				}
+				$device->save();
+			}
+		} else {
 			// Create a new device.
 			$device = new Device();
 			$device->uid = $uid;

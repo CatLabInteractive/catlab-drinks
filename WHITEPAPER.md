@@ -172,6 +172,11 @@ This ensures:
 - The admin can still view and manage the device's public key
 - Transaction history for affected cards remains intact
 
+If a previously deleted device is re-paired (same UID), the system **restores** the soft-deleted record 
+rather than creating a duplicate. A new secret key is generated upon restoration, and the device name is 
+updated if a new name is provided. The public key and approval status are preserved from the previous 
+registration.
+
 ### 5.5 Device ID Limits
 
 Device IDs are stored as 3-byte unsigned integers in the card data (max value: 16,777,215). The API 

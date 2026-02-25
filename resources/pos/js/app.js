@@ -215,6 +215,7 @@ async function launch() {
 						window.DEVICE_SECRET = response.data.secret_key;
 						window.DEVICE_NAME = response.data.name;
 						window.DEVICE_APPROVED_AT = response.data.approved_at || null;
+						window.DEVICE_PUBLIC_KEY = response.data.public_key || null;
 
 						// Set device license if LicenseService is available
 						if (response.data.license_key && typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.LicenseService) {
@@ -251,17 +252,21 @@ async function launch() {
 
 					// Determine key approval status
 					const keyManager = Vue.prototype.$cardService.getKeyManager();
-					if (keyManager && keyManager.isInitialized()) {
-						if (window.DEVICE_APPROVED_AT) {
-							Vue.prototype.$cardService.setKeyApprovalStatus('approved');
+					const hasLocalKey = keyManager && keyManager.isInitialized();
+					const hasServerKey = !!window.DEVICE_PUBLIC_KEY;
 
-							// Load approved public keys for verification
-							Vue.prototype.$cardService.fetchApprovedPublicKeys(window.ORGANISATION_ID)
-								.then(keys => Vue.prototype.$cardService.loadPublicKeys(keys))
-								.catch(e => console.warn('Failed to load public keys:', e));
-						} else {
-							Vue.prototype.$cardService.setKeyApprovalStatus('pending');
-						}
+					if (hasLocalKey && hasServerKey && window.DEVICE_APPROVED_AT) {
+						Vue.prototype.$cardService.setKeyApprovalStatus('approved');
+
+						// Load approved public keys for verification
+						Vue.prototype.$cardService.fetchApprovedPublicKeys(window.ORGANISATION_ID)
+							.then(keys => Vue.prototype.$cardService.loadPublicKeys(keys))
+							.catch(e => console.warn('Failed to load public keys:', e));
+					} else if (hasLocalKey && hasServerKey && !window.DEVICE_APPROVED_AT) {
+						Vue.prototype.$cardService.setKeyApprovalStatus('pending');
+					} else if (hasLocalKey && !hasServerKey) {
+						// Local key exists but server key was revoked
+						Vue.prototype.$cardService.setKeyApprovalStatus('none');
 					} else {
 						Vue.prototype.$cardService.setKeyApprovalStatus('none');
 					}

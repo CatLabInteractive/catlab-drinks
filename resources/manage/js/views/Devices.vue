@@ -58,10 +58,10 @@
 					</template>
 
 					<template v-slot:cell(public_key_status)="row">
-						<span v-if="row.item.public_key && row.item.approved_at" class="text-success">
+						<span v-if="row.item.public_key && row.item.approved_at" class="badge badge-success">
 							✅ {{ $t('Approved') }}
 						</span>
-						<span v-else-if="row.item.public_key" class="text-warning">
+						<span v-else-if="row.item.public_key" class="badge badge-warning text-dark">
 							⏳ {{ $t('Pending') }}
 						</span>
 						<span v-else class="text-muted">
