@@ -45,12 +45,13 @@ class Device extends Model implements
 
 	protected static function booted()
 	{
-		static::created(function (Device $device) {
-			// Ensure device ID fits in 3-byte unsigned integer for NFC card v1 format
-			if ($device->id > self::MAX_DEVICE_ID) {
-				$device->forceDelete();
+		static::creating(function (Device $device) {
+			// Validate that the auto-increment ID will fit in 3 bytes.
+			// Since we can't know the exact ID before creation, check the current max.
+			$maxId = Device::withTrashed()->max('id') ?? 0;
+			if ($maxId >= self::MAX_DEVICE_ID) {
 				throw new \RuntimeException(
-					'Device ID ' . $device->id . ' exceeds the 3-byte unsigned integer limit (' . self::MAX_DEVICE_ID . '). Cannot create more devices.'
+					'Cannot create more devices: next ID would exceed the 3-byte unsigned integer limit (' . self::MAX_DEVICE_ID . ').'
 				);
 			}
 		});

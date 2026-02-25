@@ -570,11 +570,15 @@ export class Card extends Eventable {
 
     /**
      * Encode a 32-bit unsigned integer as a 4-byte big-endian string.
-     * Works the same as toBytesInt32 for the byte representation.
+     * Valid for values 0 to 4,294,967,295. Values above 2^31-1 require
+     * multiplication instead of bit shift to avoid sign extension.
      * @param num
      */
     private toBytesUint32(num: number) {
-        return this.toBytesInt32(num);
+        return String.fromCharCode((num >>> 24) & 255) +
+               String.fromCharCode((num >>> 16) & 255) +
+               String.fromCharCode((num >>> 8) & 255) +
+               String.fromCharCode(num & 255);
     }
 
     /**
@@ -607,8 +611,8 @@ export class Card extends Eventable {
      * @param numString
      */
     private fromBytesUint24(numString: string) {
-        return (numString.charCodeAt(0) << 16) |
-               (numString.charCodeAt(1) << 8) |
-               numString.charCodeAt(2);
+        return ((numString.charCodeAt(0) << 16) |
+                (numString.charCodeAt(1) << 8) |
+                numString.charCodeAt(2)) >>> 0;
     }
 }
