@@ -55,6 +55,9 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress --ignore-platform-reqs
 
+      - name: Generate Passport Keys
+        run: php artisan passport:keys --no-interaction
+
       - name: Run unit tests
         run: vendor/bin/phpunit
 
