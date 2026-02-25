@@ -21,18 +21,22 @@
 
 <template>
 
-	<div v-if="spaceError" class="btn btn-sm btn-danger" @click="$emit('showKeyModal')">{{ $t('NFC ⚠️') }}</div>
-	<div v-else-if="keyStatus === 'approved' && connected === true" class="btn btn-sm btn-success">{{ $t('NFC') }}</div>
-	<div v-else-if="keyStatus === 'pending'" class="btn btn-sm btn-warning" @click="$emit('showKeyModal')">{{ $t('NFC ⏳') }}</div>
-	<div v-else-if="keyStatus === 'none' || keyStatus === 'revoked'" class="btn btn-sm btn-danger" @click="$emit('showKeyModal')">{{ $t('NFC 🔑') }}</div>
-	<div v-else-if="connected === false" class="btn btn-sm btn-danger">{{ $t('NFC') }}</div>
-	
-	<div v-if="apiConnected === false" class="btn btn-sm btn-danger">{{ $t('API Offline') }}</div>
+	<template v-if="visible">
 
-	<div v-if="!corrupt && balance !== null" class="btn btn-sm btn-warning">{{ $t('Balance: {balance}', { balance: balance }) }}</div>
-	<div v-if="corrupt" class="btn btn-sm btn-danger">{{ $t('Corrupt card, contact support') }}</div>
+		<div v-if="spaceError" class="btn btn-sm btn-danger" @click="$emit('showKeyModal')">{{ $t('NFC ⚠️') }}</div>
+		<div v-else-if="keyStatus === 'approved' && connected === true" class="btn btn-sm btn-success">{{ $t('NFC') }}</div>
+		<div v-else-if="keyStatus === 'pending'" class="btn btn-sm btn-warning" @click="$emit('showKeyModal')">{{ $t('NFC ⏳') }}</div>
+		<div v-else-if="keyStatus === 'none' || keyStatus === 'revoked'" class="btn btn-sm btn-danger" @click="$emit('showKeyModal')">{{ $t('NFC 🔑') }}</div>
+		<div v-else-if="connected === false" class="btn btn-sm btn-danger">{{ $t('NFC') }}</div>
 
-	<b-spinner v-if="loading" small />
+		<div v-if="apiConnected === false" class="btn btn-sm btn-danger">{{ $t('API Offline') }}</div>
+
+		<div v-if="!corrupt && balance !== null" class="btn btn-sm btn-warning">{{ $t('Balance: {balance}', { balance: balance }) }}</div>
+		<div v-if="corrupt" class="btn btn-sm btn-danger">{{ $t('Corrupt card, contact support') }}</div>
+
+		<b-spinner v-if="loading" small />
+
+	</template>
 
 </template>
 <script>
@@ -50,6 +54,8 @@
 			if (!this.$cardService || !this.$cardService.hasCardReader) {
 				return;
 			}
+
+			this.visible = true;
 
 			this.eventListeners = [];
 
