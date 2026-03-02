@@ -143,7 +143,7 @@ export class CardService extends Eventable {
 
 		this.nfcReader.on('card:loaded', async (card: Card) => {
 
-			// Block card operations if key is not approved — silently ignore the scan
+			// Block card operations if key is not approved — emit blocked event but don't mark as corrupt
 			if (!this.isCardOperationAllowed()) {
 				this.trigger('card:blocked', card);
 				return;

@@ -274,7 +274,6 @@ class DeviceControllerTest extends TestCase
 		$this->assertNotNull($device->fresh()->approved_at);
 
 		// Submit a new public key (simulating key re-generation)
-		$device->fresh();
 		$device = Device::find($device->id);
 		$device->public_key = 'new-key';
 		$device->save();
