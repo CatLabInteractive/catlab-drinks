@@ -640,7 +640,7 @@ export class CardService extends Eventable {
 
 		// discount time!
 		const discount = card.discountPercentage;
-		if (discount >= 1) {
+		if (discount >= 100) {
 			amount = 0;
 		} else {
 			amount = Math.ceil(amount * (1 - (discount / 100)));
