@@ -305,6 +305,7 @@ export class Card extends Eventable {
             // 48-byte ECDSA P-192 signature over (version + deviceId + payload + cardUid)
             const dataToSign = out + this.uid;
             const signature = this.keyManager.sign(dataToSign);
+
             out += signature;
 
             return out;
@@ -391,6 +392,7 @@ export class Card extends Eventable {
         const versionStr = this.toByteString(versionBytes);
         const deviceIdStr = this.toByteString(deviceIdBytes);
         const dataToVerify = versionStr + deviceIdStr + payloadBytestring + this.uid;
+
 
         // Try asymmetric verification using numeric device ID
         if (this.keyManager && this.keyManager.verify(this.signerDeviceId, dataToVerify, signatureBytestring)) {

@@ -346,6 +346,7 @@ export class CardService extends Eventable {
 	initializeKeyManager(deviceUid: string, deviceId: number, deviceSecret: string) {
 		this.keyManager = new KeyManager();
 		this.keyManager.initialize(deviceUid, deviceId, deviceSecret);
+		this.nfcReader.setKeyManager(this.keyManager);
 		return this;
 	}
 
@@ -380,6 +381,7 @@ export class CardService extends Eventable {
 		}
 
 		this.keyManager.generateKeyPair(deviceUid, deviceId, deviceSecret);
+		this.nfcReader.setKeyManager(this.keyManager);
 		return await this.registerPublicKey();
 	}
 

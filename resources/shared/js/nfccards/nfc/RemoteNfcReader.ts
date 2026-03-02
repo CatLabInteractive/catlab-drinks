@@ -59,6 +59,7 @@ export class RemoteNfcReader extends NfcReader {
 
             const card = new Card(this, data.uid);
             card.setTopupDomain(this.topupDomain);
+            this.injectKeyManager(card);
             if (this.executeHandshake) {
 
                 const password = this.calculateCardPassword(data.uid);
