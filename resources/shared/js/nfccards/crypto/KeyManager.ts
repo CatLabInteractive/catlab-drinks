@@ -59,7 +59,7 @@ export class KeyManager {
 	 * @param deviceUid The unique device identifier
 	 */
 	public hasStoredKeyPair(deviceUid: string): boolean {
-		const storageKey = 'catlab_drinks_device_keypair_' + deviceUid;
+		const storageKey = 'catlab_drinks_device_keypair[' + deviceUid + ']';
 		return localStorage.getItem(storageKey) !== null;
 	}
 
@@ -79,7 +79,7 @@ export class KeyManager {
 		const serialized = JSON.stringify({ privateKey: privateKeyHex });
 		const encrypted = CryptoJS.AES.encrypt(serialized, deviceSecret).toString();
 
-		const storageKey = 'catlab_drinks_device_keypair_' + deviceUid;
+		const storageKey = 'catlab_drinks_device_keypair[' + deviceUid + ']';
 		localStorage.setItem(storageKey, encrypted);
 	}
 
@@ -94,7 +94,7 @@ export class KeyManager {
 		this.deviceUid = deviceUid;
 		this.deviceId = deviceId;
 
-		const storageKey = 'catlab_drinks_device_keypair_' + deviceUid;
+		const storageKey = 'catlab_drinks_device_keypair[' + deviceUid + ']';
 		const stored = localStorage.getItem(storageKey);
 
 		if (stored) {
@@ -154,6 +154,19 @@ export class KeyManager {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Ensure this device's own public key is in the verification maps.
+	 * This is needed so a device can verify cards it just signed itself.
+	 */
+	public registerOwnPublicKey(): void {
+		if (!this.keyPair || !this.deviceUid || !this.deviceId) {
+			return;
+		}
+		const key = curve.keyFromPublic(this.keyPair.getPublic('hex'), 'hex');
+		this.publicKeys.set(this.deviceUid, key);
+		this.publicKeysByDeviceId.set(this.deviceId, key);
 	}
 
 	/**

@@ -68,6 +68,12 @@ class Device extends Model implements
 		});
 
 		static::updated(function (Device $device) {
+			// If the public key changed, reset approval status
+			if ($device->wasChanged('public_key') && $device->public_key !== null) {
+				$device->approved_at = null;
+				$device->saveQuietly();
+			}
+
 			// If settings affecting order assignment changed, re-evaluate assignments
 			$needsReassignment = $device->wasChanged('category_filter_id')
 				|| ($device->wasChanged('allow_remote_orders') && !$device->allow_remote_orders);

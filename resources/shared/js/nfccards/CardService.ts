@@ -143,9 +143,8 @@ export class CardService extends Eventable {
 
 		this.nfcReader.on('card:loaded', async (card: Card) => {
 
-			// Block card operations if key is not approved
+			// Block card operations if key is not approved — silently ignore the scan
 			if (!this.isCardOperationAllowed()) {
-				card.setCorrupted();
 				this.trigger('card:blocked', card);
 				return;
 			}
@@ -318,12 +317,21 @@ export class CardService extends Eventable {
 		await this.transactionStore.setAllTransactionsPending(serverCard.id);
 
 		// format the card
+		card.clearCorrupted();
 		card.balance = 0;
 		card.transactionCount = 0;
 		card.previousTransactions = [0,0,0,0,0];
 		card.lastTransaction = new Date();
 
 		await this.refreshCard(card, true);
+
+		// After a successful rebuild, mark the card as ready and trigger
+		// the normal flow so the UI updates without needing a disconnect/reconnect
+		this.currentCard = card;
+		this.isCardLoaded = true;
+		card.setReady();
+		this.trigger('card:loaded', card);
+		this.trigger('card:balance:change', card);
 	}
 
 	/**
@@ -441,9 +449,17 @@ export class CardService extends Eventable {
 	/**
 	 * Set the key approval status.
 	 * Should be called after checking the device's approved_at from the server.
+	 * When status becomes 'approved', also ensures the device's own public key
+	 * is registered in the key manager's verification maps.
 	 */
 	setKeyApprovalStatus(status: 'none' | 'pending' | 'approved' | 'revoked') {
 		this.keyApprovalStatus = status;
+
+		// When approved, ensure own public key is in the verification map
+		if (status === 'approved' && this.keyManager) {
+			this.keyManager.registerOwnPublicKey();
+		}
+
 		this.trigger('keyStatus:change', status);
 	}
 

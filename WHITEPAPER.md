@@ -67,11 +67,14 @@ credit system where the economic incentive for attacks is low.
 ### 3.3 Key Storage
 
 The private key is **AES-encrypted** using the device secret (provided by the server via the 
-`GET /pos-api/v1/devices/current` API call) and stored in the browser's localStorage. This means:
+`GET /pos-api/v1/devices/current` API call) and stored in the browser's localStorage using the key 
+`catlab_drinks_device_keypair[<device-uid>]`. This means:
 
 1. The private key can only be decrypted after successful device authentication
 2. The device secret never leaves the server unencrypted in the management API
 3. If localStorage is cleared, the key pair is lost and a new one must be generated and approved
+4. When a new public key is submitted, the server automatically resets the approval status — an administrator must re-approve the new key
+5. On approval, the device's own public key is registered in its local verification map so it can immediately read cards it signs
 
 ---
 

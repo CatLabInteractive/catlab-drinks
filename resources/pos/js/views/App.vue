@@ -295,6 +295,13 @@
 					if (response.data.approved_at) {
 						this.keyModalStatus = 'approved';
 						this.$cardService.setKeyApprovalStatus('approved');
+
+						// Load all approved public keys for verification
+						if (window.ORGANISATION_ID) {
+							this.$cardService.fetchApprovedPublicKeys(window.ORGANISATION_ID)
+								.then(keys => this.$cardService.loadPublicKeys(keys))
+								.catch(e => console.warn('Failed to load public keys:', e));
+						}
 					} else if (!response.data.public_key) {
 						// Key was revoked (removed from server)
 						this.keyModalStatus = 'revoked';

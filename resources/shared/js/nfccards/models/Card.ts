@@ -412,6 +412,13 @@ export class Card extends Eventable {
     }
 
     /**
+     * Clear the corrupted state after a successful rebuild.
+     */
+    public clearCorrupted() {
+        this.corrupted = false;
+    }
+
+    /**
      *
      */
     public isCorrupted() {

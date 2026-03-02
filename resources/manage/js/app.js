@@ -175,8 +175,23 @@ function launch() {
 						window.ORGANISATION_ID = response.data.organisations.items[0].id;
 
 						// Initialize CardService for transaction viewing (no NFC reader needed)
+						const cardServiceAxios = window.axios.create({
+							baseURL: CATLAB_DRINKS_CONFIG.API + '/api/v1',
+							json: true
+						});
+
+						// Inherit auth headers from global axios
+						const authHeader = window.axios.defaults.headers.common['Authorization'];
+						if (authHeader) {
+							cardServiceAxios.defaults.headers.common['Authorization'] = authHeader;
+						}
+						const csrfHeader = window.axios.defaults.headers.common['X-CSRF-TOKEN'];
+						if (csrfHeader) {
+							cardServiceAxios.defaults.headers.common['X-CSRF-TOKEN'] = csrfHeader;
+						}
+
 						Vue.prototype.$cardService = new CardService(
-							axios,
+							cardServiceAxios,
 							window.ORGANISATION_ID
 						);
 					});
