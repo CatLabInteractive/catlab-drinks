@@ -259,4 +259,27 @@ class DeviceControllerTest extends TestCase
 		$this->assertContains($approvedDevice->id, $ids);
 		$this->assertNotContains($unapprovedDevice->id, $ids);
 	}
+
+	public function testNewPublicKeyResetsApproval(): void
+	{
+		// Create an approved device
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+		]);
+		$device->public_key = 'original-key';
+		$device->approved_at = now();
+		$device->approved_by = $this->user->id;
+		$device->save();
+
+		$this->assertNotNull($device->fresh()->approved_at);
+
+		// Submit a new public key (simulating key re-generation)
+		$device->fresh();
+		$device = Device::find($device->id);
+		$device->public_key = 'new-key';
+		$device->save();
+
+		// Approval should be reset
+		$this->assertNull($device->fresh()->approved_at);
+	}
 }

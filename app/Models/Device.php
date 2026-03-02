@@ -68,8 +68,9 @@ class Device extends Model implements
 		});
 
 		static::updated(function (Device $device) {
-			// If the public key changed, reset approval status
-			if ($device->wasChanged('public_key') && $device->public_key !== null) {
+			// If the public key changed but approved_at was not explicitly set in the same save,
+			// reset approval status (new key needs re-approval)
+			if ($device->wasChanged('public_key') && !$device->wasChanged('approved_at') && $device->public_key !== null) {
 				$device->approved_at = null;
 				$device->saveQuietly();
 			}
