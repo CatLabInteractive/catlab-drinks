@@ -474,7 +474,7 @@ export class CardService extends Eventable {
 	/**
 	 * @param domain
 	 */
-	setTopupDomain(domain: string) {
+	setTopupDomain(domain: string | null) {
 		this.nfcReader.setTopupDomain(domain);
 		this.topupDomain = domain;
 		return this;
@@ -486,7 +486,24 @@ export class CardService extends Eventable {
 	 * @returns null if it fits, or an error message string if it doesn't
 	 */
 	checkNfcSpaceLimit(cardUid: string): string | null {
-		const domain = this.topupDomain || 'd.ctlb.eu';
+		const domain = this.topupDomain;
+
+		// If no topup domain is set, no URI record is written, so only the external record needs to fit
+		if (!domain) {
+			// External record overhead: header(1) + type_len(1) + payload_len(1) + type('eu.catlab.drinks'=16) = 19 bytes
+			// V1 payload: version(1) + deviceId(3) + balance(4) + txCount(4) + timestamp(4) + prev_tx(20) + discount(1) + sig(48) = 85 bytes
+			const v1PayloadSize = 85;
+			const externalRecordSize = 19 + v1PayloadSize;
+
+			// NTAG213: 144 bytes user memory, minus 3 bytes TLV overhead = 141 bytes max NDEF message
+			const NTAG213_MAX_NDEF = 141;
+
+			if (externalRecordSize > NTAG213_MAX_NDEF) {
+				return 'NFC card data (' + externalRecordSize + ' bytes) exceeds NTAG213 memory limit (' + NTAG213_MAX_NDEF + ' bytes).';
+			}
+			return null;
+		}
+
 		// URI record overhead: header(1) + type_len(1) + payload_len(1) + type('U'=1) + prefix_byte(1) = 5 bytes
 		// URI content: domain + "/" + uid
 		const uriContentLength = domain.length + 1 + cardUid.length;
@@ -508,7 +525,7 @@ export class CardService extends Eventable {
 		return null;
 	}
 
-	private topupDomain: string = 'd.ctlb.eu';
+	private topupDomain: string | null = null;
 
 	getCard() {
 		if (!this.isCardLoaded) {

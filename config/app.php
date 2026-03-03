@@ -16,7 +16,7 @@ return [
     'name' => env('APP_NAME', 'Laravel'),
 
 	'topup_domain_name' => [
-		env('TOPUP_DOMAIN_NAME', 'd.ctlb.eu'), // Should be a very short domain as this is written to the cards
+		env('TOPUP_DOMAIN_NAME'), // Should be a very short domain as this is written to the cards. If not set, no topup URL is written to NFC cards.
 	],
 
     /*

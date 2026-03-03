@@ -90,7 +90,7 @@ export class Card extends Eventable {
 
     private corrupted: boolean;
 
-    private topupDomain: string = 'd.ctlb.eu';
+    private topupDomain: string | null = null;
 
     private keyManager: KeyManager | null = null;
 
@@ -127,13 +127,18 @@ export class Card extends Eventable {
      */
     public parseNdef(ndefMessages: any) {
 
-        if (ndefMessages.length !== 2) {
+        if (ndefMessages.length === 2) {
+            // Two records: URI record + external data record
+            const ourData = ndefMessages[1].payload;
+            this.parsePayload(ourData);
+        } else if (ndefMessages.length === 1) {
+            // One record: external data record only (no topup URL)
+            const ourData = ndefMessages[0].payload;
+            this.parsePayload(ourData);
+        } else {
             throw new InvalidMessageException('NDEF messages length is ' + ndefMessages.length);
         }
 
-        // the second message should contain our external data
-        const ourData = ndefMessages[1].payload;
-        this.parsePayload(ourData);
         this.loaded = true;
     }
 
@@ -143,8 +148,10 @@ export class Card extends Eventable {
     public getNdefMessages() {
         const out: any = [];
 
-        // first, the topup url.
-        out.push(ndef.uriRecord("http://" + this.topupDomain + "/" + this.uid));
+        // first, the topup url (only if a topup domain is configured).
+        if (this.topupDomain) {
+            out.push(ndef.uriRecord("http://" + this.topupDomain + "/" + this.uid));
+        }
 
         // next, our own internal (and signed) state
         const signedData = this.getSignedData();
@@ -157,7 +164,7 @@ export class Card extends Eventable {
      * Set the topup domain for NFC card URLs.
      * @param domain
      */
-    public setTopupDomain(domain: string) {
+    public setTopupDomain(domain: string | null) {
         this.topupDomain = domain;
     }
 
