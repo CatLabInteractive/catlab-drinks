@@ -25,7 +25,7 @@
 
 		<b-alert variant="warning" :show="showLicenseWarning" class="mb-0 rounded-0 text-center">
 			<span class="mr-1">⚠️</span>
-			<strong>{{ $t('No active license.') }}</strong>
+			<strong>{{ $t('No active license.') }}</strong>&nbsp;
 			<span v-if="licenseStatus">
 				{{ $t('{remaining} of {max} card scans remaining.', { remaining: licenseStatus.remainingCards, max: licenseStatus.maxCards }) }}
 			</span>
