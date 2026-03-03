@@ -21,6 +21,11 @@ class DeviceResourceDefinition extends ResourceDefinition
 		$this->identifier('id')
 			->int();
 
+		$this->field('uid')
+			->string()
+			->visible(true)
+			->writeable(false);
+
 		$this->field('name')
 			->string()
 			->required()
@@ -40,6 +45,16 @@ class DeviceResourceDefinition extends ResourceDefinition
 
 		$this->field('license_key')
 			->string()
+			->visible(true)
+			->writeable(false);
+
+		$this->field('public_key')
+			->string()
+			->visible(true)
+			->writeable(true, true);
+
+		$this->field('approved_at')
+			->datetime()
 			->visible(true)
 			->writeable(false);
 

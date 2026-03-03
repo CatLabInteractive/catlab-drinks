@@ -80,6 +80,38 @@ class DeviceController extends ResourceController
 			->parameters()->path(self::RESOURCE_ID)->required()->describe('The device id')
 			->returns()->one(DeviceResourceDefinition::class)
 			->tag('devices');
+
+		$routes->post(
+			'devices/{' . self::RESOURCE_ID . '}/approve-key',
+			'DeviceController@approveKey'
+		)	->summary('Approve a device\'s public key')
+			->parameters()->path(self::RESOURCE_ID)->required()->describe('The device id')
+			->returns()->one(DeviceResourceDefinition::class)
+			->tag('devices');
+
+		$routes->post(
+			'devices/{' . self::RESOURCE_ID . '}/revoke-key',
+			'DeviceController@revokeKey'
+		)	->summary('Revoke a device\'s public key')
+			->parameters()->path(self::RESOURCE_ID)->required()->describe('The device id')
+			->returns()->one(DeviceResourceDefinition::class)
+			->tag('devices');
+
+		$routes->get(
+			'organisations/{' . self::PARENT_RESOURCE_ID . '}/public-keys',
+			'DeviceController@publicKeys'
+		)	->summary('List all devices with public keys (including deleted)')
+			->parameters()->path(self::PARENT_RESOURCE_ID)->required()->describe('The organisation id')
+			->returns()->many(DeviceResourceDefinition::class)
+			->tag('devices');
+
+		$routes->get(
+			'devices/{' . self::RESOURCE_ID . '}/signed-cards',
+			'DeviceController@signedCards'
+		)	->summary('List all cards last signed by this device')
+			->parameters()->path(self::RESOURCE_ID)->required()->describe('The device id')
+			->returns()->many(\App\Http\DeviceApi\V1\ResourceDefinitions\CardResourceDefinition::class)
+			->tag('devices');
 	}
 
 	/**
@@ -212,5 +244,93 @@ class DeviceController extends ResourceController
 				throw ResourceValidationException::make($messages);
 			}
 		}
+	}
+
+	/**
+	 * Approve a device's public key.
+	 * @param Request $request
+	 * @param int $deviceId
+	 * @return ResourceResponse|JsonResponse
+	 */
+	public function approveKey(Request $request, int $deviceId)
+	{
+		$device = Device::withTrashed()->findOrFail($deviceId);
+		$this->authorize('approveKey', $device);
+
+		if (empty($device->public_key)) {
+			return new JsonResponse([
+				'error' => [
+					'message' => 'Device has no public key to approve.'
+				]
+			], 422);
+		}
+
+		/** @var User $user */
+		$user = \Auth::user();
+		$device->approvePublicKey($user);
+
+		$context = $this->getContext(Action::VIEW);
+		$resource = $this->toResource($device, $context);
+		return new ResourceResponse($resource);
+	}
+
+	/**
+	 * Revoke a device's public key.
+	 * @param Request $request
+	 * @param int $deviceId
+	 * @return ResourceResponse|JsonResponse
+	 */
+	public function revokeKey(Request $request, int $deviceId)
+	{
+		$device = Device::withTrashed()->findOrFail($deviceId);
+		$this->authorize('revokeKey', $device);
+
+		$device->revokePublicKey();
+
+		$context = $this->getContext(Action::VIEW);
+		$resource = $this->toResource($device, $context);
+		return new ResourceResponse($resource);
+	}
+
+	/**
+	 * List all devices with public keys (including soft-deleted).
+	 * @param Request $request
+	 * @param int $organisationId
+	 * @return ResourceResponse
+	 */
+	public function publicKeys(Request $request, int $organisationId)
+	{
+		$organisation = Organisation::findOrFail($organisationId);
+		$this->authorize('viewPublicKeys', [Device::class, $organisation]);
+
+		$devices = $organisation->allDevices()
+			->whereNotNull('public_key')
+			->get();
+
+		$context = $this->getContext(Action::INDEX);
+		$resources = $this->toResources($devices, $context);
+		return new ResourceResponse($resources, $context);
+	}
+
+	/**
+	 * List all cards last signed by a specific device.
+	 * @param Request $request
+	 * @param int $deviceId
+	 * @return ResourceResponse
+	 */
+	public function signedCards(Request $request, int $deviceId)
+	{
+		$device = Device::withTrashed()->findOrFail($deviceId);
+		$this->authorize('view', $device);
+
+		$cards = $device->signedCards;
+
+		$context = $this->getContext(Action::INDEX);
+		$resources = $this->toResources(
+			$cards,
+			$context,
+			\App\Http\DeviceApi\V1\ResourceDefinitions\CardResourceDefinition::class
+		);
+		return new ResourceResponse($resources, $context);
 	}
 }

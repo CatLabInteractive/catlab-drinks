@@ -25,6 +25,7 @@ namespace App\Tools;
 use App\Exceptions\TransactionCountException;
 use App\Models\Card;
 use App\Models\CardData;
+use App\Models\Device;
 use App\Models\Transaction;
 use DB;
 
@@ -40,12 +41,19 @@ class CardDataMerger
     private $card;
 
     /**
+     * @var Device|null
+     */
+    private $signingDevice;
+
+    /**
      * CardDataMerger constructor.
      * @param Card $card
+     * @param Device|null $signingDevice
      */
-    public function __construct(Card $card)
+    public function __construct(Card $card, Device $signingDevice = null)
     {
         $this->card = $card;
+        $this->signingDevice = $signingDevice;
     }
 
     /**
@@ -70,6 +78,11 @@ class CardDataMerger
             // do magic.
             $card->transaction_count = $cardData->transactionCount;
             $card->discount_percentage = $cardData->discount_percentage;
+
+            // Track which device last signed this card
+            if ($this->signingDevice) {
+                $card->last_signing_device_id = $this->signingDevice->id;
+            }
 
             $card->save();
 

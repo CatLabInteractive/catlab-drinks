@@ -136,7 +136,7 @@ This allows shared components to use `router-link` with named routes that work i
 ### POS Authentication Flow
 POS devices don't use OAuth — they use device access tokens stored in localStorage:
 - `catlab_drinks_device_pos_uid` — device UUID
-- `calab_drinks_pos_api_identifier` — stripped API host (note: legacy typo in key name)
+- `catlab_drinks_pos_api_identifier` — stripped API host (note: legacy typo in key name)
 - `catlab_drinks_pos_api_url[identifier]` — full API base URL
 - `catlab_drinks_pos_access_token[identifier]` — Bearer token
 

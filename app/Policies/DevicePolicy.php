@@ -96,4 +96,40 @@ class DevicePolicy extends BasePolicy
 	{
 		return $this->isMyOrganisation($user, $device->organisation);
 	}
+
+	/**
+	 * Can the user approve a device's public key.
+	 * @param Authorizable|null $user
+	 * @param Device $device
+	 * @return bool
+	 */
+	public function approveKey(?Authorizable $user, Device $device)
+	{
+		return $this->isMyOrganisation($user, $device->organisation);
+	}
+
+	/**
+	 * Can the user revoke a device's public key.
+	 * @param Authorizable|null $user
+	 * @param Device $device
+	 * @return bool
+	 */
+	public function revokeKey(?Authorizable $user, Device $device)
+	{
+		return $this->isMyOrganisation($user, $device->organisation);
+	}
+
+	/**
+	 * Can the user view public keys for an organisation.
+	 * @param Authorizable|null $user
+	 * @param Organisation $organisation
+	 * @return bool
+	 */
+	public function viewPublicKeys(?Authorizable $user, Organisation $organisation = null)
+	{
+		if ($organisation) {
+			return $this->isDeviceOrUserPartOfOrganisation($user, $organisation);
+		}
+		return true;
+	}
 }

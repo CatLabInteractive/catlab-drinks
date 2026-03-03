@@ -31,6 +31,7 @@ import {InvalidMessageException} from "../exceptions/InvalidMessageException";
 import {CorruptedCardException} from "../exceptions/CorruptedCardException";
 import {Logger} from "../tools/Logger";
 import {NfcWriteException} from '../exceptions/NfcWriteException';
+import {KeyManager} from "../crypto/KeyManager";
 
 /**
  *
@@ -46,6 +47,8 @@ export abstract class NfcReader extends Eventable {
     protected executeHandshake: boolean;
 
     protected nfcReaderPassword: string;
+
+    protected keyManager: KeyManager | null = null;
 
     constructor(
         protected offlineStore: OfflineStore,
@@ -107,6 +110,7 @@ export abstract class NfcReader extends Eventable {
         if (data) {
             try {
                 const ndefDecoded = ndef.decodeMessage(this.base64ToByteArray(data));
+                this.injectKeyManager(card);
                 card.parseNdef(ndefDecoded);
 
                 this.logger.log(card.getUid(), 'successfully recovered data');
@@ -148,6 +152,26 @@ export abstract class NfcReader extends Eventable {
     public setTopupDomain(domain: string) {
         this.topupDomain = domain;
         return this;
+    }
+
+    /**
+     * Set the key manager for asymmetric signing/verification.
+     * Will be injected into Card objects before parsing NDEF data.
+     * @param keyManager
+     */
+    public setKeyManager(keyManager: KeyManager) {
+        this.keyManager = keyManager;
+    }
+
+    /**
+     * Inject the key manager into a card (if available).
+     * Must be called before card.parseNdef() so that V1 signature verification works.
+     * @param card
+     */
+    protected injectKeyManager(card: Card) {
+        if (this.keyManager) {
+            card.setKeyManager(this.keyManager);
+        }
     }
 
     /**

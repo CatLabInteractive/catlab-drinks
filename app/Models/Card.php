@@ -142,6 +142,14 @@ class Card extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function lastSigningDevice()
+    {
+        return $this->belongsTo(Device::class, 'last_signing_device_id')->withTrashed();
+    }
+
+    /**
      * @param $cardTransactionId
      * @param bool $lockForUpdate
      * @return Transaction

@@ -238,6 +238,11 @@
                         await this.$cardService.rebuild(this.card);
                         console.log('Done rebuilding card');
 
+                        // Reset component state so it shows the ready view
+                        this.corrupted = false;
+                        this.ready = true;
+                        this.loaded = true;
+
                         alert(this.$t('Card is rebuilt from online data.'));
                     } catch (e) {
                         console.error(e);

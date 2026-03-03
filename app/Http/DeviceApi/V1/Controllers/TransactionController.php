@@ -23,113 +23,42 @@
 namespace App\Http\DeviceApi\V1\Controllers;
 
 use App\Http\DeviceApi\V1\ResourceDefinitions\TransactionResourceDefinition;
-use App\Http\Shared\V1\Controllers\Base\ResourceController;
-use App\Models\Card;
 use App\Models\Organisation;
 use App\Models\Transaction;
 use App\Tools\TransactionMerger;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
-use CatLab\Charon\Exceptions\InvalidContextAction;
-use CatLab\Charon\Exceptions\InvalidEntityException;
-use CatLab\Charon\Exceptions\InvalidPropertyException;
-use CatLab\Charon\Exceptions\InvalidResourceDefinition;
-use CatLab\Charon\Exceptions\InvalidTransformer;
-use CatLab\Charon\Exceptions\IterableExpected;
-use CatLab\Charon\Exceptions\NoInputDataFound;
 use CatLab\Charon\Laravel\Models\ResourceResponse;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 
 /**
  * Class TransactionController
- * @package App\Http\ManagementApi\V1\Controllers
+ *
+ * POS-facing transaction controller. Extends the shared transaction controller
+ * and adds merge-transactions and edit capabilities for device API.
+ *
+ * @package App\Http\DeviceApi\V1\Controllers
  */
-class TransactionController extends ResourceController
+class TransactionController extends \App\Http\Shared\V1\Controllers\TransactionController
 {
-    const RESOURCE_DEFINITION = TransactionResourceDefinition::class;
-    const RESOURCE_ID = 'id';
-    const PARENT_RESOURCE_ID = 'card';
-
-    use \CatLab\Charon\Laravel\Controllers\ChildCrudController {
-        beforeSaveEntity as traitBeforeSaveEntity;
-    }
-
     /**
      * @param RouteCollection $routes
      * @throws \CatLab\Charon\Exceptions\InvalidContextAction
      */
     public static function setRoutes(RouteCollection $routes)
     {
-        $childResource = $routes->childResource(
-            static::RESOURCE_DEFINITION,
-            'cards/{' . self::PARENT_RESOURCE_ID . '}/transactions',
-            'transactions',
-            'TransactionController',
-            [
-                'id' => self::RESOURCE_ID,
-                'parentId' => self::PARENT_RESOURCE_ID,
-                'only' => [
-                    'index', 'view', 'edit'
-                ]
-            ]
-        );
+        $childResource = static::setSharedRoutes($routes, ['index', 'view', 'edit']);
 
         $childResource->post('organisations/{organisationId}/merge-transactions', 'TransactionController@mergeTransactions')
             ->summary('Merges offline stored transactions')
             ->parameters()->path('organisationId')->required()
             ->parameters()->resource(TransactionResourceDefinition::class)->many();
-
-
-        $childResource->get('organisations/{organisationId}/transactions', 'TransactionController@getFromOrganisation')
-            ->summary('Return all transactions happening in the organisation')
-            ->parameters()->path('organisationId')->required()
-            ->parameters()->resource(TransactionResourceDefinition::class)->many();
-
-        $childResource->tag('transactions');
-    }
-
-    /**
-     * @param Request $request
-     * @return Relation
-     */
-    public function getRelationship(Request $request): Relation
-    {
-        /** @var Card $event */
-        $card = $this->getParent($request);
-        return $card->transactions();
-    }
-
-    /**
-     * @param Request $request
-     * @return Model
-     */
-    public function getParent(Request $request): Model
-    {
-        $cardId = $request->route(self::PARENT_RESOURCE_ID);
-        return Card::findOrFail($cardId);
-    }
-
-    /**
-     * @return string
-     */
-    public function getRelationshipKey(): string
-    {
-        return self::PARENT_RESOURCE_ID;
     }
 
 	/**
 	 * @param Request $request
 	 * @param $organisationId
 	 * @return ResourceResponse
-	 * @throws InvalidContextAction
-	 * @throws InvalidEntityException
-	 * @throws InvalidPropertyException
-	 * @throws InvalidResourceDefinition
-	 * @throws InvalidTransformer
-	 * @throws IterableExpected
-	 * @throws NoInputDataFound
 	 * @throws \Throwable
 	 */
     public function mergeTransactions(Request $request, $organisationId)
@@ -159,56 +88,5 @@ class TransactionController extends ResourceController
         $resources = $this->toResources($transactions, $context);
 
         return new ResourceResponse($resources, $context);
-    }
-
-    /**
-     * @param $organisationId
-     * @return \CatLab\Charon\Laravel\Contracts\Response
-     * @throws \CatLab\Charon\Exceptions\InvalidContextAction
-     * @throws \CatLab\Charon\Exceptions\InvalidEntityException
-     * @throws \CatLab\Charon\Exceptions\InvalidPropertyException
-     * @throws \CatLab\Charon\Exceptions\InvalidTransformer
-     * @throws \CatLab\Charon\Exceptions\IterableExpected
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \CatLab\Charon\Exceptions\InvalidResourceDefinition
-     */
-    public function getFromOrganisation($organisationId)
-    {
-        $organisation = Organisation::findOrFail($organisationId);
-
-        $this->authorizeCrudRequest('organisationIndex', null, $organisation);
-
-        $context = $this->getContext(Action::INDEX);
-
-        // First load the filters so that we can use these in the policy
-        $resourceDefinition = $resourceDefinition ?? $this->resourceDefinition;
-        $filters = $this->resourceTransformer->getFilters(
-            $this->getRequest()->query(),
-            $resourceDefinition,
-            $context
-        );
-
-        $filteredModels = $this->getFilteredModels($organisation->transactions(), $context, $filters, $resourceDefinition);
-        $resources = $this->toResources(
-            $filteredModels->getModels(),
-            $context,
-            $resourceDefinition,
-            $filteredModels->getFilterResults()
-        );
-
-        return $this->getResourceResponse($resources, $context);
-    }
-
-    /**
-     * Called before saveEntity
-     * @param Request $request
-     * @param \Illuminate\Database\Eloquent\Model $entity
-     * @param $isNew
-     * @return Model
-     */
-    protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
-    {
-        $this->traitBeforeSaveEntity($request, $entity, $isNew);
-        return $entity;
     }
 }

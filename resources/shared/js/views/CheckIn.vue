@@ -60,8 +60,10 @@
                             {{ $t('No attendees have been set. Please import attendees before using this module.') }}
                         </div>
 
-                        <div v-for="(attendee, index) in attendees" v-if="!attendee.alreadySelected" class="attendee" v-on:click="selectAttendee(attendee)">
-                            <span class="name">{{attendee.name}}</span>
+                        <div v-for="(attendee, index) in attendees" :key="index">
+                            <div v-if="!attendee.alreadySelected" class="attendee" v-on:click="selectAttendee(attendee)">
+                                <span class="name">{{attendee.name}}</span>
+                            </div>
                         </div>
 
                     </div>
@@ -131,7 +133,7 @@
                 loading: true,
                 loaded: false,
                 card: null,
-                attendees: null,
+                attendees: [],
                 selectingAttendee: false,
                 attendeeCheckingIn: null
             }

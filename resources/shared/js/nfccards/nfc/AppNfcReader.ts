@@ -66,6 +66,7 @@ export class AppNfcReader extends NfcReader {
 			const uid = cardInfo.uid;
 			const card = new Card(this, uid);
 			card.setTopupDomain(this.topupDomain);
+			this.injectKeyManager(card);
 
 			if (this.executeHandshake) {
 				const cardPassword = this.calculateCardPassword(uid);
