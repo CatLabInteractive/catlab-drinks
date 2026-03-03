@@ -16,10 +16,9 @@
 		{ "url": "heroku/php" }
 	],
 	"env": {
-		"APP_NAME": {
-			"description": "The name of your application.",
-			"value": "CatLab Drinks",
-			"required": false
+		"APP_KEY": {
+			"description": "Application encryption key. Generated automatically.",
+			"generator": "secret"
 		},
 		"APP_ENV": {
 			"description": "The application environment.",
@@ -29,44 +28,26 @@
 			"description": "Enable or disable debug mode.",
 			"value": "false"
 		},
-		"APP_KEY": {
-			"description": "Application encryption key. Generated automatically.",
-			"generator": "secret"
-		},
-		"APP_URL": {
-			"description": "The URL of your application (will be set automatically by Heroku).",
-			"value": "",
+		"DB_HOST": {
+			"description": "Database host. On Heroku this is set automatically via the JawsDB addon.",
 			"required": false
 		},
-		"LOG_CHANNEL": {
-			"description": "Log channel.",
-			"value": "errorlog",
+		"DB_PORT": {
+			"description": "Database port. Defaults to 3306.",
+			"value": "3306",
 			"required": false
 		},
-		"DB_CONNECTION": {
-			"description": "Database connection type.",
-			"value": "mysql",
+		"DB_DATABASE": {
+			"description": "Database name. On Heroku this is set automatically via the JawsDB addon.",
 			"required": false
 		},
-		"SESSION_DRIVER": {
-			"description": "Session driver.",
-			"value": "file",
+		"DB_USERNAME": {
+			"description": "Database username. On Heroku this is set automatically via the JawsDB addon.",
 			"required": false
 		},
-		"CACHE_DRIVER": {
-			"description": "Cache driver.",
-			"value": "file",
+		"DB_PASSWORD": {
+			"description": "Database password. On Heroku this is set automatically via the JawsDB addon.",
 			"required": false
-		},
-		"QUEUE_CONNECTION": {
-			"description": "Queue connection.",
-			"value": "sync",
-			"required": false
-		},
-		"NPM_CONFIG_PRODUCTION": {
-			"description": "Set to false so devDependencies (webpack, laravel-mix, etc.) are installed during build.",
-			"value": "false",
-			"required": true
 		}
 	},
 	"addons": [
@@ -75,9 +56,6 @@
 		}
 	],
 	"scripts": {
-		"dokku": {
-			"predeploy": "php artisan migrate --force"
-		},
 		"postdeploy": "php artisan migrate --force"
 	}
 }

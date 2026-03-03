@@ -37,8 +37,8 @@ release: php artisan migrate --force
 
 ## app.json (Heroku "Deploy to Heroku" button)
 
-- `"stack": "heroku-22"` — ensures Heroku uses buildpacks, not Docker. **Do not set this to `"container"`.**
-- `"buildpacks"` — declares `heroku/nodejs` first, then `heroku/php`. Order matters (see below).
+- `"buildpacks"` — declares `heroku/nodejs` first, then `heroku/php`. Order matters (see below). This also prevents Heroku from auto-detecting the `Dockerfile` and switching to the container stack.
+- No `"stack"` property needed — the `buildpacks` array is sufficient to prevent Docker auto-detection, and omitting `stack` lets Heroku use its current default stack.
 - `"scripts": { "postdeploy": ... }` — **not used** (unsupported on container stack; migrations run via `Procfile release:` instead).
 - The `buildpacks` array in `app.json` only takes effect when creating a new app via the button or `heroku create`. For existing apps, buildpacks must be set manually via CLI.
 
@@ -87,8 +87,9 @@ Key env vars configured in `app.json` for Heroku deployments:
 |----------|-------|-------|
 | `APP_KEY` | (generated) | Auto-generated secret |
 | `APP_ENV` | `production` | |
-| `NPM_CONFIG_PRODUCTION` | `false` | Allows devDependencies install during build |
-| `TRUSTED_PROXIES` | `*` | Required behind Heroku's routing layer |
+| `APP_DEBUG` | `false` | Must be explicit — security risk if left as `true` |
+
+`TRUSTED_PROXIES` defaults to `*` in `TrustProxies.php` and does not need to be set.
 | `LOG_CHANNEL` | `errorlog` | Sends logs to `heroku logs` |
 
 JawsDB MySQL addon is provisioned automatically via `app.json` `addons`. Laravel's `DB_*` variables must be parsed from `JAWSDB_URL` or set manually after provisioning.
