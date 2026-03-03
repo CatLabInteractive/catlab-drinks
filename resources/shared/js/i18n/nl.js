@@ -401,6 +401,10 @@ export default {
     'Never': 'Nooit',
     'Pending transactions:': 'Wachtende transacties:',
     'These transactions will be uploaded automatically when the connection is restored.': 'Deze transacties worden automatisch geüpload wanneer de verbinding is hersteld.',
+    'Pending queue items:': 'Wachtende wachtrij-items:',
+    'Sync now': 'Nu synchroniseren',
+    'Synchronization complete.': 'Synchronisatie voltooid.',
+    'There are still {count} pending items that have not been uploaded. Logging out may cause data loss. Are you sure you want to logout?': 'Er zijn nog {count} items die niet zijn geüpload. Uitloggen kan gegevensverlies veroorzaken. Weet u zeker dat u wilt uitloggen?',
 
     // Language toggle
     'Language': 'Taal',

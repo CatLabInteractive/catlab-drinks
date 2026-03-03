@@ -161,9 +161,29 @@
 						<span v-else class="text-success">0</span>
 					</p>
 
-					<p v-if="pendingTransactionCount > 0" class="text-muted">
+					<p>
+						<strong>{{ $t('Pending queue items:') }}</strong>&nbsp;
+						<span v-if="pendingQueueCount > 0" class="text-warning">{{ pendingQueueCount }}</span>
+						<span v-else class="text-success">0</span>
+					</p>
+
+					<p v-if="pendingTransactionCount > 0 || pendingQueueCount > 0" class="text-muted">
 						{{ $t('These transactions will be uploaded automatically when the connection is restored.') }}
 					</p>
+
+					<b-button variant="outline-primary" @click="syncNow" :disabled="isSyncing">
+						<b-spinner small v-if="isSyncing" class="mr-1"></b-spinner>
+						<span v-else class="mr-1">🔄</span>
+						{{ $t('Sync now') }}
+					</b-button>
+
+					<b-alert v-if="syncError" variant="danger" :show="true" class="mt-2">
+						{{ syncError }}
+					</b-alert>
+
+					<b-alert v-if="syncSuccess" variant="success" :show="true" class="mt-2">
+						{{ $t('Synchronization complete.') }}
+					</b-alert>
 				</b-form-fieldset>
 
 				<hr />
@@ -171,8 +191,9 @@
 				<b-form-fieldset>
 					<legend>{{ $t('Device') }}</legend>
 					<p class="text-muted">{{ $t('Disconnect this device from the server. You will need to re-pair it to use it again.') }}</p>
-					<b-button variant="outline-danger" @click="logout">
-						<span class="mr-1">🚪</span> {{ $t('Logout') }}
+					<b-button variant="outline-danger" @click="logout" :disabled="isLoggingOut">
+						<b-spinner small v-if="isLoggingOut" class="mr-1"></b-spinner>
+						<span v-else class="mr-1">🚪</span> {{ $t('Logout') }}
 					</b-button>
 				</b-form-fieldset>
 
@@ -187,6 +208,7 @@
 
 	import { clearAuthData } from '../../../shared/js/services/DeviceAuth';
 	import { PosDeviceService } from '../../../shared/js/services/PosDeviceService';
+	import { AbstractOfflineQueue } from '../../../shared/js/services/AbstractOfflineQueue';
 
 	export default {
 
@@ -253,7 +275,13 @@
 
 				isOffline: false,
 				lastSyncTime: null,
-				pendingTransactionCount: 0
+				pendingTransactionCount: 0,
+				pendingQueueCount: 0,
+
+				isSyncing: false,
+				syncError: null,
+				syncSuccess: false,
+				isLoggingOut: false
 			}
 		},
 
@@ -286,14 +314,75 @@
 						console.warn('Failed to get pending transaction count:', e);
 					}
 				}
+
+				try {
+					this.pendingQueueCount = await AbstractOfflineQueue.getAllPendingCount();
+				} catch (e) {
+					console.warn('Failed to get pending queue count:', e);
+				}
 			},
 
-			logout() {
-				if (confirm(this.$t('Are you sure you want to logout? This device will need to be re-paired to connect again.'))) {
-					clearAuthData().then(() => {
-						window.location.reload();
-					});
+			async syncNow() {
+				this.isSyncing = true;
+				this.syncError = null;
+				this.syncSuccess = false;
+
+				try {
+					const promises = [];
+
+					promises.push(AbstractOfflineQueue.uploadAllPending());
+
+					if (this.$cardService) {
+						promises.push(this.$cardService.syncPendingTransactions());
+					}
+
+					await Promise.all(promises);
+					this.syncSuccess = true;
+				} catch (e) {
+					console.error('Sync failed:', e);
+					this.syncError = e.message || String(e);
+				} finally {
+					this.isSyncing = false;
+					await this.refreshPendingTransactionCount();
 				}
+			},
+
+			async logout() {
+				this.isLoggingOut = true;
+				this.syncError = null;
+
+				try {
+					// Attempt to sync all pending data first
+					const promises = [];
+					promises.push(AbstractOfflineQueue.uploadAllPending());
+					if (this.$cardService) {
+						promises.push(this.$cardService.syncPendingTransactions());
+					}
+					await Promise.all(promises);
+				} catch (e) {
+					console.warn('Sync before logout failed:', e);
+				}
+
+				// Refresh counts after sync attempt
+				await this.refreshPendingTransactionCount();
+
+				const hasPending = this.pendingTransactionCount > 0 || this.pendingQueueCount > 0;
+
+				if (hasPending) {
+					if (!confirm(this.$t('There are still {count} pending items that have not been uploaded. Logging out may cause data loss. Are you sure you want to logout?', { count: this.pendingTransactionCount + this.pendingQueueCount }))) {
+						this.isLoggingOut = false;
+						return;
+					}
+				} else {
+					if (!confirm(this.$t('Are you sure you want to logout? This device will need to be re-paired to connect again.'))) {
+						this.isLoggingOut = false;
+						return;
+					}
+				}
+
+				clearAuthData().then(() => {
+					window.location.reload();
+				});
 			},
 
 			onSubmit(evt) {

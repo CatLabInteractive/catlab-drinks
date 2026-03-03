@@ -164,6 +164,81 @@ export class AbstractOfflineQueue extends AbstractService {
 		return key.substr(0, fullCheck.length) === fullCheck
 	}
 
+	/**
+	 * Check if a localForage value looks like a queue item.
+	 * Queue items have method (e.g. 'create'), data, and id properties.
+	 * @param {*} value
+	 * @returns {boolean}
+	 */
+	static isQueueItem(value) {
+		return value && typeof value === 'object' && typeof value.method === 'string' && 'data' in value && 'id' in value;
+	}
+
+	/**
+	 * Get the count of all pending items across all AbstractOfflineQueue instances
+	 * by scanning localForage for items with a queue item structure.
+	 * @returns {Promise<number>}
+	 */
+	static async getAllPendingCount() {
+		return new Promise((resolve) => {
+			let count = 0;
+			localForage.iterate((value, key) => {
+				if (AbstractOfflineQueue.isQueueItem(value)) {
+					count++;
+				}
+			}).then(() => resolve(count));
+		});
+	}
+
+	/**
+	 * Upload all pending items from all AbstractOfflineQueue instances.
+	 * Groups items by their key prefix and uploads each group.
+	 * Currently only supports OrderService queues with the "event_<id>" prefix pattern.
+	 * @returns {Promise<void>}
+	 */
+	static async uploadAllPending() {
+		const itemsByPrefix = {};
+
+		await localForage.iterate((value, key) => {
+			if (AbstractOfflineQueue.isQueueItem(value)) {
+				// Extract the event prefix from the key (e.g., "event_123_<timestamp>")
+				const lastUnderscore = key.lastIndexOf('_');
+				if (lastUnderscore > 0) {
+					const prefix = key.substring(0, lastUnderscore);
+					if (!itemsByPrefix[prefix]) {
+						itemsByPrefix[prefix] = [];
+					}
+					value.localStorageKey = key;
+					itemsByPrefix[prefix].push(value);
+				}
+			}
+		});
+
+		const errors = [];
+		for (const prefix of Object.keys(itemsByPrefix)) {
+			try {
+				const items = itemsByPrefix[prefix];
+				// Extract event ID from the prefix pattern "event_<id>"
+				const match = prefix.match(/^event_(\d+)$/);
+				if (match) {
+					const { OrderService } = await import('./OrderService');
+					const service = new OrderService(match[1]);
+					const createOrders = items.filter((item) => item.method === 'create');
+					while (createOrders.length > 0) {
+						const batch = createOrders.splice(0, 10);
+						await service.uploadBatch(batch);
+					}
+				}
+			} catch (e) {
+				errors.push(e);
+			}
+		}
+
+		if (errors.length > 0) {
+			throw errors[0];
+		}
+	}
+
 	destroy() {
 		if (this.timeout) {
 			clearTimeout(this.timeout);
