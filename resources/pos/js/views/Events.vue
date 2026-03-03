@@ -126,10 +126,6 @@
 						label: this.$t('Event'),
 					},
 					{
-						key: 'order_token',
-						label: this.$t('Order token'),
-					},
-					{
 						key: 'is_selling',
 						label: this.$t('Remote orders'),
 						class: 'text-center'
