@@ -35,6 +35,7 @@ import {RemoteNfcReader} from "./nfc/RemoteNfcReader";
 import {AppNfcReader} from "./nfc/AppNfcReader";
 import {KeyManager, PublicKeyEntry} from "./crypto/KeyManager";
 import * as localForage from "localforage";
+import {isCardVersionSupported} from "./versioning";
 
 /**
  *
@@ -87,6 +88,7 @@ export class CardService extends Eventable {
 	public hasCardReader: boolean = false;
 
 	private keyManager: KeyManager | null = null;
+	private minNfcVersion = 0;
 
 	private offlineManager: any = null;
 
@@ -167,6 +169,11 @@ export class CardService extends Eventable {
 
 			// check if this card is corrupt
 			await this.checkIfCardIsCorrupt(card);
+
+			if (!isCardVersionSupported(card.dataVersion, this.minNfcVersion)) {
+				this.logger.log(card.getUid(), 'Card rejected: version ' + card.dataVersion + ' below minimum ' + this.minNfcVersion);
+				card.setCorrupted();
+			}
 
 			// don't handle corrupt cards.
 			if (card.isCorrupted()) {
@@ -520,6 +527,11 @@ export class CardService extends Eventable {
 	setTopupDomain(domain: string | null) {
 		this.nfcReader.setTopupDomain(domain);
 		this.topupDomain = domain;
+		return this;
+	}
+
+	setMinNfcVersion(minNfcVersion: number) {
+		this.minNfcVersion = Math.max(0, minNfcVersion || 0);
 		return this;
 	}
 

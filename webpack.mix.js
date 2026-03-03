@@ -61,3 +61,7 @@ mix.ts('resources/manage/js/qrGenerator.js', 'res/sales/js');
 // Order
 mix.ts('resources/clients/js/app.js', 'res/clients/js')
 	.sass('resources/clients/sass/app.scss', 'res/clients/css');
+
+// Static files for public/res/ (e.g. .htaccess with permissive CORS headers)
+mix.copy('resources/res', 'public/res');
+

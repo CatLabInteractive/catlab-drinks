@@ -18,4 +18,14 @@ class ExampleTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_getting_started_page()
+    {
+        $response = $this->get('/getting-started');
+
+        $response
+            ->assertStatus(200)
+            ->assertSee('Getting Started')
+            ->assertSee('Pairing a new POS device');
+    }
 }

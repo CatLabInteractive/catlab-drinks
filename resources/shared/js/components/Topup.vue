@@ -125,6 +125,8 @@
 				setTimeout(() => {
 					this.success = false;
 				}, 2000);
+
+				this.$emit('topup-completed');
 			},
 
 			cancelTopup: function() {
