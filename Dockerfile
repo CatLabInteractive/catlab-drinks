@@ -14,8 +14,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install mysqli pdo_mysql bcmath zip intl gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Enable Apache mod_rewrite and mod_headers
-RUN a2enmod rewrite headers
+# Enable Apache mod_rewrite and mod_headers, ensure only mpm_prefork is loaded
+RUN a2dismod mpm_event mpm_worker 2>/dev/null || true \
+    && a2enmod mpm_prefork rewrite headers
 
 # Set document root to /var/www/html/public
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
