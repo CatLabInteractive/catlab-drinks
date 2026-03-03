@@ -15,8 +15,13 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache mod_rewrite and mod_headers, ensure only mpm_prefork is loaded
-RUN a2dismod mpm_event mpm_worker 2>/dev/null || true \
-    && a2enmod mpm_prefork rewrite headers
+RUN a2dismod mpm_event 2>/dev/null; \
+    a2dismod mpm_worker 2>/dev/null; \
+    a2dismod mpm_prefork 2>/dev/null; \
+    a2enmod mpm_prefork rewrite headers \
+    && rm -f /etc/apache2/mods-enabled/mpm_event.conf /etc/apache2/mods-enabled/mpm_event.load \
+             /etc/apache2/mods-enabled/mpm_worker.conf /etc/apache2/mods-enabled/mpm_worker.load \
+    && apache2ctl configtest
 
 # Set document root to /var/www/html/public
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
