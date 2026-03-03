@@ -8,5 +8,9 @@
     "/css/app.css": "/css/app.css",
     "/res/clients/css/app.css": "/res/clients/css/app.css",
     "/res/pos.css": "/res/pos.css",
-    "/res/manage.css": "/res/manage.css"
+    "/res/manage.css": "/res/manage.css",
+    "/res/clients/js/app.js.LICENSE.txt": "/res/clients/js/app.js.LICENSE.txt",
+    "/res/manage.js.LICENSE.txt": "/res/manage.js.LICENSE.txt",
+    "/res/pos.js.LICENSE.txt": "/res/pos.js.LICENSE.txt",
+    "/res/sales/js/qrGenerator.js.LICENSE.txt": "/res/sales/js/qrGenerator.js.LICENSE.txt"
 }
