@@ -63,10 +63,6 @@
 			"plan": "jawsdb:kitefin"
 		}
 	],
-	"buildpacks": [
-		{ "url": "heroku/nodejs" },
-		{ "url": "heroku/php" }
-	],
 	"scripts": {
 		"dokku": {
 			"predeploy": "php artisan migrate --force"
