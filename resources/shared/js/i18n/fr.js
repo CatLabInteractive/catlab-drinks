@@ -400,6 +400,10 @@ export default {
     'Never': 'Jamais',
     'Pending transactions:': 'Transactions en attente :',
     'These transactions will be uploaded automatically when the connection is restored.': 'Ces transactions seront téléchargées automatiquement lorsque la connexion sera rétablie.',
+    'Pending queue items:': 'Éléments en file d\'attente :',
+    'Sync now': 'Synchroniser maintenant',
+    'Synchronization complete.': 'Synchronisation terminée.',
+    'There are still {count} pending items that have not been uploaded. Logging out may cause data loss. Are you sure you want to logout?': 'Il reste encore {count} éléments en attente qui n\'ont pas été téléchargés. La déconnexion peut entraîner une perte de données. Êtes-vous sûr de vouloir vous déconnecter ?',
 
     // Language toggle
     'Language': 'Langue',

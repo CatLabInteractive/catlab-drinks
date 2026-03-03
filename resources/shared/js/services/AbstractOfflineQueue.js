@@ -164,6 +164,70 @@ export class AbstractOfflineQueue extends AbstractService {
 		return key.substr(0, fullCheck.length) === fullCheck
 	}
 
+	/**
+	 * Get the count of all pending items across all AbstractOfflineQueue instances
+	 * by scanning localForage for items with a queue item structure.
+	 * @returns {Promise<number>}
+	 */
+	static async getAllPendingCount() {
+		return new Promise((resolve) => {
+			let count = 0;
+			localForage.iterate((value, key) => {
+				if (value && typeof value === 'object' && value.method && value.data) {
+					count++;
+				}
+			}).then(() => resolve(count));
+		});
+	}
+
+	/**
+	 * Upload all pending items from all AbstractOfflineQueue instances.
+	 * Groups items by their index URL prefix and uploads each group.
+	 * @returns {Promise<void>}
+	 */
+	static async uploadAllPending() {
+		const itemsByPrefix = {};
+
+		await localForage.iterate((value, key) => {
+			if (value && typeof value === 'object' && value.method && value.data) {
+				// Extract the event prefix from the key (e.g., "event_123_<timestamp>")
+				const lastUnderscore = key.lastIndexOf('_');
+				if (lastUnderscore > 0) {
+					const prefix = key.substring(0, lastUnderscore);
+					if (!itemsByPrefix[prefix]) {
+						itemsByPrefix[prefix] = [];
+					}
+					value.localStorageKey = key;
+					itemsByPrefix[prefix].push(value);
+				}
+			}
+		});
+
+		const errors = [];
+		for (const prefix of Object.keys(itemsByPrefix)) {
+			try {
+				const items = itemsByPrefix[prefix];
+				// Extract event ID from the prefix pattern "event_<id>"
+				const match = prefix.match(/^event_(\d+)$/);
+				if (match) {
+					const { OrderService } = await import('./OrderService');
+					const service = new OrderService(match[1]);
+					const createOrders = items.filter((item) => item.method === 'create');
+					while (createOrders.length > 0) {
+						const batch = createOrders.splice(0, 10);
+						await service.uploadBatch(batch);
+					}
+				}
+			} catch (e) {
+				errors.push(e);
+			}
+		}
+
+		if (errors.length > 0) {
+			throw errors[0];
+		}
+	}
+
 	destroy() {
 		if (this.timeout) {
 			clearTimeout(this.timeout);

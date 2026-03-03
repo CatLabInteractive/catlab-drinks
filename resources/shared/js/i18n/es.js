@@ -401,6 +401,10 @@ export default {
     'Never': 'Nunca',
     'Pending transactions:': 'Transacciones pendientes:',
     'These transactions will be uploaded automatically when the connection is restored.': 'Estas transacciones se cargarán automáticamente cuando se restablezca la conexión.',
+    'Pending queue items:': 'Elementos en cola pendientes:',
+    'Sync now': 'Sincronizar ahora',
+    'Synchronization complete.': 'Sincronización completa.',
+    'There are still {count} pending items that have not been uploaded. Logging out may cause data loss. Are you sure you want to logout?': 'Todavía hay {count} elementos pendientes que no se han cargado. Cerrar sesión puede causar pérdida de datos. ¿Está seguro de que desea cerrar sesión?',
 
     // Language toggle
     'Language': 'Idioma',

@@ -44,5 +44,9 @@ export default {
     'Last synced:': 'Last synced:',
     'Never': 'Never',
     'Pending transactions:': 'Pending transactions:',
-    'These transactions will be uploaded automatically when the connection is restored.': 'These transactions will be uploaded automatically when the connection is restored.'
+    'These transactions will be uploaded automatically when the connection is restored.': 'These transactions will be uploaded automatically when the connection is restored.',
+    'Pending queue items:': 'Pending queue items:',
+    'Sync now': 'Sync now',
+    'Synchronization complete.': 'Synchronization complete.',
+    'There are still {count} pending items that have not been uploaded. Logging out may cause data loss. Are you sure you want to logout?': 'There are still {count} pending items that have not been uploaded. Logging out may cause data loss. Are you sure you want to logout?'
 };

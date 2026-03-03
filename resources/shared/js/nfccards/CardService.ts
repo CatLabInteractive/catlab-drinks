@@ -795,6 +795,14 @@ export class CardService extends Eventable {
 	}
 
 	/**
+	 * Force sync pending card transactions to the server.
+	 * @returns {Promise<void>}
+	 */
+	public async syncPendingTransactions(): Promise<void> {
+		await this.transactionStore.refresh();
+	}
+
+	/**
 	 * Check if provided card is corrupt and trigger event if so.
 	 * @param card
 	 */
