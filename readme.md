@@ -13,8 +13,9 @@ Deploy your own instance with a single click:
 
 [![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/CatLabInteractive/catlab-drinks/tree/main)
 
-> **DigitalOcean note:** You will be prompted to set the `APP_KEY` secret. Generate one with
-> `php -r "echo 'base64:'.base64_encode(random_bytes(32));"` and paste the result.
+> **DigitalOcean note:** You will be prompted to set two secrets:
+> - `APP_KEY` — generate with `php -r "echo 'base64:'.base64_encode(random_bytes(32));"`
+> - `DATABASE_URL` — create a [Managed MySQL cluster](https://cloud.digitalocean.com/databases) first and paste the connection string (`mysql://user:pass@host:port/dbname`)
 
 Architecture
 ------------

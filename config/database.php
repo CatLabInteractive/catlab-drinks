@@ -1,8 +1,8 @@
 <?php
 
-$jawsDbUrl = env('JAWSDB_URL');
-if ($jawsDbUrl) {
-	$parsedUrl = parse_url($jawsDbUrl);
+$databaseUrl = env('JAWSDB_URL') ?: env('DATABASE_URL');
+if ($databaseUrl) {
+	$parsedUrl = parse_url($databaseUrl);
 	$connectionStringParsed = [
 		'host' => $parsedUrl['host'] ?? '127.0.0.1',
 		'port' => (string)($parsedUrl['port'] ?? '3306'),

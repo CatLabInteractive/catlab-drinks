@@ -50,7 +50,8 @@ Config lives in `.do/app.yaml`. The "Deploy to DigitalOcean" button in the readm
 
 - Uses the **Dockerfile** to build (same as Dokku)
 - `run_command` overrides the container's default CMD: runs `php artisan migrate --force && apache2-foreground`, so migrations happen automatically on every deploy
-- A managed **MySQL 8** database is provisioned automatically; DB credentials are injected via `${db.*}` references
+- **No inline database** — DigitalOcean's app spec `databases` field only supports dev-tier PostgreSQL; MySQL requires a managed cluster. Users must create a [Managed MySQL cluster](https://cloud.digitalocean.com/databases) separately and provide `DATABASE_URL` as a secret
+- `DATABASE_URL` is parsed in `config/database.php` (same parser as Heroku's `JAWSDB_URL`)
 - `APP_KEY` must be set manually as a secret during the deploy wizard — DigitalOcean has no equivalent of Heroku's `generator: secret`
 
 ---
