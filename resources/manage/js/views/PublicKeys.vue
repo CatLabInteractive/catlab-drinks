@@ -84,6 +84,8 @@
 			</b-col>
 		</b-row>
 
+		<signed-cards-modal ref="signedCardsModal" />
+
 	</b-container>
 
 </template>
@@ -91,8 +93,13 @@
 <script>
 
 	import { DeviceService } from '../services/DeviceService';
+	import SignedCardsModal from '../../../shared/js/components/SignedCardsModal.vue';
 
 	export default {
+
+		components: {
+			'signed-cards-modal': SignedCardsModal,
+		},
 
 		mounted() {
 			this.service = new DeviceService(window.ORGANISATION_ID);
@@ -168,9 +175,7 @@
 			},
 
 			async showSignedCards(item) {
-				const cards = await this.service.getSignedCards(item.id);
-				alert(this.$t('Cards signed by {name}:', { name: item.name }) + '\n\n' +
-					cards.items.map(c => c.uid + ' (balance: ' + c.balance + ')').join('\n'));
+				this.$refs.signedCardsModal.show(this.service, item);
 			}
 		}
 	}
