@@ -168,6 +168,7 @@ export class CardService extends Eventable {
 			await this.checkIfCardIsCorrupt(card);
 
 			if (!isCardVersionSupported(card.dataVersion, this.minNfcVersion)) {
+				this.logger.log(card.getUid(), 'Card rejected: version ' + card.dataVersion + ' below minimum ' + this.minNfcVersion);
 				card.setCorrupted();
 			}
 

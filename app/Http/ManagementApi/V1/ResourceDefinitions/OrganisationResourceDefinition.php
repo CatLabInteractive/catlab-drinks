@@ -52,7 +52,8 @@ class OrganisationResourceDefinition extends ResourceDefinition
 
         $this->field('min_nfc_version')
             ->int()
-            ->visible(true);
+            ->visible(true)
+            ->writeable(false, false);
 
         $this->field('secret')
             ->string()
