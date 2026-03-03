@@ -229,7 +229,7 @@ async function launch() {
 					// Offline — try to load from cache
 					deviceData = await getCachedResponse('/pos-api/v1/devices/current');
 					if (!deviceData) {
-						throw e; // No cached data, cannot continue
+						throw new Error('Cannot start POS app: no device data available (offline and no cache)');
 					}
 					console.info('[Offline] Using cached device data');
 				}

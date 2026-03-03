@@ -63,7 +63,7 @@ export async function getCachedResponse(url) {
  * @returns {boolean}
  */
 export function isNetworkError(error) {
-    return !error.response && (error.code === 'ERR_NETWORK' || error.message === 'Network Error' || !navigator.onLine);
+    return !error.response && (error.code === 'ERR_NETWORK' || error.message === 'Network Error' || (typeof navigator !== 'undefined' && !navigator.onLine));
 }
 
 /**

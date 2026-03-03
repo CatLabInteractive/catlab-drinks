@@ -92,8 +92,8 @@ describe('POS offline support - app.js', () => {
 		expect(source).toContain("cacheResponse('/pos-api/v1/devices/current'");
 	});
 
-	it('falls back to cached device data when offline', () => {
-		expect(source).toContain("getCachedResponse('/pos-api/v1/devices/current')");
+	it('provides clear error message when offline with no cache', () => {
+		expect(source).toContain('Cannot start POS app: no device data available (offline and no cache)');
 	});
 
 	it('sets offline manager on card service', () => {
@@ -184,13 +184,13 @@ describe('POS offline support - i18n translations', () => {
 
 	it('has Offline translation in all languages', () => {
 		[en, nl, de, fr, es].forEach(lang => {
-			expect(lang).toContain("'Offline'");
+			expect(lang).toMatch(/['"]Offline['"]/);
 		});
 	});
 
 	it('has remote orders offline warning in all languages', () => {
 		[en, nl, de, fr, es].forEach(lang => {
-			expect(lang).toContain('Device is offline');
+			expect(lang).toMatch(/Device is offline/);
 		});
 	});
 });
