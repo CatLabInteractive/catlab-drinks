@@ -4,6 +4,18 @@
 CatLab Drinks is a bar automation / POS system built with Laravel + Vue.js.
 It has three frontend apps (Manage, POS, Client) sharing one Laravel backend.
 
+## Additional AI Context Documents
+
+The `.ai/` directory contains supplementary documentation with detailed implementation notes,
+framework quirks, and architectural decisions. **Always read all files in `.ai/` before making
+changes**, as they contain critical information not duplicated here.
+
+Current documents:
+
+| File | Contents |
+|------|----------|
+| `.ai/charon-bulk-delete-instructions.md` | Bulk delete support in Charon v1.8.0 — route format, request/response shape, and a known `mergeOptions()` type-hint bug with middleware arrays |
+
 ## Building & Testing
 
 ### Frontend
