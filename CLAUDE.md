@@ -19,6 +19,7 @@ Current documents:
 | File | Contents |
 |------|----------|
 | `.ai/charon-bulk-delete-instructions.md` | Bulk delete support in Charon v1.8.0 — route format, request/response shape, and a known `mergeOptions()` type-hint bug with middleware arrays |
+| `.ai/deployment.md` | Heroku + Dokku dual-deployment setup — buildpacks, Procfile fallback, app.json, Dockerfile |
 
 ---
 
@@ -167,6 +168,42 @@ Both apps share the same route names for common features (e.g., `sales`, `summar
 This allows shared components to use `router-link` with named routes that work in either app context.
 
 **Router mode:** Use **hash history** (not web history) when running in Cordova / the native app wrapper.
+
+---
+
+## Deployment
+
+### Overview
+The app supports two deployment targets that coexist in the same repo:
+
+| Target | Build method | Web process |
+|--------|-------------|-------------|
+| **Heroku** | Buildpacks (`heroku/nodejs` + `heroku/php`) | `heroku-php-apache2 public/` |
+| **Dokku** | `Dockerfile` (`thecodingmachine/php:8.1-v5-slim-apache`) | `apache2-foreground` (via image entrypoint) |
+
+### How it works
+- **`Procfile`** contains the `web:` command with a bash fallback:
+  ```
+  web: bash -c 'if command -v heroku-php-apache2 &> /dev/null; then heroku-php-apache2 public/; else apache2-foreground; fi'
+  ```
+  On Heroku (buildpacks), `heroku-php-apache2` exists and is used. On Dokku (Dockerfile), it doesn't exist so `apache2-foreground` is used instead.
+- **`release:`** in the Procfile runs `php artisan migrate --force` on every deploy (supported by both Heroku and Dokku).
+- **`app.json`** sets `"stack": "heroku-22"` and declares both buildpacks so "Deploy to Heroku" button works automatically without any manual `heroku stack:set` or `heroku buildpacks:add`.
+- **`Dockerfile`** is used by Dokku only. Heroku ignores it entirely when using buildpacks.
+
+### Heroku buildpack order
+The Node.js buildpack **must run before** the PHP buildpack so that `npm run prod` (via the `heroku-postbuild` script in `package.json`) compiles frontend assets before PHP's composer install. This is declared in `app.json`'s `buildpacks` array and must also be set on existing Heroku apps:
+```bash
+heroku buildpacks:add --index 1 heroku/nodejs
+```
+
+### Key files
+| File | Purpose |
+|------|---------|
+| `Procfile` | Web process + release task for both Heroku and Dokku |
+| `app.json` | Heroku "Deploy to Heroku" button config (stack, buildpacks, env vars, addons) |
+| `Dockerfile` | Dokku build (uses `thecodingmachine/php:8.1-v5-slim-apache`) |
+| `heroku.yml` | **Deleted** — not used; would conflict with buildpack stack |
 
 ---
 
