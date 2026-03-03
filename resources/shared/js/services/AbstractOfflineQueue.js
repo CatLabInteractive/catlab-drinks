@@ -165,6 +165,16 @@ export class AbstractOfflineQueue extends AbstractService {
 	}
 
 	/**
+	 * Check if a localForage value looks like a queue item.
+	 * Queue items have method (e.g. 'create'), data, and id properties.
+	 * @param {*} value
+	 * @returns {boolean}
+	 */
+	static isQueueItem(value) {
+		return value && typeof value === 'object' && typeof value.method === 'string' && 'data' in value && 'id' in value;
+	}
+
+	/**
 	 * Get the count of all pending items across all AbstractOfflineQueue instances
 	 * by scanning localForage for items with a queue item structure.
 	 * @returns {Promise<number>}
@@ -173,7 +183,7 @@ export class AbstractOfflineQueue extends AbstractService {
 		return new Promise((resolve) => {
 			let count = 0;
 			localForage.iterate((value, key) => {
-				if (value && typeof value === 'object' && value.method && value.data) {
+				if (AbstractOfflineQueue.isQueueItem(value)) {
 					count++;
 				}
 			}).then(() => resolve(count));
@@ -182,14 +192,15 @@ export class AbstractOfflineQueue extends AbstractService {
 
 	/**
 	 * Upload all pending items from all AbstractOfflineQueue instances.
-	 * Groups items by their index URL prefix and uploads each group.
+	 * Groups items by their key prefix and uploads each group.
+	 * Currently only supports OrderService queues with the "event_<id>" prefix pattern.
 	 * @returns {Promise<void>}
 	 */
 	static async uploadAllPending() {
 		const itemsByPrefix = {};
 
 		await localForage.iterate((value, key) => {
-			if (value && typeof value === 'object' && value.method && value.data) {
+			if (AbstractOfflineQueue.isQueueItem(value)) {
 				// Extract the event prefix from the key (e.g., "event_123_<timestamp>")
 				const lastUnderscore = key.lastIndexOf('_');
 				if (lastUnderscore > 0) {

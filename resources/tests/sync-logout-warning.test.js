@@ -102,12 +102,16 @@ describe('Settings sync/logout - Settings.vue data and methods', () => {
 describe('Settings sync/logout - AbstractOfflineQueue static methods', () => {
 	const source = readFile('shared/js/services/AbstractOfflineQueue.js');
 
+	it('has static isQueueItem helper method', () => {
+		expect(source).toContain('static isQueueItem(value)');
+	});
+
 	it('has static getAllPendingCount method', () => {
 		expect(source).toContain('static async getAllPendingCount()');
 	});
 
-	it('getAllPendingCount iterates localForage', () => {
-		expect(source).toContain('localForage.iterate');
+	it('getAllPendingCount uses isQueueItem helper', () => {
+		expect(source).toContain('AbstractOfflineQueue.isQueueItem(value)');
 	});
 
 	it('has static uploadAllPending method', () => {
