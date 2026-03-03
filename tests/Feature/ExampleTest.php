@@ -25,6 +25,7 @@ class ExampleTest extends TestCase
 
         $response
             ->assertStatus(200)
-            ->assertSee('link the Android app to your CatLab Drinks instance');
+            ->assertSee('Getting Started')
+            ->assertSee('Pairing a new POS device');
     }
 }
