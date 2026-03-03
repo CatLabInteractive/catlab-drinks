@@ -92,9 +92,14 @@
 				this.loading = true;
 				this.$refs.signedCardsModal.show();
 
-				const result = await service.getSignedCards(item.id);
-				this.cards = result.items;
-				this.loading = false;
+				try {
+					const result = await service.getSignedCards(item.id);
+					this.cards = result.items;
+				} catch (e) {
+					this.cards = [];
+				} finally {
+					this.loading = false;
+				}
 			},
 
 			formatBalance(balance) {

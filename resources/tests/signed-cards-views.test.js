@@ -48,9 +48,10 @@ describe('PublicKeys.vue signed cards modal integration', () => {
 	});
 
 	it('does NOT use alert() in showSignedCards', () => {
-		// Extract showSignedCards method body
 		const methodStart = script.indexOf('showSignedCards');
-		const methodBlock = script.substring(methodStart, methodStart + 200);
+		// Extract until the next method or end of methods block
+		const methodEnd = script.indexOf('\n\t\t\t},', methodStart);
+		const methodBlock = script.substring(methodStart, methodEnd > methodStart ? methodEnd : methodStart + 300);
 		expect(methodBlock).not.toContain('alert(');
 	});
 
@@ -77,9 +78,10 @@ describe('Devices.vue signed cards modal integration', () => {
 	});
 
 	it('does NOT use alert() in showSignedCards', () => {
-		// Extract showSignedCards method body
 		const methodStart = script.indexOf('showSignedCards');
-		const methodBlock = script.substring(methodStart, methodStart + 200);
+		// Extract until the next method or end of methods block
+		const methodEnd = script.indexOf('\n\t\t\t},', methodStart);
+		const methodBlock = script.substring(methodStart, methodEnd > methodStart ? methodEnd : methodStart + 300);
 		expect(methodBlock).not.toContain('alert(');
 	});
 
