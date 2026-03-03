@@ -46,6 +46,9 @@
 
 			// we should unlisten the events here
 			this.eventListeners.forEach(e => e.unbind());
+			if (this._offlineListener) {
+				this._offlineListener.unbind();
+			}
 
 		},
 
@@ -60,7 +63,7 @@
 			this.eventListeners = [];
 
 			this.connected = this.$cardService.isConnected();
-			this.apiConnected = this.$cardService.hasApiConnection();
+			this.apiConnected = this.$offlineManager ? this.$offlineManager.isOnline() : this.$cardService.hasApiConnection();
 			this.keyStatus = this.$cardService.getKeyStatus();
 
 			this.eventListeners.push(this.$cardService.on('connection:change', function(isOnline) {
@@ -68,10 +71,11 @@
 				this.connected = isOnline;
 			}.bind(this)));
 
-			this.eventListeners.push(this.$cardService.on('apiConnection:change', function(isOnline) {
-				//console.log('is online', isOnline);
-				this.apiConnected = this.$cardService.hasApiConnection();
-			}.bind(this)));
+			if (this.$offlineManager) {
+				this._offlineListener = this.$offlineManager.on((online) => {
+					this.apiConnected = online;
+				});
+			}
 
 			this.eventListeners.push(this.$cardService.on('keyStatus:change', function(status) {
 				this.keyStatus = status;
@@ -113,7 +117,8 @@
 				corrupt: false,
 				loading: false,
 				keyStatus: 'none',
-				spaceError: false
+				spaceError: false,
+				_offlineListener: null
 			};
 		}
 	}
