@@ -1,6 +1,6 @@
 {
 	"name": "catlab-drinks",
-	"stack": "container",
+	"stack": "heroku-22",
 	"description": "A bar automation / point-of-sale (POS) web application with support for NFC cashless topup cards, remote ordering, and multi-device management.",
 	"repository": "https://github.com/CatLabInteractive/catlab-drinks",
 	"logo": "https://raw.githubusercontent.com/CatLabInteractive/catlab-drinks/master/icons/icon-192.webp",
@@ -11,6 +11,10 @@
 		"bar",
 		"nfc",
 		"vue"
+	],
+	"buildpacks": [
+		{ "url": "heroku/nodejs" },
+		{ "url": "heroku/php" }
 	],
 	"env": {
 		"APP_NAME": {
@@ -72,8 +76,6 @@
 		}
 	],
 	"scripts": {
-		"dokku": {
-			"predeploy": "php artisan migrate --force"
-		}
+		"postdeploy": "php artisan migrate --force"
 	}
 }
