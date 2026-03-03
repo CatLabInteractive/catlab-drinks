@@ -1,5 +1,6 @@
 {
 	"name": "catlab-drinks",
+	"stack": "container",
 	"description": "A bar automation / point-of-sale (POS) web application with support for NFC cashless topup cards, remote ordering, and multi-device management.",
 	"repository": "https://github.com/CatLabInteractive/catlab-drinks",
 	"logo": "https://raw.githubusercontent.com/CatLabInteractive/catlab-drinks/master/icons/icon-192.webp",
