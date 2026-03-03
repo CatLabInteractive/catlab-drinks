@@ -72,6 +72,25 @@ describe('POS offline support - RemoteOrders.vue', () => {
 	});
 });
 
+describe('POS offline support - NfcCardBalance.vue', () => {
+	const source = readFile('shared/js/components/NfcCardBalance.vue');
+
+	it('uses $offlineManager to determine API online status', () => {
+		expect(source).toContain('this.$offlineManager ? this.$offlineManager.isOnline()');
+		expect(source).toContain(': true');
+	});
+
+	it('subscribes to $offlineManager changes for API status', () => {
+		expect(source).toContain('this.$offlineManager.on((online)');
+		expect(source).toContain('this.apiConnected = online');
+	});
+
+	it('cleans up offline listener on unmount', () => {
+		expect(source).toContain('if (this._offlineListener)');
+		expect(source).toContain('this._offlineListener.unbind()');
+	});
+});
+
 describe('POS offline support - app.js', () => {
 	const source = readFile('pos/js/app.js');
 
