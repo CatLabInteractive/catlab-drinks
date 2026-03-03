@@ -12,6 +12,7 @@
 */
 
 Route::get('/', 'HomeController@welcome');
+Route::view('/getting-started', 'getting-started');
 
 Route::get('/docs', 'DocumentController@swagger');
 Route::get('/docs/oauth2', 'DocumentController@oauth2Redirect');

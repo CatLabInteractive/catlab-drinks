@@ -18,4 +18,13 @@ class ExampleTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function testGettingStartedPage()
+    {
+        $response = $this->get('/getting-started');
+
+        $response
+            ->assertStatus(200)
+            ->assertSee('link the Android app to your CatLab Drinks instance');
+    }
 }
