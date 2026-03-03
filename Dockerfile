@@ -2,13 +2,14 @@ FROM php:8.1-apache
 
 # Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
-    language-pack-nl \
+    locales \
     libzip-dev \
     libicu-dev \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
     zip unzip git curl \
+    && locale-gen nl_NL.UTF-8 \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install mysqli pdo_mysql bcmath zip intl gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
