@@ -68,6 +68,11 @@
 			"description": "Trusted proxy configuration. Use '*' to trust all proxies (recommended for Heroku). Defaults to '*' if not set.",
 			"value": "*",
 			"required": false
+		},
+		"NPM_CONFIG_PRODUCTION": {
+			"description": "Set to false so devDependencies (webpack, laravel-mix, etc.) are installed during build.",
+			"value": "false",
+			"required": true
 		}
 	},
 	"addons": [
