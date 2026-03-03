@@ -104,4 +104,25 @@ describe('OfflineManager', () => {
 			expect(listener).toHaveBeenCalledWith(true);
 		});
 	});
+
+	describe('last sync time', () => {
+		it('should return null initially', () => {
+			expect(manager.getLastSyncTime()).toBeNull();
+		});
+
+		it('should update lastSyncTime when markOnline is called', () => {
+			manager.markOffline();
+			manager.markOnline();
+			const syncTime = manager.getLastSyncTime();
+			expect(syncTime).toBeInstanceOf(Date);
+			expect(syncTime.getTime()).toBeLessThanOrEqual(Date.now());
+		});
+
+		it('should not update lastSyncTime when markOffline is called', () => {
+			manager.markOnline();
+			const firstSync = manager.getLastSyncTime();
+			manager.markOffline();
+			expect(manager.getLastSyncTime()).toBe(firstSync);
+		});
+	});
 });

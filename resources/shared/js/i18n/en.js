@@ -39,5 +39,10 @@ export default {
     '{remaining} of {max} card scans remaining.': '{remaining} of {max} card scans remaining.',
     'Your table number: {tableNumber}': 'Your table number: {tableNumber}',
     'Offline': 'Offline',
-    'Device is offline. Remote orders cannot be processed until the connection is restored.': 'Device is offline. Remote orders cannot be processed until the connection is restored.'
+    'Device is offline. Remote orders cannot be processed until the connection is restored.': 'Device is offline. Remote orders cannot be processed until the connection is restored.',
+    'Sync status': 'Sync status',
+    'Last synced:': 'Last synced:',
+    'Never': 'Never',
+    'Pending transactions:': 'Pending transactions:',
+    'These transactions will be uploaded automatically when the connection is restored.': 'These transactions will be uploaded automatically when the connection is restored.'
 };

@@ -396,6 +396,11 @@ export default {
     // Offline
     'Offline': 'Offline',
     'Device is offline. Remote orders cannot be processed until the connection is restored.': 'Het apparaat is offline. Bestellingen op afstand kunnen niet worden verwerkt totdat de verbinding is hersteld.',
+    'Sync status': 'Synchronisatiestatus',
+    'Last synced:': 'Laatst gesynchroniseerd:',
+    'Never': 'Nooit',
+    'Pending transactions:': 'Wachtende transacties:',
+    'These transactions will be uploaded automatically when the connection is restored.': 'Deze transacties worden automatisch geüpload wanneer de verbinding is hersteld.',
 
     // Language toggle
     'Language': 'Taal',

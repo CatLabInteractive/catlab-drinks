@@ -771,6 +771,15 @@ export class CardService extends Eventable {
 	}
 
 	/**
+	 * Get the number of pending (unsynced) transactions.
+	 * @returns {Promise<number>}
+	 */
+	public async getPendingTransactionCount(): Promise<number> {
+		const transactions = await this.offlineStore.getPendingTransactions();
+		return transactions.length;
+	}
+
+	/**
 	 * Check if provided card is corrupt and trigger event if so.
 	 * @param card
 	 */

@@ -144,6 +144,31 @@
 				<hr />
 
 				<b-form-fieldset>
+					<legend>{{ $t('Sync status') }}</legend>
+
+					<div v-if="isOffline" class="mb-3">
+						<b-badge variant="warning">{{ $t('Offline') }}</b-badge>
+					</div>
+
+					<p>
+						<strong>{{ $t('Last synced:') }}</strong>
+						{{ lastSyncTime ? formatDateTime(lastSyncTime) : $t('Never') }}
+					</p>
+
+					<p>
+						<strong>{{ $t('Pending transactions:') }}</strong>
+						<span v-if="pendingTransactionCount > 0" class="text-warning">{{ pendingTransactionCount }}</span>
+						<span v-else class="text-success">0</span>
+					</p>
+
+					<p v-if="pendingTransactionCount > 0" class="text-muted">
+						{{ $t('These transactions will be uploaded automatically when the connection is restored.') }}
+					</p>
+				</b-form-fieldset>
+
+				<hr />
+
+				<b-form-fieldset>
 					<legend>{{ $t('Device') }}</legend>
 					<p class="text-muted">{{ $t('Disconnect this device from the server. You will need to re-pair it to use it again.') }}</p>
 					<b-button variant="outline-danger" @click="logout">
@@ -162,6 +187,7 @@
 
 	import { clearAuthData } from '../../../shared/js/services/DeviceAuth';
 	import { PosDeviceService } from '../../../shared/js/services/PosDeviceService';
+	import { getOfflineManager } from '../../../shared/js/services/OfflineManager';
 
 	export default {
 
@@ -191,7 +217,28 @@
 				}
 			}
 
+			// Track offline status and sync info
+			const offlineManager = getOfflineManager();
+			this.isOffline = !offlineManager.isOnline();
+			this.lastSyncTime = offlineManager.getLastSyncTime();
+			this._offlineListener = offlineManager.on((online) => {
+				this.isOffline = !online;
+				if (online) {
+					this.lastSyncTime = offlineManager.getLastSyncTime();
+				}
+				this.refreshPendingTransactionCount();
+			});
+
+			// Load pending transaction count
+			await this.refreshPendingTransactionCount();
+
 			this.loaded = true;
+		},
+
+		beforeDestroy() {
+			if (this._offlineListener) {
+				this._offlineListener.unbind();
+			}
 		},
 
 		data() {
@@ -204,7 +251,11 @@
 				allowLiveOrders: false,
 				allowRemoteOrders: false,
 
-				licenseStatus: null
+				licenseStatus: null,
+
+				isOffline: false,
+				lastSyncTime: null,
+				pendingTransactionCount: 0
 			}
 		},
 
@@ -219,6 +270,24 @@
 					return new Date(value).toLocaleDateString();
 				}
 				return '';
+			},
+
+			formatDateTime(value) {
+				if (value) {
+					const d = new Date(value);
+					return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+				}
+				return '';
+			},
+
+			async refreshPendingTransactionCount() {
+				if (this.$cardService) {
+					try {
+						this.pendingTransactionCount = await this.$cardService.getPendingTransactionCount();
+					} catch (e) {
+						console.warn('Failed to get pending transaction count:', e);
+					}
+				}
 			},
 
 			logout() {

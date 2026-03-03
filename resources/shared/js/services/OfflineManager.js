@@ -29,6 +29,7 @@ export class OfflineManager {
     constructor() {
         this._online = typeof navigator !== 'undefined' ? navigator.onLine : true;
         this._listeners = [];
+        this._lastSyncTime = null;
 
         if (typeof window !== 'undefined') {
             window.addEventListener('online', () => this._setOnline(true));
@@ -47,6 +48,7 @@ export class OfflineManager {
      * Call when an API request succeeds to confirm connectivity.
      */
     markOnline() {
+        this._lastSyncTime = new Date();
         this._setOnline(true);
     }
 
@@ -55,6 +57,14 @@ export class OfflineManager {
      */
     markOffline() {
         this._setOnline(false);
+    }
+
+    /**
+     * Get the timestamp of the last successful API request.
+     * @returns {Date|null}
+     */
+    getLastSyncTime() {
+        return this._lastSyncTime;
     }
 
     /**

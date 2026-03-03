@@ -396,6 +396,11 @@ export default {
     // Offline
     'Offline': 'Sin conexión',
     'Device is offline. Remote orders cannot be processed until the connection is restored.': 'El dispositivo está sin conexión. Los pedidos remotos no se pueden procesar hasta que se restablezca la conexión.',
+    'Sync status': 'Estado de sincronización',
+    'Last synced:': 'Última sincronización:',
+    'Never': 'Nunca',
+    'Pending transactions:': 'Transacciones pendientes:',
+    'These transactions will be uploaded automatically when the connection is restored.': 'Estas transacciones se cargarán automáticamente cuando se restablezca la conexión.',
 
     // Language toggle
     'Language': 'Idioma',

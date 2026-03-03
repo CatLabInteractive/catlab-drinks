@@ -193,4 +193,79 @@ describe('POS offline support - i18n translations', () => {
 			expect(lang).toMatch(/Device is offline/);
 		});
 	});
+
+	it('has sync status translations in all languages', () => {
+		[en, nl, de, fr, es].forEach(lang => {
+			expect(lang).toMatch(/Sync status/);
+			expect(lang).toMatch(/Last synced/);
+			expect(lang).toMatch(/Pending transactions/);
+		});
+	});
+});
+
+describe('POS offline support - Settings.vue sync status', () => {
+	const source = readFile('pos/js/views/Settings.vue');
+
+	it('imports getOfflineManager', () => {
+		expect(source).toContain('getOfflineManager');
+	});
+
+	it('shows sync status section', () => {
+		expect(source).toContain("$t('Sync status')");
+		expect(source).toContain("$t('Last synced:')");
+		expect(source).toContain("$t('Pending transactions:')");
+	});
+
+	it('shows offline badge in settings when offline', () => {
+		expect(source).toContain('v-if="isOffline"');
+	});
+
+	it('has isOffline data property', () => {
+		expect(source).toContain('isOffline: false');
+	});
+
+	it('has pendingTransactionCount data property', () => {
+		expect(source).toContain('pendingTransactionCount: 0');
+	});
+
+	it('has lastSyncTime data property', () => {
+		expect(source).toContain('lastSyncTime: null');
+	});
+
+	it('calls refreshPendingTransactionCount', () => {
+		expect(source).toContain('refreshPendingTransactionCount');
+	});
+
+	it('cleans up offline listener on destroy', () => {
+		expect(source).toContain('_offlineListener');
+		expect(source).toContain('unbind()');
+	});
+});
+
+describe('POS offline support - CardService.getPendingTransactionCount', () => {
+	const source = readFile('shared/js/nfccards/CardService.ts');
+
+	it('has getPendingTransactionCount method', () => {
+		expect(source).toContain('getPendingTransactionCount');
+	});
+});
+
+describe('POS offline support - OfflineManager.getLastSyncTime', () => {
+	const source = readFile('shared/js/services/OfflineManager.js');
+
+	it('has getLastSyncTime method', () => {
+		expect(source).toContain('getLastSyncTime');
+	});
+
+	it('tracks _lastSyncTime', () => {
+		expect(source).toContain('_lastSyncTime');
+	});
+
+	it('updates lastSyncTime on markOnline', () => {
+		const markOnlineBlock = source.substring(
+			source.indexOf('markOnline()'),
+			source.indexOf('markOffline()')
+		);
+		expect(markOnlineBlock).toContain('_lastSyncTime');
+	});
 });

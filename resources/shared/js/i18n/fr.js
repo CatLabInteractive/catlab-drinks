@@ -395,6 +395,11 @@ export default {
     // Offline
     'Offline': 'Hors ligne',
     'Device is offline. Remote orders cannot be processed until the connection is restored.': "L'appareil est hors ligne. Les commandes à distance ne peuvent pas être traitées tant que la connexion n'est pas rétablie.",
+    'Sync status': 'État de la synchronisation',
+    'Last synced:': 'Dernière synchronisation :',
+    'Never': 'Jamais',
+    'Pending transactions:': 'Transactions en attente :',
+    'These transactions will be uploaded automatically when the connection is restored.': 'Ces transactions seront téléchargées automatiquement lorsque la connexion sera rétablie.',
 
     // Language toggle
     'Language': 'Langue',
