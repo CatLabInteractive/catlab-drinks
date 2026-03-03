@@ -1,0 +1,8 @@
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "*"
+    Header always set Access-Control-Allow-Headers "*"
+    Header always set Access-Control-Expose-Headers "*"
+    Header always set Access-Control-Max-Age "86400"
+</IfModule>
+
