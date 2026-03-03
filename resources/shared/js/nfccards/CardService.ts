@@ -368,13 +368,13 @@ export class CardService extends Eventable {
 
 	/**
 	 * Check if this device has a stored key pair (without decrypting it).
-	 * @param deviceUid The device's unique identifier
+	 * @param deviceId The device's numeric ID
 	 */
-	hasStoredKeyPair(deviceUid: string): boolean {
+	hasStoredKeyPair(deviceId: number): boolean {
 		if (this.keyManager) {
-			return this.keyManager.hasStoredKeyPair(deviceUid);
+			return this.keyManager.hasStoredKeyPair(deviceId);
 		}
-		return new KeyManager().hasStoredKeyPair(deviceUid);
+		return new KeyManager().hasStoredKeyPair(deviceId);
 	}
 
 	/**

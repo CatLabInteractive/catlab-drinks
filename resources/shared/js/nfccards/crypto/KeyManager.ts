@@ -56,10 +56,10 @@ export class KeyManager {
 	/**
 	 * Check if a key pair already exists in localStorage for a given device.
 	 * Does NOT load it (that requires the device secret).
-	 * @param deviceUid The unique device identifier
+	 * @param deviceId The numeric device ID
 	 */
-	public hasStoredKeyPair(deviceUid: string): boolean {
-		const storageKey = 'catlab_drinks_device_keypair[' + deviceUid + ']';
+	public hasStoredKeyPair(deviceId: number): boolean {
+		const storageKey = 'catlab_drinks_device_keypair[' + deviceId + ']';
 		return localStorage.getItem(storageKey) !== null;
 	}
 
@@ -79,7 +79,7 @@ export class KeyManager {
 		const serialized = JSON.stringify({ privateKey: privateKeyHex });
 		const encrypted = CryptoJS.AES.encrypt(serialized, deviceSecret).toString();
 
-		const storageKey = 'catlab_drinks_device_keypair[' + deviceUid + ']';
+		const storageKey = 'catlab_drinks_device_keypair[' + deviceId + ']';
 		localStorage.setItem(storageKey, encrypted);
 	}
 
@@ -94,7 +94,7 @@ export class KeyManager {
 		this.deviceUid = deviceUid;
 		this.deviceId = deviceId;
 
-		const storageKey = 'catlab_drinks_device_keypair[' + deviceUid + ']';
+		const storageKey = 'catlab_drinks_device_keypair[' + deviceId + ']';
 		const stored = localStorage.getItem(storageKey);
 
 		if (stored) {

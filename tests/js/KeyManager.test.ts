@@ -39,7 +39,7 @@ describe('KeyManager', () => {
 			keyManager.generateKeyPair('test-device-uid', 1, 'test-secret');
 
 			expect(localStorage.setItem).toHaveBeenCalledWith(
-				'catlab_drinks_device_keypair_test-device-uid',
+				'catlab_drinks_device_keypair[1]',
 				expect.any(String)
 			);
 		});
@@ -57,6 +57,23 @@ describe('KeyManager', () => {
 			expect(firstPublicKey).toBe(secondPublicKey);
 		});
 
+		test('should isolate stored key pairs by numeric device ID', () => {
+			keyManager.generateKeyPair('same-uid', 1, 'secret-1');
+			const firstPublicKey = keyManager.getPublicKeyHex();
+
+			const keyManager2 = new KeyManager();
+			keyManager2.generateKeyPair('same-uid', 2, 'secret-2');
+			const secondPublicKey = keyManager2.getPublicKeyHex();
+
+			const loadedFromId1 = new KeyManager();
+			loadedFromId1.initialize('same-uid', 1, 'secret-1');
+			expect(loadedFromId1.getPublicKeyHex()).toBe(firstPublicKey);
+
+			const loadedFromId2 = new KeyManager();
+			loadedFromId2.initialize('same-uid', 2, 'secret-2');
+			expect(loadedFromId2.getPublicKeyHex()).toBe(secondPublicKey);
+		});
+
 		test('should not load key pair with wrong secret', () => {
 			keyManager.generateKeyPair('test-device-uid', 1, 'test-secret');
 
@@ -68,11 +85,11 @@ describe('KeyManager', () => {
 		});
 
 		test('hasStoredKeyPair should detect existing stored key', () => {
-			expect(keyManager.hasStoredKeyPair('test-device-uid')).toBe(false);
+			expect(keyManager.hasStoredKeyPair(1)).toBe(false);
 
 			keyManager.generateKeyPair('test-device-uid', 1, 'test-secret');
 
-			expect(keyManager.hasStoredKeyPair('test-device-uid')).toBe(true);
+			expect(keyManager.hasStoredKeyPair(1)).toBe(true);
 		});
 	});
 
