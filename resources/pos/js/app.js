@@ -297,6 +297,7 @@ async function launch() {
 									// WARNING: This MUST be the organisation secret, NOT the device secret.
 									// Otherwise NFC cards will only be valid on the POS where they were registered
 									Vue.prototype.$cardService.setPassword(organisation.secret);
+									Vue.prototype.$cardService.setMinNfcVersion(organisation.min_nfc_version || 0);
 
 									// Set the topup domain for NFC card URLs
 									if (organisation.topup_domain) {

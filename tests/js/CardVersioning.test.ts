@@ -1,4 +1,5 @@
 import { KeyManager, PublicKeyEntry, ECDSA_SIGNATURE_LENGTH } from '../../resources/shared/js/nfccards/crypto/KeyManager';
+import { isCardVersionSupported } from '../../resources/shared/js/nfccards/versioning';
 
 // Card version constants (duplicated here to avoid importing Card.ts which pulls in NDEF and NFC modules)
 const CARD_VERSION_LEGACY = 0;
@@ -16,6 +17,17 @@ describe('Card Version Constants', () => {
 
 	test('ECDSA signature should be 48 bytes', () => {
 		expect(ECDSA_SIGNATURE_LENGTH).toBe(48);
+	});
+});
+
+describe('Card minimum version support', () => {
+
+	test('allows cards that meet minimum version', () => {
+		expect(isCardVersionSupported(1, 1)).toBe(true);
+	});
+
+	test('blocks cards below minimum version', () => {
+		expect(isCardVersionSupported(0, 1)).toBe(false);
 	});
 });
 
