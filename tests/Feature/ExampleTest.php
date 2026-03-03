@@ -19,7 +19,7 @@ class ExampleTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testGettingStartedPage()
+    public function test_getting_started_page()
     {
         $response = $this->get('/getting-started');
 

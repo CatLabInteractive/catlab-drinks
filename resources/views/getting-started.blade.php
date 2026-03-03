@@ -42,18 +42,19 @@
     <hr>
 
     <h2>Screenshots</h2>
+    <p>These screenshots show key moments in the pairing flow.</p>
     <div class="row">
         <div class="col-md-6 mb-4">
-            <img class="img-fluid rounded border" src="/images/screenshot1.png" alt="CatLab Drinks screenshot: open devices and create connect request">
+            <img class="img-fluid rounded border" src="/images/screenshot1.png" alt="CatLab Drinks POS overview screenshot">
         </div>
         <div class="col-md-6 mb-4">
-            <img class="img-fluid rounded border" src="/images/screenshot2.png" alt="CatLab Drinks screenshot: pair Android app by entering code">
+            <img class="img-fluid rounded border" src="/images/screenshot2.png" alt="CatLab Drinks POS payment dialog screenshot">
         </div>
         <div class="col-md-6 mb-4">
-            <img class="img-fluid rounded border" src="/images/screenshot1.png" alt="CatLab Drinks screenshot: scan or paste connection URL in Android app">
+            <img class="img-fluid rounded border" src="/images/screenshot3.png" alt="CatLab Drinks POS overview screenshot (additional example)">
         </div>
         <div class="col-md-6 mb-4">
-            <img class="img-fluid rounded border" src="/images/screenshot2.png" alt="CatLab Drinks screenshot: Android app ready after pairing">
+            <img class="img-fluid rounded border" src="/images/screenshot4.png" alt="CatLab Drinks POS payment dialog screenshot (additional example)">
         </div>
     </div>
 </main>
