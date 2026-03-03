@@ -77,6 +77,7 @@ describe('POS offline support - NfcCardBalance.vue', () => {
 
 	it('uses $offlineManager to determine API online status', () => {
 		expect(source).toContain('this.$offlineManager ? this.$offlineManager.isOnline()');
+		expect(source).toContain(': true');
 	});
 
 	it('subscribes to $offlineManager changes for API status', () => {

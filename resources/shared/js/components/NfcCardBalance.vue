@@ -63,7 +63,7 @@
 			this.eventListeners = [];
 
 			this.connected = this.$cardService.isConnected();
-			this.apiConnected = this.$offlineManager ? this.$offlineManager.isOnline() : this.$cardService.hasApiConnection();
+			this.apiConnected = this.$offlineManager ? this.$offlineManager.isOnline() : true;
 			this.keyStatus = this.$cardService.getKeyStatus();
 
 			this.eventListeners.push(this.$cardService.on('connection:change', function(isOnline) {
