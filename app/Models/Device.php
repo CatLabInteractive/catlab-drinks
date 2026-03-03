@@ -123,7 +123,6 @@ class Device extends Model implements
 			// Restore if soft-deleted
 			if ($device->trashed()) {
 				$device->restore();
-				$device->secret_key = Crypt::encryptString(Str::random(16));
 				if ($deviceName) {
 					$device->name = $deviceName;
 				}
