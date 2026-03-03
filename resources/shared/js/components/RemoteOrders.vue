@@ -138,7 +138,6 @@
 	import {OrderService} from "../services/OrderService";
 	import {CategoryService} from "../services/CategoryService";
 	import {PosDeviceService} from "../services/PosDeviceService";
-	import {getOfflineManager} from "../services/OfflineManager";
 
 	import RemoteOrderDescription from './RemoteOrderDescription.vue';
 	import RemoteOrderStatus from './RemoteOrderStatus.vue';
@@ -163,11 +162,12 @@
 				this.setEvent(this.event);
 			}
 
-			const offlineManager = getOfflineManager();
-			this.isOffline = !offlineManager.isOnline();
-			this._offlineListener = offlineManager.on((online) => {
-				this.isOffline = !online;
-			});
+			if (this.$offlineManager) {
+				this.isOffline = !this.$offlineManager.isOnline();
+				this._offlineListener = this.$offlineManager.on((online) => {
+					this.isOffline = !online;
+				});
+			}
 		},
 
 		beforeDestroy() {

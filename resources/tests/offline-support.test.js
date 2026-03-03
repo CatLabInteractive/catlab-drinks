@@ -19,9 +19,12 @@ function readFile(relativePath) {
 describe('POS offline support - App.vue', () => {
 	const source = readFile('pos/js/views/App.vue');
 
-	it('imports getOfflineManager', () => {
-		expect(source).toContain('getOfflineManager');
-		expect(source).toMatch(/import\s*\{[^}]*getOfflineManager[^}]*\}\s*from/);
+	it('uses $offlineManager from Vue prototype', () => {
+		expect(source).toContain('this.$offlineManager');
+	});
+
+	it('does not import getOfflineManager singleton', () => {
+		expect(source).not.toContain('getOfflineManager');
 	});
 
 	it('has isOffline data property', () => {
@@ -34,18 +37,20 @@ describe('POS offline support - App.vue', () => {
 		expect(source).toContain("$t('Offline')");
 	});
 
-	it('listens to OfflineManager state changes in mounted', () => {
-		expect(source).toContain('getOfflineManager()');
-		expect(source).toContain('offlineManager.isOnline()');
+	it('listens to $offlineManager state changes in mounted', () => {
+		expect(source).toContain('this.$offlineManager.isOnline()');
 	});
 });
 
 describe('POS offline support - RemoteOrders.vue', () => {
 	const source = readFile('shared/js/components/RemoteOrders.vue');
 
-	it('imports getOfflineManager', () => {
-		expect(source).toContain('getOfflineManager');
-		expect(source).toMatch(/import\s*\{[^}]*getOfflineManager[^}]*\}\s*from/);
+	it('uses $offlineManager from Vue prototype', () => {
+		expect(source).toContain('this.$offlineManager');
+	});
+
+	it('does not import getOfflineManager singleton', () => {
+		expect(source).not.toContain('getOfflineManager');
 	});
 
 	it('has isOffline data property', () => {
@@ -61,13 +66,18 @@ describe('POS offline support - RemoteOrders.vue', () => {
 		expect(source).toContain('_offlineListener');
 		expect(source).toContain('unbind()');
 	});
+
+	it('guards against missing $offlineManager for non-POS usage', () => {
+		expect(source).toContain('if (this.$offlineManager)');
+	});
 });
 
 describe('POS offline support - app.js', () => {
 	const source = readFile('pos/js/app.js');
 
-	it('imports getOfflineManager', () => {
-		expect(source).toContain('getOfflineManager');
+	it('imports OfflineManager class (not singleton)', () => {
+		expect(source).toContain('OfflineManager');
+		expect(source).not.toContain('getOfflineManager');
 	});
 
 	it('imports caching services', () => {
@@ -76,7 +86,11 @@ describe('POS offline support - app.js', () => {
 		expect(source).toContain('getCachedResponse');
 	});
 
-	it('initializes OfflineManager and sets it on window', () => {
+	it('sets OfflineManager on Vue.prototype.$offlineManager', () => {
+		expect(source).toContain('Vue.prototype.$offlineManager = offlineManager');
+	});
+
+	it('also sets window.OFFLINE_MANAGER for non-Vue code', () => {
 		expect(source).toContain('window.OFFLINE_MANAGER = offlineManager');
 	});
 
@@ -116,13 +130,13 @@ describe('POS offline support - CardService.ts', () => {
 		expect(source).toContain('setOfflineManager(offlineManager');
 	});
 
-	it('hasApiConnection checks offlineManager', () => {
+	it('hasApiConnection uses isProperlyOnline for flaky connection detection', () => {
 		const hasApiBlock = source.substring(
 			source.indexOf('public hasApiConnection()'),
 			source.indexOf('public setOfflineManager')
 		);
 		expect(hasApiBlock).toContain('this.offlineManager');
-		expect(hasApiBlock).toContain('isOnline()');
+		expect(hasApiBlock).toContain('isProperlyOnline()');
 	});
 
 	it('has fetchAndCachePublicKeys method', () => {
@@ -143,13 +157,13 @@ describe('POS offline support - TransactionStore.ts', () => {
 		expect(source).toContain('setOfflineManager(offlineManager');
 	});
 
-	it('isOnline checks offlineManager when set', () => {
+	it('isOnline uses isProperlyOnline for flaky connection detection', () => {
 		const isOnlineBlock = source.substring(
 			source.indexOf('public isOnline()'),
 			source.indexOf('public setOfflineManager')
 		);
 		expect(isOnlineBlock).toContain('this.offlineManager');
-		expect(isOnlineBlock).toContain('isOnline()');
+		expect(isOnlineBlock).toContain('isProperlyOnline()');
 	});
 });
 
@@ -206,8 +220,12 @@ describe('POS offline support - i18n translations', () => {
 describe('POS offline support - Settings.vue sync status', () => {
 	const source = readFile('pos/js/views/Settings.vue');
 
-	it('imports getOfflineManager', () => {
-		expect(source).toContain('getOfflineManager');
+	it('uses $offlineManager from Vue prototype', () => {
+		expect(source).toContain('this.$offlineManager');
+	});
+
+	it('does not import getOfflineManager singleton', () => {
+		expect(source).not.toContain('getOfflineManager');
 	});
 
 	it('shows sync status section', () => {
@@ -250,7 +268,7 @@ describe('POS offline support - CardService.getPendingTransactionCount', () => {
 	});
 });
 
-describe('POS offline support - OfflineManager.getLastSyncTime', () => {
+describe('POS offline support - OfflineManager features', () => {
 	const source = readFile('shared/js/services/OfflineManager.js');
 
 	it('has getLastSyncTime method', () => {
@@ -267,5 +285,18 @@ describe('POS offline support - OfflineManager.getLastSyncTime', () => {
 			source.indexOf('markOffline()')
 		);
 		expect(markOnlineBlock).toContain('_lastSyncTime');
+	});
+
+	it('has isProperlyOnline method', () => {
+		expect(source).toContain('isProperlyOnline');
+	});
+
+	it('tracks recent results for connection quality', () => {
+		expect(source).toContain('_recentResults');
+		expect(source).toContain('_properlyOnlineThreshold');
+	});
+
+	it('does not export a singleton getOfflineManager function', () => {
+		expect(source).not.toContain('function getOfflineManager');
 	});
 });

@@ -183,7 +183,6 @@
 	import NfcCardBalance from '../../../shared/js/components/NfcCardBalance.vue';
 	import PaymentPopup from '../../../shared/js/components/PaymentPopup.vue';
 	import LanguageToggle from '../../../shared/js/components/LanguageToggle.vue';
-	import {getOfflineManager} from '../../../shared/js/services/OfflineManager';
 
 	export default {
 
@@ -221,9 +220,8 @@
 			}));
 
 			// Track offline status
-			const offlineManager = getOfflineManager();
-			this.isOffline = !offlineManager.isOnline();
-			this.eventListeners.push(offlineManager.on((online) => {
+			this.isOffline = !this.$offlineManager.isOnline();
+			this.eventListeners.push(this.$offlineManager.on((online) => {
 				this.isOffline = !online;
 			}));
 

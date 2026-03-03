@@ -125,4 +125,44 @@ describe('OfflineManager', () => {
 			expect(manager.getLastSyncTime()).toBe(firstSync);
 		});
 	});
+
+	describe('isProperlyOnline', () => {
+		it('should return false initially (not enough data)', () => {
+			expect(manager.isProperlyOnline()).toBe(false);
+		});
+
+		it('should return false when offline even with recent successes', () => {
+			manager.markOnline();
+			manager.markOnline();
+			manager.markOnline();
+			manager.markOffline();
+			expect(manager.isProperlyOnline()).toBe(false);
+		});
+
+		it('should return true after enough consecutive successes', () => {
+			manager.markOnline();
+			manager.markOnline();
+			manager.markOnline();
+			expect(manager.isProperlyOnline()).toBe(true);
+		});
+
+		it('should return false when recent results include a failure', () => {
+			manager.markOnline();
+			manager.markOffline();
+			manager.markOnline();
+			manager.markOnline();
+			// Last 3 = [false, true, true] — not all true
+			expect(manager.isProperlyOnline()).toBe(false);
+		});
+
+		it('should recover after enough consecutive successes following a failure', () => {
+			manager.markOnline();
+			manager.markOffline();
+			// Need 3 consecutive successes
+			manager.markOnline();
+			manager.markOnline();
+			manager.markOnline();
+			expect(manager.isProperlyOnline()).toBe(true);
+		});
+	});
 });

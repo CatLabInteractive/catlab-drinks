@@ -206,10 +206,13 @@ export class CardService extends Eventable {
 	 * If this method returns false, the reader will work in 'offline' mode and no api requests will be made that
 	 * might affect usability. Transactions will still be pushed in the background, but any pending transactions
 	 * will not be synced from this specific terminal.
+	 *
+	 * Uses isProperlyOnline() to avoid delays on flaky connections — the device must have had
+	 * several consecutive successful API requests before we consider it safe for NFC sync.
 	 */
 	public hasApiConnection() {
 		if (this.offlineManager) {
-			return this.offlineManager.isOnline();
+			return this.offlineManager.isProperlyOnline();
 		}
 		return true;
 	}

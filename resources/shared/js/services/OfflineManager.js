@@ -23,6 +23,8 @@
  * OfflineManager tracks the online/offline connectivity state of the POS app.
  * It uses navigator.onLine for initial state and listens for browser online/offline events.
  * API request success/failure also updates the connectivity state.
+ *
+ * Usage: instantiate once and place on Vue.prototype.$offlineManager (see app.js).
  */
 export class OfflineManager {
 
@@ -30,6 +32,11 @@ export class OfflineManager {
         this._online = typeof navigator !== 'undefined' ? navigator.onLine : true;
         this._listeners = [];
         this._lastSyncTime = null;
+
+        // Track recent API results for properlyOnline detection.
+        // Each entry is true (success) or false (failure).
+        this._recentResults = [];
+        this._properlyOnlineThreshold = 3;
 
         if (typeof window !== 'undefined') {
             window.addEventListener('online', () => this._setOnline(true));
@@ -45,10 +52,25 @@ export class OfflineManager {
     }
 
     /**
+     * Returns true only when the device has had several consecutive successful
+     * API requests, indicating a stable connection. Use this for latency-sensitive
+     * operations (e.g. NFC card sync) where a flaky connection would cause delays.
+     * @returns {boolean}
+     */
+    isProperlyOnline() {
+        if (!this._online) return false;
+        if (this._recentResults.length < this._properlyOnlineThreshold) return false;
+        const recent = this._recentResults.slice(-this._properlyOnlineThreshold);
+        return recent.every(r => r === true);
+    }
+
+    /**
      * Call when an API request succeeds to confirm connectivity.
      */
     markOnline() {
         this._lastSyncTime = new Date();
+        this._recentResults.push(true);
+        if (this._recentResults.length > 10) this._recentResults.shift();
         this._setOnline(true);
     }
 
@@ -56,6 +78,8 @@ export class OfflineManager {
      * Call when an API request fails with a network error to flag loss of connectivity.
      */
     markOffline() {
+        this._recentResults.push(false);
+        if (this._recentResults.length > 10) this._recentResults.shift();
         this._setOnline(false);
     }
 
@@ -91,21 +115,4 @@ export class OfflineManager {
             this._listeners.forEach(l => l(value));
         }
     }
-}
-
-/**
- * Singleton instance of OfflineManager.
- * @type {OfflineManager|null}
- */
-let _instance = null;
-
-/**
- * Get the singleton OfflineManager instance.
- * @returns {OfflineManager}
- */
-export function getOfflineManager() {
-    if (!_instance) {
-        _instance = new OfflineManager();
-    }
-    return _instance;
 }

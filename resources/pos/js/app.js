@@ -32,7 +32,7 @@ import {SettingService} from "../../shared/js/services/SettingService";
 import {PaymentService} from "../../shared/js/services/PaymentService";
 import {OrganisationService} from "../../shared/js/services/OrganisationService";
 import {KioskService} from "../../shared/js/services/KioskService";
-import {getOfflineManager} from "../../shared/js/services/OfflineManager";
+import {OfflineManager} from "../../shared/js/services/OfflineManager";
 import {installCacheInterceptors, cacheResponse, getCachedResponse} from "../../shared/js/services/ApiCacheService";
 import i18n from "../../shared/js/i18n/index";
 
@@ -103,8 +103,9 @@ async function launch() {
 	window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + authData.accessToken;
 
 	// Initialize offline manager and install caching interceptors
-	const offlineManager = getOfflineManager();
-	window.OFFLINE_MANAGER = offlineManager;
+	const offlineManager = new OfflineManager();
+	Vue.prototype.$offlineManager = offlineManager;
+	window.OFFLINE_MANAGER = offlineManager; // Also on window for non-Vue code (AbstractService)
 	installCacheInterceptors(window.axios, offlineManager);
 
 	// Determine if we're running in Cordova

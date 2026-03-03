@@ -187,7 +187,6 @@
 
 	import { clearAuthData } from '../../../shared/js/services/DeviceAuth';
 	import { PosDeviceService } from '../../../shared/js/services/PosDeviceService';
-	import { getOfflineManager } from '../../../shared/js/services/OfflineManager';
 
 	export default {
 
@@ -218,13 +217,12 @@
 			}
 
 			// Track offline status and sync info
-			const offlineManager = getOfflineManager();
-			this.isOffline = !offlineManager.isOnline();
-			this.lastSyncTime = offlineManager.getLastSyncTime();
-			this._offlineListener = offlineManager.on((online) => {
+			this.isOffline = !this.$offlineManager.isOnline();
+			this.lastSyncTime = this.$offlineManager.getLastSyncTime();
+			this._offlineListener = this.$offlineManager.on((online) => {
 				this.isOffline = !online;
 				if (online) {
-					this.lastSyncTime = offlineManager.getLastSyncTime();
+					this.lastSyncTime = this.$offlineManager.getLastSyncTime();
 				}
 				this.refreshPendingTransactionCount();
 			});

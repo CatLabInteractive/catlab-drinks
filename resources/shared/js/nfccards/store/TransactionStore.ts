@@ -48,10 +48,11 @@ export class TransactionStore {
 
     /**
      * Do we have an active internet connection?
+     * Uses isProperlyOnline() to avoid delays on flaky connections.
      */
     public isOnline() {
         if (this.offlineManager) {
-            return this.offlineManager.isOnline();
+            return this.offlineManager.isProperlyOnline();
         }
         return true;
     }
