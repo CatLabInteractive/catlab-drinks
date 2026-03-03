@@ -40,7 +40,7 @@ export abstract class NfcReader extends Eventable {
 
     protected password: string = '';
 
-    protected topupDomain: string = 'd.ctlb.eu';
+    protected topupDomain: string | null = null;
 
     protected currentCard: Card | null = null;
 
@@ -149,7 +149,7 @@ export abstract class NfcReader extends Eventable {
     /**
      * @param domain
      */
-    public setTopupDomain(domain: string) {
+    public setTopupDomain(domain: string | null) {
         this.topupDomain = domain;
         return this;
     }
@@ -177,7 +177,7 @@ export abstract class NfcReader extends Eventable {
     /**
      * @return string
      */
-    public getTopupDomain(): string {
+    public getTopupDomain(): string | null {
         return this.topupDomain;
     }
 
