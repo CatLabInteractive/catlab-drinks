@@ -51,7 +51,7 @@
 			</table>
 
 			<h3>{{ $t('Topup') }}</h3>
-			<card-topup :card="card" />
+			<card-topup :card="card" @topup-completed="loadCardData" />
 		</div>
 	</div>
 
