@@ -391,6 +391,7 @@ export default {
     'Please enter a table number.': 'Gelieve een tafelnummer in te voeren.',
     'Please order at least 1 item.': 'Gelieve minstens 1 item te bestellen.',
     'Network connection error. Please check network connection.': 'Netwerkverbindingsfout. Controleer de netwerkverbinding.',
+    'Your table number: {tableNumber}': 'Uw tafelnummer: {tableNumber}',
 
     // Language toggle
     'Language': 'Taal',

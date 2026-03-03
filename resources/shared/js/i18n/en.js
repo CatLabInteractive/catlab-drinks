@@ -36,5 +36,6 @@ export default {
     'WARNING: Revoking this key will invalidate {count} cards that were last signed by this device. Are you sure?': 'WARNING: Revoking this key will invalidate {count} cards that were last signed by this device. Are you sure?',
     '⚠️ WARNING: This is a destructive action!\n\nRevoking this key will invalidate {count} cards that were last signed by this device.\n\nAre you absolutely sure?': '⚠️ WARNING: This is a destructive action!\n\nRevoking this key will invalidate {count} cards that were last signed by this device.\n\nAre you absolutely sure?',
     'Balance: {balance}': 'Balance: {balance}',
-    '{remaining} of {max} card scans remaining.': '{remaining} of {max} card scans remaining.'
+    '{remaining} of {max} card scans remaining.': '{remaining} of {max} card scans remaining.',
+    'Your table number: {tableNumber}': 'Your table number: {tableNumber}'
 };

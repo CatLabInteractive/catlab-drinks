@@ -418,6 +418,7 @@
                     this.orderIds = orders.items.map((order) => '#' + order.id).join(', ');
 
                     //this.$router.push({ name: 'ordersubmitted', params: { id: order.id  } });
+                    this.$refs.confirmModal.hide();
                     this.$refs.successModal.show();
                     this.reset();
 
