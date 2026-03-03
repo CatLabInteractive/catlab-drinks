@@ -234,6 +234,7 @@ export class CardService extends Eventable {
 			// set interla id
 			card.id = serverCard.id;
 			card.orderTokenAliases = serverCard.orderTokenAliases;
+			card.discountPercentage = serverCard.discount || 0;
 
 			// check for pending transactions
 			const pendingTransactions = serverCard.pendingTransactions.items;
