@@ -20,7 +20,5 @@ RUN composer install
 RUN npm install
 RUN npm run prod
 
-# Start Apache (used by Dokku; Heroku uses Procfile instead)
-CMD ["apache2-foreground"]
 
 
