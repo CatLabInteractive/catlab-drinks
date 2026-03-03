@@ -391,6 +391,7 @@ export default {
     'Please enter a table number.': 'Por favor, ingrese un número de mesa.',
     'Please order at least 1 item.': 'Por favor, pida al menos 1 artículo.',
     'Network connection error. Please check network connection.': 'Error de conexión de red. Por favor, verifique la conexión de red.',
+    'Your table number: {tableNumber}': 'Su número de mesa: {tableNumber}',
 
     // Language toggle
     'Language': 'Idioma',
