@@ -1,8 +1,12 @@
-# CatLab Drinks - Development Instructions
+# CatLab Drinks — Agent / AI Instructions
 
 ## Project Overview
 CatLab Drinks is a bar automation / POS system built with Laravel + Vue.js.
 It has three frontend apps (Manage, POS, Client) sharing one Laravel backend.
+
+Online at [https://drinks.catlab.eu](https://drinks.catlab.eu).
+
+---
 
 ## Building & Testing
 
@@ -15,9 +19,10 @@ npm run production   # Production build
 ```
 Build uses Laravel Mix (`webpack.mix.js`). Output goes to `public/res/`.
 
-> **Important:** Always use `npm install` to install dependencies — **never `npm update`** unless you are
-> explicitly updating `package.json`. Running `npm update` rewrites `package-lock.json` with newer versions
-> and can introduce unintended breaking changes.
+> **Critical:** Always use `npm install` to install dependencies — **never `npm update`** unless you are
+> explicitly changing `package.json`. Running `npm update` rewrites `package-lock.json` with newer
+> dependency versions and can introduce unintended breaking changes. If you are not editing
+> `package.json`, use `npm install` only.
 
 ### Backend
 ```bash
@@ -29,6 +34,14 @@ php artisan route:list --path=<prefix>  # Filter routes by path prefix
 
 No automated test suite exists currently. Manual testing is required.
 The lock file requires PHP ~8.1 or ~8.2; use `--ignore-platform-reqs` on newer PHP versions.
+
+### JavaScript Tests
+```bash
+npx jest            # Run Jest tests (KeyManager, Card, etc.)
+npx vitest run      # Run Vitest tests (route/view tests)
+```
+
+---
 
 ## Architecture
 
@@ -135,6 +148,10 @@ Shared views from `resources/shared/js/views/` are imported by both apps.
 Both apps share the same route names for common features (e.g., `sales`, `summary`, `summary-names`).
 This allows shared components to use `router-link` with named routes that work in either app context.
 
+**Router mode:** Use **hash history** (not web history) when running in Cordova / the native app wrapper.
+
+---
+
 ## Device Management
 
 ### POS Authentication Flow
@@ -154,6 +171,31 @@ POS devices don't use OAuth — they use device access tokens stored in localSto
 The POS Axios interceptor (`resources/pos/js/bootstrap.js`) clears all localStorage keys
 and reloads on 401, returning the device to the pairing screen.
 
+---
+
+## NFC Card Signing
+
+### Key Management
+- Each POS device generates an ECDSA P-192 key pair stored encrypted in localStorage
+- Private key is encrypted with the device secret (from server) via AES
+- Public key is uploaded to the server and must be **approved** by an admin before the device can sign cards
+- Approved public keys are downloaded and stored in the `KeyManager`'s `publicKeysByDeviceId` map
+
+### V1 Card Format
+Payload layout (85 bytes total):
+```
+version(1) + deviceId(3) + balance(4) + txCount(4) + timestamp(4) + prevTx(5×4=20) + discount(1) + signature(48)
+```
+- Signed data: `version + deviceId + payload + cardUid`
+- Signature: ECDSA P-192, 48 bytes (24 r + 24 s)
+
+### KeyManager Injection
+The `KeyManager` must be set on `NfcReader` **before** cards are scanned via `nfcReader.setKeyManager(keyManager)`.
+The reader injects it into each `Card` object before calling `parseNdef()`.
+Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPublicKeys(keys)` during device boot.
+
+---
+
 ## Key Models
 | Model                | Table                  | Purpose                          |
 |----------------------|------------------------|----------------------------------|
@@ -167,6 +209,8 @@ and reloads on 401, returning the device to the pairing screen.
 | Organisation         | organisations          | Multi-tenant grouping            |
 | User                 | users                  | Admin accounts                   |
 
+---
+
 ## Common Patterns
 - Vue components use Bootstrap-Vue (`b-*` components)
 - Vue 3 compatibility mode via `@vue/compat`
@@ -176,3 +220,37 @@ and reloads on 401, returning the device to the pairing screen.
 - POS Events page has an Actions dropdown per event with links to Sales overview and Order history
 - Manage Events page has a richer Actions dropdown including edit, delete, menu editing, attendees, etc.
 - When adding POS access to an existing Manage-only feature: move controller + resource definitions to Shared, create thin stubs in both API namespaces, update the policy's `$allowDevices` flag, add frontend links
+
+---
+
+## Project Structure
+```
+app/
+├── Http/
+│   ├── ManagementApi/V1/       # Management API (controllers, resource definitions, routes)
+│   ├── DeviceApi/V1/           # POS Device API
+│   ├── Shared/V1/              # Shared controllers and resource definitions used by both APIs
+│   │   ├── Controllers/        # OrderController, OrderSummaryController, EventController, etc.
+│   │   └── ResourceDefinitions/# OrderResourceDefinition, OrderSummaryResourceDefinition, etc.
+│   └── Middleware/
+├── Models/                     # Eloquent models
+├── Policies/                   # Authorization policies
+└── Providers/
+
+resources/
+├── manage/js/                  # Manage app (Vue components, services, views)
+├── pos/js/                     # POS app (Vue components, services, views)
+├── clients/js/                 # Client order app
+├── shared/js/                  # Shared Vue components and services
+│   ├── services/               # AbstractService, EventService, SettingService, etc.
+│   ├── nfccards/               # NFC card reader integration
+│   │   ├── models/Card.ts      # Card model (parse/serialize, signing)
+│   │   ├── crypto/KeyManager.ts# ECDSA key management
+│   │   ├── nfc/NfcReader.ts    # Base NFC reader (injects KeyManager into Cards)
+│   │   ├── nfc/RemoteNfcReader.ts # Socket.IO NFC reader
+│   │   ├── nfc/AppNfcReader.ts # Capacitor app NFC reader
+│   │   └── CardService.ts      # High-level card service (transactions, signing, license)
+│   └── views/                  # Shared views (Sales, SalesSummary, Cards, Settings, etc.)
+└── sass/                       # SCSS stylesheets
+```
+
