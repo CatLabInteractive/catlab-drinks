@@ -32,6 +32,8 @@ import {SettingService} from "../../shared/js/services/SettingService";
 import {PaymentService} from "../../shared/js/services/PaymentService";
 import {OrganisationService} from "../../shared/js/services/OrganisationService";
 import {KioskService} from "../../shared/js/services/KioskService";
+import {OfflineManager} from "../../shared/js/services/OfflineManager";
+import {installCacheInterceptors, cacheResponse, getCachedResponse} from "../../shared/js/services/ApiCacheService";
 import i18n from "../../shared/js/i18n/index";
 
 import App from './views/App'
@@ -99,6 +101,12 @@ async function launch() {
 
 	window.axios.defaults.baseURL = CATLAB_DRINKS_CONFIG.API;
 	window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + authData.accessToken;
+
+	// Initialize offline manager and install caching interceptors
+	const offlineManager = new OfflineManager();
+	Vue.prototype.$offlineManager = offlineManager;
+	window.OFFLINE_MANAGER = offlineManager; // Also on window for non-Vue code (AbstractService)
+	installCacheInterceptors(window.axios, offlineManager);
 
 	// Determine if we're running in Cordova
 	const isCordova = typeof window.cordova !== 'undefined' || typeof window.CATLAB_DRINKS_APP !== 'undefined';
@@ -212,40 +220,57 @@ async function launch() {
 
 	Vue.prototype.$settingService.load()
 		.then(
-			() => {
-				return axios.get('/pos-api/v1/devices/current')
-					.then(response => {
-						window.ORGANISATION_ID = response.data.organisation.id;
-						window.DEVICE_ID = response.data.id;
-						window.DEVICE_UID = response.data.uid;
-						window.DEVICE_CATEGORY_FILTER_ID = response.data.category_filter_id || null;
-						window.DEVICE_SECRET = response.data.secret_key;
-						window.DEVICE_NAME = response.data.name;
-						window.DEVICE_APPROVED_AT = response.data.approved_at || null;
-						window.DEVICE_PUBLIC_KEY = response.data.public_key || null;
+			async () => {
+				let deviceData = null;
+				try {
+					const response = await axios.get('/pos-api/v1/devices/current');
+					deviceData = response.data;
+					await cacheResponse('/pos-api/v1/devices/current', deviceData);
+				} catch (e) {
+					// Offline — try to load from cache
+					deviceData = await getCachedResponse('/pos-api/v1/devices/current');
+					if (!deviceData) {
+						throw new Error('Cannot start POS app: no device data available (offline and no cache)');
+					}
+					console.info('[Offline] Using cached device data');
+				}
 
-						// Set device license if LicenseService is available
-						if (response.data.license_key && typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.LicenseService) {
-							try {
-								const licenseService = new window.CATLAB_DRINKS_APP.LicenseService();
-								licenseService.setLicense(response.data.license_key);
-							} catch (e) {
-								console.error('Failed to set device license:', e);
-							}
-						}
-					});
+				window.ORGANISATION_ID = deviceData.organisation.id;
+				window.DEVICE_ID = deviceData.id;
+				window.DEVICE_UID = deviceData.uid;
+				window.DEVICE_CATEGORY_FILTER_ID = deviceData.category_filter_id || null;
+				window.DEVICE_SECRET = deviceData.secret_key;
+				window.DEVICE_NAME = deviceData.name;
+				window.DEVICE_APPROVED_AT = deviceData.approved_at || null;
+				window.DEVICE_PUBLIC_KEY = deviceData.public_key || null;
+
+				// Set device license if LicenseService is available
+				if (deviceData.license_key && typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.LicenseService) {
+					try {
+						const licenseService = new window.CATLAB_DRINKS_APP.LicenseService();
+						licenseService.setLicense(deviceData.license_key);
+					} catch (e) {
+						console.error('Failed to set device license:', e);
+					}
+				}
 			}
 		)
 		.then(
 			function () {
 
+				const cardServiceAxios = window.axios.create({
+					baseURL: CATLAB_DRINKS_CONFIG.API + '/pos-api/v1',
+					json: true
+				});
+				installCacheInterceptors(cardServiceAxios, offlineManager);
+
 				Vue.prototype.$cardService = new CardService(
-					window.axios.create({
-						baseURL: CATLAB_DRINKS_CONFIG.API + '/pos-api/v1',
-						json: true
-					}),
+					cardServiceAxios,
 					window.ORGANISATION_ID
 				);
+
+				// Pass offline manager to card service
+				Vue.prototype.$cardService.setOfflineManager(offlineManager);
 
 				Vue.prototype.$kioskModeService = new KioskService();
 
@@ -265,10 +290,8 @@ async function launch() {
 					if (hasLocalKey && hasServerKey && window.DEVICE_APPROVED_AT) {
 						Vue.prototype.$cardService.setKeyApprovalStatus('approved');
 
-						// Load approved public keys for verification
-						Vue.prototype.$cardService.fetchApprovedPublicKeys(window.ORGANISATION_ID)
-							.then(keys => Vue.prototype.$cardService.loadPublicKeys(keys))
-							.catch(e => console.warn('Failed to load public keys:', e));
+						// Load approved public keys (with offline cache fallback)
+						Vue.prototype.$cardService.fetchAndCachePublicKeys(window.ORGANISATION_ID);
 					} else if (hasLocalKey && hasServerKey && !window.DEVICE_APPROVED_AT) {
 						Vue.prototype.$cardService.setKeyApprovalStatus('pending');
 					} else if (hasLocalKey && !hasServerKey) {
@@ -285,6 +308,9 @@ async function launch() {
 					(typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.nfc)
 				) {
 					try {
+
+						// Enable skipping refresh when offline
+						Vue.prototype.$cardService.setSkipRefreshWhenBadInternetConnection(true);
 
 						Vue.prototype.$cardService.connect(
 							Vue.prototype.$settingService.nfcServer,

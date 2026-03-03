@@ -34,6 +34,7 @@ import {CorruptedCardException} from "./exceptions/CorruptedCardException";
 import {RemoteNfcReader} from "./nfc/RemoteNfcReader";
 import {AppNfcReader} from "./nfc/AppNfcReader";
 import {KeyManager, PublicKeyEntry} from "./crypto/KeyManager";
+import * as localForage from "localforage";
 import {isCardVersionSupported} from "./versioning";
 
 /**
@@ -88,6 +89,8 @@ export class CardService extends Eventable {
 
 	private keyManager: KeyManager | null = null;
 	private minNfcVersion = 0;
+
+	private offlineManager: any = null;
 
 	/**
 	 * Tracks the key approval status from the server.
@@ -210,9 +213,48 @@ export class CardService extends Eventable {
 	 * If this method returns false, the reader will work in 'offline' mode and no api requests will be made that
 	 * might affect usability. Transactions will still be pushed in the background, but any pending transactions
 	 * will not be synced from this specific terminal.
+	 *
+	 * Uses isProperlyOnline() to avoid delays on flaky connections — the device must have had
+	 * several consecutive successful API requests before we consider it safe for NFC sync.
 	 */
 	public hasApiConnection() {
+		if (this.offlineManager) {
+			return this.offlineManager.isProperlyOnline();
+		}
 		return true;
+	}
+
+	/**
+	 * Set the offline manager instance.
+	 * @param offlineManager
+	 */
+	public setOfflineManager(offlineManager: any) {
+		this.offlineManager = offlineManager;
+		this.transactionStore.setOfflineManager(offlineManager);
+		return this;
+	}
+
+	/**
+	 * Fetch approved public keys from the server and cache them locally.
+	 * On failure (offline), loads from local cache.
+	 * @param organisationId
+	 */
+	async fetchAndCachePublicKeys(organisationId: string): Promise<void> {
+		const cacheKey = 'approved_public_keys_' + organisationId;
+		try {
+			const keys = await this.fetchApprovedPublicKeys(organisationId);
+			this.loadPublicKeys(keys);
+			// Cache the keys for offline use
+			await localForage.setItem(cacheKey, keys);
+		} catch (e) {
+			console.warn('Failed to load public keys from server, trying cache:', e);
+			// Try loading from cache
+			const cachedKeys: PublicKeyEntry[] | null = await localForage.getItem(cacheKey);
+			if (cachedKeys) {
+				console.info('[Offline] Loaded public keys from cache');
+				this.loadPublicKeys(cachedKeys);
+			}
+		}
 	}
 
 	/**
@@ -741,6 +783,15 @@ export class CardService extends Eventable {
 	public setSkipRefreshWhenBadInternetConnection(skipRefreshOnBadInternetConnection = false) {
 		this.skipRefreshWhenBadInternetConnection = skipRefreshOnBadInternetConnection;
 		return this;
+	}
+
+	/**
+	 * Get the number of pending (unsynced) transactions.
+	 * @returns {Promise<number>}
+	 */
+	public async getPendingTransactionCount(): Promise<number> {
+		const transactions = await this.offlineStore.getPendingTransactions();
+		return transactions.length;
 	}
 
 	/**

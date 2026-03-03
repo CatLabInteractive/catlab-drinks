@@ -20,6 +20,7 @@
  */
 
 import $ from 'jquery';
+import {installCacheInterceptors} from './ApiCacheService';
 
 export class AbstractService {
 
@@ -32,10 +33,20 @@ export class AbstractService {
 			json: true
 		});
 
+		// Install caching interceptors if offline manager is available (POS app only)
+		if (typeof window !== 'undefined' && window.OFFLINE_MANAGER) {
+			installCacheInterceptors(this.client, window.OFFLINE_MANAGER);
+		}
+
 		// Add authentication interceptor
 		this.client.interceptors.response.use(
 			response => response,
 			error => {
+
+				// Network errors (no response) — reject without alerts
+				if (!error.response) {
+					return Promise.reject(error);
+				}
 
 				const status = error.response.status;
 
