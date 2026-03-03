@@ -53,7 +53,7 @@ import Relax from "../../shared/js/components/Relax";
 
 
 import Authenticate from "./views/Authenticate";
-import { getAuthData } from "../../shared/js/services/DeviceAuth";
+import { getAuthData, clearAuthData } from "../../shared/js/services/DeviceAuth";
 
 async function launch() {
 
@@ -68,6 +68,13 @@ async function launch() {
 	}
 
 	Vue.use(BootstrapVue);
+
+	// If a connect token is present in the URL, clear any existing auth data
+	// so the device can be reconnected to a (potentially different) account.
+	const urlParams = new URLSearchParams(window.location.search);
+	if (urlParams.has('connect')) {
+		await clearAuthData();
+	}
 
 	// Check if we have all required config.
 	const authData = await getAuthData();
