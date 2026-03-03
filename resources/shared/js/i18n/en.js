@@ -37,5 +37,7 @@ export default {
     '⚠️ WARNING: This is a destructive action!\n\nRevoking this key will invalidate {count} cards that were last signed by this device.\n\nAre you absolutely sure?': '⚠️ WARNING: This is a destructive action!\n\nRevoking this key will invalidate {count} cards that were last signed by this device.\n\nAre you absolutely sure?',
     'Balance: {balance}': 'Balance: {balance}',
     '{remaining} of {max} card scans remaining.': '{remaining} of {max} card scans remaining.',
-    'Your table number: {tableNumber}': 'Your table number: {tableNumber}'
+    'Your table number: {tableNumber}': 'Your table number: {tableNumber}',
+    'Offline': 'Offline',
+    'Device is offline. Remote orders cannot be processed until the connection is restored.': 'Device is offline. Remote orders cannot be processed until the connection is restored.'
 };

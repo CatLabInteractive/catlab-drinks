@@ -60,6 +60,11 @@ window.axios.interceptors.response.use(
     response => response,
     error => {
 
+        // Network errors (no response) — don't show alerts, just reject
+        if (!error.response) {
+            return Promise.reject(error);
+        }
+
         const status = error.response.status;
 
         // Show the user a 500 error

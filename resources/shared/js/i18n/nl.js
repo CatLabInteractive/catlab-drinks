@@ -393,6 +393,10 @@ export default {
     'Network connection error. Please check network connection.': 'Netwerkverbindingsfout. Controleer de netwerkverbinding.',
     'Your table number: {tableNumber}': 'Uw tafelnummer: {tableNumber}',
 
+    // Offline
+    'Offline': 'Offline',
+    'Device is offline. Remote orders cannot be processed until the connection is restored.': 'Het apparaat is offline. Bestellingen op afstand kunnen niet worden verwerkt totdat de verbinding is hersteld.',
+
     // Language toggle
     'Language': 'Taal',
 };

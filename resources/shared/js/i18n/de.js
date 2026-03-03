@@ -393,6 +393,10 @@ export default {
     'Network connection error. Please check network connection.': 'Netzwerkverbindungsfehler. Bitte überprüfen Sie die Netzwerkverbindung.',
     'Your table number: {tableNumber}': 'Ihre Tischnummer: {tableNumber}',
 
+    // Offline
+    'Offline': 'Offline',
+    'Device is offline. Remote orders cannot be processed until the connection is restored.': 'Das Gerät ist offline. Fernbestellungen können erst verarbeitet werden, wenn die Verbindung wiederhergestellt ist.',
+
     // Language toggle
     'Language': 'Sprache',
 };

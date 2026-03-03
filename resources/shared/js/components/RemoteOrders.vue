@@ -36,6 +36,11 @@
 			⚠️ {{ $t('{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.', { count: strandedOrdersCount }) }}
 		</b-alert>
 
+		<!-- Offline warning -->
+		<b-alert v-if="isOffline" variant="warning" show>
+			⚠️ {{ $t('Device is offline. Remote orders cannot be processed until the connection is restored.') }}
+		</b-alert>
+
 		<!-- Filter on category-->
 		<b-form-group v-if="categories.length > 1">
 			<select @change="changeFilterCategory($event, model)" v-model="categoryFilter" class="full-width form-control">
@@ -133,6 +138,7 @@
 	import {OrderService} from "../services/OrderService";
 	import {CategoryService} from "../services/CategoryService";
 	import {PosDeviceService} from "../services/PosDeviceService";
+	import {getOfflineManager} from "../services/OfflineManager";
 
 	import RemoteOrderDescription from './RemoteOrderDescription.vue';
 	import RemoteOrderStatus from './RemoteOrderStatus.vue';
@@ -156,11 +162,20 @@
 			if (this.event) {
 				this.setEvent(this.event);
 			}
+
+			const offlineManager = getOfflineManager();
+			this.isOffline = !offlineManager.isOnline();
+			this._offlineListener = offlineManager.on((online) => {
+				this.isOffline = !online;
+			});
 		},
 
 		beforeDestroy() {
 			if (this.interval) {
 				clearInterval(this.interval);
+			}
+			if (this._offlineListener) {
+				this._offlineListener.unbind();
 			}
 		},
 
@@ -175,7 +190,8 @@
 				items: [],
 				onlyAssignedOrders: true,
 				currentDeviceId: this.deviceId || null,
-				strandedOrdersCount: 0
+				strandedOrdersCount: 0,
+				isOffline: false
 			}
 		},
 

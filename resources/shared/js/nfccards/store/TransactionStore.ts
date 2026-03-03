@@ -28,6 +28,8 @@ export class TransactionStore {
 
     private transactionIdCursor: string = '';
 
+    private offlineManager: any = null;
+
     constructor(
         private axios: any,
         private organisationId: string,
@@ -48,7 +50,18 @@ export class TransactionStore {
      * Do we have an active internet connection?
      */
     public isOnline() {
+        if (this.offlineManager) {
+            return this.offlineManager.isOnline();
+        }
         return true;
+    }
+
+    /**
+     * Set the offline manager instance.
+     * @param offlineManager
+     */
+    public setOfflineManager(offlineManager: any) {
+        this.offlineManager = offlineManager;
     }
 
     /**

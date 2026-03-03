@@ -36,6 +36,8 @@
 			<b-navbar-brand href="#">CatLab Drinks</b-navbar-brand>
 			<nfc-card-balance @showKeyModal="showKeyModal"></nfc-card-balance>
 
+			<b-badge v-if="isOffline" variant="warning" class="ml-2 align-self-center">{{ $t('Offline') }}</b-badge>
+
 			<b-navbar-toggle target="nav_collapse" />
 
 			<b-collapse is-nav id="nav_collapse">
@@ -181,6 +183,7 @@
 	import NfcCardBalance from '../../../shared/js/components/NfcCardBalance.vue';
 	import PaymentPopup from '../../../shared/js/components/PaymentPopup.vue';
 	import LanguageToggle from '../../../shared/js/components/LanguageToggle.vue';
+	import {getOfflineManager} from '../../../shared/js/services/OfflineManager';
 
 	export default {
 
@@ -193,6 +196,7 @@
 		data() {
 			return {
 				kioskMode: false,
+				isOffline: false,
 				showLicenseWarning: false,
 				showLicenseErrorModal: false,
 				licenseStatus: null,
@@ -214,6 +218,13 @@
 			this.kioskMode = this.$kioskModeService.kioskModeActive;
 			this.eventListeners.push(this.$kioskModeService.on('kioskmode:change', () => {
 				this.kioskMode = this.$kioskModeService.kioskModeActive;
+			}));
+
+			// Track offline status
+			const offlineManager = getOfflineManager();
+			this.isOffline = !offlineManager.isOnline();
+			this.eventListeners.push(offlineManager.on((online) => {
+				this.isOffline = !online;
 			}));
 
 			// Listen for key status changes

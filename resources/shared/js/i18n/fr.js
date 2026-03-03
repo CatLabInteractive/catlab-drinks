@@ -392,6 +392,10 @@ export default {
     'Network connection error. Please check network connection.': 'Erreur de connexion réseau. Veuillez vérifier la connexion réseau.',
     'Your table number: {tableNumber}': 'Votre numéro de table : {tableNumber}',
 
+    // Offline
+    'Offline': 'Hors ligne',
+    'Device is offline. Remote orders cannot be processed until the connection is restored.': "L'appareil est hors ligne. Les commandes à distance ne peuvent pas être traitées tant que la connexion n'est pas rétablie.",
+
     // Language toggle
     'Language': 'Langue',
 };
