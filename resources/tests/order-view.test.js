@@ -42,9 +42,9 @@ describe('Order.vue - confirmModal closes after successful order', () => {
 		const scriptEnd = orderVueSource.indexOf('</script>');
 		const scriptSection = orderVueSource.substring(scriptStart, scriptEnd);
 
-		// Verify confirmModal.hide() appears before successModal.show()
-		const confirmHideIndex = scriptSection.indexOf('confirmModal.hide()');
-		const successShowIndex = scriptSection.indexOf('successModal.show()');
+		// Verify this.$refs.confirmModal.hide() appears before this.$refs.successModal.show()
+		const confirmHideIndex = scriptSection.indexOf('this.$refs.confirmModal.hide()');
+		const successShowIndex = scriptSection.indexOf('this.$refs.successModal.show()');
 
 		expect(confirmHideIndex).toBeGreaterThan(-1);
 		expect(successShowIndex).toBeGreaterThan(-1);
