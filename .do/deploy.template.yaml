@@ -4,98 +4,26 @@ spec:
     - name: web
       git:
         repo_clone_url: https://github.com/CatLabInteractive/catlab-drinks.git
-        branch: master
+        branch: main
       dockerfile_path: Dockerfile
       http_port: 80
-      instance_count: 1
-      instance_size_slug: basic-s
       routes:
         - path: /
+      run_command: php artisan migrate --force && apache2-foreground
       envs:
-        - key: APP_NAME
+        - key: APP_KEY
+          type: SECRET
           scope: RUN_TIME
-          value: "CatLab Drinks"
+          description: "Generate with: php -r \"echo 'base64:'.base64_encode(random_bytes(32));\" "
         - key: APP_ENV
           scope: RUN_TIME
           value: production
         - key: APP_DEBUG
           scope: RUN_TIME
           value: "false"
-        - key: APP_KEY
-          type: SECRET
-          scope: RUN_TIME
         - key: APP_URL
           scope: RUN_TIME
           value: ${APP_URL}
-        - key: LOG_CHANNEL
-          scope: RUN_TIME
-          value: errorlog
-        - key: DB_CONNECTION
-          scope: RUN_TIME
-          value: mysql
-        - key: DB_HOST
-          scope: RUN_TIME
-          value: ${db.HOSTNAME}
-        - key: DB_PORT
-          scope: RUN_TIME
-          value: ${db.PORT}
-        - key: DB_DATABASE
-          scope: RUN_TIME
-          value: ${db.DATABASE}
-        - key: DB_USERNAME
-          scope: RUN_TIME
-          value: ${db.USERNAME}
-        - key: DB_PASSWORD
-          scope: RUN_TIME
-          value: ${db.PASSWORD}
-        - key: SESSION_DRIVER
-          scope: RUN_TIME
-          value: file
-        - key: CACHE_DRIVER
-          scope: RUN_TIME
-          value: file
-        - key: QUEUE_CONNECTION
-          scope: RUN_TIME
-          value: sync
-        - key: TRUSTED_PROXIES
-          scope: RUN_TIME
-          value: "*"
-
-  jobs:
-    - name: migrate
-      kind: POST_DEPLOY
-      git:
-        repo_clone_url: https://github.com/CatLabInteractive/catlab-drinks.git
-        branch: master
-      dockerfile_path: Dockerfile
-      run_command: php artisan migrate --force
-      envs:
-        - key: APP_KEY
+        - key: DATABASE_URL
           type: SECRET
           scope: RUN_TIME
-        - key: APP_ENV
-          scope: RUN_TIME
-          value: production
-        - key: DB_CONNECTION
-          scope: RUN_TIME
-          value: mysql
-        - key: DB_HOST
-          scope: RUN_TIME
-          value: ${db.HOSTNAME}
-        - key: DB_PORT
-          scope: RUN_TIME
-          value: ${db.PORT}
-        - key: DB_DATABASE
-          scope: RUN_TIME
-          value: ${db.DATABASE}
-        - key: DB_USERNAME
-          scope: RUN_TIME
-          value: ${db.USERNAME}
-        - key: DB_PASSWORD
-          scope: RUN_TIME
-          value: ${db.PASSWORD}
-
-  databases:
-    - name: db
-      engine: MYSQL
-      version: "8"

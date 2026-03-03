@@ -18,7 +18,7 @@ The app supports three deployment targets that coexist in the same repo without 
 |------|---------|
 | `Procfile` | Web process + release task for both Heroku and Dokku |
 | `app.json` | Heroku "Deploy to Heroku" button config (stack, buildpacks, env vars, addons) |
-| `.do/app.yaml` | DigitalOcean "Deploy to DigitalOcean" button config |
+| `.do/deploy.template.yaml` | DigitalOcean "Deploy to DigitalOcean" button config |
 | `Dockerfile` | Dokku + DigitalOcean build (uses `thecodingmachine/php:8.1-v5-slim-apache`) |
 | `heroku.yml` | **Deleted** — not used; would conflict with buildpack stack |
 
@@ -46,7 +46,7 @@ release: php artisan migrate --force
 
 ## DigitalOcean App Platform
 
-Config lives in `.do/app.yaml`. The "Deploy to DigitalOcean" button in the readme points to the `main` branch.
+Config lives in `.do/deploy.template.yaml` — this is the filename DigitalOcean specifically looks for when the "Deploy to DigitalOcean" button is clicked. It uses `git.repo_clone_url` (public HTTPS clone URL) and has a `spec:` root wrapper, which differs from the `doctl` CLI app format.
 
 - Uses the **Dockerfile** to build (same as Dokku)
 - `run_command` overrides the container's default CMD: runs `php artisan migrate --force && apache2-foreground`, so migrations happen automatically on every deploy
