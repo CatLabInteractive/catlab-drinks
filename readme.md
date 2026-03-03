@@ -11,7 +11,7 @@ Deploy your own instance with a single click:
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/CatLabInteractive/catlab-drinks)
 
-<!--[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/CatLabInteractive/catlab-drinks/tree/master)-->
+[![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/CatLabInteractive/catlab-drinks/tree/main)
 
 > **DigitalOcean note:** You will be prompted to set the `APP_KEY` secret. Generate one with
 > `php -r "echo 'base64:'.base64_encode(random_bytes(32));"` and paste the result.

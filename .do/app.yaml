@@ -1,17 +1,17 @@
 name: catlab-drinks
+
 services:
   - name: web
     github:
       repo: CatLabInteractive/catlab-drinks
-      branch: master
+      branch: main
       deploy_on_push: true
     dockerfile_path: Dockerfile
     http_port: 80
     instance_count: 1
     instance_size_slug: basic-s
+    run_command: php artisan migrate --force && apache2-foreground
     envs:
-      - key: APP_NAME
-        value: "CatLab Drinks"
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
@@ -34,12 +34,6 @@ services:
         value: ${db.USERNAME}
       - key: DB_PASSWORD
         value: ${db.PASSWORD}
-      - key: SESSION_DRIVER
-        value: file
-      - key: CACHE_DRIVER
-        value: file
-      - key: QUEUE_CONNECTION
-        value: sync
 
 databases:
   - name: db
