@@ -14,7 +14,6 @@ spec:
         - key: APP_KEY
           type: SECRET
           scope: RUN_TIME
-          description: "Generate with: php -r \"echo 'base64:'.base64_encode(random_bytes(32));\" "
         - key: APP_ENV
           scope: RUN_TIME
           value: production
