@@ -55,7 +55,7 @@
 						<language-toggle />
 
 						<li class="nav-item">
-							
+
 						</li>
 
 					</b-navbar-nav>
@@ -228,20 +228,15 @@
 					this.nfcSpaceError = error;
 					this.$refs.keyModal.show();
 				}));
+
+				// Refresh license status after each card scan
+				this.eventListeners.push(this.$cardService.on('card:loaded', () => {
+					this.refreshLicenseStatus();
+				}));
 			}
 
 			// Check license status on Cordova
-			if (typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.LicenseService) {
-				try {
-					const licenseService = new window.CATLAB_DRINKS_APP.LicenseService();
-					this.licenseStatus = await licenseService.getLicenseStatus();
-					if (!this.licenseStatus.valid) {
-						this.showLicenseWarning = true;
-					}
-				} catch (e) {
-					console.error('Failed to check license status:', e);
-				}
-			}
+			await this.refreshLicenseStatus();
 
 			// Listen for card errors (license errors)
 			if (typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.nfc) {
@@ -266,6 +261,18 @@
 		},
 
 		methods: {
+			async refreshLicenseStatus() {
+				if (typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.LicenseService) {
+					try {
+						const licenseService = new window.CATLAB_DRINKS_APP.LicenseService();
+						this.licenseStatus = await licenseService.getLicenseStatus();
+						this.showLicenseWarning = !this.licenseStatus.valid;
+					} catch (e) {
+						console.error('Failed to check license status:', e);
+					}
+				}
+			},
+
 			showKeyModal() {
 				this.$refs.keyModal.show();
 			},
