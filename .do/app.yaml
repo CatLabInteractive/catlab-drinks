@@ -39,3 +39,4 @@ databases:
   - name: db
     engine: MYSQL
     version: "8"
+    production: true
