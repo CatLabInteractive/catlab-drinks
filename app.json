@@ -76,7 +76,6 @@
 		}
 	],
 	"scripts": {
-		"predeploy": "npm install && npm run prod",
 		"postdeploy": "php artisan migrate --force"
 	}
 }
