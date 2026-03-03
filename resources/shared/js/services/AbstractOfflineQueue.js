@@ -39,6 +39,16 @@ export class AbstractOfflineQueue extends AbstractService {
 
 	startPeriodicUpload() {
 		this.uploadQueue();
+
+		// When the device comes back online, trigger an immediate upload
+		if (typeof window !== 'undefined' && window.OFFLINE_MANAGER) {
+			this._offlineBinding = window.OFFLINE_MANAGER.on((online) => {
+				if (online && !this.uploading) {
+					clearTimeout(this.timeout);
+					this.uploadQueue();
+				}
+			});
+		}
 	}
 
 	async create (data, parameters) {
@@ -155,8 +165,13 @@ export class AbstractOfflineQueue extends AbstractService {
 	}
 
 	destroy() {
-		if (this.interval) {
+		if (this.timeout) {
 			clearTimeout(this.timeout);
+		}
+
+		if (this._offlineBinding) {
+			this._offlineBinding.unbind();
+			this._offlineBinding = null;
 		}
 
 		// Submit all remaining items
