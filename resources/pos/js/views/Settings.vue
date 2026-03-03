@@ -156,7 +156,7 @@
 					</p>
 
 					<p>
-						<strong>{{ $t('Pending transactions:') }}</strong>
+						<strong>{{ $t('Pending transactions:') }} </strong>
 						<span v-if="pendingTransactionCount > 0" class="text-warning">{{ pendingTransactionCount }}</span>
 						<span v-else class="text-success">0</span>
 					</p>
