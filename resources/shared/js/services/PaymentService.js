@@ -85,6 +85,14 @@ export class PaymentService extends Eventable {
                 this.handleTransaction(card, this.currentTransaction);
             }
         });
+
+        this.cardService.on('card:corrupt', (card) => {
+            if (this.currentTransaction) {
+                this.currentTransaction.loading = false;
+                this.currentTransaction.error = 'The card is corrupt or does not belong to this organisation. Please contact support.';
+                this.trigger('transaction:change', this.currentTransaction);
+            }
+        });
     }
 
     /**
