@@ -29,8 +29,6 @@
 		<div v-else-if="keyStatus === 'none' || keyStatus === 'revoked'" class="btn btn-sm btn-danger" @click="$emit('showKeyModal')">{{ $t('NFC 🔑') }}</div>
 		<div v-else-if="connected === false" class="btn btn-sm btn-danger">{{ $t('NFC') }}</div>
 
-		<div v-if="apiConnected === false" class="btn btn-sm btn-danger">{{ $t('API Offline') }}</div>
-
 		<div v-if="!corrupt && balance !== null" class="btn btn-sm btn-warning">{{ $t('Balance: {balance}', { balance: balance }) }}</div>
 		<div v-if="corrupt" class="btn btn-sm btn-danger">{{ $t('Corrupt card, contact support') }}</div>
 
@@ -46,9 +44,6 @@
 
 			// we should unlisten the events here
 			this.eventListeners.forEach(e => e.unbind());
-			if (this._offlineListener) {
-				this._offlineListener.unbind();
-			}
 
 		},
 
@@ -63,19 +58,12 @@
 			this.eventListeners = [];
 
 			this.connected = this.$cardService.isConnected();
-			this.apiConnected = this.$offlineManager ? this.$offlineManager.isOnline() : true;
 			this.keyStatus = this.$cardService.getKeyStatus();
 
 			this.eventListeners.push(this.$cardService.on('connection:change', function(isOnline) {
 				//console.log('is online', isOnline);
 				this.connected = isOnline;
 			}.bind(this)));
-
-			if (this.$offlineManager) {
-				this._offlineListener = this.$offlineManager.on((online) => {
-					this.apiConnected = online;
-				});
-			}
 
 			this.eventListeners.push(this.$cardService.on('keyStatus:change', function(status) {
 				this.keyStatus = status;
@@ -113,12 +101,10 @@
 				visible: false,
 				balance: null,
 				connected: null,
-				apiConnected: null,
 				corrupt: false,
 				loading: false,
 				keyStatus: 'none',
 				spaceError: false,
-				_offlineListener: null
 			};
 		}
 	}
