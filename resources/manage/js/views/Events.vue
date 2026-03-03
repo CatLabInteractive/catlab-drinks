@@ -40,7 +40,7 @@
 				<b-table striped hover :items="items" :fields="fields" v-if="loaded">
 
 					<template v-slot:cell(name)="row">
-						{{ row.item.name }}
+						<router-link :to="{ name: 'menu', params: { id: row.item.id } }">{{ row.item.name }}</router-link>
 					</template>
 
 					<template v-slot:cell(order_token)="row">
