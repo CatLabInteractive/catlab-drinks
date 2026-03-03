@@ -216,17 +216,21 @@
 		</template>
 	</b-modal>
 
+	<signed-cards-modal ref="signedCardsModal" />
+
 </template>
 
 <script>
 
 	import { DeviceService } from '../services/DeviceService';
 	import QrcodeVue from 'qrcode.vue';
+	import SignedCardsModal from '../../../shared/js/components/SignedCardsModal.vue';
 
 	export default {
 
 		components: {
-			QrcodeVue
+			QrcodeVue,
+			'signed-cards-modal': SignedCardsModal,
 		},
 
 		mounted() {
@@ -508,9 +512,7 @@
 			},
 
 			async showSignedCards(item) {
-				const cards = await this.service.getSignedCards(item.id);
-				alert(this.$t('Cards signed by {name}:', { name: item.name }) + '\n\n' +
-					cards.items.map(c => c.uid + ' (balance: ' + c.balance + ')').join('\n'));
+				this.$refs.signedCardsModal.show(this.service, item);
 			},
 
 		}
