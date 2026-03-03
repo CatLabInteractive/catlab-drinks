@@ -38,6 +38,10 @@ Build uses Laravel Mix (`webpack.mix.js`). Output goes to `public/res/`.
 > dependency versions and can introduce unintended breaking changes. If you are not editing
 > `package.json`, use `npm install` only.
 
+> **Never commit changes to `package-lock.json`.** Even `npm install` can modify `package-lock.json`
+> (e.g. due to different npm versions or platform differences). Always revert any changes to
+> `package-lock.json` before committing. Run `git checkout -- package-lock.json` after `npm install`.
+
 ### Backend
 ```bash
 composer install                        # Install PHP dependencies (use --ignore-platform-reqs if PHP version mismatches)
