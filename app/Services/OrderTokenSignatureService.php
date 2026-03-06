@@ -117,6 +117,8 @@ class OrderTokenSignatureService
     /**
      * Build the message string to be signed.
      * Parameters are sorted alphabetically by key and joined as key=value pairs.
+     * Values are URL-encoded (RFC 3986) to prevent ambiguity when values contain
+     * special characters like & or =.
      *
      * @param array $params
      * @return string
@@ -127,7 +129,7 @@ class OrderTokenSignatureService
 
         $parts = [];
         foreach ($params as $key => $value) {
-            $parts[] = $key . '=' . $value;
+            $parts[] = rawurlencode($key) . '=' . rawurlencode($value);
         }
 
         return implode('&', $parts);

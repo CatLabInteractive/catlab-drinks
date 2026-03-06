@@ -34,9 +34,14 @@ Only these query parameters are included in the signature:
 
 1. **Collect** only the signable parameters that are present (skip empty/null values)
 2. **Sort** parameters alphabetically by key name
-3. **Build** a query string: `key1=value1&key2=value2`
-4. **Compute** HMAC-SHA256 using the secret as the key
-5. **Encode** the result as lowercase hexadecimal (64 characters)
+3. **URL-encode** both keys and values using RFC 3986 percent-encoding (`rawurlencode` in PHP)
+4. **Build** a query string: `key1=value1&key2=value2`
+5. **Compute** HMAC-SHA256 using the secret as the key
+6. **Encode** the result as lowercase hexadecimal (64 characters)
+
+> **Important:** Values must be URL-encoded (RFC 3986) before building the message string.
+> This prevents ambiguity when values contain special characters like `&` or `=`.
+> For simple alphanumeric values, URL encoding has no effect.
 
 ### Examples
 
@@ -71,7 +76,11 @@ Signature: HMAC-SHA256("mysecret", "name=Bob") → hex string
 $secret = 'your-secret-here';
 $params = ['card' => 'player1', 'name' => 'Alice'];
 ksort($params);
-$message = http_build_query($params); // "card=player1&name=Alice"
+$parts = [];
+foreach ($params as $k => $v) {
+    $parts[] = rawurlencode($k) . '=' . rawurlencode($v);
+}
+$message = implode('&', $parts); // "card=player1&name=Alice"
 $signature = hash_hmac('sha256', $message, $secret);
 ```
 
@@ -82,7 +91,7 @@ import hmac, hashlib, urllib.parse
 secret = 'your-secret-here'
 params = {'card': 'player1', 'name': 'Alice'}
 sorted_params = sorted(params.items())
-message = '&'.join(f'{k}={v}' for k, v in sorted_params)
+message = '&'.join(f'{urllib.parse.quote(k, safe="")}={urllib.parse.quote(v, safe="")}' for k, v in sorted_params)
 signature = hmac.new(secret.encode(), message.encode(), hashlib.sha256).hexdigest()
 ```
 
@@ -93,7 +102,7 @@ const crypto = require('crypto');
 const secret = 'your-secret-here';
 const params = { card: 'player1', name: 'Alice' };
 const sorted = Object.keys(params).sort();
-const message = sorted.map(k => `${k}=${params[k]}`).join('&');
+const message = sorted.map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join('&');
 const signature = crypto.createHmac('sha256', secret).update(message).digest('hex');
 ```
 

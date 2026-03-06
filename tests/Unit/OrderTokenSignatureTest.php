@@ -203,11 +203,32 @@ class OrderTokenSignatureTest extends TestCase
         $secret = 'mysecret';
         $params = ['card' => 'player1', 'name' => 'Alice'];
 
-        // The message to sign is: "card=player1&name=Alice" (alphabetically sorted)
+        // The message to sign is: "card=player1&name=Alice" (alphabetically sorted, URL-encoded)
         $expectedSignature = hash_hmac('sha256', 'card=player1&name=Alice', 'mysecret');
 
         $signature = OrderTokenSignatureService::sign($secret, $params);
 
         $this->assertEquals($expectedSignature, $signature);
+    }
+
+    /**
+     * Test that URL encoding prevents parameter injection/ambiguity.
+     * A card value containing special characters should produce a different
+     * signature than legitimate separate parameters.
+     */
+    public function testUrlEncodingPreventsAmbiguity(): void
+    {
+        $secret = 'test-secret';
+
+        // card="a&name=b" (single param with special chars)
+        $params1 = ['card' => 'a&name=b'];
+        $sig1 = OrderTokenSignatureService::sign($secret, $params1);
+
+        // card="a", name="b" (two separate params)
+        $params2 = ['card' => 'a', 'name' => 'b'];
+        $sig2 = OrderTokenSignatureService::sign($secret, $params2);
+
+        // These MUST produce different signatures
+        $this->assertNotEquals($sig1, $sig2);
     }
 }
