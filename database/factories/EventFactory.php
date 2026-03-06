@@ -17,6 +17,7 @@ class EventFactory extends Factory
             'name' => $this->faker->words(3, true),
             'organisation_id' => Organisation::factory(),
             'order_token' => Str::random(32),
+            'order_token_secret' => Str::random(32),
             'waiter_token' => Str::random(32),
         ];
     }

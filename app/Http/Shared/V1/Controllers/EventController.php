@@ -116,6 +116,7 @@ abstract class EventController extends ResourceController
 
         if ($isNew) {
             $entity->order_token = Str::random(32);
+            $entity->order_token_secret = Str::random(32);
             $entity->waiter_token = Str::random(32);
         }
 

@@ -23,6 +23,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Services\OrderTokenSignatureService;
+use Illuminate\Http\Request;
 
 /**
  * Class OrderController
@@ -31,15 +33,28 @@ use App\Models\Event;
 class OrderController
 {
     /**
+     * @param Request $request
      * @param $orderToken
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|void
      */
-    public function view($orderToken)
+    public function view(Request $request, $orderToken)
     {
         $event = Event::getFromOrderToken($orderToken);
         if (!$event) {
             abort(404, 'Event not found.');
             return;
+        }
+
+        // Check if query parameters need signature validation
+        $queryParams = $request->only(OrderTokenSignatureService::SIGNABLE_PARAMS);
+        $secret = $event->getOrderTokenSecret();
+
+        if ($secret && OrderTokenSignatureService::hasSignableParams($queryParams)) {
+            $signature = $request->query('signature');
+            if (!$signature || !OrderTokenSignatureService::verify($secret, $queryParams, $signature)) {
+                abort(403, 'Invalid signature.');
+                return;
+            }
         }
 
         $baseUrl = '/order/' . $event->order_token . '/';
@@ -49,7 +64,10 @@ class OrderController
             'order.index',
             [
                 'baseUrl' => $baseUrl,
-                'token' => $token
+                'token' => $token,
+                'signature' => $request->query('signature', ''),
+                'cardToken' => $request->query('card', ''),
+                'orderName' => $request->query('name', ''),
             ]
         );
     }

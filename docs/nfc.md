@@ -185,4 +185,22 @@ party system that allows users to order drinks straight from their table.
 Alternatively, a card MAY also be assigned `aliases`, which is an external identifier from a separate application that is
 used to link the cards owner to the card. When this external application loads the order page with this alias as `card` 
 query parameter, the order will be paid from that cards' balance. (For example, orders made through 
-`http://drinks.catlab.eu/order/iYkyGWx4grX6HLY9HqmnUNo4Pseavubi?card=abcdef` will be charged to card with alias `abcdef`).
+`http://drinks.catlab.eu/order/iYkyGWx4grX6HLY9HqmnUNo4Pseavubi?card=abcdef&signature=...` will be charged to card with alias `abcdef`).
+
+### Signed URLs
+
+When third-party applications add query parameters like `card` or `name` to the order URL, these parameters 
+must be signed using the event's order token secret to prevent tampering.
+
+The event's full order token (shown to admins and integrators) has the format: `{public_token}-{secret}`.
+Only the public part appears in URLs. The secret is used to compute an HMAC-SHA256 signature.
+
+**Signature calculation:**
+1. Collect signable parameters (`card`, `name`) — skip empty values
+2. Sort alphabetically by key
+3. Build query string: `key1=value1&key2=value2`
+4. Compute `HMAC-SHA256(secret, message)` and hex-encode
+
+**Example URL:** `https://drinks.catlab.eu/order/{public_token}?card=player1&name=Alice&signature={hex_signature}`
+
+See `.ai/signed-order-urls.md` for detailed documentation, code examples in multiple languages, and integration guide.

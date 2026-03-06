@@ -49,7 +49,7 @@
 							<pre>{{ row.item.order_token }}></pre>
 						</a>
 						-->
-						<input @click="selectOrderToken($event)" :value="row.item.order_token" class="order-token"
+						<input @click="selectOrderToken($event)" :value="row.item.full_order_token" class="order-token"
 							   readonly></input>
 					</template>
 

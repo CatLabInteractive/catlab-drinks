@@ -42,6 +42,7 @@ class Event extends Model
     protected $fillable = [
         'name',
         'order_token',
+        'order_token_secret',
         'is_selling',
         'payment_cash',
         'payment_vouchers',
@@ -110,10 +111,33 @@ class Event extends Model
     }
 
     /**
+     * Get the full order token (public token + secret) for display to admins/integrators.
+     *
+     * @return string
+     */
+    public function getFullOrderToken()
+    {
+        if ($this->order_token_secret) {
+            return $this->order_token . '-' . $this->order_token_secret;
+        }
+        return $this->order_token;
+    }
+
+    /**
      * @return boolean
      */
     public function isOpen()
     {
         return $this->is_selling;
+    }
+
+    /**
+     * Get the order token secret used for signing parameters.
+     *
+     * @return string|null
+     */
+    public function getOrderTokenSecret()
+    {
+        return $this->order_token_secret;
     }
 }
