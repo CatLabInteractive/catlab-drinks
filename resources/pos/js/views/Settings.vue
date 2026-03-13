@@ -435,7 +435,7 @@
 				this.nfcPassword = this.settingService.nfcPassword;
 				this.allowLiveOrders = this.settingService.allowLiveOrders;
 				this.allowRemoteOrders = this.settingService.allowRemoteOrders;
-this.allowTableService = this.settingService.allowTableService;
+				this.allowTableService = this.settingService.allowTableService;
 			}
 
 		}
