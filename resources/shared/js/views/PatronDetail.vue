@@ -102,12 +102,13 @@ export default {
 
 		async settleBalance() {
 			if (confirm(this.$t('Pay all outstanding orders for this patron?'))) {
-				// Mark all unpaid orders as paid
-				for (const order of this.orders) {
-					if (order.payment_status === 'unpaid') {
-						await this.orderService.update(order.id, { payment_status: 'paid' });
-					}
-				}
+				// Mark all unpaid orders as paid in parallel
+				const unpaidOrders = this.orders.filter(o => o.payment_status === 'unpaid');
+				await Promise.all(
+					unpaidOrders.map(order =>
+						this.orderService.update(order.id, { payment_status: 'paid' })
+					)
+				);
 				await this.refresh();
 			}
 		},

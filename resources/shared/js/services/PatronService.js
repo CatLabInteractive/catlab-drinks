@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import {AbstractService} from './AbstractService';
 
 export class PatronService extends AbstractService {
