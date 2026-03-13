@@ -78,6 +78,7 @@ class OrderTokenSignatureService
     public static function verify(string $secret, array $params, string $signature): bool
     {
         $expected = self::sign($secret, $params);
+		\Log::info("Verifying signature. Secret: $secret, Params: " . json_encode($params) . ", Expected: $expected, Provided: $signature");
 
         if (empty($expected)) {
             return false;
