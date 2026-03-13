@@ -362,6 +362,8 @@
                     return;
                 }
 
+				this.error = null;
+
                 // scroll to top
                 window.scrollTo(0, 0);
 
