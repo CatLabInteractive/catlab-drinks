@@ -397,6 +397,8 @@ export default {
     'Please order at least 1 item.': 'Gelieve minstens 1 item te bestellen.',
     'Network connection error. Please check network connection.': 'Netwerkverbindingsfout. Controleer de netwerkverbinding.',
     'Your table number: {tableNumber}': 'Uw tafelnummer: {tableNumber}',
+    'Welcome, {name}!': 'Welkom, {name}!',
+    '{catlabDrinks} is an open source project by CatLab Interactive.': '{catlabDrinks} is een open source project van CatLab Interactive.',
 
     // Offline
     'Offline': 'Offline',
