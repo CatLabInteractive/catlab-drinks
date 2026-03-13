@@ -11,32 +11,32 @@ const mix = require('laravel-mix');
  |
  */
 
- // Tell Mix to use Vue 3 and the appropriate compat options when compiling .vue files
+// Tell Mix to use Vue 3 and the appropriate compat options when compiling .vue files
 mix.vue({
 	version: 3,
 	options: {
-	  compilerOptions: {
-		compatConfig: {
-		  MODE: 3,
-		  WATCH_ARRAY: false,
+		compilerOptions: {
+			compatConfig: {
+				MODE: 3,
+				WATCH_ARRAY: false,
+			},
 		},
-	  },
 	},
-  })
+})
 
 // Alias Vue and (optionally) the composition API
 mix.webpackConfig(() => {
-return {
-	resolve: {
-	alias: {
-		vue: "@vue/compat",
-		"@vue/composition-api": "@vue/compat",
-	},
-	fallback: {
-		"stream": require.resolve("stream-browserify")
+	return {
+		resolve: {
+			alias: {
+				vue: "@vue/compat",
+				"@vue/composition-api": "@vue/compat",
+			},
+			fallback: {
+				"stream": require.resolve("stream-browserify")
+			}
+		},
 	}
-	},
-}
 })
 
 mix.setPublicPath('public');
