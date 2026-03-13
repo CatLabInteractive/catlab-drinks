@@ -268,6 +268,7 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
 ---
 
 ## Common Patterns
+- We use tabs, not spaces for indentation
 - Vue components use Bootstrap-Vue (`b-*` components)
 - Vue 3 compatibility mode via `@vue/compat`
 - Shared components live in `resources/shared/js/`
