@@ -64,6 +64,20 @@
 
 							<b-dropdown-divider></b-dropdown-divider>
 
+							<b-dropdown-item :to="{ name: 'waiter', params: { id: row.item.id } }"
+											 :title="$t('Waiter dashboard')">
+								🍽️
+								{{ $t('Waiter dashboard') }}
+							</b-dropdown-item>
+
+							<b-dropdown-item :to="{ name: 'tables', params: { id: row.item.id } }"
+											 :title="$t('Manage tables')">
+								🪑
+								{{ $t('Manage tables') }}
+							</b-dropdown-item>
+
+							<b-dropdown-divider></b-dropdown-divider>
+
 							<b-dropdown-item :to="{ name: 'checkIn', params: { id: row.item.id } }"
 											 :title="$t('Check-In attendees')">
 								🛂
