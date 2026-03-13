@@ -64,6 +64,7 @@ const i18n = createI18n({
     fallbackLocale: 'en',
     missingWarn: false,
     fallbackWarn: false,
+	formatFallbackMessages: true,
     messages: {
         en,
         nl,
