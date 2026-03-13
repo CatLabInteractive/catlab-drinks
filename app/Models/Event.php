@@ -49,6 +49,7 @@ class Event extends Model
         'payment_voucher_value',
         'payment_cards',
         'split_orders_by_categories',
+        'allow_unpaid_table_orders',
     ];
 
     /**
@@ -100,6 +101,22 @@ class Event extends Model
     public function categories()
     {
         return $this->hasMany(Category::class);   
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tables()
+    {
+        return $this->hasMany(Table::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function patrons()
+    {
+        return $this->hasMany(Patron::class);
     }
 
     /**

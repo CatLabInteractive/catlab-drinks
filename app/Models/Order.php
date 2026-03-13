@@ -86,6 +86,12 @@ class Order extends Model
     const STATUS_DECLINED = 'declined';
     const STATUS_PENDING = 'pending';
     const STATUS_PROCESSED = 'processed';
+    const STATUS_PREPARED = 'prepared';
+    const STATUS_DELIVERED = 'delivered';
+
+    const PAYMENT_STATUS_UNPAID = 'unpaid';
+    const PAYMENT_STATUS_PAID = 'paid';
+    const PAYMENT_STATUS_VOIDED = 'voided';
 
     /**
      * @var string
@@ -119,6 +125,22 @@ class Order extends Model
     public function assignedDevice()
     {
         return $this->belongsTo(Device::class, 'assigned_device_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function patron()
+    {
+        return $this->belongsTo(Patron::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function table()
+    {
+        return $this->belongsTo(Table::class);
     }
 
     /**

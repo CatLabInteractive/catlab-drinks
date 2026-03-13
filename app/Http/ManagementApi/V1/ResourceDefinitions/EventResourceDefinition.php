@@ -70,7 +70,7 @@ class EventResourceDefinition extends ResourceDefinition
             ->string()
             ->visible(true);
 
-        $this->field([ 'payment_cash', 'payment_vouchers', 'payment_cards', 'allow_unpaid_online_orders', 'split_orders_by_categories' ])
+        $this->field([ 'payment_cash', 'payment_vouchers', 'payment_cards', 'allow_unpaid_online_orders', 'allow_unpaid_table_orders', 'split_orders_by_categories' ])
             ->bool()
             ->visible(true)
             ->writeable();
