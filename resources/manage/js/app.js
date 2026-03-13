@@ -47,6 +47,9 @@ import SalesSummaryNames from "../../shared/js/views/SalesSummaryNames";
 import Menu from "./views/Menu.vue";
 import Devices from "./views/Devices";
 import PublicKeys from "./views/PublicKeys";
+import Tables from "../../shared/js/views/Tables";
+import WaiterDashboard from "../../shared/js/views/WaiterDashboard";
+import PatronDetail from "../../shared/js/views/PatronDetail";
 
 function launch() {
 
@@ -152,6 +155,24 @@ function launch() {
 				path: '/public-keys',
 				name: 'publicKeys',
 				component: PublicKeys
+			},
+
+			{
+				path: '/events/:id/tables',
+				name: 'tables',
+				component: Tables
+			},
+
+			{
+				path: '/events/:id/waiter',
+				name: 'waiter',
+				component: WaiterDashboard
+			},
+
+			{
+				path: '/events/:id/patron/:patronId',
+				name: 'patron',
+				component: PatronDetail
 			},
 		],
 	});

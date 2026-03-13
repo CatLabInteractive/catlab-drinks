@@ -27,6 +27,7 @@ export class SettingService {
 
 	allowLiveOrders = true;
 	allowRemoteOrders = true;
+	allowTableService = false;
 
     constructor() {
 
@@ -57,6 +58,10 @@ export class SettingService {
 						this.allowRemoteOrders = false;
 					}
 
+					if (typeof(settings.allowTableService) !== 'undefined') {
+						this.allowTableService = settings.allowTableService ? true : false;
+					}
+
                     resolve();
 
                 }.bind(this));
@@ -73,7 +78,8 @@ export class SettingService {
                     nfcPassword: this.nfcPassword,
 
 					allowLiveOrders: this.allowLiveOrders,
-					allowRemoteOrders: this.allowRemoteOrders
+					allowRemoteOrders: this.allowRemoteOrders,
+					allowTableService: this.allowTableService
                 }, function() {
                     resolve();
                 });

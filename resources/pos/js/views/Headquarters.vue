@@ -23,7 +23,7 @@
 
 	<b-container fluid v-if="event">
 
-		<div v-if="!showRemoteOrders && !showLiveOrders">
+		<div v-if="!showRemoteOrders && !showLiveOrders && !showTableService">
 			<b-alert variant="danger" :show="true">
 				{{ $t('You have disabled both live and remote orders.') }}<br />
 				{{ $t('This terminal will not be able to process any orders.') }}<br />
@@ -31,7 +31,8 @@
 			</b-alert>
 		</div>
 
-		<b-row>
+		<!-- Standard bar POS mode -->
+		<b-row v-if="!showTableService">
 			<b-col v-if="showLiveOrders" :cols="showRemoteOrders ? 8 : 12" id="live-orders">
 
 				<live-sales v-bind:event="event"></live-sales>
@@ -45,6 +46,12 @@
 			</b-col>
 		</b-row>
 
+		<!-- Table Service mode -->
+		<table-service v-if="showTableService" v-bind:event="event"></table-service>
+
+		<!-- Payment popup (shared) -->
+		<payment-popup></payment-popup>
+
 	</b-container>
 
 </template>
@@ -55,12 +62,16 @@
 
 	import LiveSales from '../../../shared/js/components/LiveSales.vue';
 	import RemoteOrders from '../../../shared/js/components/RemoteOrders.vue';
+	import PaymentPopup from '../../../shared/js/components/PaymentPopup.vue';
+	import TableServiceComponent from '../components/TableService.vue';
 
 	export default {
 
 		components: {
 			'live-sales': LiveSales,
 			'remote-orders': RemoteOrders,
+			'payment-popup': PaymentPopup,
+			'table-service': TableServiceComponent,
 		},
 
 		async mounted() {
@@ -75,6 +86,7 @@
 				deviceCategoryFilterId: window.DEVICE_CATEGORY_FILTER_ID || null,
 				showLiveOrders: this.$settingService.allowLiveOrders,
 				showRemoteOrders: this.$settingService.allowRemoteOrders,
+				showTableService: this.$settingService.allowTableService,
 			}
 		},
 
@@ -92,8 +104,6 @@
 
 				this.eventId = this.$route.params.id;
 
-				//this.$kioskModeService.enableKioskMode();
-
 				this.event = await this.eventService.get(this.eventId);
 
 				// also set all payment possibilities
@@ -103,7 +113,6 @@
 					this.event.payment_vouchers,
 					this.event.payment_voucher_value
 				);
-
 			}
 		}
 	}

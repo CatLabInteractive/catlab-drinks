@@ -74,6 +74,9 @@ $routes->group(
                 \App\Http\DeviceApi\V1\Controllers\OrderController::setRoutes($routes);
 				\App\Http\DeviceApi\V1\Controllers\CategoryController::setRoutes($routes);
 
+				\App\Http\DeviceApi\V1\Controllers\TableController::setRoutes($routes);
+				\App\Http\DeviceApi\V1\Controllers\PatronController::setRoutes($routes);
+
 				\App\Http\DeviceApi\V1\Controllers\OrderSummaryController::setRoutes($routes);
 
 				\App\Http\DeviceApi\V1\Controllers\AttendeeController::setRoutes($routes);
