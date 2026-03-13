@@ -20,7 +20,7 @@ class AddOrderTokenSecretToEvents extends Migration
 
         // Generate secrets for existing events
         foreach (\App\Models\Event::withTrashed()->whereNull('order_token_secret')->get() as $event) {
-            $event->order_token_secret = Str::random(32);
+            $event->order_token_secret = Str::random(16);
             $event->save();
         }
     }

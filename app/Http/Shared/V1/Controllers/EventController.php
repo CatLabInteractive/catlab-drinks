@@ -115,8 +115,8 @@ abstract class EventController extends ResourceController
         $this->traitBeforeSaveEntity($request, $entity, $isNew);
 
         if ($isNew) {
-            $entity->order_token = Str::random(32);
-            $entity->order_token_secret = Str::random(32);
+            $entity->order_token = Str::random(16);
+            $entity->order_token_secret = Str::random(16);
             $entity->waiter_token = Str::random(32);
         }
 
