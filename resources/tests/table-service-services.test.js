@@ -109,6 +109,30 @@ describe('PaymentService batch orders method', () => {
 	});
 });
 
+describe('PaymentService pay later support', () => {
+	const servicePath = resolve(sharedPath, 'services', 'PaymentService.js');
+
+	it('has allow_pay_later flag', () => {
+		const content = readFile(servicePath);
+		expect(content).toContain('allow_pay_later');
+	});
+
+	it('has payLater method', () => {
+		const content = readFile(servicePath);
+		expect(content).toContain('async payLater()');
+	});
+
+	it('payLater resolves with pay-later payment type', () => {
+		const content = readFile(servicePath);
+		expect(content).toContain("paymentType: 'pay-later'");
+	});
+
+	it('allow_pay_later defaults to false', () => {
+		const content = readFile(servicePath);
+		expect(content).toContain('allow_pay_later = false');
+	});
+});
+
 describe('SettingService table service support', () => {
 	const servicePath = resolve(sharedPath, 'services', 'SettingService.js');
 

@@ -2,8 +2,9 @@
 * Tests to verify Table Service links and settings in Events views.
 *
 * - POS Events: MUST NOT have standalone "Waiter dashboard" or "Manage tables" links
-*   (table service is now integrated in Headquarters)
+*   (table service is now integrated in Headquarters via TableService component)
 * - Manage Events: MUST have "Manage tables" and "Waiter dashboard" links
+* - POS Headquarters delegates to pos/js/components/TableService.vue
 */
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
@@ -11,8 +12,22 @@ import { resolve } from 'path';
 
 function readVueFile(appName, fileName) {
 	return readFileSync(
-	resolve(__dirname, '..', appName, 'js', 'views', fileName),
-	'utf-8'
+		resolve(__dirname, '..', appName, 'js', 'views', fileName),
+		'utf-8'
+	);
+}
+
+function readComponentFile(appName, fileName) {
+	return readFileSync(
+		resolve(__dirname, '..', appName, 'js', 'components', fileName),
+		'utf-8'
+	);
+}
+
+function readSharedComponentFile(fileName) {
+	return readFileSync(
+		resolve(__dirname, '..', 'shared', 'js', 'components', fileName),
+		'utf-8'
 	);
 }
 
@@ -50,7 +65,23 @@ describe('POS Headquarters.vue table service integration', () => {
 		expect(content).toContain('showTableService');
 	});
 
-	it('imports TableService', () => {
+	it('imports TableService component', () => {
+		expect(content).toContain('TableService');
+	});
+
+	it('imports PaymentPopup component', () => {
+		expect(content).toContain('PaymentPopup');
+	});
+
+	it('uses table-service component tag', () => {
+		expect(content).toContain('<table-service');
+	});
+});
+
+describe('POS TableService.vue component (pos/js/components/)', () => {
+	const content = readComponentFile('pos', 'TableService.vue');
+
+	it('imports TableService API', () => {
 		expect(content).toContain('TableService');
 	});
 
@@ -62,26 +93,91 @@ describe('POS Headquarters.vue table service integration', () => {
 		expect(content).toContain('OrderService');
 	});
 
-	it('imports PaymentPopup component', () => {
-		expect(content).toContain('PaymentPopup');
+	it('reuses LiveSales component for new orders', () => {
+		expect(content).toContain('live-sales');
+		expect(content).toContain('LiveSales');
 	});
 
-	it('has patron modal', () => {
-		expect(content).toContain('patronModal');
+	it('passes patron-id prop to LiveSales', () => {
+		expect(content).toContain('patron-id');
+	});
+
+	it('passes table-id prop to LiveSales', () => {
+		expect(content).toContain('table-id');
+	});
+
+	it('passes allow-pay-later prop to LiveSales', () => {
+		expect(content).toContain('allow-pay-later');
+	});
+
+	it('listens for order-created event from LiveSales', () => {
+		expect(content).toContain('order-created');
+	});
+
+	it('has table modal with patron selection and details', () => {
+		expect(content).toContain('tableModal');
+	});
+
+	it('has patron selection step', () => {
+		expect(content).toContain('selectPatron');
+	});
+
+	it('has back to patron list button', () => {
+		expect(content).toContain('backToPatronList');
 	});
 
 	it('has settle balance button', () => {
 		expect(content).toContain('settleBalance');
 	});
 
-	it('has new order form in patron modal', () => {
-		expect(content).toContain('submitPatronOrder');
-	});
-
 	it('has order queue with status actions', () => {
 		expect(content).toContain('markPrepared');
 		expect(content).toContain('markDelivered');
 		expect(content).toContain('markVoided');
+	});
+});
+
+describe('LiveSales.vue table service support', () => {
+	const content = readSharedComponentFile('LiveSales.vue');
+
+	it('accepts patronId prop', () => {
+		expect(content).toContain('patronId');
+	});
+
+	it('accepts tableId prop', () => {
+		expect(content).toContain('tableId');
+	});
+
+	it('accepts allowPayLater prop', () => {
+		expect(content).toContain('allowPayLater');
+	});
+
+	it('emits order-created event', () => {
+		expect(content).toContain("$emit('order-created'");
+	});
+
+	it('sets patron_id on order data when patronId is provided', () => {
+		expect(content).toContain('data.patron_id');
+	});
+
+	it('hides menu edit button when in patron mode', () => {
+		expect(content).toContain('v-if="!patronId"');
+	});
+});
+
+describe('PaymentPopup.vue pay later support', () => {
+	const content = readSharedComponentFile('PaymentPopup.vue');
+
+	it('has pay later button', () => {
+		expect(content).toContain('payLater');
+	});
+
+	it('shows pay later button conditionally', () => {
+		expect(content).toContain('allow_pay_later');
+	});
+
+	it('has Pay later label', () => {
+		expect(content).toContain('Pay later');
 	});
 });
 

@@ -42,6 +42,11 @@
                     <span>🎟️</span>
                     {{ $t('{amount} vouchers', { amount: voucherAmount }) }}
                 </button>
+
+                <button v-if="$paymentService.allow_pay_later" class="btn btn-warning" v-on:click="payLater()">
+                    <span>🕐</span>
+                    {{ $t('Pay later') }}
+                </button>
             </p>
         </div>
 
@@ -138,6 +143,10 @@
 
             async vouchers() {
                 this.$paymentService.vouchers();
+            },
+
+            async payLater() {
+                this.$paymentService.payLater();
             }
         }
     }

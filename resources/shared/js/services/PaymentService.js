@@ -38,6 +38,7 @@ export class PaymentService extends Eventable {
         this.allow_nfc_payments = true;
         this.allow_cash_payments = false;
         this.allow_voucher_payment = false;
+        this.allow_pay_later = false;
         this.voucher_value = 0.5;
     }
 
@@ -299,6 +300,24 @@ export class PaymentService extends Eventable {
      */
     async vouchers() {
         this.cash('vouchers');
+    }
+
+    /**
+     * Pay later — resolve without actual payment, marking as deferred.
+     * @returns {Promise<void>}
+     */
+    async payLater() {
+        if (!this.currentTransaction) {
+            return;
+        }
+
+        this.currentTransaction.resolve({
+            paymentType: 'pay-later',
+            discount: 0
+        });
+
+        this.currentTransaction = null;
+        this.trigger('transaction:done');
     }
 
 	visualiseCurrency(price) {

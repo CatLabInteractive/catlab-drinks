@@ -178,7 +178,8 @@ Same as `TablePolicy` — devices can CRUD except destroy.
 - **`PatronService`** — extends `AbstractService`, sets `indexUrl = events/{id}/patrons`,
   `entityUrl = patrons`.
 - **`PaymentService`** — has `orders(orders)` batch payment method for settling multiple
-  unpaid orders in a single payment transaction.
+  unpaid orders in a single payment transaction. Has `payLater()` method and
+  `allow_pay_later` flag for deferred payment.
 
 ### POS Device Settings
 
@@ -187,6 +188,14 @@ Same as `TablePolicy` — devices can CRUD except destroy.
   When enabled, the POS Headquarters shows the waiter dashboard instead of the bar
   live/remote orders interface.
 
+### Component Architecture
+
+| Component             | Location                          | Purpose                                                  |
+|-----------------------|-----------------------------------|----------------------------------------------------------|
+| `TableService.vue`    | `pos/js/components/`             | Isolated table service component: table grid, patron modal (selection + details), order queue |
+| `LiveSales.vue`       | `shared/js/components/`          | Menu + order form. Accepts optional `patronId`, `tableId`, `allowPayLater` props for table service context |
+| `PaymentPopup.vue`    | `shared/js/components/`          | Payment modal. Shows "Pay later" button when `allow_pay_later` is set on PaymentService |
+
 ### Views
 
 | View                  | Location                          | Purpose                                                  |
@@ -194,7 +203,14 @@ Same as `TablePolicy` — devices can CRUD except destroy.
 | `Tables.vue`          | `shared/js/views/`               | Table management: bulk generate, inline rename, delete (manage app only) |
 | `WaiterDashboard.vue` | `shared/js/views/`               | Standalone waiter dashboard (used by manage app)         |
 | `PatronDetail.vue`    | `shared/js/views/`               | Standalone patron detail (used by manage app)            |
-| `Headquarters.vue`    | `pos/js/views/`                  | Integrated POS: bar mode OR waiter dashboard with patron modals |
+| `Headquarters.vue`    | `pos/js/views/`                  | Thin orchestrator: bar mode OR `<table-service>` component |
+
+### Modal Flow (POS)
+
+1. Click table card → modal opens at patron selection step
+2. Select patron or click "New Patron" → modal transitions to patron details
+3. Patron details show: outstanding balance, order history, settle button, and LiveSales new order form
+4. "Back to patron list" button returns to step 2
 
 ### Routes
 
@@ -206,11 +222,7 @@ Same as `TablePolicy` — devices can CRUD except destroy.
 | `/events/:id/waiter`            | waiter  | WaiterDashboard  |
 | `/events/:id/patron/:patronId`  | patron  | PatronDetail     |
 
-**POS app** integrates table service into the Headquarters component (no standalone routes).
-When `allowTableService` is enabled in device settings, Headquarters shows:
-- Table grid with patron list (click patron opens modal)
-- Order queue with status/device filters
-- Patron detail modal with order history, settle balance, and new order form
+**POS app** integrates table service into the Headquarters component via `TableService.vue` (no standalone routes).
 
 ### Navigation
 
@@ -218,6 +230,15 @@ When `allowTableService` is enabled in device settings, Headquarters shows:
   Table service access is via Headquarters when enabled in settings.
 - **Manage Events.vue**: "Manage tables" and "Waiter dashboard" links in "Table Service"
   dropdown group; `allow_unpaid_table_orders` checkbox in event edit modal
+
+### Pay Later Flow
+
+When `event.allow_unpaid_table_orders` is true:
+1. LiveSales sets `allow_pay_later = true` on PaymentService before triggering payment
+2. PaymentPopup shows a "Pay later" button alongside cash/card/voucher options
+3. Clicking "Pay later" resolves with `paymentType: 'pay-later'`
+4. LiveSales sets `payment_status: 'unpaid'` on the order
+5. `allow_pay_later` is reset to `false` after each order
 
 ---
 

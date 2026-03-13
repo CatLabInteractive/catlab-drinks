@@ -21,13 +21,14 @@
 
 <template>
 	<div>
-		<h2>
+		<h2 v-if="!patronId">
 			{{ $t('Menu') }}
 			<b-button v-if="this.event" size="sm" class="btn-light" :to="{ name: 'menu', params: { id: this.event.id } }">
 				<span>✏️</span>
 				<span class="sr-only">{{ $t('Menu items') }}</span>
 			</b-button>
 		</h2>
+		<h5 v-if="patronId">{{ $t('Menu') }}</h5>
 		<div class="text-center" v-if="!loaded">
 			<b-spinner :label="$t('Loading data')" />
 		</div>
@@ -115,9 +116,12 @@
 
 	export default {
 
-		props: [
-			'event'
-		],
+		props: {
+			event: { type: Object, default: null },
+			patronId: { type: [Number, String], default: null },
+			tableId: { type: [Number, String], default: null },
+			allowPayLater: { type: Boolean, default: false },
+		},
 
 		mounted() {
 
@@ -298,9 +302,11 @@
 					// Make sure we don't have the proxy object here.
 					const selectedItems = toRaw(this.selectedItems);
 
+					const isTableServiceOrder = this.patronId !== null && this.patronId !== undefined;
+
 					const data = {
-						location: 'Manual',
-						status: 'processed',
+						location: isTableServiceOrder ? 'Table Service' : 'Manual',
+						status: isTableServiceOrder ? 'pending' : 'processed',
 						paid: false,
 						price: this.totals.price,
 						discount: 0,
@@ -309,27 +315,49 @@
 						}
 					};
 
+					if (isTableServiceOrder) {
+						data.patron_id = this.patronId;
+						data.table_id = this.tableId || null;
+						data.payment_status = 'unpaid';
+					}
+
 					let order = await this.orderService.prepare(data);
+
+					// Enable pay later in the payment popup when allowed
+					if (this.allowPayLater) {
+						this.$paymentService.allow_pay_later = true;
+					}
 
 					try {
 						let paymentData = await this.$paymentService.order(order);
 						order.payment_type = paymentData.paymentType;
 
-						this.$refs.processedModal.show();
-						setTimeout(function () {
-							if (!this.$refs.processedModal) {
-								return;
-							}
-							this.$refs.processedModal.hide();
-						}.bind(this), 2000);
+						if (paymentData.paymentType === 'pay-later') {
+							// Pay later: keep payment_status as unpaid
+							order.payment_status = 'unpaid';
+							order.status = isTableServiceOrder ? 'pending' : 'processed';
+						} else {
+							order.payment_status = 'paid';
+							order.status = isTableServiceOrder ? 'pending' : 'processed';
 
-						order.status = 'processed';
+							this.$refs.processedModal.show();
+							setTimeout(function () {
+								if (!this.$refs.processedModal) {
+									return;
+								}
+								this.$refs.processedModal.hide();
+							}.bind(this), 2000);
+						}
 
 					} catch (e) {
 						order.paid = false;
 						order.status = 'declined';
+						order.payment_status = 'voided';
 
 						this.$refs.declinedModal.show();
+					} finally {
+						// Always reset pay later flag
+						this.$paymentService.allow_pay_later = false;
 					}
 
 					order = await this.orderService.create(order);
@@ -338,6 +366,8 @@
 					this.saving = false;
 					this.saved = true;
 					this.savedMessage = this.$t('Order saved');
+
+					this.$emit('order-created', order);
 
 					setTimeout(
 						() => {
@@ -348,7 +378,7 @@
 
 				} catch (e) {
 					this.saving = false;
-					this.warning = e.response.data.error.message;
+					this.warning = e.response?.data?.error?.message || e.message;
 				}
 			}
 		},
