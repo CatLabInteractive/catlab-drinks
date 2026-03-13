@@ -177,18 +177,28 @@ Same as `TablePolicy` — devices can CRUD except destroy.
   `entityUrl = tables`. Has `bulkGenerate(count)` method.
 - **`PatronService`** — extends `AbstractService`, sets `indexUrl = events/{id}/patrons`,
   `entityUrl = patrons`.
+- **`PaymentService`** — has `orders(orders)` batch payment method for settling multiple
+  unpaid orders in a single payment transaction.
 
-### Views (all in `resources/shared/js/views/`)
+### POS Device Settings
 
-| View                  | Purpose                                                  |
-|-----------------------|----------------------------------------------------------|
-| `Tables.vue`          | Table management: bulk generate, inline rename, delete   |
-| `WaiterDashboard.vue` | Waiter POS: table grid, patron list, order queue         |
-| `PatronDetail.vue`    | Patron detail: order history, outstanding balance, settle|
+- **`allowTableService`** — stored in `SettingService`, persisted in localStorage.
+  Mutually exclusive with `allowLiveOrders` and `allowRemoteOrders`.
+  When enabled, the POS Headquarters shows the waiter dashboard instead of the bar
+  live/remote orders interface.
+
+### Views
+
+| View                  | Location                          | Purpose                                                  |
+|-----------------------|-----------------------------------|----------------------------------------------------------|
+| `Tables.vue`          | `shared/js/views/`               | Table management: bulk generate, inline rename, delete (manage app only) |
+| `WaiterDashboard.vue` | `shared/js/views/`               | Standalone waiter dashboard (used by manage app)         |
+| `PatronDetail.vue`    | `shared/js/views/`               | Standalone patron detail (used by manage app)            |
+| `Headquarters.vue`    | `pos/js/views/`                  | Integrated POS: bar mode OR waiter dashboard with patron modals |
 
 ### Routes
 
-Both POS and Manage apps register these routes:
+**Manage app** registers standalone routes:
 
 | Path                            | Name    | Component        |
 |---------------------------------|---------|------------------|
@@ -196,10 +206,17 @@ Both POS and Manage apps register these routes:
 | `/events/:id/waiter`            | waiter  | WaiterDashboard  |
 | `/events/:id/patron/:patronId`  | patron  | PatronDetail     |
 
+**POS app** integrates table service into the Headquarters component (no standalone routes).
+When `allowTableService` is enabled in device settings, Headquarters shows:
+- Table grid with patron list (click patron opens modal)
+- Order queue with status/device filters
+- Patron detail modal with order history, settle balance, and new order form
+
 ### Navigation
 
-- **POS Events.vue**: "Waiter dashboard" and "Manage tables" links in Actions dropdown
-- **Manage Events.vue**: "Manage tables" and "Waiter dashboard" links in new "Table Service"
+- **POS Events.vue**: Standard actions only (sales overview, order history, check-in).
+  Table service access is via Headquarters when enabled in settings.
+- **Manage Events.vue**: "Manage tables" and "Waiter dashboard" links in "Table Service"
   dropdown group; `allow_unpaid_table_orders` checkbox in event edit modal
 
 ---
