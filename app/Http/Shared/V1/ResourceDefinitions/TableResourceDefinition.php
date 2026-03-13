@@ -22,12 +22,14 @@ class TableResourceDefinition extends ResourceDefinition
         $this->field('table_number')
             ->number()
             ->required()
+			->sortable()
             ->visible(true)
             ->writeable(true, true);
 
         $this->field('name')
             ->string()
             ->required()
+			->sortable()
             ->visible(true)
             ->writeable(true, true);
     }
