@@ -141,6 +141,40 @@ export class PaymentService extends Eventable {
     }
 
     /**
+     * Handle payment for multiple orders at once (batch settlement).
+     * Sums the total price of all orders and triggers a single payment transaction.
+     * @param {Array} orders - Array of order objects with price fields
+     * @param {boolean} acceptCurrentCard
+     * @returns {Promise<Object>} paymentData
+     */
+    async orders(orders, acceptCurrentCard = true) {
+
+		// Do we have a payment method configured? If not, just leave orders unpaid.
+		if (!this.hasPaymentMethod()) {
+			orders.forEach(o => { o.paid = false; });
+			return {};
+		}
+
+		// Calculate total price across all orders
+		const totalPrice = orders.reduce((sum, o) => sum + (o.price || 0), 0);
+
+		// Create a synthetic order for the payment flow
+		const combinedOrder = {
+			uid: orders[0] ? orders[0].uid || orders[0].id : null,
+			price: totalPrice,
+			order: { items: [] }
+		};
+
+		// handle the actual payment
+		let paymentData = await this.handleOrder(combinedOrder, acceptCurrentCard);
+
+		// mark all orders as paid
+		orders.forEach(o => { o.paid = true; });
+
+		return paymentData;
+	}
+
+    /**
      * Helper method to keep the order code more clear.
      * @param order
      * @param acceptCurrentCard

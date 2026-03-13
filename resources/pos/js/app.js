@@ -52,9 +52,6 @@ import CheckIn from "../../shared/js/views/CheckIn";
 import SalesSummaryNames from "../../shared/js/views/SalesSummaryNames";
 import Menu from "./views/Menu.vue";
 import Relax from "../../shared/js/components/Relax";
-import Tables from "../../shared/js/views/Tables";
-import WaiterDashboard from "../../shared/js/views/WaiterDashboard";
-import PatronDetail from "../../shared/js/views/PatronDetail";
 
 
 import Authenticate from "./views/Authenticate";
@@ -177,24 +174,6 @@ async function launch() {
 				path: '/events/:id/check-in',
 				name: 'checkIn',
 				component: CheckIn
-			},
-
-			{
-				path: '/events/:id/tables',
-				name: 'tables',
-				component: Tables
-			},
-
-			{
-				path: '/events/:id/waiter',
-				name: 'waiter',
-				component: WaiterDashboard
-			},
-
-			{
-				path: '/events/:id/patron/:patronId',
-				name: 'patron',
-				component: PatronDetail
 			},
 
 			{

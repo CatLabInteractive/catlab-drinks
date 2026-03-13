@@ -57,7 +57,7 @@
 							:description="$t('This terminal can process orders at the bar')"
 						>
 							<label>
-								<input type="checkbox" v-model="allowLiveOrders"></input>
+								<input type="checkbox" v-model="allowLiveOrders" :disabled="allowTableService"></input>
 								{{ $t('Allow live orders at this terminal') }}<br />
 							</label>
 						</b-form-group>
@@ -67,8 +67,18 @@
 							:description="$t('This terminal can process orders from tables')"
 						>
 							<label>
-								<input type="checkbox" v-model="allowRemoteOrders"></input>
+								<input type="checkbox" v-model="allowRemoteOrders" :disabled="allowTableService"></input>
 								{{ $t('Allow remote orders at this terminal') }}<br />
+							</label>
+						</b-form-group>
+
+						<b-form-group
+							id="allow_table_service"
+							:description="$t('This terminal is used by a waiter for table service. Cannot be combined with live or remote orders.')"
+						>
+							<label>
+								<input type="checkbox" v-model="allowTableService"></input>
+								{{ $t('Allow table service at this terminal') }}<br />
 							</label>
 						</b-form-group>
 
@@ -286,7 +296,12 @@
 		},
 
 		watch: {
-
+			allowTableService(newVal) {
+				if (newVal) {
+					this.allowLiveOrders = false;
+					this.allowRemoteOrders = false;
+				}
+			}
 		},
 
 		methods: {
@@ -420,6 +435,7 @@
 				this.nfcPassword = this.settingService.nfcPassword;
 				this.allowLiveOrders = this.settingService.allowLiveOrders;
 				this.allowRemoteOrders = this.settingService.allowRemoteOrders;
+this.allowTableService = this.settingService.allowTableService;
 			}
 
 		}
