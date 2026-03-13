@@ -62,6 +62,7 @@ const i18n = createI18n({
     legacy: false,
     locale: detectLocale(),
     fallbackLocale: 'en',
+    fallbackFormat: true,
     missingWarn: false,
     fallbackWarn: false,
     messages: {
