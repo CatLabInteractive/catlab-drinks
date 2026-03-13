@@ -20,6 +20,7 @@ Current documents:
 |------|----------|
 | `.ai/charon-bulk-delete-instructions.md` | Bulk delete support in Charon v1.8.0 — route format, request/response shape, and a known `mergeOptions()` type-hint bug with middleware arrays |
 | `.ai/deployment.md` | Heroku + Dokku dual-deployment setup — buildpacks, Procfile fallback, app.json, Dockerfile |
+| `.ai/signed-order-urls.md` | Signed remote order URLs — HMAC-SHA256 signature algorithm, token structure, integration guide with code examples |
 
 ---
 

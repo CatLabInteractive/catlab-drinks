@@ -58,6 +58,11 @@ class EventResourceDefinition extends ResourceDefinition
             ->string()
             ->visible(true);
 
+        $this->field('fullOrderToken')
+            ->display('full_order_token')
+            ->string()
+            ->visible(true);
+
         $this->field('orderUrl')
             ->display('order_url')
             ->string()

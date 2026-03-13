@@ -23,6 +23,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Event;
+use App\Services\OrderTokenSignatureService;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -33,6 +34,9 @@ use Illuminate\Http\Request;
 class PublicEventApiAuthentication
 {
     const HEADER_KEY = 'X-Event-Token';
+    const HEADER_CARD_TOKEN = 'X-Card-Token';
+    const HEADER_ORDER_NAME = 'X-Order-Name';
+    const HEADER_SIGNATURE = 'X-Signature';
 
     /**
      * Handle an incoming request.
@@ -65,6 +69,28 @@ class PublicEventApiAuthentication
         $event = Event::getFromOrderToken($key);
         if (!$event) {
             return false;
+        }
+
+        // Validate signature if the event has a secret and signed parameters are present
+        $secret = $event->getOrderTokenSecret();
+        if ($secret) {
+            $params = [];
+            $cardToken = $request->header(self::HEADER_CARD_TOKEN);
+            $orderName = $request->header(self::HEADER_ORDER_NAME);
+
+            if ($cardToken) {
+                $params['card'] = $cardToken;
+            }
+            if ($orderName) {
+                $params['name'] = $orderName;
+            }
+
+            if (OrderTokenSignatureService::hasSignableParams($params)) {
+                $signature = $request->header(self::HEADER_SIGNATURE);
+                if (!$signature || !OrderTokenSignatureService::verify($secret, $params, $signature)) {
+                    return false;
+                }
+            }
         }
 
         $request->merge([ 'event' => $event ]);

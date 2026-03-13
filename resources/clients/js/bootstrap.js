@@ -70,6 +70,17 @@ if (typeof(window.CATLAB_DRINKS_CONFIG.API) === 'undefined') {
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.axios.defaults.headers.common['X-Event-Token'] = EVENT_TOKEN;
 
+// Set signature headers if available (for signed remote order URLs)
+if (typeof(ORDER_SIGNATURE) !== 'undefined' && ORDER_SIGNATURE) {
+    window.axios.defaults.headers.common['X-Signature'] = ORDER_SIGNATURE;
+}
+if (typeof(ORDER_CARD_TOKEN) !== 'undefined' && ORDER_CARD_TOKEN) {
+    window.axios.defaults.headers.common['X-Card-Token'] = ORDER_CARD_TOKEN;
+}
+if (typeof(ORDER_NAME) !== 'undefined' && ORDER_NAME) {
+    window.axios.defaults.headers.common['X-Order-Name'] = ORDER_NAME;
+}
+
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting

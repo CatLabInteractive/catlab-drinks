@@ -45,7 +45,7 @@
 							<pre>{{ row.item.order_token }}></pre>
 						</a>
 						-->
-						<input @click="selectOrderToken($event)" :value="row.item.order_token" class="order-token" readonly></input>
+						<input @click="selectOrderToken($event)" :value="row.item.full_order_token" class="order-token" readonly></input>
 					</template>
 
 					<template v-slot:cell(actions)="row">

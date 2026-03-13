@@ -145,17 +145,22 @@
 
             this.service = new MenuService();
 
-            // Look for name attribute
-            if (this.$route.query.name) {
+            // Look for name attribute (prefer server-validated values from signed URL)
+            if (typeof(ORDER_NAME) !== 'undefined' && ORDER_NAME) {
+                this.userName = ORDER_NAME;
+                this.setLocalStorage('userName', this.userName);
+            } else if (this.$route.query.name) {
                 this.userName = this.$route.query.name;
                 this.setLocalStorage('userName', this.userName);
             } else if(this.getLocalStorage('userName')) {
                 this.userName = this.getLocalStorage('userName');
             }
 
-            // order token
+            // order token (prefer server-validated values from signed URL)
             this.cardToken = null;
-            if (this.$route.query.card) {
+            if (typeof(ORDER_CARD_TOKEN) !== 'undefined' && ORDER_CARD_TOKEN) {
+                this.cardToken = ORDER_CARD_TOKEN;
+            } else if (this.$route.query.card) {
                 this.cardToken = this.$route.query.card;
                 //this.setLocalStorage('cardToken', this.cardToken);
             } else if (this.getLocalStorage('cardToken')) {
