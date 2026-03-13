@@ -48,5 +48,53 @@ export default {
     'Pending queue items:': 'Pending queue items:',
     'Sync now': 'Sync now',
     'Synchronization complete.': 'Synchronization complete.',
-    'There are still {count} pending items that have not been uploaded. Logging out may cause data loss. Are you sure you want to logout?': 'There are still {count} pending items that have not been uploaded. Logging out may cause data loss. Are you sure you want to logout?'
+    'There are still {count} pending items that have not been uploaded. Logging out may cause data loss. Are you sure you want to logout?': 'There are still {count} pending items that have not been uploaded. Logging out may cause data loss. Are you sure you want to logout?',
+
+    // NFC Cards
+    'Card #{uid}': 'Card #{uid}',
+    'Card gives {percentage}% at all sales.': 'Card gives {percentage}% at all sales.',
+    'Cards scanned: {scanned} / {max}': 'Cards scanned: {scanned} / {max}',
+    'Expires: {date}': 'Expires: {date}',
+    'Alias: {alias}': 'Alias: {alias}',
+    'Remaining: {remaining}': 'Remaining: {remaining}',
+
+    // Topup
+    'Are you sure you want to topup for €{amount}?': 'Are you sure you want to topup for €{amount}?',
+    'Amount: {amount}': 'Amount: {amount}',
+    'Reason: {reason}': 'Reason: {reason}',
+
+    // Payment Popup
+    '{amount} vouchers': '{amount} vouchers',
+    'Collect {amount}': 'Collect {amount}',
+    'Collect {amount} vouchers': 'Collect {amount} vouchers',
+
+    // Live Sales
+    'Total: {amount} items = €{price}': 'Total: {amount} items = €{price}',
+    'Total: {total}': 'Total: {total}',
+
+    // Remote Orders
+    'Only show "{name}" orders': 'Only show "{name}" orders',
+    'Deliver order at table {location}.': 'Deliver order at table {location}.',
+    'TABLE {location}': 'TABLE {location}',
+    'Order declined. Notify table {location} and ask to enter order again.': 'Order declined. Notify table {location} and ask to enter order again.',
+    'Are you sure you want to decline order #{id}?': 'Are you sure you want to decline order #{id}?',
+    'Order #{id}': 'Order #{id}',
+    'Table: {location}': 'Table: {location}',
+    'Client: {requester}': 'Client: {requester}',
+    'We have received your order ({orderIds}). Your order is in our queue, we will be there as soon as possible.': 'We have received your order ({orderIds}). Your order is in our queue, we will be there as soon as possible.',
+
+    // Attendees
+    'Set attendees {name}': 'Set attendees {name}',
+
+    // Manage - Events
+    'Edit event ID#{id}': 'Edit event ID#{id}',
+
+    // Manage - Menu
+    'Edit item ID#{id}': 'Edit item ID#{id}',
+
+    // Manage - Devices
+    'Are you sure you want to delete device "{name}"?': 'Are you sure you want to delete device "{name}"?',
+
+    // Manage - Payment Gateways
+    'Are you sure you want to remove the {gateway} payment gateway?': 'Are you sure you want to remove the {gateway} payment gateway?',
 };
