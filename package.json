@@ -44,7 +44,7 @@
         "sass": "^1.83.1",
         "sass-loader": "^16.0.4",
         "socket.io-client": "^4.8.1",
-        "swagger-ui": "^5.18.2",
+        "swagger-ui": "^5.32.1",
         "ts-jest": "^29.2.5",
         "ts-loader": "^9.5.1",
         "typescript": "^5.7.2",
