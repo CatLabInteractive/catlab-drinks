@@ -24,7 +24,7 @@
                 "name": "How much does it cost to set up a cashless system for a student event?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "CatLab Drinks is free and open-source software. The only cost is the NFC tags themselves, which start at around \u20ac0.10 each. You can use any Android phone or tablet you already own as a POS terminal."
+                    "text": "CatLab Drinks is free and open-source software. The only cost is the NFC tags themselves, which start at around €0.10 each. You can use any Android phone or tablet you already own as a POS terminal."
                 }
             },
             {
@@ -32,7 +32,7 @@
                 "name": "Can volunteers run the system without technical training?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes. The POS interface is designed to be simple \u2014 volunteers tap menu items, confirm the order, and optionally scan an NFC card. Pairing a device takes under two minutes with the QR code flow."
+                    "text": "Yes. The POS interface is designed to be simple — volunteers tap menu items, confirm the order, and optionally scan an NFC card. Pairing a device takes under two minutes with the QR code flow."
                 }
             },
             {

@@ -24,7 +24,7 @@
                 "name": "Can I run a cashless festival without expensive vendor contracts?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes. CatLab Drinks is free, open-source software. You deploy it on your own server and use standard NTAG213 NFC tags that cost as little as \u20ac0.10 each. There are no licensing fees, no per-transaction charges, and no mandatory hardware bundles."
+                    "text": "Yes. CatLab Drinks is free, open-source software. You deploy it on your own server and use standard NTAG213 NFC tags that cost as little as €0.10 each. There are no licensing fees, no per-transaction charges, and no mandatory hardware bundles."
                 }
             },
             {

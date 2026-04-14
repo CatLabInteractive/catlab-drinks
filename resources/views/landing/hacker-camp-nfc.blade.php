@@ -24,7 +24,7 @@
                 "name": "Can I audit the full source code of the payment system?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes. CatLab Drinks is released under the GNU GPL v3 license. The entire codebase \u2014 backend, POS frontend, NFC card logic, and cryptographic signing \u2014 is publicly available on GitHub for inspection, modification, and redistribution."
+                    "text": "Yes. CatLab Drinks is released under the GNU GPL v3 license. The entire codebase — backend, POS frontend, NFC card logic, and cryptographic signing — is publicly available on GitHub for inspection, modification, and redistribution."
                 }
             },
             {
@@ -32,7 +32,7 @@
                 "name": "What cryptography does the NFC card system use?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Each POS terminal generates an ECDSA P-192 key pair. Card data (balance, transaction count, timestamps, and the hardware UID) is signed with the terminal\u2019s private key. Other terminals verify signatures using approved public keys distributed by the server. P-192 was chosen to fit signatures within the 144-byte NTAG213 memory constraint."
+                    "text": "Each POS terminal generates an ECDSA P-192 key pair. Card data (balance, transaction count, timestamps, and the hardware UID) is signed with the terminal's private key. Other terminals verify signatures using approved public keys distributed by the server. P-192 was chosen to fit signatures within the 144-byte NTAG213 memory constraint."
                 }
             },
             {
