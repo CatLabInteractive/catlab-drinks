@@ -13,6 +13,10 @@
 
 Route::get('/', 'HomeController@welcome');
 Route::view('/getting-started', 'getting-started');
+Route::view('/student-union-cashless', 'landing.student-union-cashless');
+Route::view('/indie-festival-payments', 'landing.indie-festival-payments');
+Route::view('/hacker-camp-nfc', 'landing.hacker-camp-nfc');
+Route::view('/whitepaper', 'whitepaper');
 
 Route::get('/docs', 'DocumentController@swagger');
 Route::get('/docs/oauth2', 'DocumentController@oauth2Redirect');
