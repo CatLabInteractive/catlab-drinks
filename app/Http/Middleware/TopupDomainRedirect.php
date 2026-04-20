@@ -68,7 +68,7 @@ class TopupDomainRedirect
                 return redirect('/topup/' . $path);
             } else {
 				// Show a generic message asking to scan the qr code on the card
-				return view('topup/index');
+				return response(view('topup/index'));
 			}
         }
 
