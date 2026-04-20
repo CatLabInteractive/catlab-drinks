@@ -1,4 +1,3 @@
-<?php
 @extends('layouts.order')
 
 @section('content')
