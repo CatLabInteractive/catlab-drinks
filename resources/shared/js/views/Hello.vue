@@ -23,8 +23,8 @@
 
     <b-container fluid>
 
-        <h1>Hello world</h1>
-        <p>This is the hello world.</p>
+        <h1>{{ $t('Hello world') }}</h1>
+        <p>{{ $t('This is the hello world.') }}</p>
 
     </b-container>
 

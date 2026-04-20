@@ -415,4 +415,10 @@ export default {
 
     // Language toggle
     'Language': 'Sprache',
+
+    // Placeholder pages
+    'Hello world': 'Hallo Welt',
+    'This is the hello world.': 'Dies ist die Hallo-Welt.',
+    'Home': 'Startseite',
+    'This is the home.': 'Dies ist die Startseite.',
 };

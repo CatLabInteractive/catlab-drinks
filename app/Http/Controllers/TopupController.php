@@ -27,6 +27,7 @@ use App\Models\Organisation;
 use App\Models\OrganisationPaymentGateway;
 use App\Models\Topup;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Omnipay\Common\Exception\InvalidRequestException;
 use Omnipay\Omnipay;
 use Omnipay\Paynl\Gateway;
@@ -41,6 +42,7 @@ class TopupController extends Controller
 {
     private $minTopup;
     private $maxTopup;
+    private static $supportedLocales = ['en', 'nl', 'fr', 'de', 'es'];
 
     public function __construct()
     {
@@ -49,11 +51,35 @@ class TopupController extends Controller
     }
 
     /**
+     * Detect and set the locale from the request.
+     *
+     * @param Request $request
+     */
+    protected function detectLocale(Request $request)
+    {
+        $lang = $request->query('lang') ?? $request->query('language');
+
+        if ($lang) {
+            $lang = strtolower(explode('-', $lang)[0]);
+            if (in_array($lang, self::$supportedLocales)) {
+                app()->setLocale($lang);
+            }
+        } elseif ($request->hasHeader('Accept-Language')) {
+            $preferred = $request->getPreferredLanguage(self::$supportedLocales);
+            if ($preferred) {
+                app()->setLocale($preferred);
+            }
+        }
+    }
+
+    /**
      * @param $cardUid
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function topupForm($cardUid)
+    public function topupForm(Request $request, $cardUid)
     {
+        $this->detectLocale($request);
+
         $card = $this->getCard($cardUid);
         $gateway = $this->createPayNLGateway($card->organisation);
         if (!$gateway) {
@@ -120,9 +146,9 @@ class TopupController extends Controller
      * @param $topupUid
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|string|void
      */
-    public function notification($cardUid, $topupUid)
+    public function notification(Request $request, $cardUid, $topupUid)
     {
-        return $this->status($cardUid, $topupUid, true);
+        return $this->status($request, $cardUid, $topupUid, true);
     }
 
     /**
@@ -131,8 +157,10 @@ class TopupController extends Controller
      * @param bool $isApiRequest
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\View\View|string|void
      */
-    public function status($cardUid, $topupUid, $isApiRequest = false)
+    public function status(Request $request, $cardUid, $topupUid, $isApiRequest = false)
     {
+        $this->detectLocale($request);
+
         $card = $this->getCard($cardUid);
 
         /** @var Topup $topup */

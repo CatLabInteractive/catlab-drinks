@@ -415,4 +415,10 @@ export default {
 
     // Language toggle
     'Language': 'Taal',
+
+    // Placeholder pages
+    'Hello world': 'Hallo wereld',
+    'This is the hello world.': 'Dit is de hallo wereld.',
+    'Home': 'Startpagina',
+    'This is the home.': 'Dit is de startpagina.',
 };
