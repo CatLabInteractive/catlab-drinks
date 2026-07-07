@@ -96,7 +96,7 @@ $routes->group(
 				\App\Http\ManagementApi\V1\Controllers\CardController::setSharedRoutes($routes);
 				\App\Http\ManagementApi\V1\Controllers\TransactionController::setRoutes($routes);
 
-                \App\Http\Shared\V1\Controllers\OrderController::setRoutes($routes);
+				\App\Http\ManagementApi\V1\Controllers\OrderController::setRoutes($routes);
 
 			}
 		);
