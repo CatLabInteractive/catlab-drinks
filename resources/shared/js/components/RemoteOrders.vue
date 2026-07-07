@@ -138,6 +138,7 @@
 	import {OrderService} from "../services/OrderService";
 	import {CategoryService} from "../services/CategoryService";
 	import {PosDeviceService} from "../services/PosDeviceService";
+	import {isBarQueueOrder, ORDER_STATUS} from '../orderStatus';
 
 	import RemoteOrderDescription from './RemoteOrderDescription.vue';
 	import RemoteOrderStatus from './RemoteOrderStatus.vue';
@@ -241,6 +242,12 @@
 
 				const items = (await this.orderService.index(params)).items.filter(
 					(item) => {
+						// Table-service orders only pass through the bar when
+						// the event routes them here.
+						if (!isBarQueueOrder(item, this.event)) {
+							return false;
+						}
+
 						// Filter on assigned orders
 						if (this.onlyAssignedOrders && this.currentDeviceId) {
 							if (item.assigned_device_id !== this.currentDeviceId) {
@@ -371,6 +378,17 @@
 			 async acceptOrder(order) {
 
 				this.currentOrder = order;
+
+				// Table-service orders: payment is the waiter's job (settle
+				// flow); the bar only prepares. Mark prepared and hand back.
+				if (order.patron_id) {
+					order.status = ORDER_STATUS.PREPARED;
+					await this.orderService.update(order.id, order);
+
+					this.$refs.processedModal.show();
+					this.refresh();
+					return;
+				}
 
 				// not paid? We need to get paid first!
 				if (!order.paid) {
