@@ -34,5 +34,43 @@ services:
       timeout: 5s
       retries: 30
 
+  # Throwaway MySQL for the PHPUnit feature tests (mirrors the CI service in
+  # .github/workflows/tests.yml). Data lives in tmpfs: nothing persists.
+  # Usage: docker compose run --rm phpunit [phpunit args]
+  # (or from the host, if php-mysql is installed: DB_PORT=3313 vendor/bin/phpunit)
+  mysql-test:
+    image: mysql:8.0
+    profiles: ["test"]
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: catlab_drinks_test
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+    ports:
+      - "127.0.0.1:3313:3306"
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # Containerized PHPUnit runner: no PHP extensions needed on the host.
+  phpunit:
+    image: thecodingmachine/php:8.1-v5-cli
+    profiles: ["test"]
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    environment:
+      PHP_EXTENSION_PDO_MYSQL: "1"
+      DB_HOST: mysql-test
+      DB_PORT: 3306
+    depends_on:
+      mysql-test:
+        condition: service_healthy
+    entrypoint: ["php", "vendor/bin/phpunit"]
+
 volumes:
   mysql-data:
