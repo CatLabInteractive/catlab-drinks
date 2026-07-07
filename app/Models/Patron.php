@@ -4,6 +4,7 @@ namespace App\Models;
 
 use CatLab\Charon\Laravel\Database\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Class Patron
@@ -18,6 +19,24 @@ class Patron extends Model
     protected $fillable = [
         'name',
     ];
+
+    /**
+     * Cross-event table assignment is never valid; enforced at model level
+     * so it holds on every write path.
+     */
+    protected static function booted()
+    {
+        self::saving(function (Patron $patron) {
+            if ($patron->isDirty('table_id') && $patron->table_id !== null) {
+                $table = Table::find($patron->table_id);
+                if (!$table || (int) $table->event_id !== (int) $patron->event_id) {
+                    throw ValidationException::withMessages([
+                        'table_id' => 'Table does not belong to this event.'
+                    ]);
+                }
+            }
+        });
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
