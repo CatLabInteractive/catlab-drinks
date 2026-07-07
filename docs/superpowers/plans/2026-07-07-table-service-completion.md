@@ -15,7 +15,7 @@
 - Tabs, not spaces, for indentation (PHP files in `app/` currently use 4 spaces — match whatever the file you're editing uses).
 - Never run `npm update`. Never commit `package-lock.json` changes: run `git checkout -- package-lock.json` before committing if it changed.
 - Composer: use `composer install --ignore-platform-reqs` if needed (PHP here is 8.5; lock file targets ~8.1/8.2). `vendor/` already exists — do not reinstall unless something is missing.
-- PHPUnit: `./vendor/bin/phpunit`. Feature tests need MySQL DB `catlab_drinks_test` with user `test`/`test` (see Task 0).
+- PHPUnit: run via `docker compose run --rm phpunit [args]` (host PHP lacks pdo_mysql; the containerized runner + tmpfs MySQL mirror CI — set up in Task 0). Wherever a task says `./vendor/bin/phpunit ...`, substitute `docker compose run --rm phpunit ...`. `php artisan migrate` for new migrations is unnecessary locally — RefreshDatabase applies them in the test run.
 - Vitest: `npx vitest run`. Jest: `npx jest`.
 - Verify routes with `php artisan route:list --path=<prefix>`.
 - Commit after each task. End commit messages with `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>`.
