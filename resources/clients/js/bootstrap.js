@@ -80,6 +80,9 @@ if (typeof(ORDER_CARD_TOKEN) !== 'undefined' && ORDER_CARD_TOKEN) {
 if (typeof(ORDER_NAME) !== 'undefined' && ORDER_NAME) {
     window.axios.defaults.headers.common['X-Order-Name'] = ORDER_NAME;
 }
+if (typeof(ORDER_TABLE_NUMBER) !== 'undefined' && ORDER_TABLE_NUMBER) {
+    window.axios.defaults.headers.common['X-Table-Number'] = ORDER_TABLE_NUMBER;
+}
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

@@ -49,7 +49,7 @@ class OrderController
         $queryParams = $request->only(OrderTokenSignatureService::SIGNABLE_PARAMS);
         $secret = $event->getOrderTokenSecret();
 
-        if ($secret && OrderTokenSignatureService::hasSignableParams($queryParams)) {
+        if ($secret && OrderTokenSignatureService::requiresSignature($queryParams)) {
             $signature = $request->query('signature');
             if (!$signature || !OrderTokenSignatureService::verify($secret, $queryParams, $signature)) {
                 abort(403, 'Invalid signature.');
@@ -68,6 +68,7 @@ class OrderController
                 'signature' => $request->query('signature', ''),
                 'cardToken' => $request->query('card', ''),
                 'orderName' => $request->query('name', ''),
+                'tableNumber' => intval($request->query('table', 0)),
             ]
         );
     }

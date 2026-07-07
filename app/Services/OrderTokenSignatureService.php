@@ -38,7 +38,30 @@ class OrderTokenSignatureService
      * Parameters that are included in signature calculation.
      * Only these parameters are signed; all others are ignored.
      */
-    const SIGNABLE_PARAMS = ['card', 'name'];
+    const SIGNABLE_PARAMS = ['card', 'name', 'table'];
+
+    /**
+     * Parameters that make a signature mandatory. `table` is signable
+     * (covered by the signature when one is present) but may also be
+     * passed bare: knowing a table number grants no authority.
+     */
+    const SIGNATURE_REQUIRED_PARAMS = ['card', 'name'];
+
+    /**
+     * Check whether the given parameters require a signature.
+     *
+     * @param array $params
+     * @return bool
+     */
+    public static function requiresSignature(array $params): bool
+    {
+        foreach (self::SIGNATURE_REQUIRED_PARAMS as $key) {
+            if (isset($params[$key]) && $params[$key] !== '' && $params[$key] !== null) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Generate a signature for the given parameters using the provided secret.
