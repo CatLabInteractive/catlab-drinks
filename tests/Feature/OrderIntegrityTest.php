@@ -204,6 +204,8 @@ class OrderIntegrityTest extends TestCase
         $order->paid = true;
         $order->save();
 
+        $this->assertSame(Order::PAYMENT_STATUS_PAID, $order->payment_status);
+
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
             'payment_status' => Order::PAYMENT_STATUS_PAID,

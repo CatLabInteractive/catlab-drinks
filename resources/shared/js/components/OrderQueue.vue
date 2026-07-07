@@ -92,6 +92,10 @@
 			};
 		},
 
+		mounted() {
+			this.refresh();
+		},
+
 		computed: {
 			filteredOrders() {
 				let orders = this.orders.filter(o =>

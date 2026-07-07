@@ -186,6 +186,12 @@ that doesn't belong to the order's own event fails validation. It also blocks tr
 `payment_status` to `unpaid` unless the event allows it (`allow_unpaid_table_orders` or
 `allow_unpaid_online_orders`).
 
+`payment_status` enum validation (must be one of `Order::PAYMENT_STATUSES`) is enforced at
+the model level only, in `Order::validateIntegrity()` — it is deliberately not duplicated
+as an `in:` rule on `OrderResourceDefinition`, so invalid values 422 on every write path
+(Manage, POS, and the public order endpoint alike) without needing to keep two validation
+rules in sync.
+
 ---
 
 ## Authorization Policies

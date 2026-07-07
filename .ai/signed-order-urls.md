@@ -47,6 +47,11 @@ an otherwise-validly-signed URL invalidates that signature, because the signed m
 longer matches the (now three-parameter) query — the integrator must regenerate the
 signature over `card`/`name`/`table` together.
 
+> **Note:** table number `0` is not a usable value — the client drops a falsy
+> `ORDER_TABLE_NUMBER` before sending the `X-Table-Number` header, and the backend's
+> `findOrCreateTable` guard only acts on `$tableNumber > 0`, so signed (or unsigned) URLs
+> should always use table numbers ≥ 1.
+
 ### How to Calculate the Signature
 
 1. **Collect** only the signable parameters that are present (skip empty/null values)
