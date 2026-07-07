@@ -87,6 +87,12 @@ New relationships: `patron()`, `table()`
 
 ## Patron Assignment Algorithm
 
+Patron assignment is invoked by `PublicController@order` for public/remote orders (not by
+the authenticated Manage/POS APIs). The table number arrives via the `X-Table-Number` header
+(signature-covered when the event uses signed order URLs — see `.ai/signed-order-urls.md`),
+and the name via the `X-Order-Name` header, falling back to the order's `requester` field
+when no `X-Order-Name` header is present.
+
 `PatronAssignmentService` resolves which patron should own an incoming order:
 
 ### 1. Named Orders (e.g., Quiz App)
@@ -141,6 +147,26 @@ or creates one. Used when remote orders arrive referencing unknown table numbers
 | POST   | `/events/{id}/patrons`                  | Create patron     | Both APIs       |
 | GET    | `/patrons/{id}`                         | View patron       | Both APIs       |
 | PUT    | `/patrons/{id}`                         | Edit patron       | Both APIs       |
+| POST   | `/patrons/{id}/settle`                  | Settle tab        | Both APIs       |
+
+`POST /patrons/{id}/settle` atomically settles all unpaid orders for a patron. Body:
+`{payment_type, discount}` (both optional). Idempotent — calling it on a patron with no
+unpaid orders returns an empty collection rather than erroring. Implemented by
+`PatronSettlementService::settle()`, called from `PatronController::settle()`
+(`app/Http/Shared/V1/Controllers/PatronController.php`).
+
+**Discount no-compound guard:** if `discount` > 0, it's only applied to orders that don't
+already carry a `discount_percentage`. An order that was settled once (with a discount),
+reopened (e.g. voided back to unpaid), and re-settled keeps its existing discounted item
+prices rather than having the discount re-applied on top — this prevents compounding.
+
+**`payment_status` is canonical over the legacy `paid` bool.** A model event
+(`Order::syncPaymentFields()`, run on every `saving`) keeps the two in sync: setting
+`payment_status` drives `paid`. The one exception is order creation — a create that only
+sets `paid = false` deliberately keeps the column default for `payment_status` (currently
+`'paid'`), because a legacy `paid = false` does not by itself imply an open tab. Any flow
+that needs to create a genuinely unpaid order (e.g. a table-service tab) must set
+`payment_status` explicitly rather than relying on `paid = false` alone.
 
 ### Updated Order Fields
 
@@ -148,6 +174,17 @@ or creates one. Used when remote orders arrive referencing unknown table numbers
 - `payment_status` — filterable, writeable
 - `patron_id` — filterable, writeable
 - `table_id` — filterable, writeable
+
+On the public order endpoint (`PublicController@order`), `patron_id`, `table_id`, and
+`payment_status` are always server-forced — any client-supplied values for these fields
+are discarded before the order is saved; patron/table come from `PatronAssignmentService`
+and `payment_status` reflects the actual payment outcome.
+
+On the authenticated Manage/POS APIs, `Order::validateIntegrity()` (a `saving` model event,
+so it runs on every write path) rejects cross-event references: a `patron_id` or `table_id`
+that doesn't belong to the order's own event fails validation. It also blocks transitioning
+`payment_status` to `unpaid` unless the event allows it (`allow_unpaid_table_orders` or
+`allow_unpaid_online_orders`).
 
 ---
 
@@ -195,6 +232,17 @@ Same as `TablePolicy` — devices can CRUD except destroy.
 | `TableService.vue`    | `pos/js/components/`             | Isolated table service component: table grid, patron modal (selection + details), order queue |
 | `LiveSales.vue`       | `shared/js/components/`          | Menu + order form. Accepts optional `patronId`, `tableId`, `allowPayLater` props for table service context |
 | `PaymentPopup.vue`    | `shared/js/components/`          | Payment modal. Shows "Pay later" button when `allow_pay_later` is set on PaymentService |
+| `OrderQueue.vue`      | `shared/js/components/`          | Shared order queue table (status/payment badges, prepared/delivered/void actions). Owns its own fetching via an injected `orderService`; used by both `TableService.vue` (POS) and `WaiterDashboard.vue` (Manage) |
+
+`resources/shared/js/orderStatus.js` is the constants module shared by all three frontend
+apps: `ORDER_STATUS`, `PAYMENT_STATUS`, `statusVariant()`/`paymentStatusVariant()` for badge
+colors, and `isBarQueueOrder(order, event)` which decides whether a table-service order
+should appear in the bar's remote queue (see `bar_prepares_table_orders` under Event
+Settings below). Its values must stay in sync with the constants on `App\Models\Order`.
+
+Settle flows (both POS `TableService.vue` and Manage `PatronDetail.vue`) call
+`PatronService.settle(patronId, paymentType, discount)`, which hits
+`POST /patrons/{id}/settle` — see *API Endpoints* above.
 
 ### Views
 
@@ -247,6 +295,7 @@ When `event.allow_unpaid_table_orders` is true:
 | Setting                      | Type | Default | Description                              |
 |------------------------------|------|---------|------------------------------------------|
 | `allow_unpaid_table_orders`  | bool | false   | When true, waiters can "Pay Later" on orders, leaving payment_status as 'unpaid' while fulfillment continues |
+| `bar_prepares_table_orders`  | bool | false   | When true, table orders enter the bar's remote queue (`RemoteOrders.vue`) as `pending`; the bar marks them `prepared` (no payment demanded there — settlement happens later via the patron's tab), and waiters only handle delivery. When false, table orders skip the bar queue entirely (`isBarQueueOrder()` in `orderStatus.js` returns false for any order with a `patron_id` unless this flag is set) and waiters mark `prepared`/`delivered` themselves from the table-service order queue. |
 
 ---
 

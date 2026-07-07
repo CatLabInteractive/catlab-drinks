@@ -67,7 +67,7 @@ class OrderTokenSignatureService
      * Generate a signature for the given parameters using the provided secret.
      *
      * The signing algorithm:
-     * 1. Filter to only include signable parameters (card, name)
+     * 1. Filter to only include signable parameters (card, name, table)
      * 2. Sort parameters alphabetically by key
      * 3. Build a query string: key1=value1&key2=value2
      * 4. Compute HMAC-SHA256 using the secret as key

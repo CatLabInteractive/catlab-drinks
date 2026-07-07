@@ -52,7 +52,16 @@ php artisan route:list                  # Verify routes are registered correctly
 php artisan route:list --path=<prefix>  # Filter routes by path prefix
 ```
 
-No automated test suite exists currently. Manual testing is required.
+PHPUnit test suite: `./vendor/bin/phpunit` (Unit + Feature; Feature tests need a MySQL
+database `catlab_drinks_test`, user `test`/`test` — see phpunit.xml).
+
+If the host PHP install lacks the `pdo_mysql` extension, run the suite in the dockerized
+runner instead: `docker compose run --rm phpunit [args]`. This spins up the `mysql-test`
+and `phpunit` compose services (both behind the `test` profile, so they don't start with
+a plain `docker compose up`) — a throwaway MySQL 8.0 instance on tmpfs plus a
+`thecodingmachine/php:8.1-v5-cli` container with `pdo_mysql` preinstalled. Nothing persists
+between runs.
+
 The lock file requires PHP ~8.1 or ~8.2; use `--ignore-platform-reqs` on newer PHP versions.
 
 ### JavaScript Tests

@@ -2,9 +2,10 @@
 
 ## Overview
 When third-party applications (like QuizWitz) create remote order URLs with query parameters
-such as `card` (card alias) or `name` (requester name), these parameters must be signed to
-prevent tampering. This ensures that only authorized integrators can create valid order URLs
-that charge specific cards or assign orders to specific users.
+such as `card` (card alias), `name` (requester name), or `table` (table number, for table
+service QR codes), these parameters must be signed to prevent tampering. This ensures that
+only authorized integrators can create valid order URLs that charge specific cards or assign
+orders to specific users or tables.
 
 ## Token Structure
 
@@ -26,14 +27,30 @@ Full token (shown to admins/integrators): `ABC123def456GHI789jkl012MNO345pq-rstU
 ## Signature Algorithm
 
 ### Signable Parameters
-Only these query parameters are included in the signature:
+Only these query parameters are included in the signature (alphabetical, which is also the
+sort order used when building the signed message):
 - `card` — Card alias for payment
 - `name` — Requester name
+- `table` — Table number (table service QR codes)
+
+### Signature Required vs. Optional
+
+A signature is **required** only when `card` or `name` is present — those two parameters
+grant authority (charging a card, attributing an order to a name) and cannot be trusted
+unsigned. `table` on its own carries no authority (knowing a table number doesn't let you
+do anything you couldn't already do by walking up to that table), so a bare `?table=12` is
+accepted **without** a signature.
+
+However, if a signature **is** present (because `card` and/or `name` is also present), it
+must cover **all** present signable parameters, `table` included. Appending `&table=12` to
+an otherwise-validly-signed URL invalidates that signature, because the signed message no
+longer matches the (now three-parameter) query — the integrator must regenerate the
+signature over `card`/`name`/`table` together.
 
 ### How to Calculate the Signature
 
 1. **Collect** only the signable parameters that are present (skip empty/null values)
-2. **Sort** parameters alphabetically by key name
+2. **Sort** parameters alphabetically by key name (`card`, `name`, `table`)
 3. **URL-encode** both keys and values using RFC 3986 percent-encoding (`rawurlencode` in PHP)
 4. **Build** a query string: `key1=value1&key2=value2`
 5. **Compute** HMAC-SHA256 using the secret as the key
@@ -118,21 +135,38 @@ https://drinks.catlab.eu/order/{public_token}
 https://drinks.catlab.eu/order/{public_token}?card=player1&name=Alice&signature={hex_signature}
 ```
 
+### With an unsigned `table` parameter
+```
+https://drinks.catlab.eu/order/{public_token}?table=12
+```
+No signature required — `table` alone carries no authority.
+
+### With `table` alongside a signed parameter
+```
+https://drinks.catlab.eu/order/{public_token}?card=player1&table=12&signature={hex_signature}
+```
+Here the signature **must** cover both `card` and `table` (message: `card=player1&table=12`).
+
 ## Validation Flow
 
 ### Page Load (`GET /order/{token}?...`)
 1. Server looks up event by `order_token` (public part)
-2. If event has `order_token_secret` AND signable params are present:
-   - Extract `card` and `name` from query params
-   - Validate `signature` query param using HMAC-SHA256
+2. If event has `order_token_secret` AND `card` or `name` is present in the query
+   (`OrderTokenSignatureService::requiresSignature()` — note `table` alone does **not**
+   trigger this):
+   - Extract `card`, `name`, and `table` (if present) from query params
+   - Validate `signature` query param using HMAC-SHA256 over all present signable params
    - Reject with 403 if signature is missing or invalid
-3. If event has no secret (legacy): allow params without signature
-4. Render Vue app with validated parameters passed as JS variables
+3. If event has no secret (legacy), or only `table` is present: allow params without signature
+4. Render Vue app with validated parameters (including `tableNumber` from the `table` query
+   param) passed as JS variables
 
 ### API Calls (`GET/POST /api/v1/public/*`)
-1. Middleware checks `X-Event-Token` header for event lookup
+1. Middleware (`PublicEventApiAuthentication`) checks `X-Event-Token` header for event lookup
 2. If event has `order_token_secret` AND `X-Card-Token` or `X-Order-Name` headers are present:
-   - Build params map from `X-Card-Token` → `card`, `X-Order-Name` → `name`
+   - Build params map from `X-Card-Token` → `card`, `X-Order-Name` → `name`, and
+     `X-Table-Number` → `table` (included in the map, and thus in the signature, whenever
+     it's present — but its presence alone does not make a signature mandatory)
    - Validate `X-Signature` header
    - Reject with 403 if signature is missing or invalid
 3. If event has no secret (legacy): allow headers without signature
@@ -143,6 +177,7 @@ https://drinks.catlab.eu/order/{public_token}?card=player1&name=Alice&signature=
 | `X-Event-Token` | Public order token for event lookup |
 | `X-Card-Token` | Card alias for payment (corresponds to `card` query param) |
 | `X-Order-Name` | Requester name (corresponds to `name` query param) |
+| `X-Table-Number` | Table number (corresponds to `table` query param); read by `PublicController@order` to drive patron/table assignment — see `.ai/table-service.md` |
 | `X-Signature` | HMAC-SHA256 signature of the signed parameters |
 
 ## Database Changes
