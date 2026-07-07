@@ -34,7 +34,11 @@ class PatronSettlementService
 
             foreach ($orders as $order) {
                 /** @var Order $order */
-                if ($discount > 0) {
+                // Only apply the discount to orders that don't already carry
+                // one: orders that were settled once, reopened and re-settled
+                // keep their existing discounted prices — re-applying would
+                // compound the discount.
+                if ($discount > 0 && !$order->discount_percentage) {
                     $order->discount_percentage = $discount;
                     foreach ($order->order as $orderItem) {
                         $orderItem->price *= $order->getDiscountFactor();

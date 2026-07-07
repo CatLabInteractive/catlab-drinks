@@ -11,7 +11,6 @@ use App\Services\PatronSettlementService;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Exceptions\InvalidContextAction;
-use CatLab\Charon\Laravel\Models\ResourceResponse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -114,7 +113,7 @@ abstract class PatronController extends ResourceController
         $readContext = $this->getContext(Action::INDEX);
         $resources = $this->toResources($settled, $readContext, OrderResourceDefinition::class);
 
-        return new ResourceResponse($resources, $readContext);
+        return $this->getResourceResponse($resources, $readContext);
     }
 
     /**

@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Event;
+use App\Models\MenuItem;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Organisation;
 use App\Models\Patron;
 use App\Services\PatronSettlementService;
@@ -91,5 +93,46 @@ class PatronSettlementServiceTest extends TestCase
         $settled = (new PatronSettlementService())->settle($patron, 'nfc', 25);
 
         $this->assertEquals(25, (int) $settled->first()->discount_percentage);
+    }
+
+    public function testSettleAppliesDiscountToItemPricesOnce(): void
+    {
+        $patron = $this->makePatronWithOrders(1);
+
+        /** @var Order $order */
+        $order = $patron->orders()->first();
+
+        $menuItem = MenuItem::factory()->create([
+            'event_id' => $order->event_id,
+            'price' => 2.0,
+        ]);
+        $orderItem = OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'menu_item_id' => $menuItem->id,
+            'amount' => 1,
+            'price' => 2.0,
+        ]);
+
+        $service = new PatronSettlementService();
+
+        // First settlement applies the 25% discount to the item price.
+        $settled = $service->settle($patron, 'nfc', 25);
+
+        $this->assertEquals(25, (int) $settled->first()->discount_percentage);
+        $orderItem->refresh();
+        $this->assertEqualsWithDelta(1.5, (float) $orderItem->price, 0.001);
+
+        // Reopen the settled order and settle again with the same discount:
+        // the item price must not be discounted a second time.
+        $order->refresh();
+        $order->payment_status = Order::PAYMENT_STATUS_UNPAID;
+        $order->save();
+
+        $resettled = $service->settle($patron->refresh(), 'nfc', 25);
+
+        $this->assertCount(1, $resettled);
+        $orderItem->refresh();
+        $this->assertEqualsWithDelta(1.5, (float) $orderItem->price, 0.001);
+        $this->assertEquals(25, (int) $resettled->first()->discount_percentage);
     }
 }
