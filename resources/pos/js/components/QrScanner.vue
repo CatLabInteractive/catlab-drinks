@@ -24,7 +24,7 @@
 		<p v-if="cameraError" class="error">{{ cameraError }}</p>
 		<qr-stream @detect="onDetect" @error="onError" v-if="!cameraError">
 			<div class="qr-overlay">
-				<p>Point your camera at the QR code</p>
+				<p>{{ $t('Point your camera at the QR code') }}</p>
 			</div>
 		</qr-stream>
 	</div>

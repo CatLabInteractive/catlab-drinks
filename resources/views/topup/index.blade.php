@@ -3,8 +3,8 @@
 @section('content')
 	<div class="container">
 
-		<h2>CatLab Drinks: topup</h2>
-		<p>Please scan the QR code on the card to initiate a topup.</p>
+		<h2>{{ __('topup.title') }}</h2>
+		<p>{{ __('topup.scan_qr') }}</p>
 
 	</div>
 @endsection
