@@ -29,6 +29,7 @@ use App\Http\Shared\V1\ResourceDefinitions\OrderResourceDefinition;
 use App\Models\Card;
 use App\Models\Event;
 use App\Models\Order;
+use App\Services\PatronAssignmentService;
 use CatLab\Charon\Collections\RouteCollection;
 use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Exceptions\InvalidContextAction;
@@ -167,6 +168,13 @@ class PublicController extends ResourceController
         $entity->uid = Uuid::uuid1();
         $entity->paid = false;
 
+        // Never trust client-provided table service fields on the public
+        // endpoint: patron/table come from PatronAssignmentService below,
+        // payment_status from the actual payment outcome.
+        $entity->patron_id = null;
+        $entity->table_id = null;
+        $entity->payment_status = null;
+
         // Lock the price of the order items down.
         foreach ($entity->order as $orderItem) {
             $orderItem->price = $orderItem->menuItem->price;
@@ -230,10 +238,46 @@ class PublicController extends ResourceController
             ], 402);
         }
 
+        // Resolve patron assignment (table QR flow and named orders).
+        // The X-Table-Number and X-Order-Name headers are signature-validated
+        // by PublicEventApiAuthentication when the event uses signed URLs.
+        $patronAssignment = new PatronAssignmentService();
+
+        $table = null;
+        $tableNumber = intval(\Request::header('X-Table-Number'));
+        if ($tableNumber > 0) {
+            $table = $patronAssignment->findOrCreateTable($event, $tableNumber);
+        }
+
+        $name = \Request::header('X-Order-Name');
+        if (!$name) {
+            // Fall back to the requester field from the order form.
+            foreach ($newOrders as $newOrder) {
+                if ($newOrder->requester) {
+                    $name = $newOrder->requester;
+                    break;
+                }
+            }
+        }
+
+        $patron = $patronAssignment->resolvePatron($event, $name ?: null, $table);
+
         foreach ($newOrders as $entity) {
 
             $entity->event()->associate($event);
             $entity->status = Order::STATUS_PENDING;
+
+            if ($patron) {
+                $entity->patron()->associate($patron);
+            }
+            if ($table) {
+                $entity->table()->associate($table);
+            }
+
+            // payment_status reflects the actual outcome, never client input.
+            $entity->payment_status = $entity->paid
+                ? Order::PAYMENT_STATUS_PAID
+                : Order::PAYMENT_STATUS_UNPAID;
 
             $entity->saveRecursively();
 
