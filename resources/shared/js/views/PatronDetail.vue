@@ -59,6 +59,7 @@
 <script>
 import {PatronService} from "../../../shared/js/services/PatronService";
 import {OrderService} from "../../../shared/js/services/OrderService";
+import {statusVariant, paymentStatusVariant} from '../orderStatus';
 
 export default {
 	async mounted() {
@@ -102,35 +103,13 @@ export default {
 
 		async settleBalance() {
 			if (confirm(this.$t('Pay all outstanding orders for this patron?'))) {
-				// Mark all unpaid orders as paid in parallel
-				const unpaidOrders = this.orders.filter(o => o.payment_status === 'unpaid');
-				await Promise.all(
-					unpaidOrders.map(order =>
-						this.orderService.update(order.id, { payment_status: 'paid' })
-					)
-				);
+				await this.patronService.settle(this.patronId);
 				await this.refresh();
 			}
 		},
 
-		statusVariant(status) {
-			switch (status) {
-				case 'pending': return 'warning';
-				case 'prepared': return 'info';
-				case 'delivered': return 'success';
-				case 'declined': return 'danger';
-				default: return 'secondary';
-			}
-		},
-
-		paymentStatusVariant(status) {
-			switch (status) {
-				case 'unpaid': return 'warning';
-				case 'paid': return 'success';
-				case 'voided': return 'danger';
-				default: return 'secondary';
-			}
-		}
+		statusVariant,
+		paymentStatusVariant,
 	}
 }
 </script>

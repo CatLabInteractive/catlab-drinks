@@ -130,10 +130,27 @@ describe('POS TableService.vue component (pos/js/components/)', () => {
 		expect(content).toContain('settleBalance');
 	});
 
+	it('uses the shared OrderQueue component for the order queue tab', () => {
+		expect(content).toContain('order-queue');
+		expect(content).toContain("OrderQueue from '../../../shared/js/components/OrderQueue.vue'");
+	});
+});
+
+describe('OrderQueue.vue shared component (shared/js/components/)', () => {
+	const content = readSharedComponentFile('OrderQueue.vue');
+
 	it('has order queue with status actions', () => {
 		expect(content).toContain('markPrepared');
 		expect(content).toContain('markDelivered');
 		expect(content).toContain('markVoided');
+	});
+
+	it('exposes a public refresh method', () => {
+		expect(content).toContain('async refresh()');
+	});
+
+	it('gates the Prepared action behind allowMarkPrepared', () => {
+		expect(content).toContain('allowMarkPrepared');
 	});
 });
 

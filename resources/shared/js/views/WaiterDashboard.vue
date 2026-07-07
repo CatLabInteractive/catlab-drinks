@@ -86,63 +86,12 @@
 
 				<!-- Order Queue Tab -->
 				<b-tab :title="$t('Order Queue')">
-					<div class="mt-3">
-						<b-form-group>
-							<b-form-checkbox v-model="filterMyOrders" inline>
-								{{ $t('My orders only') }}
-							</b-form-checkbox>
-							<b-form-checkbox v-model="filterPreparedOnly" inline>
-								{{ $t('Prepared only') }}
-							</b-form-checkbox>
-						</b-form-group>
-
-						<div class="text-center" v-if="loadingOrders">
-							<b-spinner :label="$t('Loading data')" />
-						</div>
-
-						<b-table v-if="!loadingOrders" striped hover :items="filteredOrders" :fields="orderFields">
-							<template v-slot:cell(status)="row">
-								<b-badge :variant="statusVariant(row.item.status)">
-									{{ row.item.status }}
-								</b-badge>
-							</template>
-
-							<template v-slot:cell(payment_status)="row">
-								<b-badge :variant="paymentStatusVariant(row.item.payment_status)">
-									{{ row.item.payment_status }}
-								</b-badge>
-							</template>
-
-							<template v-slot:cell(actions)="row">
-								<b-button
-									v-if="row.item.status === 'pending'"
-									size="sm"
-									variant="info"
-									@click="markPrepared(row.item)"
-									class="mr-1"
-								>
-									{{ $t('Prepared') }}
-								</b-button>
-								<b-button
-									v-if="row.item.status !== 'delivered' && row.item.status !== 'declined'"
-									size="sm"
-									variant="success"
-									@click="markDelivered(row.item)"
-									class="mr-1"
-								>
-									{{ $t('Delivered') }}
-								</b-button>
-								<b-button
-									v-if="row.item.status !== 'declined'"
-									size="sm"
-									variant="danger"
-									@click="markVoided(row.item)"
-								>
-									{{ $t('Void') }}
-								</b-button>
-							</template>
-						</b-table>
-					</div>
+					<order-queue
+						v-if="loaded"
+						ref="orderQueue"
+						:order-service="orderService"
+						:allow-mark-prepared="!(event && event.bar_prepares_table_orders)"
+					></order-queue>
 				</b-tab>
 			</b-tabs>
 		</div>
@@ -155,7 +104,13 @@ import {TableService} from "../../../shared/js/services/TableService";
 import {PatronService} from "../../../shared/js/services/PatronService";
 import {OrderService} from "../../../shared/js/services/OrderService";
 
+import OrderQueue from '../components/OrderQueue.vue';
+
 export default {
+	components: {
+		'order-queue': OrderQueue,
+	},
+
 	async mounted() {
 		this.eventId = this.$route.params.id;
 		this.eventService = new EventService(window.ORGANISATION_ID);
@@ -170,24 +125,12 @@ export default {
 		return {
 			loaded: false,
 			loadingPatrons: false,
-			loadingOrders: false,
 			activeTab: 0,
 			eventId: null,
 			event: null,
 			tables: [],
 			patrons: [],
-			orders: [],
 			selectedTableId: null,
-			filterMyOrders: false,
-			filterPreparedOnly: false,
-			orderFields: [
-				{ key: 'id', label: '#' },
-				{ key: 'requester', label: this.$t('Requester') },
-				{ key: 'status', label: this.$t('Status') },
-				{ key: 'payment_status', label: this.$t('Payment') },
-				{ key: 'date', label: this.$t('Date') },
-				{ key: 'actions', label: this.$t('Actions'), class: 'text-right' }
-			]
 		}
 	},
 
@@ -203,22 +146,6 @@ export default {
 				return this.patrons.filter(p => !p.table_id);
 			}
 			return this.patrons.filter(p => p.table_id === this.selectedTableId);
-		},
-
-		filteredOrders() {
-			let orders = this.orders.filter(o =>
-				o.status === 'pending' || o.status === 'prepared'
-			);
-
-			if (this.filterMyOrders && window.DEVICE_ID) {
-				orders = orders.filter(o => o.assigned_device_id === window.DEVICE_ID);
-			}
-
-			if (this.filterPreparedOnly) {
-				orders = orders.filter(o => o.status === 'prepared');
-			}
-
-			return orders;
 		}
 	},
 
@@ -229,8 +156,8 @@ export default {
 		},
 
 		activeTab(newTab) {
-			if (newTab === 1) {
-				this.refreshOrders();
+			if (newTab === 1 && this.$refs.orderQueue) {
+				this.$refs.orderQueue.refresh();
 			}
 		}
 	},
@@ -249,14 +176,6 @@ export default {
 			this.loadingPatrons = false;
 		},
 
-		async refreshOrders() {
-			this.loadingOrders = true;
-			this.orders = (await this.orderService.index({
-				status: 'pending,prepared'
-			})).items;
-			this.loadingOrders = false;
-		},
-
 		selectTable(tableId) {
 			this.selectedTableId = tableId;
 		},
@@ -268,45 +187,6 @@ export default {
 			};
 			await this.patronService.create(patron);
 			await this.refreshPatrons();
-		},
-
-		async markPrepared(order) {
-			await this.orderService.update(order.id, { status: 'prepared' });
-			await this.refreshOrders();
-		},
-
-		async markDelivered(order) {
-			await this.orderService.update(order.id, { status: 'delivered' });
-			await this.refreshOrders();
-		},
-
-		async markVoided(order) {
-			if (confirm(this.$t('Are you sure you want to void this order?'))) {
-				await this.orderService.update(order.id, {
-					status: 'declined',
-					payment_status: 'voided'
-				});
-				await this.refreshOrders();
-			}
-		},
-
-		statusVariant(status) {
-			switch (status) {
-				case 'pending': return 'warning';
-				case 'prepared': return 'info';
-				case 'delivered': return 'success';
-				case 'declined': return 'danger';
-				default: return 'secondary';
-			}
-		},
-
-		paymentStatusVariant(status) {
-			switch (status) {
-				case 'unpaid': return 'warning';
-				case 'paid': return 'success';
-				case 'voided': return 'danger';
-				default: return 'secondary';
-			}
 		}
 	}
 }

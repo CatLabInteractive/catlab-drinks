@@ -224,15 +224,29 @@ describe('WaiterDashboard.vue shared view (still exists for manage app)', () => 
 		expect(content).toContain('createPatron');
 	});
 
-	it('supports order status updates', () => {
+	it('uses the shared OrderQueue component for order status updates', () => {
 		const content = readFile(viewPath);
+		expect(content).toContain('order-queue');
+		expect(content).toContain("OrderQueue from '../components/OrderQueue.vue'");
+	});
+});
+
+describe('OrderQueue.vue shared component (order status + filters, used by WaiterDashboard and TableService)', () => {
+	const componentPath = resolve(sharedPath, 'components', 'OrderQueue.vue');
+
+	it('file exists', () => {
+		expect(existsSync(componentPath)).toBe(true);
+	});
+
+	it('supports order status updates', () => {
+		const content = readFile(componentPath);
 		expect(content).toContain('markPrepared');
 		expect(content).toContain('markDelivered');
 		expect(content).toContain('markVoided');
 	});
 
 	it('has filter controls for order queue', () => {
-		const content = readFile(viewPath);
+		const content = readFile(componentPath);
 		expect(content).toContain('filterMyOrders');
 		expect(content).toContain('filterPreparedOnly');
 	});
