@@ -28,6 +28,7 @@ import moment from 'moment'
 import AirbrakeClient from 'airbrake-js';
 
 import {CardService} from "../../shared/js/nfccards/CardService";
+import {determineKeyApprovalStatus} from '../../shared/js/nfccards/crypto/keyApprovalStatus';
 import {SettingService} from "../../shared/js/services/SettingService";
 import {PaymentService} from "../../shared/js/services/PaymentService";
 import {OrganisationService} from "../../shared/js/services/OrganisationService";
@@ -284,21 +285,15 @@ async function launch() {
 
 					// Determine key approval status
 					const keyManager = Vue.prototype.$cardService.getKeyManager();
-					const hasLocalKey = keyManager && keyManager.isInitialized();
+					const hasLocalKey = !!(keyManager && keyManager.isInitialized());
 					const hasServerKey = !!window.DEVICE_PUBLIC_KEY;
 
-					if (hasLocalKey && hasServerKey && window.DEVICE_APPROVED_AT) {
-						Vue.prototype.$cardService.setKeyApprovalStatus('approved');
+					const keyStatus = determineKeyApprovalStatus(hasLocalKey, hasServerKey, window.DEVICE_APPROVED_AT || null);
+					Vue.prototype.$cardService.setKeyApprovalStatus(keyStatus);
 
+					if (keyStatus === 'approved') {
 						// Load approved public keys (with offline cache fallback)
 						Vue.prototype.$cardService.fetchAndCachePublicKeys(window.ORGANISATION_ID);
-					} else if (hasLocalKey && hasServerKey && !window.DEVICE_APPROVED_AT) {
-						Vue.prototype.$cardService.setKeyApprovalStatus('pending');
-					} else if (hasLocalKey && !hasServerKey) {
-						// Local key exists but server key was revoked
-						Vue.prototype.$cardService.setKeyApprovalStatus('revoked');
-					} else {
-						Vue.prototype.$cardService.setKeyApprovalStatus('none');
 					}
 				}
 
