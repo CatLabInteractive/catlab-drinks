@@ -50,6 +50,7 @@ class Event extends Model
         'payment_cards',
         'split_orders_by_categories',
         'allow_unpaid_table_orders',
+        'bar_prepares_table_orders',
     ];
 
     /**

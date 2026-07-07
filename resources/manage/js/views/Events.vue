@@ -205,6 +205,13 @@
 
 			<b-form-group>
 				<label>
+					<input type="checkbox" v-model="model.bar_prepares_table_orders">
+					{{ $t('Table orders are prepared by the bar (waiters only deliver)') }}
+				</label>
+			</b-form-group>
+
+			<b-form-group>
+				<label>
 					<input type="checkbox" v-model="model.split_orders_by_categories">
 					{{ $t('Split orders by product categories (e.g drinks for the bar, food for the kitchen)') }}
 				</label>
