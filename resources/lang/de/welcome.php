@@ -53,4 +53,19 @@ return [
     'license_warranty' => 'DIE SOFTWARE WIRD "WIE BESEHEN" BEREITGESTELLT, OHNE JEGLICHE GEWÄHRLEISTUNG, WEDER AUSDRÜCKLICH NOCH STILLSCHWEIGEND, EINSCHLIESSLICH, ABER NICHT BESCHRÄNKT AUF DIE GEWÄHRLEISTUNGEN DER MARKTGÄNGIGKEIT, DER EIGNUNG FÜR EINEN BESTIMMTEN ZWECK UND DER NICHTVERLETZUNG.',
 
     'language' => 'Sprache',
+
+    'meta_description' => 'CatLab Drinks ist ein quelloffenes, hardwareunabhängiges bargeldloses Zahlungssystem für Veranstaltungen und Festivals. Verwenden Sie günstige NFC-Tags, hosten Sie auf Ihrem eigenen Server und betreiben Sie eine komplette DIY-Zahlungsinfrastruktur für Festivals.',
+    'meta_keywords' => 'hardwareunabhängiges bargeldloses Zahlungssystem, günstiges NFC-Aufladesystem für Festivals, DIY-Festival-Zahlungsinfrastruktur, Open-Source-Kassensystem, NFC-Zahlung, bargeldlose Veranstaltung, Festivalzahlung, selbst gehostete Bar-Automatisierung',
+
+    'faq_title' => 'Häufig gestellte Fragen',
+    'faq_1_q' => 'Kann ich Standard-NFC-Tags für ein Festival-Zahlungssystem verwenden?',
+    'faq_1_a' => 'Ja. CatLab Drinks funktioniert mit Standard-NTAG213-NFC-Tags, die ab nur 0,10 € pro Stück erhältlich sind. Es sind keine teuren proprietären Armbänder oder herstellergebundene Hardware erforderlich.',
+    'faq_2_q' => 'Welche Hardware brauche ich für eine bargeldlose Veranstaltung?',
+    'faq_2_a' => 'Jedes Android-Telefon oder -Tablet mit NFC kann als Kassenterminal dienen. Für Desktop-Setups funktioniert ein USB-NFC-Leser wie der ACR122U mit unserem Begleitdienst. Das System ist vollständig hardwareunabhängig.',
+    'faq_3_q' => 'Ist CatLab Drinks für kleine Veranstaltungen mit knappem Budget geeignet?',
+    'faq_3_a' => 'Absolut. Die Software ist kostenlos und quelloffen, NFC-Tags sind extrem günstig und Sie können vorhandene Android-Geräte als Terminals verwenden. Das macht es ideal für Fachschaften, Gemeinschaftsveranstaltungen und kleine Festivals.',
+    'faq_4_q' => 'Wie funktioniert die NFC-Kartensicherheit?',
+    'faq_4_a' => 'Jedes Kassenterminal verfügt über ein eigenes kryptografisches ECDSA-Schlüsselpaar. Kartendaten werden mit dem privaten Schlüssel des Terminals signiert und mit genehmigten öffentlichen Schlüsseln verifiziert. Die Hardware-UID der Karte wird in die Signatur aufgenommen, um Klonen zu verhindern.',
+    'faq_5_q' => 'Funktioniert das System offline?',
+    'faq_5_a' => 'Ja. Da das Guthaben direkt auf der NFC-Karte gespeichert wird, können Transaktionen auch ohne Internetverbindung verarbeitet werden. Die Daten werden automatisch synchronisiert, wenn die Verbindung wiederhergestellt ist.',
 ];

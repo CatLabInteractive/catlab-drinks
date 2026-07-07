@@ -53,4 +53,19 @@ return [
     'license_warranty' => 'EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA, INCLUYENDO PERO NO LIMITÁNDOSE A LAS GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y NO INFRACCIÓN.',
 
     'language' => 'Idioma',
+
+    'meta_description' => 'CatLab Drinks es un sistema de pago sin efectivo de código abierto e independiente del hardware para eventos y festivales. Use etiquetas NFC económicas, aloje en su propio servidor y ejecute una infraestructura de pago completa para festivales.',
+    'meta_keywords' => 'sistema de pago sin efectivo independiente del hardware, sistema de recarga NFC económico para festivales, infraestructura de pago DIY para festivales, punto de venta open-source, pago NFC, evento cashless, pago de festival, automatización de bar autoalojada',
+
+    'faq_title' => 'Preguntas frecuentes',
+    'faq_1_q' => '¿Puedo usar etiquetas NFC estándar para un sistema de pago de festival?',
+    'faq_1_a' => 'Sí. CatLab Drinks funciona con etiquetas NFC NTAG213 estándar que cuestan tan solo 0,10 € cada una. No se necesitan pulseras propietarias caras ni hardware dependiente de un proveedor.',
+    'faq_2_q' => '¿Qué hardware necesito para organizar un evento cashless?',
+    'faq_2_a' => 'Cualquier teléfono o tableta Android con NFC puede funcionar como terminal de punto de venta. Para configuraciones de escritorio, un lector NFC USB como el ACR122U funciona con nuestro servicio complementario. El sistema es totalmente independiente del hardware.',
+    'faq_3_q' => '¿Es CatLab Drinks adecuado para eventos pequeños con presupuesto ajustado?',
+    'faq_3_a' => 'Por supuesto. El software es gratuito y de código abierto, las etiquetas NFC son extremadamente económicas y puede usar dispositivos Android existentes como terminales. Esto lo hace ideal para asociaciones estudiantiles, eventos comunitarios y festivales pequeños.',
+    'faq_4_q' => '¿Cómo funciona la seguridad de las tarjetas NFC?',
+    'faq_4_a' => 'Cada terminal de punto de venta tiene su propio par de claves criptográficas ECDSA. Los datos de la tarjeta se firman con la clave privada del terminal y se verifican con claves públicas aprobadas. El UID de hardware de la tarjeta se incluye en la firma para evitar la clonación.',
+    'faq_5_q' => '¿El sistema funciona sin conexión?',
+    'faq_5_a' => 'Sí. Como el saldo se almacena directamente en la tarjeta NFC, las transacciones pueden procesarse incluso sin conexión a Internet. Los datos se sincronizan automáticamente cuando se restablece la conectividad.',
 ];
