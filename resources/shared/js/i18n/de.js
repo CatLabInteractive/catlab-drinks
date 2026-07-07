@@ -444,6 +444,7 @@ export default {
     'Allow unpaid table orders (waiter can open a tab)': 'Unbezahlte Tischbestellungen erlauben (Kellner kann anschreiben)',
     'Table orders are prepared by the bar (waiters only deliver)': 'Tischbestellungen werden von der Bar zubereitet (Kellner liefern nur)',
     'Manage tables': 'Tische verwalten',
+    'Generate': 'Generieren',
     'Generate tables': 'Tische generieren',
     'No tables configured for this event. Use the generate button above to create tables.': 'Keine Tische für diese Veranstaltung konfiguriert. Verwenden Sie die Schaltfläche "Generieren" oben, um Tische zu erstellen.',
     'Waiter dashboard': 'Kellner-Dashboard',
