@@ -212,6 +212,11 @@ class Order extends Model
      * Keep the legacy `paid` bool consistent with `payment_status`.
      * payment_status is canonical; legacy flows that only set `paid`
      * pull payment_status along.
+     *
+     * Creates that only set `paid = false` deliberately keep the column
+     * default for payment_status, because a legacy `paid = false` does not
+     * imply an open tab. Flows that create genuinely unpaid orders must set
+     * payment_status explicitly.
      */
     public function syncPaymentFields()
     {
@@ -221,6 +226,12 @@ class Order extends Model
             $this->isDirty('paid') &&
             $this->paid &&
             $this->payment_status === self::PAYMENT_STATUS_UNPAID
+        ) {
+            $this->payment_status = self::PAYMENT_STATUS_PAID;
+        } elseif (
+            !$this->exists &&
+            $this->payment_status === null &&
+            $this->paid
         ) {
             $this->payment_status = self::PAYMENT_STATUS_PAID;
         }

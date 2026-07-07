@@ -196,6 +196,21 @@ class OrderIntegrityTest extends TestCase
         ]);
     }
 
+    public function testCreateWithOnlyPaidTrueSyncsPaymentStatus(): void
+    {
+        $event = $this->makeEvent();
+
+        $order = Order::factory()->make(['event_id' => $event->id]);
+        $order->paid = true;
+        $order->save();
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'payment_status' => Order::PAYMENT_STATUS_PAID,
+            'paid' => true,
+        ]);
+    }
+
     public function testPatronRejectsTableFromOtherEvent(): void
     {
         $eventA = $this->makeEvent();
