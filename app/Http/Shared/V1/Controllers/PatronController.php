@@ -3,10 +3,15 @@
 namespace App\Http\Shared\V1\Controllers;
 
 use App\Http\Shared\V1\Controllers\Base\ResourceController;
+use App\Http\Shared\V1\ResourceDefinitions\OrderResourceDefinition;
 use App\Http\Shared\V1\ResourceDefinitions\PatronResourceDefinition;
 use App\Models\Event;
+use App\Models\Patron;
+use App\Services\PatronSettlementService;
 use CatLab\Charon\Collections\RouteCollection;
+use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Exceptions\InvalidContextAction;
+use CatLab\Charon\Laravel\Models\ResourceResponse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -47,6 +52,12 @@ abstract class PatronController extends ResourceController
 
         $childResource->tag('patrons');
 
+        // Atomic settlement endpoint
+        $childResource->post('patrons/{id}/settle', 'PatronController@settle')
+            ->summary('Settle all unpaid orders for a patron')
+            ->parameters()->path('id')->string()->required()
+            ->returns()->statusCode(200)->many(OrderResourceDefinition::class);
+
         return $childResource;
     }
 
@@ -77,6 +88,33 @@ abstract class PatronController extends ResourceController
     public function getRelationshipKey(): string
     {
         return self::PARENT_RESOURCE_ID;
+    }
+
+    /**
+     * Atomically mark all unpaid orders of this patron as paid.
+     * Idempotent: settling a patron with no unpaid orders returns an
+     * empty collection.
+     * @param Request $request
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function settle(Request $request, $id)
+    {
+        /** @var Patron $patron */
+        $patron = Patron::findOrFail($id);
+
+        $this->authorizeEdit($request, $patron);
+
+        $settled = (new PatronSettlementService())->settle(
+            $patron,
+            $request->input('payment_type'),
+            intval($request->input('discount', 0))
+        );
+
+        $readContext = $this->getContext(Action::INDEX);
+        $resources = $this->toResources($settled, $readContext, OrderResourceDefinition::class);
+
+        return new ResourceResponse($resources, $readContext);
     }
 
     /**
