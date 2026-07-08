@@ -103,9 +103,9 @@ handling.
 
 ## 5. Unauthorized-transaction audit flag
 
-In the Device API transaction upload path
-(`App\Http\Shared\V1\Controllers\TransactionController::beforeSaveEntity`,
-device context):
+In the Device API transaction upload path (`App\Tools\TransactionMerger`,
+constructed with the authenticated device by
+`App\Http\DeviceApi\V1\Controllers\TransactionController::mergeTransactions`):
 
 1. Always set `uploaded_by_device_id` to the authenticated device's id when
    the principal is a `Device`.
@@ -126,10 +126,11 @@ transactions overview.
 
 ## 6. Testing
 
-- No PHP test suite exists; backend verified manually: run migration, check
-  `php artisan route:list`, verify Management API accepts the fields and
-  Device API ignores writes to them, verify a topup transaction uploaded by a
-  restricted device gets flagged.
+- Backend: PHPUnit feature tests (`tests/Feature/`, run via
+  `docker compose run --rm phpunit`) cover the capability defaults, the
+  Device API read-only boundary, the Management API write path, the
+  unauthorized-flagging rules in `TransactionMerger` (including the
+  positive-value rule), and order-assignment exclusion.
 - Frontend: Vitest tests for the POS route guard / nav gating, following the
   existing route/view test pattern in `resources/tests/`.
 - Jest NFC tests unaffected (no changes to card format or signing).
