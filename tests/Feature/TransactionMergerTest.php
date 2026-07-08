@@ -325,6 +325,40 @@ class TransactionMergerTest extends TestCase
 		$this->assertFalse($stored->unauthorized);
 	}
 
+	public function testPositiveSaleFromNonTopupDeviceIsFlagged(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+			'allow_topup' => false,
+		]);
+		$card = $this->createCard();
+
+		$merger = new TransactionMerger($this->organisation, $device);
+		$merger->mergeTransactions([
+			$this->makeTransaction($card->uid, 1, 500, 'sale'),
+		]);
+
+		$stored = Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first();
+		$this->assertTrue($stored->unauthorized);
+	}
+
+	public function testPositiveReversalFromNonTopupDeviceIsNotFlagged(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+			'allow_topup' => false,
+		]);
+		$card = $this->createCard();
+
+		$merger = new TransactionMerger($this->organisation, $device);
+		$merger->mergeTransactions([
+			$this->makeTransaction($card->uid, 1, 500, 'reversal'),
+		]);
+
+		$stored = Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first();
+		$this->assertFalse($stored->unauthorized);
+	}
+
 	public function testMergeEndpointFlagsUnauthorizedTopup(): void
 	{
 		$device = Device::factory()->create([

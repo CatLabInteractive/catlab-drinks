@@ -134,6 +134,20 @@ transactions overview.
   existing route/view test pattern in `resources/tests/`.
 - Jest NFC tests unaffected (no changes to card format or signing).
 
+## Known limitations
+
+- A rogue device can inflate a card's balance offline and never upload a
+  typed transaction for it; the delta only later syncs as an unflagged
+  `unknown`/overflow transaction via the card-data path. Attribution exists
+  via the card's `last_signing_device_id`, but no `unauthorized` badge is
+  raised for this path.
+- A fabricated positive `reversal` upload from a sales-only device is not
+  flagged, since legitimate reversals are positive on such devices; it still
+  carries `uploaded_by_device_id` so it can be reviewed manually.
+- The `unauthorized` flag is detection, not prevention: offline card writes
+  cannot be rejected server-side, because the card already carries the
+  balance and the server only sees the upload after the fact.
+
 ## Out of scope
 
 - No changes to the NFC key approval system: a sales-only device keeps its

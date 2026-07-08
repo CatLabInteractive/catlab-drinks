@@ -149,13 +149,19 @@ class TransactionMerger
 
                 // Devices without topup permission cannot legitimately produce
                 // balance-adding transactions; keep them but mark for review.
+                // Any other positive-value upload that isn't a reversal is also
+                // never legitimate from a sales-only device (a mistyped/unknown
+                // transaction_type shouldn't slip past the type-list check above).
                 if (
                     !$this->uploadingDevice->allow_topup &&
-                    in_array($entity->transaction_type, [
-                        Transaction::TYPE_TOPUP,
-                        Transaction::TYPE_RESET,
-                        Transaction::TYPE_REFUND,
-                    ])
+                    (
+                        in_array($entity->transaction_type, [
+                            Transaction::TYPE_TOPUP,
+                            Transaction::TYPE_RESET,
+                            Transaction::TYPE_REFUND,
+                        ]) ||
+                        ($entity->value > 0 && $entity->transaction_type !== Transaction::TYPE_REVERSAL)
+                    )
                 ) {
                     $transaction->unauthorized = true;
                 }
