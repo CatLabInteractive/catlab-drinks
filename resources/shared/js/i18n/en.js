@@ -421,4 +421,13 @@ export default {
     'This is the hello world.': 'This is the hello world.',
     'Home': 'Home',
     'This is the home.': 'This is the home.',
+
+    // Device capabilities
+    'Allow sales': 'Allow sales',
+    'Allow card topups': 'Allow card topups',
+    'This device can process orders and sales.': 'This device can process orders and sales.',
+    'This device can topup, reset and manage NFC cards.': 'This device can topup, reset and manage NFC cards.',
+    'Capabilities': 'Capabilities',
+    'Sales': 'Sales',
+    'Disabled': 'Disabled',
 };

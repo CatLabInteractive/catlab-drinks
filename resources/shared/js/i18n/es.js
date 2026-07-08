@@ -421,4 +421,13 @@ export default {
     'This is the hello world.': 'Esta es la página hola mundo.',
     'Home': 'Inicio',
     'This is the home.': 'Esta es la página de inicio.',
+
+    // Device capabilities
+    'Allow sales': 'Permitir ventas',
+    'Allow card topups': 'Permitir recargas de tarjetas',
+    'This device can process orders and sales.': 'Este dispositivo puede procesar pedidos y ventas.',
+    'This device can topup, reset and manage NFC cards.': 'Este dispositivo puede recargar, restablecer y gestionar tarjetas NFC.',
+    'Capabilities': 'Capacidades',
+    'Sales': 'Ventas',
+    'Disabled': 'Desactivado',
 };

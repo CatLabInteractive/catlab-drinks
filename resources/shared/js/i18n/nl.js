@@ -421,4 +421,13 @@ export default {
     'This is the hello world.': 'Dit is de hallo wereld.',
     'Home': 'Startpagina',
     'This is the home.': 'Dit is de startpagina.',
+
+    // Device capabilities
+    'Allow sales': 'Verkoop toestaan',
+    'Allow card topups': 'Kaarten opwaarderen toestaan',
+    'This device can process orders and sales.': 'Dit apparaat kan bestellingen en verkopen verwerken.',
+    'This device can topup, reset and manage NFC cards.': 'Dit apparaat kan NFC-kaarten opwaarderen, resetten en beheren.',
+    'Capabilities': 'Functies',
+    'Sales': 'Verkoop',
+    'Disabled': 'Uitgeschakeld',
 };
