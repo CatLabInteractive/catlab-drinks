@@ -24,6 +24,7 @@ namespace App\Tools;
 
 use App\Exceptions\TransactionMergeException;
 use App\Models\Card;
+use App\Models\Device;
 use App\Models\Organisation;
 use App\Models\Transaction;
 use CatLab\Charon\Exceptions\EntityNotFoundException;
@@ -52,9 +53,15 @@ class TransactionMerger
      */
     private $cards = [];
 
-    public function __construct(Organisation $organisation)
+    /**
+     * @var Device|null
+     */
+    private $uploadingDevice;
+
+    public function __construct(Organisation $organisation, ?Device $uploadingDevice = null)
     {
         $this->organisation = $organisation;
+        $this->uploadingDevice = $uploadingDevice;
     }
 
     /**
@@ -134,6 +141,25 @@ class TransactionMerger
 
         try {
             $transaction->mergeFromTransaction($entity);
+
+            if ($this->uploadingDevice) {
+                if (!$transaction->uploaded_by_device_id) {
+                    $transaction->uploaded_by_device_id = $this->uploadingDevice->id;
+                }
+
+                // Devices without topup permission cannot legitimately produce
+                // balance-adding transactions; keep them but mark for review.
+                if (
+                    !$this->uploadingDevice->allow_topup &&
+                    in_array($entity->transaction_type, [
+                        Transaction::TYPE_TOPUP,
+                        Transaction::TYPE_RESET,
+                        Transaction::TYPE_REFUND,
+                    ])
+                ) {
+                    $transaction->unauthorized = true;
+                }
+            }
 
             // Is this transaction new and is the card transaction count lower than this transaction?
             if (!$transaction->exists && $card->transaction_count < $transaction->card_sync_id) {
