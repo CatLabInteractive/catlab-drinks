@@ -104,6 +104,16 @@ class DeviceResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->writeable(true, true);
 
+        $this->field('allow_sales')
+            ->bool()
+            ->visible(true)
+            ->writeable(true, true);
+
+        $this->field('allow_topup')
+            ->bool()
+            ->visible(true)
+            ->writeable(true, true);
+
         $this->field('pendingOrdersCount')
             ->display('pending_orders_count')
             ->number()
