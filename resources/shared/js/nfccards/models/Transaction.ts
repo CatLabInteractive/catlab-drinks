@@ -27,6 +27,8 @@ export class Transaction {
 
     public uploaded = false;
 
+    public unauthorized = false;
+
     public order: any = null;
 
     public topup: any = null;

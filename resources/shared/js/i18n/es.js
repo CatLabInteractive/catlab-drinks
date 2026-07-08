@@ -432,4 +432,6 @@ export default {
     'Disabled': 'Desactivado',
     'This device has no functions enabled.': 'Este dispositivo no tiene funciones habilitadas.',
     'Please contact your administrator to enable sales or topups for this device.': 'Ponte en contacto con tu administrador para habilitar ventas o recargas en este dispositivo.',
+    'Unauthorized': 'No autorizado',
+    'This transaction was uploaded by a device that is not allowed to topup cards.': 'Esta transacción fue subida por un dispositivo que no puede recargar tarjetas.',
 };

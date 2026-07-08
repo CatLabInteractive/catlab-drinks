@@ -361,6 +361,7 @@ export class TransactionStore {
 
                 transaction.id = item.id;
                 transaction.uploaded = true;
+                transaction.unauthorized = !!item.unauthorized;
 
                 if (item.order) {
                     transaction.order = item.order;

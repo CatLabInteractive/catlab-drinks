@@ -432,4 +432,6 @@ export default {
     'Disabled': 'Uitgeschakeld',
     'This device has no functions enabled.': 'Dit apparaat heeft geen functies ingeschakeld.',
     'Please contact your administrator to enable sales or topups for this device.': 'Neem contact op met je beheerder om verkoop of opwaarderen voor dit apparaat in te schakelen.',
+    'Unauthorized': 'Niet toegestaan',
+    'This transaction was uploaded by a device that is not allowed to topup cards.': 'Deze transactie werd geüpload door een apparaat dat geen kaarten mag opwaarderen.',
 };

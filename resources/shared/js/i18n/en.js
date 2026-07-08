@@ -432,4 +432,6 @@ export default {
     'Disabled': 'Disabled',
     'This device has no functions enabled.': 'This device has no functions enabled.',
     'Please contact your administrator to enable sales or topups for this device.': 'Please contact your administrator to enable sales or topups for this device.',
+    'Unauthorized': 'Unauthorized',
+    'This transaction was uploaded by a device that is not allowed to topup cards.': 'This transaction was uploaded by a device that is not allowed to topup cards.',
 };
