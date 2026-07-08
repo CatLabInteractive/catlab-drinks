@@ -203,6 +203,17 @@ class DeviceControllerTest extends TestCase
 		]);
 	}
 
+	public function testCapabilityFlagsDefaultToEnabled(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+		]);
+
+		$device->refresh();
+		$this->assertTrue($device->allow_sales);
+		$this->assertTrue($device->allow_topup);
+	}
+
 	// ─── Device API: PUT /pos-api/v1/devices/current ───
 
 	public function testUpdateCurrentDevicePublicKey(): void
