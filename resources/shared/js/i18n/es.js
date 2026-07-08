@@ -430,4 +430,6 @@ export default {
     'Capabilities': 'Capacidades',
     'Sales': 'Ventas',
     'Disabled': 'Desactivado',
+    'This device has no functions enabled.': 'Este dispositivo no tiene funciones habilitadas.',
+    'Please contact your administrator to enable sales or topups for this device.': 'Ponte en contacto con tu administrador para habilitar ventas o recargas en este dispositivo.',
 };

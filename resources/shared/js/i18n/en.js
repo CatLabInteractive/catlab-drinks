@@ -430,4 +430,6 @@ export default {
     'Capabilities': 'Capabilities',
     'Sales': 'Sales',
     'Disabled': 'Disabled',
+    'This device has no functions enabled.': 'This device has no functions enabled.',
+    'Please contact your administrator to enable sales or topups for this device.': 'Please contact your administrator to enable sales or topups for this device.',
 };

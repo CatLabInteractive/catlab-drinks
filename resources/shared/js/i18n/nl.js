@@ -430,4 +430,6 @@ export default {
     'Capabilities': 'Functies',
     'Sales': 'Verkoop',
     'Disabled': 'Uitgeschakeld',
+    'This device has no functions enabled.': 'Dit apparaat heeft geen functies ingeschakeld.',
+    'Please contact your administrator to enable sales or topups for this device.': 'Neem contact op met je beheerder om verkoop of opwaarderen voor dit apparaat in te schakelen.',
 };
