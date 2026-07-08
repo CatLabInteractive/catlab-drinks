@@ -14,7 +14,7 @@
 
 - Never run `npm update`; use `npm install` only. Never commit `package-lock.json` changes — run `git checkout -- package-lock.json` before committing.
 - PHP deps: lock file requires PHP ~8.1/~8.2; use `composer install --ignore-platform-reqs` if needed (vendor/ is already installed).
-- No PHP test suite exists — backend tasks are verified manually via `php artisan migrate`, `php artisan route:list`, and `php artisan tinker`. The local MySQL comes from `docker-compose.yml`; run `docker compose up -d` if the DB is not running.
+- A PHPUnit feature-test suite exists in `tests/Feature/` (CLAUDE.md's "no test suite" note is outdated). Run it with the dockerized runner that mirrors CI: `docker compose run --rm phpunit` (add `--filter SomeTest` to scope). It must be green before every backend commit. Tests use tabs, `RefreshDatabase`, and model factories from `database/factories/`.
 - JS tests: `npx vitest run` (route/view tests), `npx jest` (NFC tests). Both must pass before every commit that touches JS.
 - All user-facing strings go through `$t('...')` and must be added to **all five** locale files: `resources/shared/js/i18n/{en,nl,fr,de,es}.js` (identical key sets; keys are the English strings).
 - Tabs for indentation in PHP and Vue files (match existing files).
@@ -114,25 +114,41 @@ In the `static::updated` hook (currently around line 78), extend the reassignmen
 				|| ($device->wasChanged('allow_sales') && !$device->allow_sales);
 ```
 
-- [ ] **Step 3: Run the migration and verify**
+- [ ] **Step 3: Write the failing test**
 
-```bash
-docker compose up -d   # only if DB not already running
-php artisan migrate
+Add to `tests/Feature/DeviceControllerTest.php` (after `testCurrentDeviceReturnsDeviceInfo`):
+
+```php
+	public function testCapabilityFlagsDefaultToEnabled(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+		]);
+
+		$device->refresh();
+		$this->assertTrue($device->allow_sales);
+		$this->assertTrue($device->allow_topup);
+	}
 ```
-Expected: `2026_07_08_100000_add_capability_flags_to_devices ... DONE`
 
-Verify defaults with tinker:
+Run **before** applying Steps 1–2 (or stash them) to see it fail, or simply run after writing only the test:
 
 ```bash
-php artisan tinker --execute="var_dump(\App\Models\Device::query()->first()?->allow_sales, \App\Models\Device::query()->first()?->allow_topup);"
+docker compose run --rm phpunit --filter testCapabilityFlagsDefaultToEnabled
 ```
-Expected: `bool(true)` twice (or `NULL NULL` if the table is empty — then just check the columns exist: `php artisan tinker --execute="var_dump(\Illuminate\Support\Facades\Schema::hasColumns('devices', ['allow_sales','allow_topup']));"` → `bool(true)`).
+Expected: FAIL (unknown column / null attribute) without the migration; PASS once Steps 1–2 are in place.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 4: Run the full suite**
 
 ```bash
-git add database/migrations/2026_07_08_100000_add_capability_flags_to_devices.php app/Models/Device.php
+docker compose run --rm phpunit
+```
+Expected: all tests pass.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add database/migrations/2026_07_08_100000_add_capability_flags_to_devices.php app/Models/Device.php tests/Feature/DeviceControllerTest.php
 git commit -m "Add allow_sales/allow_topup capability flags to devices"
 ```
 
@@ -213,13 +229,12 @@ In `app/Models/Transaction.php`, add a `$casts` property (the model currently ha
 
 Add `use App\Models\Device;` only if the model isn't already in the same namespace — it is (`App\Models`), so no import is needed.
 
-- [ ] **Step 3: Run the migration and verify**
+- [ ] **Step 3: Run the suite (migration is exercised by RefreshDatabase)**
 
 ```bash
-php artisan migrate
-php artisan tinker --execute="var_dump(\Illuminate\Support\Facades\Schema::hasColumns('card_transactions', ['uploaded_by_device_id','unauthorized']));"
+docker compose run --rm phpunit
 ```
-Expected: `bool(true)`
+Expected: all tests pass (Task 4 adds the behavioral tests for these columns; this task only needs the schema to migrate cleanly).
 
 - [ ] **Step 4: Commit**
 
@@ -285,18 +300,81 @@ In `app/Http/DeviceApi/V1/ResourceDefinitions/TransactionResourceDefinition.php`
             ->visible(true);
 ```
 
-- [ ] **Step 4: Verify routes still register**
+- [ ] **Step 4: Write the tests (write first, watch them fail, then apply Steps 1–3)**
 
-```bash
-php artisan route:list --path=pos-api | head -30
-php artisan route:list --path=api/v1/devices
+Add to `tests/Feature/DeviceControllerTest.php` (uses the class's existing `$this->device`, `$this->token`, `$this->user`; `Laravel\Passport\Passport` is already imported):
+
+```php
+	public function testCurrentDeviceExposesCapabilityFlags(): void
+	{
+		$this->device->allow_topup = false;
+		$this->device->save();
+
+		$response = $this
+			->withHeader('Authorization', 'Bearer ' . $this->token->access_token)
+			->getJson('/pos-api/v1/devices/current');
+
+		$response->assertStatus(200);
+		$response->assertJsonFragment([
+			'allow_sales' => true,
+			'allow_topup' => false,
+		]);
+	}
+
+	public function testUpdateCurrentDeviceCannotChangeCapabilityFlags(): void
+	{
+		$this->device->allow_topup = false;
+		$this->device->save();
+
+		$response = $this
+			->withHeader('Authorization', 'Bearer ' . $this->token->access_token)
+			->putJson('/pos-api/v1/devices/current', [
+				'allow_topup' => true,
+				'allow_sales' => false,
+			]);
+
+		$response->assertStatus(200);
+
+		$this->device->refresh();
+		// Device API must ignore these fields entirely.
+		$this->assertFalse($this->device->allow_topup);
+		$this->assertTrue($this->device->allow_sales);
+	}
+
+	public function testManagementApiCanUpdateCapabilityFlags(): void
+	{
+		Passport::actingAs($this->user);
+
+		$response = $this->putJson('/api/v1/devices/' . $this->device->id, [
+			'name' => $this->device->name,
+			'allow_sales' => false,
+			'allow_topup' => false,
+		]);
+
+		$response->assertStatus(200);
+
+		$this->device->refresh();
+		$this->assertFalse($this->device->allow_sales);
+		$this->assertFalse($this->device->allow_topup);
+	}
 ```
-Expected: routes list without errors (a Charon definition typo throws during route registration).
-
-- [ ] **Step 5: Commit**
 
 ```bash
-git add app/Http/ManagementApi/V1/ResourceDefinitions/DeviceResourceDefinition.php app/Http/DeviceApi/V1/ResourceDefinitions/DeviceResourceDefinition.php app/Http/DeviceApi/V1/ResourceDefinitions/TransactionResourceDefinition.php
+docker compose run --rm phpunit --filter DeviceControllerTest
+```
+Expected: the three new tests FAIL before Steps 1–3 are applied (missing JSON fields / flags not updated), PASS after.
+
+- [ ] **Step 5: Run the full suite**
+
+```bash
+docker compose run --rm phpunit
+```
+Expected: all tests pass.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add app/Http/ManagementApi/V1/ResourceDefinitions/DeviceResourceDefinition.php app/Http/DeviceApi/V1/ResourceDefinitions/DeviceResourceDefinition.php app/Http/DeviceApi/V1/ResourceDefinitions/TransactionResourceDefinition.php tests/Feature/DeviceControllerTest.php
 git commit -m "Expose capability flags via APIs (admin-writeable, device read-only)"
 ```
 
@@ -377,31 +455,134 @@ with:
         $transactionMerger = new TransactionMerger($organisation, $uploadingDevice);
 ```
 
-- [ ] **Step 3: Verify**
+- [ ] **Step 3: Write the tests (TDD — write first, watch them fail, then apply Steps 1–2)**
 
-```bash
-php artisan route:list --path=pos-api > /dev/null && echo OK
-grep -rn "new TransactionMerger" app/
+Add to `tests/Feature/TransactionMergerTest.php` (uses the class's existing `$this->organisation`, `$this->user`, `createCard()`, `makeTransaction()` helpers — `makeTransaction(cardUid, syncId, value, type)`):
+
+```php
+	public function testMergeRecordsUploadingDevice(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+		]);
+		$card = $this->createCard();
+
+		$merger = new TransactionMerger($this->organisation, $device);
+		$merger->mergeTransactions([
+			$this->makeTransaction($card->uid, 1, 500, 'topup'),
+		]);
+
+		$stored = Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first();
+		$this->assertEquals($device->id, $stored->uploaded_by_device_id);
+		$this->assertFalse($stored->unauthorized);
+	}
+
+	public function testTopupFromNonTopupDeviceIsFlagged(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+			'allow_topup' => false,
+		]);
+		$card = $this->createCard();
+
+		$merger = new TransactionMerger($this->organisation, $device);
+		$merger->mergeTransactions([
+			$this->makeTransaction($card->uid, 1, 500, 'topup'),
+			$this->makeTransaction($card->uid, 2, -200, 'sale'),
+		]);
+
+		$topup = Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first();
+		$sale = Transaction::where('card_id', $card->id)->where('card_sync_id', 2)->first();
+		$this->assertTrue($topup->unauthorized);
+		$this->assertFalse($sale->unauthorized);
+	}
+
+	public function testResetAndRefundFromNonTopupDeviceAreFlagged(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+			'allow_topup' => false,
+		]);
+		$card = $this->createCard();
+
+		$merger = new TransactionMerger($this->organisation, $device);
+		$merger->mergeTransactions([
+			$this->makeTransaction($card->uid, 1, 500, 'reset'),
+			$this->makeTransaction($card->uid, 2, -100, 'refund'),
+		]);
+
+		$this->assertTrue(Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first()->unauthorized);
+		$this->assertTrue(Transaction::where('card_id', $card->id)->where('card_sync_id', 2)->first()->unauthorized);
+	}
+
+	public function testMergeWithoutDeviceDoesNotFlag(): void
+	{
+		$card = $this->createCard();
+
+		$merger = new TransactionMerger($this->organisation);
+		$merger->mergeTransactions([
+			$this->makeTransaction($card->uid, 1, 500, 'topup'),
+		]);
+
+		$stored = Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first();
+		$this->assertNull($stored->uploaded_by_device_id);
+		$this->assertFalse($stored->unauthorized);
+	}
+
+	public function testMergeEndpointFlagsUnauthorizedTopup(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+			'allow_topup' => false,
+		]);
+		$card = $this->createCard('card-unauth-001');
+
+		$token = new DeviceAccessToken([
+			'device_id' => $device->id,
+			'access_token' => 'unauth-test-token',
+			'expires_at' => now()->addHour(),
+		]);
+		$token->created_by = $this->user->id;
+		$token->save();
+
+		$response = $this
+			->withHeader('Authorization', 'Bearer ' . $token->access_token)
+			->postJson('/pos-api/v1/organisations/' . $this->organisation->id . '/merge-transactions', [
+				'items' => [
+					[
+						'card' => 'card-unauth-001',
+						'card_transaction' => 1,
+						'value' => 500,
+						'type' => 'topup',
+						'has_synced' => true,
+					],
+				],
+			]);
+
+		$response->assertStatus(200);
+
+		$stored = Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first();
+		$this->assertTrue($stored->unauthorized);
+		$this->assertEquals($device->id, $stored->uploaded_by_device_id);
+	}
 ```
-Expected: `OK`; the grep shows only the Device API TransactionController instantiation (with the new argument).
-
-Logic check via tinker (uses first organisation + a fabricated device; skip if DB is empty):
 
 ```bash
-php artisan tinker --execute="
-\$org = \App\Models\Organisation::first();
-\$device = new \App\Models\Device(['allow_topup' => false]);
-\$device->id = 999999;
-\$m = new \App\Tools\TransactionMerger(\$org, \$device);
-echo 'constructed ok';
-"
+docker compose run --rm phpunit --filter TransactionMergerTest
 ```
-Expected: `constructed ok`
+Expected: new tests FAIL before Steps 1–2 (constructor accepts one arg / flags never set), PASS after.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 4: Run the full suite**
 
 ```bash
-git add app/Tools/TransactionMerger.php app/Http/DeviceApi/V1/Controllers/TransactionController.php
+docker compose run --rm phpunit
+```
+Expected: all tests pass.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add app/Tools/TransactionMerger.php app/Http/DeviceApi/V1/Controllers/TransactionController.php tests/Feature/TransactionMergerTest.php
 git commit -m "Flag topup/reset/refund uploads from non-topup devices as unauthorized"
 ```
 
@@ -442,17 +623,56 @@ In the same file (line ~93), extend the changed-device check:
 						} else {
 ```
 
-- [ ] **Step 3: Verify**
+- [ ] **Step 3: Write the tests (TDD — write first, watch them fail, then apply Steps 1–2)**
 
-```bash
-php artisan tinker --execute="new \App\Services\OrderAssignmentService(); echo 'ok';"
+Add to `tests/Feature/OrderAssignmentServiceTest.php` (uses the class's existing `createDevice()` and `createOrder()` helpers; devices from the factory are online by default):
+
+```php
+	public function testAssignOrderExcludesSalesDisabledDevices(): void
+	{
+		$this->createDevice(['name' => 'Topup station', 'allow_sales' => false]);
+		$salesDevice = $this->createDevice(['name' => 'Bar POS']);
+
+		$order = $this->createOrder();
+		$this->service->assignOrder($order);
+
+		$order->refresh();
+		$this->assertEquals($salesDevice->id, $order->assigned_device_id);
+	}
+
+	public function testReevaluateReassignsWhenSalesDisabled(): void
+	{
+		$device1 = $this->createDevice([
+			'name' => 'POS 1',
+			'allow_sales' => false, // just disabled by admin
+		]);
+		$device2 = $this->createDevice(['name' => 'POS 2']);
+
+		$order = $this->createOrder(['assigned_device_id' => $device1->id]);
+
+		$this->service->reevaluateAssignments($this->event, $device1);
+
+		$order->refresh();
+		$this->assertEquals($device2->id, $order->assigned_device_id);
+	}
 ```
-Expected: `ok`
-
-- [ ] **Step 4: Commit**
 
 ```bash
-git add app/Services/OrderAssignmentService.php
+docker compose run --rm phpunit --filter OrderAssignmentServiceTest
+```
+Expected: the two new tests FAIL before Steps 1–2, PASS after.
+
+- [ ] **Step 4: Run the full suite**
+
+```bash
+docker compose run --rm phpunit
+```
+Expected: all tests pass.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add app/Services/OrderAssignmentService.php tests/Feature/OrderAssignmentServiceTest.php
 git commit -m "Exclude sales-disabled devices from remote order assignment"
 ```
 
@@ -1120,14 +1340,14 @@ git status
 ```
 Expected: build succeeds; only `public/res/` build artifacts changed (check whether this repo commits build output — if `git status` shows `public/res/` untracked/ignored, leave it; do NOT commit `package-lock.json`).
 
-- [ ] **Step 3: Backend smoke checks**
+- [ ] **Step 3: Backend suite + smoke checks**
 
 ```bash
-php artisan migrate:status | tail -5
+docker compose run --rm phpunit
 php artisan route:list --path=pos-api > /dev/null && echo POS-API-OK
 php artisan route:list --path=api/v1 > /dev/null && echo MGMT-API-OK
 ```
-Expected: both new migrations `Ran`; `POS-API-OK`, `MGMT-API-OK`.
+Expected: full phpunit suite green; `POS-API-OK`, `MGMT-API-OK`.
 
 - [ ] **Step 4: Manual end-to-end checklist (requires running app + paired device; report what was and wasn't checked)**
 
