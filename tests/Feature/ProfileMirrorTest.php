@@ -26,6 +26,7 @@ use App\Models\Organisation;
 use App\Models\User;
 use App\Services\ProfileMirror;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -43,6 +44,12 @@ class ProfileMirrorTest extends TestCase
     {
         parent::setUp();
         config(['services.catlab.url' => 'https://accounts.test/']);
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
     }
 
     /**
@@ -78,6 +85,29 @@ class ProfileMirrorTest extends TestCase
         $responses['*'] = Http::response('Not found', 404);
 
         Http::fake($responses);
+    }
+
+    /**
+     * A ProfileMirror whose first linkProfile call loses the race: a
+     * concurrent "winner" appears just before the link, so the UNIQUE key
+     * on organisations.profile_id fires for real.
+     */
+    private function makeRacingMirror(): ProfileMirror
+    {
+        return new class extends ProfileMirror {
+            public $raced = false;
+
+            protected function linkProfile(\App\Models\Organisation $organisation, int $profileId): void
+            {
+                if (!$this->raced) {
+                    $this->raced = true;
+                    $winner = new \App\Models\Organisation(['name' => 'Winner ' . $profileId]);
+                    $winner->save();
+                    parent::linkProfile($winner, $profileId);
+                }
+                parent::linkProfile($organisation, $profileId);
+            }
+        };
     }
 
     public function testProfileSyncColumnsExist(): void
@@ -412,5 +442,73 @@ class ProfileMirrorTest extends TestCase
 
         $this->assertSame(2, $org->users()->count());
         $this->assertSame(4, (int)$org->fresh()->profile_sync_version);
+    }
+
+    public function testAdoptionRaceLoserUsesWinner(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        $autoOrg = $user->organisations()->first();
+
+        $this->fakeAccounts(
+            [['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true, 'version' => 1]],
+            [501 => [['userId' => 1001, 'role' => 10]]]
+        );
+
+        $this->makeRacingMirror()->sync($user);
+
+        $winner = Organisation::query()->where('profile_id', 501)->first();
+        $this->assertNotSame($autoOrg->id, $winner->id);
+        $this->assertTrue($winner->users()->whereKey($user->id)->exists());
+        // The candidate stays unlinked (a later profile could adopt it).
+        $this->assertNull($autoOrg->fresh()->profile_id);
+    }
+
+    public function testCreationRaceLoserDeletesHuskAndAdoptsWinner(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        // Link the personal profile up front so the shared profile goes
+        // through the creation path.
+        $autoOrg = $user->organisations()->first();
+        $autoOrg->profile_id = 601;
+        $autoOrg->profile_sync_version = 1;
+        $autoOrg->save();
+
+        $this->fakeAccounts(
+            [
+                ['id' => 601, 'name' => $autoOrg->name, 'role' => 10, 'personal' => true, 'version' => 1],
+                ['id' => 502, 'name' => 'Team Bar', 'role' => 1, 'personal' => false, 'version' => 3],
+            ],
+            [
+                601 => [['userId' => 1001, 'role' => 10]],
+                502 => [['userId' => 1001, 'role' => 1]],
+            ]
+        );
+
+        $this->makeRacingMirror()->sync($user);
+
+        $winner = Organisation::query()->where('profile_id', 502)->first();
+        $this->assertSame('Team Bar', $winner->name);
+        $this->assertTrue($winner->users()->whereKey($user->id)->exists());
+        // The husk is gone: only the personal org and the winner remain.
+        $this->assertSame(2, Organisation::query()->count());
+    }
+
+    public function testFailureBackoffReopensAfterRetryWindow(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        Http::fake(['*' => Http::response('Server error', 500)]);
+
+        $mirror = new ProfileMirror();
+        $mirror->sync($user);
+        $this->assertCount(1, Http::recorded());
+
+        // Still inside the 60s retry window: throttled.
+        $mirror->sync($user->fresh());
+        $this->assertCount(1, Http::recorded());
+
+        // After the retry window the next sync goes out again.
+        Carbon::setTestNow(now()->addSeconds(ProfileMirror::FAILURE_RETRY_SECONDS + 1));
+        $mirror->sync($user->fresh());
+        $this->assertCount(2, Http::recorded());
     }
 }
