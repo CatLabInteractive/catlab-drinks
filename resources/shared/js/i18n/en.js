@@ -383,6 +383,7 @@ export default {
     'Your Pay.nl service ID (e.g. SL-xxxx-xxxx)': 'Your Pay.nl service ID (e.g. SL-xxxx-xxxx)',
     'Test mode': 'Test mode',
     'Are you sure you want to remove the {gateway} payment gateway?': 'Are you sure you want to remove the {gateway} payment gateway?',
+    'Rename on CatLab Accounts': 'Rename on CatLab Accounts',
 
     // Client - Order
     'Order': 'Order',
@@ -421,4 +422,17 @@ export default {
     'This is the hello world.': 'This is the hello world.',
     'Home': 'Home',
     'This is the home.': 'This is the home.',
+
+    // Device capabilities
+    'Allow sales': 'Allow sales',
+    'Allow card topups': 'Allow card topups',
+    'This device can process orders and sales.': 'This device can process orders and sales.',
+    'This device can topup, reset and manage NFC cards.': 'This device can topup, reset and manage NFC cards.',
+    'Capabilities': 'Capabilities',
+    'Sales': 'Sales',
+    'Disabled': 'Disabled',
+    'This device has no functions enabled.': 'This device has no functions enabled.',
+    'Please contact your administrator to enable sales or topups for this device.': 'Please contact your administrator to enable sales or topups for this device.',
+    'Unauthorized': 'Unauthorized',
+    'This transaction was uploaded by a device that is not allowed to topup cards.': 'This transaction was uploaded by a device that is not allowed to topup cards.',
 };

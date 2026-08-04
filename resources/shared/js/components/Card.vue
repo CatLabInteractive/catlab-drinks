@@ -29,49 +29,51 @@
                 <p>
                     {{ $t('This card is corrupted, it might belong to a different organisation. If you are sure the card should be correct, you can try to rebuild the card data from the available online data. Note that if you have bars that are operating online, you might lose transactions and the balance might not be correct after rebuilding.') }}
                 </p>
-                <button v-on:click="rebuild()" class="btn btn-danger">{{ $t('Rebuild') }}</button>
+                <button v-on:click="rebuild()" class="btn btn-danger" v-if="allowTopup">{{ $t('Rebuild') }}</button>
             </div>
         </div>
 
         <div v-if="ready" class="row">
 
             <div class="col-md-8">
-                <h2>{{ $t('Topup') }}</h2>
-                <div class="topup-amounts">
-                    <div v-for="amount in defaultAmounts" v-on:click="topupForAmount(amount)" class="amount">
-                        €{{ amount.toFixed(2) }}
+                <template v-if="allowTopup">
+                    <h2>{{ $t('Topup') }}</h2>
+                    <div class="topup-amounts">
+                        <div v-for="amount in defaultAmounts" v-on:click="topupForAmount(amount)" class="amount">
+                            €{{ amount.toFixed(2) }}
+                        </div>
                     </div>
-                </div>
 
-                <div style="clear: both;"></div>
+                    <div style="clear: both;"></div>
 
-                <h3>{{ $t('Custom amount') }}</h3>
-                <label for="customAmount">{{ $t('Custom amount') }}</label><br />
-                <input type="number" step="0.01" placeholder="10.00" id="customAmount" v-model="topupAmountString" />
+                    <h3>{{ $t('Custom amount') }}</h3>
+                    <label for="customAmount">{{ $t('Custom amount') }}</label><br />
+                    <input type="number" step="0.01" placeholder="10.00" id="customAmount" v-model="topupAmountString" />
 
-                <button class="btn btn-primary" v-on:click="topup()">{{ $t('Topup') }}</button>
+                    <button class="btn btn-primary" v-on:click="topup()">{{ $t('Topup') }}</button>
 
-                <h3>{{ $t('Aliases') }}</h3>
-                <p>{{ $t('(expire 24h after creation)') }}</p>
-                <ul>
-                    <li v-for="alias in card.orderTokenAliases">{{alias}} <a href="javascript:void(0);" v-on:click="removeOrderTokenAlias(alias)" class="btn btn-danger btn-sm">x</a></li>
+                    <h3>{{ $t('Aliases') }}</h3>
+                    <p>{{ $t('(expire 24h after creation)') }}</p>
+                    <ul>
+                        <li v-for="alias in card.orderTokenAliases">{{alias}} <a href="javascript:void(0);" v-on:click="removeOrderTokenAlias(alias)" class="btn btn-danger btn-sm">x</a></li>
 
-                    <li>
-                        <input type="text" v-model="creatingOrderTokenAlias" />
-                        <button class="btn btn-primary btn-sm" v-on:click="addOrderTokenAlias">{{ $t('Add') }}</button>
-                    </li>
-                </ul>
+                        <li>
+                            <input type="text" v-model="creatingOrderTokenAlias" />
+                            <button class="btn btn-primary btn-sm" v-on:click="addOrderTokenAlias">{{ $t('Add') }}</button>
+                        </li>
+                    </ul>
 
-                <h3>{{ $t('Discount') }}</h3>
-                <p>
-                    {{ $t('Card gives') }} <input type="number" step="1" min="0.0" max="100.0" v-model="card.discountPercentage" />{{ $t('% at all sales.') }}
-                    <button class="btn btn-primary btn-sm" v-on:click="saveCardData">{{ $t('Save') }}</button>
-                </p>
+                    <h3>{{ $t('Discount') }}</h3>
+                    <p>
+                        {{ $t('Card gives') }} <input type="number" step="1" min="0.0" max="100.0" v-model="card.discountPercentage" />{{ $t('% at all sales.') }}
+                        <button class="btn btn-primary btn-sm" v-on:click="saveCardData">{{ $t('Save') }}</button>
+                    </p>
 
-                <p>
-                    <span v-if="storeState === 'storing'">{{ $t('Saving') }}</span>
-                    <span v-if="storeState === 'stored'">{{ $t('Saved') }}</span>
-                </p>
+                    <p>
+                        <span v-if="storeState === 'storing'">{{ $t('Saving') }}</span>
+                        <span v-if="storeState === 'stored'">{{ $t('Saved') }}</span>
+                    </p>
+                </template>
             </div>
 
             <div class="col-md-4">
@@ -100,7 +102,7 @@
                 <h3>{{ $t('Transactions') }}</h3>
                 <transactions-table v-if="loaded" :cardId="card.id" />
 
-                <p>
+                <p v-if="allowTopup">
                     <button v-on:click="reset()" class="btn btn-info btn-sm">{{ $t('Reset') }}</button>
                     <button v-on:click="rebuild()" class="btn btn-danger btn-sm">{{ $t('Rebuild') }}</button>
                 </p>
@@ -154,6 +156,7 @@
         data() {
             return {
                 canTopup: false,
+                allowTopup: window.DEVICE_ALLOW_TOPUP !== false,
                 loaded: false,
 				ready: false,
 				corrupted: false,

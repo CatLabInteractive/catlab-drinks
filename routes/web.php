@@ -77,3 +77,10 @@ Route::group([ 'auth' ], function() {
     Route::get('report/daily/{organisation}/{date}', [ \App\Http\Controllers\DailyReportController::class, 'dailyReport' ]);
 
 });
+
+/*
+ * Delegated management callbacks from the CatLab accounts server
+ * (register as manage_user_uri on the accounts OAuth client).
+ */
+Route::post('/delegated/users', [\App\Http\Controllers\DelegatedManageController::class, 'manage'])
+    ->middleware('accounts.manage');

@@ -22,9 +22,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Services\ProfileMirror;
 use App\Support\InstanceSettings;
 use CatLab\Accounts\Client\Controllers\LoginController as CatLabLoginController;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Log;
 
 /**
  * SSO login controller that refuses to create new local users while
@@ -46,6 +48,19 @@ class SsoLoginController extends CatLabLoginController
             );
         }
 
-        return parent::getUserFromSocialite($socialiteUser);
+        $user = parent::getUserFromSocialite($socialiteUser);
+
+        // Mirror accounts profiles into organisations. Never fail the login
+        // over a sync problem.
+        try {
+            app(ProfileMirror::class)->sync($user);
+        } catch (\Throwable $e) {
+            Log::warning('ProfileMirror: sync failed during SSO login', [
+                'user' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return $user;
     }
 }

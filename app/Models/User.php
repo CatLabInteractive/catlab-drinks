@@ -79,6 +79,15 @@ class User extends Model implements
 	];
 
 	/**
+	 * The attributes that should be cast.
+	 *
+	 * @var array
+	 */
+	protected $casts = [
+		'last_profile_sync' => 'datetime',
+	];
+
+	/**
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */
 	public function organisations()

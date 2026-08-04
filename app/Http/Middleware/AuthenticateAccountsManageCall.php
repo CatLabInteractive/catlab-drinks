@@ -22,23 +22,26 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
+use Closure;
+use Illuminate\Http\Request;
 
-class VerifyCsrfToken extends Middleware
+/**
+ * Authenticates server-to-server calls from the CatLab accounts server.
+ * Accounts sends: Authorization: Bearer: <client_secret> (literal colon).
+ */
+class AuthenticateAccountsManageCall
 {
-    /**
-     * Indicates whether the XSRF-TOKEN cookie should be set on the response.
-     *
-     * @var bool
-     */
-    protected $addHttpCookie = true;
+    public function handle(Request $request, Closure $next)
+    {
+        $secret = (string)config('services.catlab.client_secret');
+        $header = (string)$request->header('Authorization');
 
-    /**
-     * The URIs that should be excluded from CSRF verification.
-     *
-     * @var array
-     */
-    protected $except = [
-        'delegated/*',
-    ];
+        if ($secret === '' || !hash_equals('Bearer: ' . $secret, $header)) {
+            return response()->json([
+                'error' => ['message' => 'Invalid authentication.'],
+            ], 400);
+        }
+
+        return $next($request);
+    }
 }

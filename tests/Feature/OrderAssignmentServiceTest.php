@@ -232,6 +232,21 @@ class OrderAssignmentServiceTest extends TestCase
 	}
 
 	/**
+	 * Test that assignOrder excludes devices with allow_sales=false.
+	 */
+	public function testAssignOrderExcludesSalesDisabledDevices(): void
+	{
+		$this->createDevice(['name' => 'Topup station', 'allow_sales' => false]);
+		$salesDevice = $this->createDevice(['name' => 'Bar POS']);
+
+		$order = $this->createOrder();
+		$this->service->assignOrder($order);
+
+		$order->refresh();
+		$this->assertEquals($salesDevice->id, $order->assigned_device_id);
+	}
+
+	/**
 	 * Test that assignOrder excludes offline devices (last_ping too old).
 	 */
 	public function testAssignOrderExcludesOfflineDevices(): void
@@ -524,6 +539,25 @@ class OrderAssignmentServiceTest extends TestCase
 
 		$order->refresh();
 		// Should be reassigned — device1 no longer accepts remote orders
+		$this->assertEquals($device2->id, $order->assigned_device_id);
+	}
+
+	/**
+	 * Test that reevaluateAssignments reassigns when device disables sales.
+	 */
+	public function testReevaluateReassignsWhenSalesDisabled(): void
+	{
+		$device1 = $this->createDevice([
+			'name' => 'POS 1',
+			'allow_sales' => false, // just disabled by admin
+		]);
+		$device2 = $this->createDevice(['name' => 'POS 2']);
+
+		$order = $this->createOrder(['assigned_device_id' => $device1->id]);
+
+		$this->service->reevaluateAssignments($this->event, $device1);
+
+		$order->refresh();
 		$this->assertEquals($device2->id, $order->assigned_device_id);
 	}
 

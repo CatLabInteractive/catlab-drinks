@@ -28,6 +28,8 @@ class Device extends Model implements
 		'category_filter_id',
 		'allow_remote_orders',
 		'allow_live_orders',
+		'allow_sales',
+		'allow_topup',
 	];
 
 	protected $casts = [
@@ -35,6 +37,8 @@ class Device extends Model implements
 		'last_activity' => 'datetime',
 		'allow_remote_orders' => 'boolean',
 		'allow_live_orders' => 'boolean',
+		'allow_sales' => 'boolean',
+		'allow_topup' => 'boolean',
 		'approved_at' => 'datetime',
 	];
 
@@ -77,7 +81,8 @@ class Device extends Model implements
 
 			// If settings affecting order assignment changed, re-evaluate assignments
 			$needsReassignment = $device->wasChanged('category_filter_id')
-				|| ($device->wasChanged('allow_remote_orders') && !$device->allow_remote_orders);
+				|| ($device->wasChanged('allow_remote_orders') && !$device->allow_remote_orders)
+				|| ($device->wasChanged('allow_sales') && !$device->allow_sales);
 
 			if ($needsReassignment) {
 				$assignmentService = new \App\Services\OrderAssignmentService();

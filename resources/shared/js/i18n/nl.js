@@ -382,6 +382,7 @@ export default {
     'Your Pay.nl service ID (e.g. SL-xxxx-xxxx)': 'Je Pay.nl service-ID (bijv. SL-xxxx-xxxx)',
     'Test mode': 'Testmodus',
     'Are you sure you want to remove the {gateway} payment gateway?': 'Weet je zeker dat je de {gateway} betalingsgateway wilt verwijderen?',
+    'Rename on CatLab Accounts': 'Naam wijzigen op CatLab Accounts',
 
     // Client - Order
     'Order': 'Bestellen',
@@ -421,4 +422,17 @@ export default {
     'This is the hello world.': 'Dit is de hallo wereld.',
     'Home': 'Startpagina',
     'This is the home.': 'Dit is de startpagina.',
+
+    // Device capabilities
+    'Allow sales': 'Verkoop toestaan',
+    'Allow card topups': 'Kaarten opwaarderen toestaan',
+    'This device can process orders and sales.': 'Dit apparaat kan bestellingen en verkopen verwerken.',
+    'This device can topup, reset and manage NFC cards.': 'Dit apparaat kan NFC-kaarten opwaarderen, resetten en beheren.',
+    'Capabilities': 'Functies',
+    'Sales': 'Verkoop',
+    'Disabled': 'Uitgeschakeld',
+    'This device has no functions enabled.': 'Dit apparaat heeft geen functies ingeschakeld.',
+    'Please contact your administrator to enable sales or topups for this device.': 'Neem contact op met je beheerder om verkoop of opwaarderen voor dit apparaat in te schakelen.',
+    'Unauthorized': 'Niet toegestaan',
+    'This transaction was uploaded by a device that is not allowed to topup cards.': 'Deze transactie werd geüpload door een apparaat dat geen kaarten mag opwaarderen.',
 };

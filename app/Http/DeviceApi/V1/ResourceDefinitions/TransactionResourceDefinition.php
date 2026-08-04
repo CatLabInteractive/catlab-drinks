@@ -109,6 +109,10 @@ class TransactionResourceDefinition extends ResourceDefinition
             ->writeable(true, true)
             ->visible(true);
 
+        $this->field('unauthorized')
+            ->bool()
+            ->visible(true);
+
         $this->field('created_at')
             ->datetime(DateTimeTransformer::class)
             ->visible(true);

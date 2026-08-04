@@ -43,7 +43,7 @@
 			<b-collapse is-nav id="nav_collapse">
 				<b-navbar-nav>
 
-					<b-nav-item :to="{ name: 'events' }"  v-if="!kioskMode">{{ $t('Events') }}</b-nav-item>
+					<b-nav-item :to="{ name: 'events' }"  v-if="!kioskMode && allowSales">{{ $t('Events') }}</b-nav-item>
 
 				</b-navbar-nav>
 
@@ -52,7 +52,7 @@
 
 					<b-navbar-nav>
 
-						<b-nav-item :to="{ name: 'cards' }">{{ $t('Cards') }}</b-nav-item>
+						<b-nav-item :to="{ name: 'cards' }" v-if="allowTopup">{{ $t('Cards') }}</b-nav-item>
 						<b-nav-item :to="{ name: 'settings' }">{{ $t('Settings') }}</b-nav-item>
 						<language-toggle />
 
@@ -195,6 +195,8 @@
 		data() {
 			return {
 				kioskMode: false,
+				allowSales: window.DEVICE_ALLOW_SALES !== false,
+				allowTopup: window.DEVICE_ALLOW_TOPUP !== false,
 				isOffline: false,
 				showLicenseWarning: false,
 				showLicenseErrorModal: false,

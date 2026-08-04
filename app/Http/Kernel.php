@@ -58,11 +58,13 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \Laravel\Passport\Http\Middleware\CreateFreshApiToken::class,
+            \App\Http\Middleware\SyncAccountsProfiles::class,
         ],
 
         'api' => [
             //'throttle:60,1',
             'bindings',
+            \App\Http\Middleware\SyncAccountsProfiles::class,
         ],
     ];
 
@@ -74,6 +76,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
+        'accounts.manage' => \App\Http\Middleware\AuthenticateAccountsManageCall::class,
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,

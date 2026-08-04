@@ -70,7 +70,8 @@ class TransactionController extends \App\Http\Shared\V1\Controllers\TransactionC
         $writeContext = $this->getContext(Action::CREATE);
         $resources = $this->bodyToResources($writeContext, TransactionResourceDefinition::class);
 
-        $transactionMerger = new TransactionMerger($organisation);
+        $uploadingDevice = $request->user() instanceof \App\Models\Device ? $request->user() : null;
+        $transactionMerger = new TransactionMerger($organisation, $uploadingDevice);
 
         $entities = [];
         foreach ($resources as $resource) {

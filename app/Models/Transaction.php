@@ -81,6 +81,10 @@ class Transaction extends Model
         'value'
     ];
 
+    protected $casts = [
+        'unauthorized' => 'boolean',
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -111,6 +115,15 @@ class Transaction extends Model
     public function topup()
     {
         return $this->belongsTo(Topup::class);
+    }
+
+    /**
+     * The device that uploaded this transaction to the server.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function uploadedByDevice()
+    {
+        return $this->belongsTo(Device::class, 'uploaded_by_device_id');
     }
 
     /**

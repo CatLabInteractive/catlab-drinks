@@ -274,6 +274,30 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
   `Auth\SsoLoginController` (SSO first-login); both render `auth.registration-closed`.
 - Database connection/migration failures render `errors/database.blade.php` via
   `App\Exceptions\DatabaseErrorClassifier` in the exception handler (non-debug only).
+- `DISABLE_PROFILE_MIRROR=1` disables the CatLab Accounts profile sync (kill switch for
+  `App\Services\ProfileMirror` — see "Accounts Profile Sync" below).
+
+---
+
+## Accounts Profile Sync (SSO instances)
+
+- `App\Services\ProfileMirror` mirrors CatLab accounts "profiles" into local
+  organisations: link via `organisations.profile_id` (unique), membership via
+  the roster endpoint, incremental skip via `organisations.profile_sync_version`
+  vs the accounts `version`. Names of linked organisations are canonical on
+  accounts and read-only in the drinks API.
+- Triggers: SSO login (`SsoLoginController`) + `SyncAccountsProfiles`
+  middleware on the `web`/`api` groups (throttled 15 min per user via
+  `users.last_profile_sync`; failure backoff 60 s). Kill switch:
+  `DISABLE_PROFILE_MIRROR=1`.
+- `POST /delegated/users` (secret-authenticated, `accounts.manage` middleware)
+  handles accounts-initiated user `delete`/`logout`; register it as
+  `manage_user_uri` on the accounts OAuth client.
+- Manage supports multiple organisations: boot picks the org stored in
+  localStorage (`catlab_drinks_manage_organisation_id`) via
+  `resources/manage/js/services/organisationSelection.js`; a navbar dropdown
+  switches (stores + reloads). `window.ORGANISATIONS` holds the full list.
+- Design: `docs/superpowers/specs/2026-08-04-profiles-organisations-sync-design.md`.
 
 ---
 
