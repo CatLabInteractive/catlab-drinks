@@ -48,6 +48,14 @@
 		"DB_PASSWORD": {
 			"description": "Database password. On Heroku this is set automatically via the JawsDB addon.",
 			"required": false
+		},
+		"REGISTRATION_OPEN": {
+			"description": "Keep public registration open after the first user has been created. Leave unset for a private instance.",
+			"required": false
+		},
+		"PRODUCTION_ORGANISATION_IDS": {
+			"description": "Comma-separated organisation IDs allowed to use this instance in production. Leave unset to allow all organisations.",
+			"required": false
 		}
 	},
 	"addons": [

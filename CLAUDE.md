@@ -52,8 +52,17 @@ php artisan route:list                  # Verify routes are registered correctly
 php artisan route:list --path=<prefix>  # Filter routes by path prefix
 ```
 
-No automated test suite exists currently. Manual testing is required.
 The lock file requires PHP ~8.1 or ~8.2; use `--ignore-platform-reqs` on newer PHP versions.
+
+### PHP Tests
+```bash
+vendor/bin/phpunit                      # Full suite (needs MySQL test DB, see phpunit.xml)
+vendor/bin/phpunit --filter FooTest     # Single test class
+```
+Feature tests use the `RefreshDatabase` trait against the `catlab_drinks_test` MySQL
+database (127.0.0.1:3306, user `test`/`test`). GitHub Actions (`.github/workflows/tests.yml`)
+runs the full PHP suite (PHP 8.1/8.2/8.3 matrix + MySQL 8 service) and `npm test` on every
+push/PR to main/master/develop.
 
 ### JavaScript Tests
 ```bash
@@ -249,6 +258,22 @@ version(1) + deviceId(3) + balance(4) + txCount(4) + timestamp(4) + prevTx(5×4=
 The `KeyManager` must be set on `NfcReader` **before** cards are scanned via `nfcReader.setKeyManager(keyManager)`.
 The reader injects it into each `Card` object before calling `parseNdef()`.
 Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPublicKeys(keys)` during device boot.
+
+---
+
+## Instance Configuration
+
+- `config/instance.php` + `App\Support\InstanceSettings`: `PRODUCTION_ORGANISATION_IDS`
+  (comma-separated org IDs; orgs not on the list get `test_mode = true` on the Management
+  API organisation resource and see a testing-mode banner in Manage) and
+  `REGISTRATION_OPEN` (keeps registration open after the first user; default closed).
+- First-run setup: while no users exist (and no SSO is configured), the
+  `setup.redirect` middleware sends `/`, `/home`, `/login`, `/register`, `/manage` to
+  `/setup` (`SetupController`), which creates the founding user + organisation.
+- Registration gates live in `Auth\RegisterController` (local) and
+  `Auth\SsoLoginController` (SSO first-login); both render `auth.registration-closed`.
+- Database connection/migration failures render `errors/database.blade.php` via
+  `App\Exceptions\DatabaseErrorClassifier` in the exception handler (non-debug only).
 
 ---
 
