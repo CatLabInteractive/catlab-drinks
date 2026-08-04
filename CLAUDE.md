@@ -77,8 +77,20 @@ service) and `npm test` on every push/PR to main/master/develop.
 ### JavaScript Tests
 ```bash
 npx jest            # Run Jest tests (KeyManager, Card, etc.)
-npx vitest run      # Run Vitest tests (route/view tests)
+npx vitest run      # Run Vitest tests (route/view/component tests)
 ```
+
+Vitest runs two kinds of tests from `resources/tests/`:
+- **Structural tests** (`table-service-*.test.js`, etc.) read source files and assert on
+  routes, imports, and wiring.
+- **Component tests** (`component-*.test.js`) mount Vue components with
+  `@vue/test-utils` and test behaviour (clicks, modals, service calls). Bootstrap-vue
+  is replaced by the lightweight stubs in `resources/tests/helpers/bootstrapVueStubs.js`
+  (passthrough slots, working checkboxes/modals/scoped table slots); services are
+  mocked with `vi.mock`. Note that `vitest.config.js` deliberately does **not** alias
+  `vue` to `@vue/compat` (unlike webpack): the compat runtime is only needed for
+  bootstrap-vue, and mixing it with `@vue/test-utils`' own `vue` import creates two Vue
+  instances that cannot resolve each other's components.
 
 ---
 
