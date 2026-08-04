@@ -66,7 +66,10 @@ class SetupController extends Controller
 
         $user = DB::transaction(function () use ($data) {
             // Lock the users table so two concurrent setup submissions
-            // cannot both create a founding user.
+            // cannot both create a founding user. Under InnoDB REPEATABLE
+            // READ, this locking read on an empty table takes a next-key
+            // lock on the supremum record, blocking concurrent inserts
+            // until this transaction commits.
             if (DB::table('users')->lockForUpdate()->count() > 0) {
                 return null;
             }
@@ -93,6 +96,7 @@ class SetupController extends Controller
         }
 
         Auth::login($user);
+        $request->session()->regenerate();
 
         return redirect('/getting-started');
     }
