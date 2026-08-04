@@ -40,13 +40,13 @@ class LicenseController extends Controller
             return redirect('/manage/devices');
         }
 
-        $organisation = \Auth::user()->organisations()->first();
-        if (!$organisation) {
+        $organisationIds = \Auth::user()->organisations()->pluck('organisations.id');
+        if ($organisationIds->isEmpty()) {
             return redirect('/manage/devices');
         }
 
         $device = Device::where('id', $deviceId)
-            ->where('organisation_id', $organisation->id)
+            ->whereIn('organisation_id', $organisationIds)
             ->first();
 
         if (!$device) {
