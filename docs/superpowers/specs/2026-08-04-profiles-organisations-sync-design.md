@@ -109,11 +109,14 @@ always full-sync that profile.
 
 1. **Resolve the organisation:**
    - `Organisation::where('profile_id', $item['id'])` first — never create a duplicate.
-   - Else, if `personal`: **adopt** the oldest unlinked organisation the user is a
-     member of (`$user->organisations()->whereNull('profile_id')->orderBy('organisations.id')->first()`)
-     and link it. This is how every pre-existing auto-created org gets linked. On a
-     unique-key violation (`QueryException`, MySQL error 1062 — concurrent request won
-     the link race): re-fetch the winner by `profile_id`; rethrow anything else.
+   - Else, if `personal`: **adopt** the oldest unlinked organisation the user is the only
+     member of (`$user->organisations()->whereNull('profile_id')->has('users', '=', 1)->orderBy('organisations.id')->first()`)
+     and link it. This is how every pre-existing auto-created org gets linked. Orgs shared
+     with other members are skipped — adopting one would hijack an organisation other
+     people are relying on — so a user whose unlinked orgs are all shared falls through
+     to the create-a-new-organisation path below. On a unique-key violation
+     (`QueryException`, MySQL error 1062 — concurrent request won the link race):
+     re-fetch the winner by `profile_id`; rethrow anything else.
    - Else: create a new organisation (name from the item), attach the user, link it.
      On 1062: delete the just-created husk (org + its membership rows — no content
      exists yet) and adopt the winner.

@@ -134,6 +134,38 @@ class ProfileMirrorTest extends TestCase
         $this->assertSame(1, Organisation::query()->count());
     }
 
+    public function testPersonalProfileSkipsSharedUnlinkedOrgAndCreatesNewOne(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        $otherMember = $this->makeSsoUser(1002);
+
+        // The user's oldest unlinked org already has a second member: it
+        // must not be hijacked for the personal profile.
+        $sharedOrg = $user->organisations()->first();
+        $sharedOrg->users()->attach($otherMember->id);
+
+        $this->fakeAccounts(
+            [['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true, 'version' => 1]],
+            [501 => [['userId' => 1001, 'role' => 10]]]
+        );
+
+        (new ProfileMirror())->sync($user);
+
+        // The shared org stays unlinked and untouched.
+        $sharedOrg->refresh();
+        $this->assertNull($sharedOrg->profile_id);
+        $this->assertNotSame('Thijs', $sharedOrg->name);
+        $this->assertTrue($sharedOrg->users()->whereKey($user->id)->exists());
+        $this->assertTrue($sharedOrg->users()->whereKey($otherMember->id)->exists());
+
+        // A fresh organisation is created and linked for the personal profile.
+        $newOrg = Organisation::query()->where('profile_id', 501)->first();
+        $this->assertNotNull($newOrg);
+        $this->assertNotSame($sharedOrg->id, $newOrg->id);
+        $this->assertSame('Thijs', $newOrg->name);
+        $this->assertTrue($newOrg->users()->whereKey($user->id)->exists());
+    }
+
     public function testSharedProfileCreatesNewOrganisation(): void
     {
         $user = $this->makeSsoUser(1001);

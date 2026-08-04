@@ -88,7 +88,20 @@ class ProfileMirror
                 continue;
             }
 
-            if (!$this->syncProfile($user, $item, $force)) {
+            try {
+                if (!$this->syncProfile($user, $item, $force)) {
+                    $this->stampFailureBackoff($user);
+                    return;
+                }
+            } catch (\Throwable $e) {
+                // syncProfile() already catches the expected 1062 race
+                // internally; anything that escapes here is genuinely
+                // unexpected. Never let it break the caller's request.
+                Log::warning('ProfileMirror: unexpected error syncing profile', [
+                    'user' => $user->id,
+                    'profile' => $item['id'] ?? null,
+                    'error' => $e->getMessage(),
+                ]);
                 $this->stampFailureBackoff($user);
                 return;
             }
@@ -196,14 +209,19 @@ class ProfileMirror
     }
 
     /**
-     * Adopt the oldest unlinked organisation this user belongs to (the
-     * User::created hook guarantees one exists for pre-profiles users).
+     * Adopt the oldest unlinked organisation this user is the ONLY member
+     * of (the User::created hook guarantees one exists for pre-profiles
+     * users). Orgs shared with other members are never adopted for a
+     * personal profile, to avoid hijacking an organisation other people
+     * are relying on; a fresh org is created instead when every unlinked
+     * org the user belongs to is shared.
      * @return Organisation|null
      */
     protected function adoptPersonalOrganisation(User $user, int $profileId)
     {
         $candidate = $user->organisations()
             ->whereNull('profile_id')
+            ->has('users', '=', 1)
             ->orderBy('organisations.id')
             ->first();
 
@@ -285,7 +303,7 @@ class ProfileMirror
                 ->connectTimeout(2)
                 ->acceptJson()
                 ->get($url);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return null;
         }
 
