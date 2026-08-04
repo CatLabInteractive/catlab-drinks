@@ -60,7 +60,18 @@ independently, and settle tabs.
 - **Methods:**
   - `getLatestPatron()` — returns the most recently created patron at this table
   - `bulkGenerate(Event $event, int $count)` — static; creates `$count` tables starting
-    from the highest existing `table_number + 1`, named "Table N"
+    from the highest *active* `table_number + 1`, named "Table N". Numbers held by
+    soft-deleted rows are revived (restored) instead of recreated.
+  - `restoreOrCreate(Event $event, int $tableNumber)` — static; returns the active table
+    with that number, restoring a soft-deleted one if it holds the slot, creating one
+    otherwise. Catches the duplicate-key `QueryException` from concurrent creation and
+    returns the winning row.
+- **Integrity (model `saving` event):** the DB unique index on
+  `(event_id, table_number)` covers soft-deleted rows, so any save that changes
+  `table_number`/`event_id` into a slot held by *any* row (trashed included) throws a
+  `ValidationException` (422) instead of hitting the constraint. Admins cannot manually
+  create or rename a table into a collision; use restore/`bulkGenerate` to revive
+  deleted numbers.
 
 ### `Patron` (`App\Models\Patron`)
 
@@ -121,8 +132,10 @@ If neither name nor table: return null (no patron assignment)
 
 ### Auto-create Tables
 
-`findOrCreateTable(Event $event, int $tableNumber)` finds an existing non-soft-deleted table
-or creates one. Used when remote orders arrive referencing unknown table numbers.
+`findOrCreateTable(Event $event, int $tableNumber)` delegates to
+`Table::restoreOrCreate()`: it returns the active table with that number, restores a
+soft-deleted one, or creates a new one (race-safe). Used when remote orders arrive
+referencing unknown table numbers.
 
 ---
 

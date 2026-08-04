@@ -5,6 +5,8 @@ namespace App\Models;
 use CatLab\Charon\Laravel\Database\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\QueryException;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Class Table
@@ -20,6 +22,32 @@ class Table extends Model
         'table_number',
         'name',
     ];
+
+    /**
+     * The unique index on (event_id, table_number) covers soft-deleted rows,
+     * so the check must too. Lives in a model event so it holds on every
+     * write path.
+     */
+    protected static function booted()
+    {
+        self::saving(function (Table $table) {
+            if (!$table->isDirty('table_number') && !$table->isDirty('event_id')) {
+                return;
+            }
+
+            $collision = self::withTrashed()
+                ->where('event_id', $table->event_id)
+                ->where('table_number', $table->table_number)
+                ->where('id', '!=', $table->id ?? 0)
+                ->exists();
+
+            if ($collision) {
+                throw ValidationException::withMessages([
+                    'table_number' => 'A table with this number already exists for this event.'
+                ]);
+            }
+        });
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -70,17 +98,60 @@ class Table extends Model
 
         $tables = [];
         for ($i = 1; $i <= $count; $i++) {
-            $number = $highestNumber + $i;
-
-            $table = new self();
-            $table->table_number = $number;
-            $table->name = 'Table ' . $number;
-            $table->event()->associate($event);
-            $table->save();
-
-            $tables[] = $table;
+            $tables[] = self::restoreOrCreate($event, $highestNumber + $i);
         }
 
         return $tables;
+    }
+
+    /**
+     * Return the active table with this number, reviving a soft-deleted one
+     * if that's what holds the unique (event_id, table_number) slot.
+     * Safe under concurrent creation of the same number.
+     *
+     * @param Event $event
+     * @param int $tableNumber
+     * @return Table
+     */
+    public static function restoreOrCreate(Event $event, int $tableNumber): self
+    {
+        $table = $event->tables()
+            ->withTrashed()
+            ->where('table_number', $tableNumber)
+            ->first();
+
+        if ($table) {
+            if ($table->trashed()) {
+                $table->restore();
+            }
+            return $table;
+        }
+
+        $table = new self();
+        $table->table_number = $tableNumber;
+        $table->name = 'Table ' . $tableNumber;
+        $table->event()->associate($event);
+
+        try {
+            $table->save();
+        } catch (QueryException $e) {
+            // Lost a race against a concurrent insert of the same number:
+            // the row that beat us is the table we wanted.
+            $existing = $event->tables()
+                ->withTrashed()
+                ->where('table_number', $tableNumber)
+                ->first();
+
+            if (!$existing) {
+                throw $e;
+            }
+
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+            return $existing;
+        }
+
+        return $table;
     }
 }

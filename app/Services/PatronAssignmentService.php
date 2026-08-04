@@ -111,22 +111,6 @@ class PatronAssignmentService
      */
     public function findOrCreateTable(Event $event, int $tableNumber): Table
     {
-        $table = $event->tables()
-            ->withoutTrashed()
-            ->where('table_number', $tableNumber)
-            ->first();
-
-        if ($table) {
-            return $table;
-        }
-
-        // Create a new table
-        $table = new Table();
-        $table->table_number = $tableNumber;
-        $table->name = 'Table ' . $tableNumber;
-        $table->event()->associate($event);
-        $table->save();
-
-        return $table;
+        return Table::restoreOrCreate($event, $tableNumber);
     }
 }
