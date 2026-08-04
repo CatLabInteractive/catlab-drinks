@@ -579,4 +579,10 @@ export default {
     'Stop test': 'Arrêter le test',
     'Scan card to start test': 'Scannez une carte pour démarrer le test',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Attention ! Cela appliquera des transactions aléatoires à toute carte présentée. Voulez-vous continuer ?',
+
+    // Table service (additions)
+    'This terminal is used by a waiter for table service. Cannot be combined with live or remote orders.': 'Ce terminal est utilisé par un serveur pour le service à table. Ne peut pas être combiné avec les commandes en direct ou à distance.',
+    'Allow table service at this terminal': 'Autoriser le service à table sur ce terminal',
+    'Requester': 'Demandeur',
+    '#': '#',
 };

@@ -579,4 +579,10 @@ export default {
     'Stop test': 'Test stoppen',
     'Scan card to start test': 'Scan een kaart om de test te starten',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Waarschuwing! Dit voert willekeurige transacties uit op elke kaart die wordt aangeboden. Wil je doorgaan?',
+
+    // Table service (additions)
+    'This terminal is used by a waiter for table service. Cannot be combined with live or remote orders.': 'Dit kassa-apparaat wordt door een ober gebruikt voor tafelbediening. Kan niet gecombineerd worden met live of afstandsbestellingen.',
+    'Allow table service at this terminal': 'Sta tafelbediening toe op dit kassa-apparaat',
+    'Requester': 'Aanvrager',
+    '#': '#',
 };
