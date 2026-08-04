@@ -435,4 +435,113 @@ export default {
     'Please contact your administrator to enable sales or topups for this device.': 'Neem contact op met je beheerder om verkoop of opwaarderen voor dit apparaat in te schakelen.',
     'Unauthorized': 'Niet toegestaan',
     'This transaction was uploaded by a device that is not allowed to topup cards.': 'Deze transactie werd geüpload door een apparaat dat geen kaarten mag opwaarderen.',
+
+    // Instance testing mode
+    'You are using this shared instance in testing mode. Feel free to try things out, but for production events please set up your own instance.': 'Je gebruikt deze gedeelde instantie in testmodus. Probeer gerust van alles uit, maar zet voor productie-evenementen een eigen instantie op.',
+    'How to set up your own instance': 'Hoe je je eigen instantie opzet',
+
+    // Manage - Devices (additions)
+    'Pair a device': 'Koppel een apparaat',
+    'Deleted': 'Verwijderd',
+    'Online': 'Online',
+    'Approved': 'Goedgekeurd',
+    'Pending': 'In afwachting',
+    'No key': 'Geen sleutel',
+    'Approve Key': 'Sleutel goedkeuren',
+    'Approve Public Key': 'Publieke sleutel goedkeuren',
+    'Revoke Key': 'Sleutel intrekken',
+    'Revoke Public Key': 'Publieke sleutel intrekken',
+    'Pending orders': 'Openstaande bestellingen',
+    'Public Key': 'Publieke sleutel',
+    'Signed Cards': 'Ondertekende kaarten',
+    'POS (Point of Sale) devices authenticate separately from your management account.': 'POS-apparaten (kassa\'s) authenticeren los van je beheeraccount.',
+    'Each POS terminal requires its own pairing to ensure secure, independent operation—even if the management session expires, POS devices continue to function.': 'Elke POS-terminal vereist een eigen koppeling voor veilige, onafhankelijke werking — zelfs als de beheersessie verloopt, blijven POS-apparaten werken.',
+    'No signed cards found.': 'Geen ondertekende kaarten gevonden.',
+    'Card UID': 'Kaart-UID',
+
+    // Manage - Events - Order token
+    'Remote order token': 'Token voor externe bestellingen',
+    'Attendees': 'Deelnemers',
+    'Order page URL': 'URL van de bestelpagina',
+    'Share this link with your customers to let them order remotely.': 'Deel deze link met je klanten zodat ze op afstand kunnen bestellen.',
+    'The order token consists of a public part and a secret part, separated by a dash. The public part identifies the event in the order page URL. The secret part is used by integrating applications, such as QuizWitz, to sign order parameters (card and name) with HMAC-SHA256.': 'Het besteltoken bestaat uit een publiek deel en een geheim deel, gescheiden door een streepje. Het publieke deel identificeert het evenement in de URL van de bestelpagina. Het geheime deel wordt door integrerende applicaties, zoals QuizWitz, gebruikt om bestelparameters (card en name) te ondertekenen met HMAC-SHA256.',
+    'Only share the full token with trusted integrations.': 'Deel het volledige token alleen met vertrouwde integraties.',
+
+    // Manage - Categories (additions)
+    'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.': 'Door meerdere productcategorieën te definiëren kun je bestellingen verdelen over verschillende locaties. Categorieën moeten breed zijn: bijv. \'Eten\' voor de keuken en \'Drank\' voor de bar.',
+    '+ Create new category': '+ Nieuwe categorie aanmaken',
+
+    // Manage - Public Keys
+    'Public Keys': 'Publieke sleutels',
+    'This page shows all public keys for POS devices in your organisation, including keys from deleted devices. Each public key is used to verify NFC card signatures.': 'Deze pagina toont alle publieke sleutels van POS-apparaten in je organisatie, inclusief sleutels van verwijderde apparaten. Elke publieke sleutel wordt gebruikt om handtekeningen op NFC-kaarten te verifiëren.',
+    'Pending Approval': 'Wacht op goedkeuring',
+    'Approve': 'Goedkeuren',
+    'Revoke': 'Intrekken',
+    'No public keys found. Devices will register their public keys when they connect.': 'Geen publieke sleutels gevonden. Apparaten registreren hun publieke sleutel wanneer ze verbinding maken.',
+
+    // NFC Signing Credentials
+    'NFC Card Signing Credentials': 'Ondertekeningsgegevens voor NFC-kaarten',
+    'This device needs to generate signing credentials before it can read or write NFC cards.': 'Dit apparaat moet ondertekeningsgegevens genereren voordat het NFC-kaarten kan lezen of schrijven.',
+    'After generating, your organisation administrator must approve the credentials before card operations are allowed.': 'Na het genereren moet de beheerder van je organisatie de gegevens goedkeuren voordat kaartbewerkingen zijn toegestaan.',
+    'This is a security measure to prevent unauthorized devices from writing card data.': 'Dit is een veiligheidsmaatregel om te voorkomen dat ongeautoriseerde apparaten kaartgegevens schrijven.',
+    'Generate Credentials': 'Gegevens genereren',
+    'Waiting for approval': 'Wachten op goedkeuring',
+    'Your signing credentials have been generated and submitted to the server.': 'Je ondertekeningsgegevens zijn gegenereerd en naar de server verzonden.',
+    'An organisation administrator must now approve this device\'s credentials in the management dashboard before card operations are allowed.': 'Een organisatiebeheerder moet nu de gegevens van dit apparaat goedkeuren in het beheerdashboard voordat kaartbewerkingen zijn toegestaan.',
+    'The NFC indicator in the toolbar will turn green once the credentials are approved. You can close this dialog and continue using other features in the meantime.': 'De NFC-indicator in de werkbalk wordt groen zodra de gegevens zijn goedgekeurd. Je kunt dit venster sluiten en ondertussen andere functies blijven gebruiken.',
+    'Check Approval Status': 'Goedkeuringsstatus controleren',
+    'Credentials revoked': 'Gegevens ingetrokken',
+    'This device\'s signing credentials have been revoked by an administrator. Card operations are disabled.': 'De ondertekeningsgegevens van dit apparaat zijn door een beheerder ingetrokken. Kaartbewerkingen zijn uitgeschakeld.',
+    'You can generate new credentials below. They will need to be approved again before card operations are allowed.': 'Hieronder kun je nieuwe gegevens genereren. Ze moeten opnieuw worden goedgekeurd voordat kaartbewerkingen zijn toegestaan.',
+    'Generate New Credentials': 'Nieuwe gegevens genereren',
+    'Credentials approved!': 'Gegevens goedgekeurd!',
+    'Your signing credentials have been approved. This device can now read and write NFC cards.': 'Je ondertekeningsgegevens zijn goedgekeurd. Dit apparaat kan nu NFC-kaarten lezen en schrijven.',
+    'Failed to generate credentials. Please try again.': 'Genereren van gegevens mislukt. Probeer het opnieuw.',
+    'NFC Space Limit Exceeded': 'NFC-ruimtelimiet overschreden',
+    'The topup URL is too long to fit on the NFC card together with the signed card data.': 'De opwaardeer-URL is te lang om samen met de ondertekende kaartgegevens op de NFC-kaart te passen.',
+    'Please configure a shorter topup domain in the organisation settings to resolve this issue.': 'Stel een korter opwaardeerdomein in bij de organisatie-instellingen om dit probleem op te lossen.',
+    'Close': 'Sluiten',
+    'NFC ⚠️': 'NFC ⚠️',
+    'NFC ⏳': 'NFC ⏳',
+    'NFC 🔑': 'NFC 🔑',
+
+    // POS - Authenticate (additions)
+    'Back': 'Terug',
+    'Authenticate': 'Authenticeren',
+    'Invalid response...': 'Ongeldig antwoord...',
+
+    // POS - License
+    'Requires': 'Vereist',
+    'an additional service': 'een extra dienst',
+    'Expires:': 'Verloopt:',
+    'Cards scanned:': 'Gescande kaarten:',
+    'Remaining:': 'Resterend:',
+    'Please purchase a license to remove the card scan limit.': 'Koop een licentie om de scanlimiet voor kaarten te verwijderen.',
+    'Visit the management portal to buy and activate a license for this device.': 'Ga naar het beheerportaal om een licentie voor dit apparaat te kopen en te activeren.',
+
+    // Card details (additions)
+    'Card gives': 'Kaart geeft',
+    '% at all sales.': '% op alle verkopen.',
+    'Rebuild error: {message}': 'Herbouwfout: {message}',
+    'Validation error: {message}': 'Validatiefout: {message}',
+
+    // Payment (additions)
+    'Collect': 'Ontvang',
+    'vouchers': 'bonnen',
+    'or': 'of',
+
+    // Remote orders (additions)
+    '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.': '{count} bestelling(en) kunnen niet worden verwerkt omdat geen enkele online POS hun categorie accepteert. Minstens één POS moet zijn filter aanpassen om deze bestellingen te verwerken.',
+    'Only show assigned orders': 'Alleen toegewezen bestellingen tonen',
+    'On my way!': 'Onderweg!',
+    'Failed to save category filter. Reverting to previous value.': 'Opslaan van categoriefilter mislukt. Vorige waarde wordt hersteld.',
+
+    // Attendees (additions)
+    'Email': 'E-mail',
+
+    // Card test
+    'Start test': 'Test starten',
+    'Stop test': 'Test stoppen',
+    'Scan card to start test': 'Scan een kaart om de test te starten',
+    'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Waarschuwing! Dit voert willekeurige transacties uit op elke kaart die wordt aangeboden. Wil je doorgaan?',
 };
