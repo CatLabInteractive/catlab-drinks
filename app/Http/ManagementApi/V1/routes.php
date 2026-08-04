@@ -90,11 +90,13 @@ $routes->group(
 				\App\Http\ManagementApi\V1\Controllers\AttendeeController::setRoutes($routes);
 				\App\Http\ManagementApi\V1\Controllers\DeviceController::setRoutes($routes);
 				\App\Http\ManagementApi\V1\Controllers\CategoryController::setRoutes($routes);
+				\App\Http\ManagementApi\V1\Controllers\TableController::setRoutes($routes);
+				\App\Http\ManagementApi\V1\Controllers\PatronController::setRoutes($routes);
 				\App\Http\ManagementApi\V1\Controllers\PaymentGatewayController::setRoutes($routes);
 				\App\Http\ManagementApi\V1\Controllers\CardController::setSharedRoutes($routes);
 				\App\Http\ManagementApi\V1\Controllers\TransactionController::setRoutes($routes);
 
-                \App\Http\Shared\V1\Controllers\OrderController::setRoutes($routes);
+				\App\Http\ManagementApi\V1\Controllers\OrderController::setRoutes($routes);
 
 			}
 		);

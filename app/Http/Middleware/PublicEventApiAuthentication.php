@@ -37,6 +37,7 @@ class PublicEventApiAuthentication
     const HEADER_CARD_TOKEN = 'X-Card-Token';
     const HEADER_ORDER_NAME = 'X-Order-Name';
     const HEADER_SIGNATURE = 'X-Signature';
+    const HEADER_TABLE_NUMBER = 'X-Table-Number';
 
     /**
      * Handle an incoming request.
@@ -77,6 +78,7 @@ class PublicEventApiAuthentication
             $params = [];
             $cardToken = $request->header(self::HEADER_CARD_TOKEN);
             $orderName = $request->header(self::HEADER_ORDER_NAME);
+            $tableNumber = $request->header(self::HEADER_TABLE_NUMBER);
 
             if ($cardToken) {
                 $params['card'] = $cardToken;
@@ -84,8 +86,11 @@ class PublicEventApiAuthentication
             if ($orderName) {
                 $params['name'] = $orderName;
             }
+            if ($tableNumber) {
+                $params['table'] = $tableNumber;
+            }
 
-            if (OrderTokenSignatureService::hasSignableParams($params)) {
+            if (OrderTokenSignatureService::requiresSignature($params)) {
                 $signature = $request->header(self::HEADER_SIGNATURE);
                 if (!$signature || !OrderTokenSignatureService::verify($secret, $params, $signature)) {
                     return false;

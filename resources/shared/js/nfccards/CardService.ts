@@ -36,6 +36,7 @@ import {AppNfcReader} from "./nfc/AppNfcReader";
 import {KeyManager, PublicKeyEntry} from "./crypto/KeyManager";
 import * as localForage from "localforage";
 import {isCardVersionSupported} from "./versioning";
+import {determineKeyApprovalStatus} from "./crypto/keyApprovalStatus";
 
 /**
  *
@@ -97,6 +98,8 @@ export class CardService extends Eventable {
 	 * 'none' = no key generated, 'pending' = awaiting approval, 'approved' = ready to use, 'revoked' = key was revoked by admin.
 	 */
 	private keyApprovalStatus: 'none' | 'pending' | 'approved' | 'revoked' = 'none';
+
+	private lastApprovalCheck: number = 0;
 
 	/**
 	 *
@@ -269,6 +272,10 @@ export class CardService extends Eventable {
 	 * @param forceWrite
 	 */
 	async refreshCard(card: Card, forceWrite = false) {
+		if (this.hasApiConnection()) {
+			await this.recheckKeyApproval();
+		}
+
 		const now = new Date();
 
 		this.logger.log(card.getUid(), 'Refreshing card');
@@ -519,6 +526,35 @@ export class CardService extends Eventable {
 	 */
 	isCardOperationAllowed(): boolean {
 		return this.keyApprovalStatus === 'approved';
+	}
+
+	/**
+	 * Re-check the key approval status from the server, throttled to once
+	 * per minute. Called from refreshCard so a revoked device stops
+	 * signing at the next card interaction instead of at the next reload.
+	 */
+	public async recheckKeyApproval(): Promise<void> {
+		if (Date.now() - this.lastApprovalCheck < 60000) {
+			return;
+		}
+		this.lastApprovalCheck = Date.now();
+
+		try {
+			const response = await this.axios.get('devices/current');
+			const deviceData = response.data;
+
+			const status = determineKeyApprovalStatus(
+				this.keyManager !== null && this.keyManager.isInitialized(),
+				!!deviceData.public_key,
+				deviceData.approved_at || null
+			);
+
+			if (status !== this.keyApprovalStatus) {
+				this.setKeyApprovalStatus(status);
+			}
+		} catch (e) {
+			// Offline or request failed: keep the current status.
+		}
 	}
 
 	/**

@@ -25,6 +25,7 @@ namespace App\Models;
 use CatLab\Charon\Laravel\Database\Model;
 use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Validation\ValidationException;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -41,6 +42,11 @@ class Order extends Model
     public static function boot()
     {
         parent::boot();
+
+        self::saving(function(Order $order) {
+            $order->validateIntegrity();
+            $order->syncPaymentFields();
+        });
 
         self::created(function(Order $order){
 
@@ -86,6 +92,18 @@ class Order extends Model
     const STATUS_DECLINED = 'declined';
     const STATUS_PENDING = 'pending';
     const STATUS_PROCESSED = 'processed';
+    const STATUS_PREPARED = 'prepared';
+    const STATUS_DELIVERED = 'delivered';
+
+    const PAYMENT_STATUS_UNPAID = 'unpaid';
+    const PAYMENT_STATUS_PAID = 'paid';
+    const PAYMENT_STATUS_VOIDED = 'voided';
+
+    const PAYMENT_STATUSES = [
+        self::PAYMENT_STATUS_UNPAID,
+        self::PAYMENT_STATUS_PAID,
+        self::PAYMENT_STATUS_VOIDED,
+    ];
 
     /**
      * @var string
@@ -119,6 +137,104 @@ class Order extends Model
     public function assignedDevice()
     {
         return $this->belongsTo(Device::class, 'assigned_device_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function patron()
+    {
+        return $this->belongsTo(Patron::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function table()
+    {
+        return $this->belongsTo(Table::class);
+    }
+
+    /**
+     * Validate patron/table ownership and payment status.
+     * Lives in a model event (not a controller hook) so it runs on every
+     * write path, including the public order endpoint which calls
+     * saveRecursively() directly.
+     * @throws ValidationException
+     */
+    public function validateIntegrity()
+    {
+        if (
+            $this->payment_status !== null &&
+            !in_array($this->payment_status, self::PAYMENT_STATUSES, true)
+        ) {
+            throw ValidationException::withMessages([
+                'payment_status' => 'Invalid payment status.'
+            ]);
+        }
+
+        if ($this->isDirty('patron_id') && $this->patron_id !== null) {
+            $patron = Patron::find($this->patron_id);
+            if (!$patron || (int) $patron->event_id !== (int) $this->event_id) {
+                throw ValidationException::withMessages([
+                    'patron_id' => 'Patron does not belong to this event.'
+                ]);
+            }
+        }
+
+        if ($this->isDirty('table_id') && $this->table_id !== null) {
+            $table = Table::find($this->table_id);
+            if (!$table || (int) $table->event_id !== (int) $this->event_id) {
+                throw ValidationException::withMessages([
+                    'table_id' => 'Table does not belong to this event.'
+                ]);
+            }
+        }
+
+        if (
+            $this->isDirty('payment_status') &&
+            $this->payment_status === self::PAYMENT_STATUS_UNPAID &&
+            $this->getOriginal('payment_status') !== self::PAYMENT_STATUS_UNPAID
+        ) {
+            $event = $this->event;
+            if (
+                !$event ||
+                (!$event->allow_unpaid_table_orders && !$event->allow_unpaid_online_orders)
+            ) {
+                throw ValidationException::withMessages([
+                    'payment_status' => 'Unpaid orders are not allowed for this event.'
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Keep the legacy `paid` bool consistent with `payment_status`.
+     * payment_status is canonical; legacy flows that only set `paid`
+     * pull payment_status along.
+     *
+     * Creates that only set `paid = false` deliberately keep the column
+     * default for payment_status, because a legacy `paid = false` does not
+     * imply an open tab. Flows that create genuinely unpaid orders must set
+     * payment_status explicitly.
+     */
+    public function syncPaymentFields()
+    {
+        if ($this->isDirty('payment_status')) {
+            $this->paid = ($this->payment_status === self::PAYMENT_STATUS_PAID);
+        } elseif (
+            $this->isDirty('paid') &&
+            $this->paid &&
+            $this->payment_status === self::PAYMENT_STATUS_UNPAID
+        ) {
+            $this->payment_status = self::PAYMENT_STATUS_PAID;
+        } elseif (
+            !$this->exists &&
+            $this->payment_status === null &&
+            $this->paid
+        ) {
+            $this->payment_status = self::PAYMENT_STATUS_PAID;
+        }
     }
 
     /**

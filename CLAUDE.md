@@ -55,20 +55,42 @@ php artisan route:list --path=<prefix>  # Filter routes by path prefix
 The lock file requires PHP ~8.1 or ~8.2; use `--ignore-platform-reqs` on newer PHP versions.
 
 ### PHP Tests
+
+**Always run the PHP test suite through the dockerized runner:**
+
 ```bash
-vendor/bin/phpunit                      # Full suite (needs MySQL test DB, see phpunit.xml)
-vendor/bin/phpunit --filter FooTest     # Single test class
+docker compose run --rm phpunit                      # Full suite
+docker compose run --rm phpunit --filter FooTest     # Single test class
 ```
+
+This spins up the `mysql-test` and `phpunit` compose services (both behind the `test`
+profile, so they don't start with a plain `docker compose up`) — a throwaway MySQL 8.0
+instance on tmpfs mirroring the CI service plus a `thecodingmachine/php:8.1-v5-cli`
+container with `pdo_mysql` preinstalled. Nothing persists between runs, so results are
+reproducible regardless of the host PHP setup.
+
 Feature tests use the `RefreshDatabase` trait against the `catlab_drinks_test` MySQL
-database (127.0.0.1:3306, user `test`/`test`). GitHub Actions (`.github/workflows/tests.yml`)
-runs the full PHP suite (PHP 8.1/8.2/8.3 matrix + MySQL 8 service) and `npm test` on every
-push/PR to main/master/develop.
+database (user `test`/`test`, see phpunit.xml). GitHub Actions
+(`.github/workflows/tests.yml`) runs the full PHP suite (PHP 8.1/8.2/8.3 matrix + MySQL 8
+service) and `npm test` on every push/PR to main/master/develop.
 
 ### JavaScript Tests
 ```bash
 npx jest            # Run Jest tests (KeyManager, Card, etc.)
-npx vitest run      # Run Vitest tests (route/view tests)
+npx vitest run      # Run Vitest tests (route/view/component tests)
 ```
+
+Vitest runs two kinds of tests from `resources/tests/`:
+- **Structural tests** (`table-service-*.test.js`, etc.) read source files and assert on
+  routes, imports, and wiring.
+- **Component tests** (`component-*.test.js`) mount Vue components with
+  `@vue/test-utils` and test behaviour (clicks, modals, service calls). Bootstrap-vue
+  is replaced by the lightweight stubs in `resources/tests/helpers/bootstrapVueStubs.js`
+  (passthrough slots, working checkboxes/modals/scoped table slots); services are
+  mocked with `vi.mock`. Note that `vitest.config.js` deliberately does **not** alias
+  `vue` to `@vue/compat` (unlike webpack): the compat runtime is only needed for
+  bootstrap-vue, and mixing it with `@vue/test-utils`' own `vue` import creates two Vue
+  instances that cannot resolve each other's components.
 
 ---
 
@@ -317,6 +339,7 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
 ---
 
 ## Common Patterns
+- We use tabs, not spaces for indentation
 - Vue components use Bootstrap-Vue (`b-*` components)
 - Vue 3 compatibility mode via `@vue/compat`
 - Shared components live in `resources/shared/js/`

@@ -232,4 +232,55 @@ class SignedOrderUrlTest extends TestCase
         // Should pass authentication (legacy events don't require signatures)
         $this->assertNotEquals(403, $response->status());
     }
+
+    /**
+     * A bare table parameter needs no signature, even for events with a secret.
+     */
+    public function testBareTableParamAllowedUnsigned(): void
+    {
+        $event = $this->createEventWithSecret();
+
+        $response = $this->get('/order/' . $event->order_token . '?table=12');
+
+        $response->assertStatus(200);
+    }
+
+    /**
+     * When card is present, the signature must also cover the table param.
+     */
+    public function testTableParamMustBeCoveredBySignature(): void
+    {
+        $event = $this->createEventWithSecret();
+
+        // Signature over card only — appending table must invalidate it.
+        $signature = OrderTokenSignatureService::sign(
+            $event->order_token_secret,
+            ['card' => 'abcdef']
+        );
+
+        $response = $this->get(
+            '/order/' . $event->order_token . '?card=abcdef&table=12&signature=' . $signature
+        );
+
+        $response->assertStatus(403);
+    }
+
+    /**
+     * A signature covering card + table validates.
+     */
+    public function testTableParamSignedWithCard(): void
+    {
+        $event = $this->createEventWithSecret();
+
+        $signature = OrderTokenSignatureService::sign(
+            $event->order_token_secret,
+            ['card' => 'abcdef', 'table' => '12']
+        );
+
+        $response = $this->get(
+            '/order/' . $event->order_token . '?card=abcdef&table=12&signature=' . $signature
+        );
+
+        $response->assertStatus(200);
+    }
 }

@@ -100,6 +100,22 @@
 								</b-dropdown-item>
 							</b-dropdown-group>
 
+							<b-dropdown-divider></b-dropdown-divider>
+
+							<b-dropdown-group :header="$t('Table Service')">
+								<b-dropdown-item :to="{ name: 'tables', params: { id: row.item.id } }"
+												 :title="$t('Manage tables')">
+									🪑
+									{{ $t('Manage tables') }}
+								</b-dropdown-item>
+
+								<b-dropdown-item :to="{ name: 'waiter', params: { id: row.item.id } }"
+												 :title="$t('Waiter dashboard')">
+									🍽️
+									{{ $t('Waiter dashboard') }}
+								</b-dropdown-item>
+							</b-dropdown-group>
+
 						</b-dropdown>
 
 
@@ -172,6 +188,20 @@
 				<label>
 					<input type="checkbox" v-model="model.allow_unpaid_online_orders">
 					{{ $t('Allow unpaid online orders (without providing card alias)') }}
+				</label>
+			</b-form-group>
+
+			<b-form-group>
+				<label>
+					<input type="checkbox" v-model="model.allow_unpaid_table_orders">
+					{{ $t('Allow unpaid table orders (waiter can open a tab)') }}
+				</label>
+			</b-form-group>
+
+			<b-form-group>
+				<label>
+					<input type="checkbox" v-model="model.bar_prepares_table_orders">
+					{{ $t('Table orders are prepared by the bar (waiters only deliver)') }}
 				</label>
 			</b-form-group>
 

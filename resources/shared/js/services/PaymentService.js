@@ -38,6 +38,7 @@ export class PaymentService extends Eventable {
         this.allow_nfc_payments = true;
         this.allow_cash_payments = false;
         this.allow_voucher_payment = false;
+        this.allow_pay_later = false;
         this.voucher_value = 0.5;
     }
 
@@ -139,6 +140,40 @@ export class PaymentService extends Eventable {
 
         return paymentData;
     }
+
+    /**
+     * Handle payment for multiple orders at once (batch settlement).
+     * Sums the total price of all orders and triggers a single payment transaction.
+     * @param {Array} orders - Array of order objects with price fields
+     * @param {boolean} acceptCurrentCard
+     * @returns {Promise<Object>} paymentData
+     */
+    async orders(orders, acceptCurrentCard = true) {
+
+		// Do we have a payment method configured? If not, just leave orders unpaid.
+		if (!this.hasPaymentMethod()) {
+			orders.forEach(o => { o.paid = false; });
+			return {};
+		}
+
+		// Calculate total price across all orders
+		const totalPrice = orders.reduce((sum, o) => sum + (o.price || 0), 0);
+
+		// Create a synthetic order for the payment flow
+		const combinedOrder = {
+			uid: orders[0] ? orders[0].uid || orders[0].id : null,
+			price: totalPrice,
+			order: { items: [] }
+		};
+
+		// handle the actual payment
+		let paymentData = await this.handleOrder(combinedOrder, acceptCurrentCard);
+
+		// mark all orders as paid
+		orders.forEach(o => { o.paid = true; });
+
+		return paymentData;
+	}
 
     /**
      * Helper method to keep the order code more clear.
@@ -265,6 +300,24 @@ export class PaymentService extends Eventable {
      */
     async vouchers() {
         this.cash('vouchers');
+    }
+
+    /**
+     * Pay later — resolve without actual payment, marking as deferred.
+     * @returns {Promise<void>}
+     */
+    async payLater() {
+        if (!this.currentTransaction) {
+            return;
+        }
+
+        this.currentTransaction.resolve({
+            paymentType: 'pay-later',
+            discount: 0
+        });
+
+        this.currentTransaction = null;
+        this.trigger('transaction:done');
     }
 
 	visualiseCurrency(price) {

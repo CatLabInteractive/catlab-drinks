@@ -107,6 +107,24 @@ class OrderResourceDefinition extends ResourceDefinition
             ->filterable()
             ->writeable(false);
 
+        $this->field('patron_id')
+            ->number()
+            ->visible(true)
+            ->filterable()
+            ->writeable(true, true);
+
+        $this->field('table_id')
+            ->number()
+            ->visible(true)
+            ->filterable()
+            ->writeable(true, true);
+
+        $this->field('payment_status')
+            ->string()
+            ->visible(true)
+            ->filterable()
+            ->writeable(true, true);
+
         $this->field('created_at')
             ->display('date')
             ->datetime(DateTimeTransformer::class)

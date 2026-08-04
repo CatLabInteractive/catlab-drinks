@@ -21,6 +21,7 @@
 
 import $ from "jquery";
 import {AbstractOfflineQueue} from "./AbstractOfflineQueue";
+import {ORDER_STATUS, PAYMENT_STATUS} from "../orderStatus";
 
 const { v1: uuidv1 } = require('uuid');
 
@@ -45,6 +46,21 @@ export class OrderService extends AbstractOfflineQueue {
 	async prepare(content) {
 		content.uid = uuidv1();
 		return content;
+	}
+
+	markPrepared(orderId) {
+		return this.update(orderId, { status: ORDER_STATUS.PREPARED });
+	}
+
+	markDelivered(orderId) {
+		return this.update(orderId, { status: ORDER_STATUS.DELIVERED });
+	}
+
+	markVoided(orderId) {
+		return this.update(orderId, {
+			status: ORDER_STATUS.DECLINED,
+			payment_status: PAYMENT_STATUS.VOIDED
+		});
 	}
 
 	strandedOrders(parameters = {}) {

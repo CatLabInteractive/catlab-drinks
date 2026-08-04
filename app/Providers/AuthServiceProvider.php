@@ -46,6 +46,8 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\Attendee::class => \App\Policies\AttendeePolicy::class,
         \App\Models\OrganisationPaymentGateway::class => \App\Policies\OrganisationPaymentGatewayPolicy::class,
         \App\Models\Device::class => \App\Policies\DevicePolicy::class,
+        \App\Models\Table::class => \App\Policies\TablePolicy::class,
+        \App\Models\Patron::class => \App\Policies\PatronPolicy::class,
     ];
 
     /**

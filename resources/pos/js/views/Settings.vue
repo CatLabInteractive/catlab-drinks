@@ -34,7 +34,7 @@
 
 				<b-form @submit="onSubmit" @reset="onReset">
 
-					<b-form-fieldset>
+					<fieldset>
 						<legend>{{ $t('General settings') }}</legend>
 
 						<b-form-group
@@ -58,7 +58,7 @@
 								:description="$t('This terminal can process orders at the bar')"
 							>
 								<label>
-									<input type="checkbox" v-model="allowLiveOrders"></input>
+									<input type="checkbox" v-model="allowLiveOrders" :disabled="allowTableService" />
 									{{ $t('Allow live orders at this terminal') }}<br />
 								</label>
 							</b-form-group>
@@ -68,17 +68,27 @@
 								:description="$t('This terminal can process orders from tables')"
 							>
 								<label>
-									<input type="checkbox" v-model="allowRemoteOrders"></input>
+									<input type="checkbox" v-model="allowRemoteOrders" :disabled="allowTableService" />
 									{{ $t('Allow remote orders at this terminal') }}<br />
 								</label>
 							</b-form-group>
 						</template>
 
-					</b-form-fieldset>
+						<b-form-group
+							id="allow_table_service"
+							:description="$t('This terminal is used by a waiter for table service. Cannot be combined with live or remote orders.')"
+						>
+							<label>
+								<input type="checkbox" v-model="allowTableService" />
+								{{ $t('Allow table service at this terminal') }}<br />
+							</label>
+						</b-form-group>
+
+					</fieldset>
 
 					<hr />
 
-					<b-form-fieldset>
+					<fieldset>
 						<legend>{{ $t('Remote NFC reader') }}</legend>
 						<p class="text-muted">
 							{{ $t('Requires') }} <a href="https://github.com/CatLabInteractive/nfc-socketio" target="_blank">{{ $t('an additional service') }}</a>.
@@ -110,7 +120,7 @@
 							></b-form-input>
 						</b-form-group>
 
-					</b-form-fieldset>
+					</fieldset>
 
 					<b-button type="submit" variant="primary">{{ $t('Save') }}</b-button>
 					<b-button type="reset" variant="danger">{{ $t('Reset') }}</b-button>
@@ -118,7 +128,7 @@
 
 				<hr v-if="licenseStatus" />
 
-				<b-form-fieldset v-if="licenseStatus">
+				<fieldset v-if="licenseStatus">
 					<legend>{{ $t('License') }}</legend>
 					<div v-if="licenseStatus.valid">
 						<b-alert variant="success" :show="true">
@@ -141,11 +151,11 @@
 							{{ $t('Visit the management portal to buy and activate a license for this device.') }}
 						</p>
 					</div>
-				</b-form-fieldset>
+				</fieldset>
 
 				<hr />
 
-				<b-form-fieldset>
+				<fieldset>
 					<legend>{{ $t('Sync status') }}</legend>
 
 					<div v-if="isOffline" class="mb-3">
@@ -186,18 +196,18 @@
 					<b-alert v-if="syncSuccess" variant="success" :show="true" class="mt-2">
 						{{ $t('Synchronization complete.') }}
 					</b-alert>
-				</b-form-fieldset>
+				</fieldset>
 
 				<hr />
 
-				<b-form-fieldset>
+				<fieldset>
 					<legend>{{ $t('Device') }}</legend>
 					<p class="text-muted">{{ $t('Disconnect this device from the server. You will need to re-pair it to use it again.') }}</p>
 					<b-button variant="outline-danger" @click="logout" :disabled="isLoggingOut">
 						<b-spinner small v-if="isLoggingOut" class="mr-1"></b-spinner>
 						<span v-else class="mr-1">🚪</span> {{ $t('Logout') }}
 					</b-button>
-				</b-form-fieldset>
+				</fieldset>
 
 			</b-col>
 		</b-row>
@@ -272,6 +282,7 @@
 
 				allowLiveOrders: false,
 				allowRemoteOrders: false,
+				allowTableService: false,
 
 				allowSales: window.DEVICE_ALLOW_SALES !== false,
 
@@ -290,7 +301,12 @@
 		},
 
 		watch: {
-
+			allowTableService(newVal) {
+				if (newVal) {
+					this.allowLiveOrders = false;
+					this.allowRemoteOrders = false;
+				}
+			}
 		},
 
 		methods: {
@@ -397,6 +413,7 @@
 
 				this.settingService.allowLiveOrders = this.allowLiveOrders;
 				this.settingService.allowRemoteOrders = this.allowRemoteOrders;
+				this.settingService.allowTableService = this.allowTableService;
 
 				// Sync order settings to the server
 				const posDeviceService = new PosDeviceService();
@@ -404,7 +421,8 @@
 					this.settingService.save(),
 					posDeviceService.updateCurrentDevice({
 						allow_remote_orders: this.allowRemoteOrders,
-						allow_live_orders: this.allowLiveOrders
+						allow_live_orders: this.allowLiveOrders,
+						allow_table_service: this.allowTableService
 					})
 				]).then(function() {
 					window.location.reload();
@@ -424,6 +442,7 @@
 				this.nfcPassword = this.settingService.nfcPassword;
 				this.allowLiveOrders = this.settingService.allowLiveOrders;
 				this.allowRemoteOrders = this.settingService.allowRemoteOrders;
+				this.allowTableService = this.settingService.allowTableService;
 			}
 
 		}
