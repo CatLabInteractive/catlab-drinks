@@ -69,6 +69,17 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        // Show a friendly setup-help page when the database is unreachable
+        // or has not been migrated (common on fresh installations).
+        if (!config('app.debug')
+            && !$request->expectsJson()
+            && DatabaseErrorClassifier::isDatabaseSetupError($exception)
+        ) {
+            return response()->view('errors.database', [
+                'missingTables' => DatabaseErrorClassifier::isMissingTableError($exception),
+            ], 503);
+        }
+
         // Try to use Charons  handler
         $charonHandler = new CharonErrorHandler();
         $response = $charonHandler->handleException($request, $exception);

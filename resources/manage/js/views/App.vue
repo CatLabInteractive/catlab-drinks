@@ -57,6 +57,11 @@
 			</b-collapse>
 		</b-navbar>
 
+		<b-alert v-if="testMode" show variant="warning" class="mb-0 text-center rounded-0">
+			{{ $t('You are using this shared instance in testing mode. Feel free to try things out, but for production events please set up your own instance.') }}
+			<a href="https://github.com/CatLabInteractive/catlab-drinks#run-your-own-instance" target="_blank" rel="noopener" class="alert-link">{{ $t('How to set up your own instance') }}</a>
+		</b-alert>
+
 		<router-view></router-view>
 
 	</div>
@@ -76,7 +81,8 @@
 
 		data() {
 			return {
-				kioskMode: false
+				kioskMode: false,
+				testMode: !!window.ORGANISATION_TEST_MODE
 			}
 		},
 

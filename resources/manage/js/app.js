@@ -173,6 +173,7 @@ function launch() {
 				return axios.get('/api/v1/users/me')
 					.then(response => {
 						window.ORGANISATION_ID = response.data.organisations.items[0].id;
+						window.ORGANISATION_TEST_MODE = !!response.data.organisations.items[0].test_mode;
 
 						// Initialize CardService for transaction viewing (no NFC reader needed)
 						const cardServiceAxios = window.axios.create({

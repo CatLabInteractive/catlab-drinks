@@ -55,6 +55,11 @@ class OrganisationResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->writeable(false, false);
 
+        $this->field('test_mode')
+            ->bool()
+            ->visible(true)
+            ->writeable(false, false);
+
         $this->field('secret')
             ->string()
             ->visible(false, false);
