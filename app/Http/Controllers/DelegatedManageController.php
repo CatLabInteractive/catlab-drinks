@@ -72,9 +72,12 @@ class DelegatedManageController
 
         switch ($request->input('action')) {
             case 'delete':
-                $this->revokeTokens($user);
-                $user->organisations()->detach();
-                $user->delete();
+                DB::transaction(function () use ($user) {
+                    $this->detachRestrictedForeignKeys($user);
+                    $this->revokeTokens($user);
+                    $user->organisations()->detach();
+                    $user->delete();
+                });
                 return response()->json(['success' => true]);
 
             case 'logout':
@@ -83,8 +86,34 @@ class DelegatedManageController
 
             default:
                 // Drinks tracks nothing for other actions (info, activity, ...).
-                return response()->json([]);
+                return response()->json(new \stdClass());
         }
+    }
+
+    /**
+     * users.id is referenced by RESTRICT foreign keys elsewhere in the
+     * schema; deleting a user without clearing these first throws a
+     * QueryException (1451) and would otherwise leave the request in a
+     * partial state (tokens revoked / memberships detached, user not
+     * deleted). Called inside the same transaction as the delete.
+     */
+    private function detachRestrictedForeignKeys(User $user): void
+    {
+        // devices.approved_by is nullable: keep the device, clear the approver.
+        DB::table('devices')
+            ->where('approved_by', $user->id)
+            ->update(['approved_by' => null]);
+
+        // device_connect_requests.created_by is NOT NULL and the rows are
+        // transient pairing state, so they are removed rather than nulled.
+        DB::table('device_connect_requests')
+            ->where('created_by', $user->id)
+            ->delete();
+
+        // topups.created_by is nullable: keep the topup, clear the creator.
+        DB::table('topups')
+            ->where('created_by', $user->id)
+            ->update(['created_by' => null]);
     }
 
     private function revokeTokens(User $user): void

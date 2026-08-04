@@ -116,6 +116,64 @@ class DelegatedManageTest extends TestCase
         $this->assertSame(1, (int)DB::table('oauth_access_tokens')->where('id', $tokenId)->value('revoked'));
     }
 
+    public function testDeleteNullsOrRemovesRestrictedForeignKeyReferencesTransactionally(): void
+    {
+        $user = $this->makeSsoUser(4010);
+        $organisation = $user->organisations()->first();
+
+        // devices.approved_by -> nullable RESTRICT FK.
+        $device = \App\Models\Device::factory()->create([
+            'organisation_id' => $organisation->id,
+            'approved_at' => now(),
+            'approved_by' => $user->id,
+        ]);
+
+        // device_connect_requests.created_by -> NOT NULL RESTRICT FK; these
+        // are transient pairing state, so the row is deleted rather than nulled.
+        $connectRequestId = DB::table('device_connect_requests')->insertGetId([
+            'token' => Str::random(32),
+            'organisation_id' => $organisation->id,
+            'created_by' => $user->id,
+            'expires_at' => now()->addMinutes(10),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // topups.created_by -> nullable RESTRICT FK.
+        $card = new \App\Models\Card();
+        $card->uid = 'test-card-' . Str::random(8);
+        $card->organisation_id = $organisation->id;
+        $card->transaction_count = 0;
+        $card->save();
+
+        $topupId = DB::table('topups')->insertGetId([
+            'card_id' => $card->id,
+            'type' => \App\Models\Topup::TYPE_MANUAL,
+            'status' => \App\Models\Topup::STATUS_SUCCESS,
+            'uid' => Str::random(20),
+            'amount' => 5,
+            'created_by' => $user->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->callDelegatedEndpoint(['user_id' => 4010, 'action' => 'delete'])->assertStatus(200);
+
+        $this->assertNull(User::query()->find($user->id));
+
+        // Device survives, approved_by nulled.
+        $device->refresh();
+        $this->assertNotNull($device);
+        $this->assertNull($device->approved_by);
+
+        // Transient connect request is gone.
+        $this->assertSame(0, DB::table('device_connect_requests')->where('id', $connectRequestId)->count());
+
+        // Topup survives, created_by nulled.
+        $this->assertSame(1, DB::table('topups')->where('id', $topupId)->count());
+        $this->assertNull(DB::table('topups')->where('id', $topupId)->value('created_by'));
+    }
+
     public function testLogoutRevokesTokensButKeepsUser(): void
     {
         $user = $this->makeSsoUser(4002);
@@ -131,7 +189,10 @@ class DelegatedManageTest extends TestCase
     {
         $this->makeSsoUser(4003);
 
-        $this->callDelegatedEndpoint(['user_id' => 4003, 'action' => 'activity'])->assertStatus(200);
+        $response = $this->callDelegatedEndpoint(['user_id' => 4003, 'action' => 'activity']);
+
+        $response->assertStatus(200);
+        $this->assertSame('{}', $response->getContent());
     }
 
     public function testProfileActionsAreNotSupported(): void
