@@ -22,8 +22,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\Organisation;
+use App\Models\User;
+use App\Services\ProfileMirror;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
@@ -34,9 +39,181 @@ class ProfileMirrorTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config(['services.catlab.url' => 'https://accounts.test/']);
+    }
+
+    /**
+     * Create a user as the SSO login flow would: catlab_id + access token.
+     * The User::created hook auto-creates one (unlinked) organisation.
+     */
+    private function makeSsoUser(int $catlabId): User
+    {
+        $user = User::query()->create([
+            'name' => 'User ' . $catlabId,
+            'email' => 'user-' . $catlabId . '-' . Str::random(6) . '@example.com',
+            'password' => bcrypt('secret'),
+        ]);
+        $user->catlab_id = $catlabId;
+        $user->catlab_access_token = 'token-' . $catlabId;
+        $user->save();
+
+        return $user->fresh();
+    }
+
+    /**
+     * Fake the accounts API. $membersByProfile maps profile id => members items.
+     * Unmatched URLs 404 so no test ever hits the network.
+     */
+    private function fakeAccounts(array $profiles, array $membersByProfile = []): void
+    {
+        $responses = [];
+        foreach ($membersByProfile as $profileId => $members) {
+            $responses['https://accounts.test/api/1.0/profiles/' . $profileId . '/members'] =
+                Http::response(['items' => $members]);
+        }
+        $responses['https://accounts.test/api/1.0/profiles'] = Http::response(['items' => $profiles]);
+        $responses['*'] = Http::response('Not found', 404);
+
+        Http::fake($responses);
+    }
+
     public function testProfileSyncColumnsExist(): void
     {
         $this->assertTrue(Schema::hasColumns('organisations', ['profile_id', 'profile_sync_version']));
         $this->assertTrue(Schema::hasColumn('users', 'last_profile_sync'));
+    }
+
+    public function testPersonalProfileAdoptsAutoCreatedOrganisation(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        $autoOrg = $user->organisations()->first();
+
+        $this->fakeAccounts(
+            [['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true, 'version' => 1]],
+            [501 => [['userId' => 1001, 'role' => 10]]]
+        );
+
+        (new ProfileMirror())->sync($user);
+
+        $autoOrg->refresh();
+        $this->assertSame(501, (int)$autoOrg->profile_id);
+        $this->assertSame('Thijs', $autoOrg->name);
+        $this->assertSame(1, Organisation::query()->count());
+    }
+
+    public function testSharedProfileCreatesNewOrganisation(): void
+    {
+        $user = $this->makeSsoUser(1001);
+
+        $this->fakeAccounts(
+            [
+                ['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true, 'version' => 1],
+                ['id' => 502, 'name' => 'Team Bar', 'role' => 1, 'personal' => false, 'version' => 3],
+            ],
+            [
+                501 => [['userId' => 1001, 'role' => 10]],
+                502 => [['userId' => 1001, 'role' => 1]],
+            ]
+        );
+
+        (new ProfileMirror())->sync($user);
+
+        $teamOrg = Organisation::query()->where('profile_id', 502)->first();
+        $this->assertNotNull($teamOrg);
+        $this->assertSame('Team Bar', $teamOrg->name);
+        $this->assertTrue($teamOrg->users()->whereKey($user->id)->exists());
+        $this->assertSame(2, Organisation::query()->count());
+    }
+
+    public function testExistingLinkIsReusedAndRenamed(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        $org = $user->organisations()->first();
+        $org->profile_id = 501;
+        $org->save();
+
+        $this->fakeAccounts(
+            [['id' => 501, 'name' => 'Renamed on accounts', 'role' => 10, 'personal' => true, 'version' => 2]],
+            [501 => [['userId' => 1001, 'role' => 10]]]
+        );
+
+        (new ProfileMirror())->sync($user);
+
+        $this->assertSame(1, Organisation::query()->count());
+        $this->assertSame('Renamed on accounts', $org->fresh()->name);
+    }
+
+    public function testKillSwitchBlocksEvenForcedSync(): void
+    {
+        config(['services.catlab.disable_profile_mirror' => true]);
+        $user = $this->makeSsoUser(1001);
+        Http::fake();
+
+        (new ProfileMirror())->sync($user, true);
+
+        Http::assertNothingSent();
+        $this->assertNull($user->organisations()->first()->profile_id);
+    }
+
+    public function testNoTokenMeansNoSync(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        $user->catlab_access_token = null;
+        $user->save();
+        Http::fake();
+
+        (new ProfileMirror())->sync($user->fresh());
+
+        Http::assertNothingSent();
+    }
+
+    public function testFailedListFetchChangesNothing(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        Http::fake(['*' => Http::response('Server error', 500)]);
+
+        (new ProfileMirror())->sync($user);
+
+        $this->assertNull($user->organisations()->first()->profile_id);
+        // Backoff was stamped so the next attempt is throttled.
+        $this->assertNotNull($user->fresh()->last_profile_sync);
+    }
+
+    public function testThrottleSkipsSecondUnforcedSync(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        $this->fakeAccounts(
+            [['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true, 'version' => 1]],
+            [501 => [['userId' => 1001, 'role' => 10]]]
+        );
+
+        $mirror = new ProfileMirror();
+        $mirror->sync($user);
+        $sentAfterFirst = count(Http::recorded());
+
+        $mirror->sync($user->fresh());
+
+        $this->assertGreaterThan(0, $sentAfterFirst);
+        $this->assertCount($sentAfterFirst, Http::recorded());
+    }
+
+    public function testForceBypassesThrottle(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        $this->fakeAccounts(
+            [['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true, 'version' => 1]],
+            [501 => [['userId' => 1001, 'role' => 10]]]
+        );
+
+        $mirror = new ProfileMirror();
+        $mirror->sync($user);
+        $sentAfterFirst = count(Http::recorded());
+
+        $mirror->sync($user->fresh(), true);
+
+        $this->assertGreaterThan($sentAfterFirst, count(Http::recorded()));
     }
 }
