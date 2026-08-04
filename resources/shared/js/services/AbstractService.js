@@ -60,7 +60,10 @@ export class AbstractService {
 				if (status === 401) {
 					console.log({401:error});
 					window.location.reload();
-					return false;
+
+					// The page is navigating away; keep the request pending so
+					// callers never see a bogus resolved value.
+					return new Promise(() => {});
 				}
 
 				// Handle Forbidden
@@ -68,11 +71,11 @@ export class AbstractService {
 					console.log({403:error});
 					alert(error.message);
 					window.location = window.location.origin;
-					return false;
+					return new Promise(() => {});
 				}
 
 				if (status === 422) {
-					console.log({403:error});
+					console.log({422:error});
 
 					var issues = [];
 					for (var k in error.response.data.error.issues) {
@@ -82,7 +85,7 @@ export class AbstractService {
 					}
 
 					alert(error.response.data.error.message + ': \n' + issues.join(', \n'));
-					return false;
+					return Promise.reject(error);
 				}
 
 				return Promise.reject(error)
