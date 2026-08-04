@@ -41,6 +41,13 @@
 
 					<b-navbar-nav>
 
+						<b-nav-item-dropdown :text="$t('Settings')" right>
+							<b-dropdown-item :to="{ name: 'settings' }">{{ $t('Organisation Settings') }}</b-dropdown-item>
+							<b-dropdown-item :to="{ name: 'publicKeys' }">{{ $t('Public Keys') }}</b-dropdown-item>
+						</b-nav-item-dropdown>
+
+						<language-toggle />
+
 						<b-nav-item-dropdown v-if="organisations.length > 1" :text="currentOrganisationName" right>
 							<b-dropdown-item
 								v-for="organisation in organisations"
@@ -49,13 +56,6 @@
 								@click="switchOrganisation(organisation)"
 							>{{ organisation.name }}</b-dropdown-item>
 						</b-nav-item-dropdown>
-
-						<b-nav-item-dropdown :text="$t('Settings')" right>
-							<b-dropdown-item :to="{ name: 'settings' }">{{ $t('Organisation Settings') }}</b-dropdown-item>
-							<b-dropdown-item :to="{ name: 'publicKeys' }">{{ $t('Public Keys') }}</b-dropdown-item>
-						</b-nav-item-dropdown>
-
-						<language-toggle />
 
 						<li class="nav-item">
 							<logout-link />
