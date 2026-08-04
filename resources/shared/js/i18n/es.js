@@ -421,4 +421,17 @@ export default {
     'This is the hello world.': 'Esta es la página hola mundo.',
     'Home': 'Inicio',
     'This is the home.': 'Esta es la página de inicio.',
+
+    // Device capabilities
+    'Allow sales': 'Permitir ventas',
+    'Allow card topups': 'Permitir recargas de tarjetas',
+    'This device can process orders and sales.': 'Este dispositivo puede procesar pedidos y ventas.',
+    'This device can topup, reset and manage NFC cards.': 'Este dispositivo puede recargar, restablecer y gestionar tarjetas NFC.',
+    'Capabilities': 'Capacidades',
+    'Sales': 'Ventas',
+    'Disabled': 'Desactivado',
+    'This device has no functions enabled.': 'Este dispositivo no tiene funciones habilitadas.',
+    'Please contact your administrator to enable sales or topups for this device.': 'Ponte en contacto con tu administrador para habilitar ventas o recargas en este dispositivo.',
+    'Unauthorized': 'No autorizado',
+    'This transaction was uploaded by a device that is not allowed to topup cards.': 'Esta transacción fue subida por un dispositivo que no puede recargar tarjetas.',
 };

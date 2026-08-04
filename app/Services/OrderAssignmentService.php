@@ -90,8 +90,8 @@ class OrderAssignmentService
 					// If this order belongs to the device that just changed its settings,
 					// check if the device still accepts this order
 					if ($changedDevice && $device->id === $changedDevice->id) {
-						// Device disabled remote orders — must reassign
-						if (!$device->allow_remote_orders) {
+						// Device disabled remote orders or sales — must reassign
+						if (!$device->allow_remote_orders || !$device->allow_sales) {
 							// Fall through to reassign
 						} else {
 							$orderCategoryIds = $this->getOrderCategoryIds($order);
@@ -183,6 +183,7 @@ class OrderAssignmentService
 		$onlineDevices = Device::where('organisation_id', $event->organisation_id)
 			->where('last_ping', '>', $cutoff)
 			->where('allow_remote_orders', true)
+			->where('allow_sales', true)
 			->get();
 
 		if ($onlineDevices->isEmpty()) {

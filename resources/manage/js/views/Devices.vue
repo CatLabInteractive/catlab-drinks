@@ -53,6 +53,12 @@
 						</span>
 					</template>
 
+					<template v-slot:cell(capabilities)="row">
+						<span v-if="row.item.allow_sales !== false" class="badge badge-info mr-1">{{ $t('Sales') }}</span>
+						<span v-if="row.item.allow_topup !== false" class="badge badge-success">{{ $t('Topup') }}</span>
+						<span v-if="row.item.allow_sales === false && row.item.allow_topup === false" class="badge badge-danger">{{ $t('Disabled') }}</span>
+					</template>
+
 					<template v-slot:cell(pending_orders)="row">
 						{{ row.item.pending_orders_count || 0 }}
 					</template>
@@ -189,6 +195,18 @@
 			<b-form-input id="edit-device-name" type="text" v-model="editModel.name" :placeholder="$t('Enter device name')" />
 		</b-form-group>
 
+		<b-form-group :description="$t('This device can process orders and sales.')">
+			<b-form-checkbox v-model="editModel.allow_sales">
+				{{ $t('Allow sales') }}
+			</b-form-checkbox>
+		</b-form-group>
+
+		<b-form-group :description="$t('This device can topup, reset and manage NFC cards.')">
+			<b-form-checkbox v-model="editModel.allow_topup">
+				{{ $t('Allow card topups') }}
+			</b-form-checkbox>
+		</b-form-group>
+
 		<template #modal-footer>
 			<b-btn type="button" variant="light" @click="resetEditForm()">{{ $t('Cancel') }}</b-btn>
 			<b-btn type="button" variant="success" @click="saveEdit()">
@@ -265,6 +283,10 @@
 					{
 						key: 'status',
 						label: this.$t('Status'),
+					},
+					{
+						key: 'capabilities',
+						label: this.$t('Capabilities'),
 					},
 					{
 						key: 'pending_orders',
@@ -373,7 +395,11 @@
 			},
 
 			async saveEdit() {
-				await this.service.update(this.editModel.id, { name: this.editModel.name });
+				await this.service.update(this.editModel.id, {
+					name: this.editModel.name,
+					allow_sales: !!this.editModel.allow_sales,
+					allow_topup: !!this.editModel.allow_topup
+				});
 				this.resetEditForm();
 				this.refreshDevices();
 			},

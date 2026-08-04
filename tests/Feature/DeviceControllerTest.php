@@ -203,6 +203,17 @@ class DeviceControllerTest extends TestCase
 		]);
 	}
 
+	public function testCapabilityFlagsDefaultToEnabled(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+		]);
+
+		$device->refresh();
+		$this->assertTrue($device->allow_sales);
+		$this->assertTrue($device->allow_topup);
+	}
+
 	// ─── Device API: PUT /pos-api/v1/devices/current ───
 
 	public function testUpdateCurrentDevicePublicKey(): void
@@ -280,5 +291,60 @@ class DeviceControllerTest extends TestCase
 
 		// Approval should be reset
 		$this->assertNull($device->fresh()->approved_at);
+	}
+
+	// ─── Capability Flags Tests ───
+
+	public function testCurrentDeviceExposesCapabilityFlags(): void
+	{
+		$this->device->allow_topup = false;
+		$this->device->save();
+
+		$response = $this
+			->withHeader('Authorization', 'Bearer ' . $this->token->access_token)
+			->getJson('/pos-api/v1/devices/current');
+
+		$response->assertStatus(200);
+		$response->assertJsonFragment([
+			'allow_sales' => true,
+			'allow_topup' => false,
+		]);
+	}
+
+	public function testUpdateCurrentDeviceCannotChangeCapabilityFlags(): void
+	{
+		$this->device->allow_topup = false;
+		$this->device->save();
+
+		$response = $this
+			->withHeader('Authorization', 'Bearer ' . $this->token->access_token)
+			->putJson('/pos-api/v1/devices/current', [
+				'allow_topup' => true,
+				'allow_sales' => false,
+			]);
+
+		$response->assertStatus(200);
+
+		$this->device->refresh();
+		// Device API must ignore these fields entirely.
+		$this->assertFalse($this->device->allow_topup);
+		$this->assertTrue($this->device->allow_sales);
+	}
+
+	public function testManagementApiCanUpdateCapabilityFlags(): void
+	{
+		Passport::actingAs($this->user);
+
+		$response = $this->putJson('/api/v1/devices/' . $this->device->id, [
+			'name' => $this->device->name,
+			'allow_sales' => false,
+			'allow_topup' => false,
+		]);
+
+		$response->assertStatus(200);
+
+		$this->device->refresh();
+		$this->assertFalse($this->device->allow_sales);
+		$this->assertFalse($this->device->allow_topup);
 	}
 }
