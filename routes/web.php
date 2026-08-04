@@ -61,7 +61,9 @@ Route::post('/setup', 'SetupController@processSetup');
 // Do we have catlab client id? (my own personal single sign on service)
 Route::group(['middleware' => 'setup.redirect'], function () {
     if (config('services.catlab.client_id')) {
-        \CatLab\Accounts\Client\Controllers\LoginController::setRoutes();
+        Route::get('/login', [\App\Http\Controllers\Auth\SsoLoginController::class, 'login'])->name('login');
+        Route::get('/login/callback', [\App\Http\Controllers\Auth\SsoLoginController::class, 'postLogin']);
+        Route::post('/logout', [\App\Http\Controllers\Auth\SsoLoginController::class, 'logout'])->name('logout');
     } else {
         // Not set? Use default laravel authentication.
         Auth::routes();
