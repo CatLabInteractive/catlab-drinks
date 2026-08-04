@@ -29,6 +29,7 @@ import AirbrakeClient from 'airbrake-js';
 
 import {SettingService} from "../../shared/js/services/SettingService";
 import {OrganisationService} from "../../shared/js/services/OrganisationService";
+import {ORGANISATION_STORAGE_KEY, selectOrganisation} from './services/organisationSelection';
 import {CardService} from "../../shared/js/nfccards/CardService";
 import i18n from "../../shared/js/i18n/index";
 
@@ -172,8 +173,15 @@ function launch() {
 			() => {
 				return axios.get('/api/v1/users/me')
 					.then(response => {
-						window.ORGANISATION_ID = response.data.organisations.items[0].id;
-						window.ORGANISATION_TEST_MODE = !!response.data.organisations.items[0].test_mode;
+						const organisations = response.data.organisations.items;
+						const organisation = selectOrganisation(
+							organisations,
+							window.localStorage.getItem(ORGANISATION_STORAGE_KEY)
+						);
+
+						window.ORGANISATIONS = organisations;
+						window.ORGANISATION_ID = organisation ? organisation.id : null;
+						window.ORGANISATION_TEST_MODE = organisation ? !!organisation.test_mode : false;
 
 						// Initialize CardService for transaction viewing (no NFC reader needed)
 						const cardServiceAxios = window.axios.create({

@@ -383,6 +383,7 @@ export default {
     'Your Pay.nl service ID (e.g. SL-xxxx-xxxx)': 'Your Pay.nl service ID (e.g. SL-xxxx-xxxx)',
     'Test mode': 'Test mode',
     'Are you sure you want to remove the {gateway} payment gateway?': 'Are you sure you want to remove the {gateway} payment gateway?',
+    'Rename on CatLab Accounts': 'Rename on CatLab Accounts',
 
     // Client - Order
     'Order': 'Order',
