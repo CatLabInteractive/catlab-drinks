@@ -66,7 +66,10 @@ class TopupDomainRedirect
             // The path should be the card UID
             if ($path && $path !== '/') {
                 return redirect('/topup/' . $path);
-            }
+            } else {
+				// Show a generic message asking to scan the qr code on the card
+				return response(view('topup/index'));
+			}
         }
 
         return $next($request);

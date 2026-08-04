@@ -26,6 +26,8 @@
         <h1>CatLab Drinks</h1>
         <h2>{{ $t('Order') }}</h2>
 
+        <p v-if="userName" class="lead">{{ $t('Welcome, {name}!', { name: userName }) }}</p>
+
         <div class="text-center" v-if="!loaded">
             <b-spinner :label="$t('Loading data')" />
         </div>
@@ -132,6 +134,10 @@
             </div>
         </b-modal>
 
+        <footer class="text-center text-muted mt-5">
+            <small v-html="$t('{catlabDrinks} is an open source project by CatLab Interactive.', { catlabDrinks: '<a href=\'https://drinks.catlab.eu\' target=\'_system\'>CatLab Drinks</a>' })"></small>
+        </footer>
+
     </b-container>
 
 </template>
@@ -188,6 +194,7 @@
                 items: [],
                 model: {},
                 tableNumber: '',
+                userName: null,
                 warning: null,
                 error:  null,
                 loadingOrder: false

@@ -2,11 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExampleTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * A basic test example.
      *
@@ -14,6 +18,12 @@ class ExampleTest extends TestCase
      */
     public function testBasicTest()
     {
+        User::query()->create([
+            'name' => 'Existing User',
+            'email' => 'existing-' . Str::random(8) . '@example.com',
+            'password' => bcrypt('secret'),
+        ]);
+
         $response = $this->get('/');
 
         $response->assertStatus(200);

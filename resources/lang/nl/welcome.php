@@ -53,4 +53,19 @@ return [
     'license_warranty' => 'DE SOFTWARE WORDT GELEVERD "ZOALS ZE IS", ZONDER ENIGE GARANTIE, EXPLICIET OF IMPLICIET, INCLUSIEF MAAR NIET BEPERKT TOT DE GARANTIES VAN VERKOOPBAARHEID, GESCHIKTHEID VOOR EEN BEPAALD DOEL EN NIET-INBREUK.',
 
     'language' => 'Taal',
+
+    'meta_description' => 'CatLab Drinks is een open-source, hardware-onafhankelijk cashless betaalsysteem voor evenementen en festivals. Gebruik goedkope NFC-tags, host op je eigen server en bouw een complete doe-het-zelf betaalinfrastructuur voor festivals.',
+    'meta_keywords' => 'hardware-onafhankelijk cashless betaalsysteem, goedkoop NFC-oplaadsysteem voor festivals, doe-het-zelf festival betaalinfrastructuur, open-source kassasysteem, NFC-betaling, cashless evenement, festivalbetaling, zelf-gehost barautomatisering',
+
+    'faq_title' => 'Veelgestelde vragen',
+    'faq_1_q' => 'Kan ik standaard NFC-tags gebruiken voor een festivalbetaalsysteem?',
+    'faq_1_a' => 'Ja. CatLab Drinks werkt met standaard NTAG213 NFC-tags die slechts €0,10 per stuk kosten. Er zijn geen dure merkgebonden polsbandjes of leveranciersgebonden hardware nodig.',
+    'faq_2_q' => 'Welke hardware heb ik nodig om een cashless evenement te organiseren?',
+    'faq_2_a' => 'Elke Android-telefoon of -tablet met NFC kan als kassaterminal dienen. Voor desktopopstellingen werkt een USB NFC-lezer zoals de ACR122U met onze begeleidingsservice. Het systeem is volledig hardware-onafhankelijk.',
+    'faq_3_q' => 'Is CatLab Drinks geschikt voor kleine evenementen met een beperkt budget?',
+    'faq_3_a' => 'Absoluut. De software is gratis en open source, NFC-tags zijn extreem goedkoop en je kunt bestaande Android-apparaten als terminals gebruiken. Dit maakt het ideaal voor studentenverenigingen, buurtactiviteiten en kleine festivals.',
+    'faq_4_q' => 'Hoe werkt de NFC-kaartbeveiliging?',
+    'faq_4_a' => 'Elke kassaterminal heeft een eigen ECDSA cryptografisch sleutelpaar. Kaartgegevens worden ondertekend met de privésleutel van de terminal en geverifieerd met goedgekeurde openbare sleutels. De hardware-UID van de kaart wordt opgenomen in de handtekening om klonen te voorkomen.',
+    'faq_5_q' => 'Werkt het systeem offline?',
+    'faq_5_a' => 'Ja. Omdat het saldo direct op de NFC-kaart wordt opgeslagen, kunnen transacties zelfs zonder internetverbinding worden verwerkt. Gegevens worden automatisch gesynchroniseerd wanneer de verbinding hersteld is.',
 ];

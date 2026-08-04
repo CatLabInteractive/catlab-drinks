@@ -383,6 +383,7 @@ export default {
     'Your Pay.nl service ID (e.g. SL-xxxx-xxxx)': 'Votre ID de service Pay.nl (ex. SL-xxxx-xxxx)',
     'Test mode': 'Mode test',
     'Are you sure you want to remove the {gateway} payment gateway?': 'Êtes-vous sûr de vouloir supprimer la passerelle de paiement {gateway} ?',
+    'Rename on CatLab Accounts': 'Renommer sur CatLab Accounts',
 
     // Client - Order
     'Order': 'Commander',
@@ -397,6 +398,8 @@ export default {
     'Please order at least 1 item.': 'Veuillez commander au moins 1 article.',
     'Network connection error. Please check network connection.': 'Erreur de connexion réseau. Veuillez vérifier la connexion réseau.',
     'Your table number: {tableNumber}': 'Votre numéro de table : {tableNumber}',
+    'Welcome, {name}!': 'Bienvenue, {name} !',
+    '{catlabDrinks} is an open source project by CatLab Interactive.': '{catlabDrinks} est un projet open source de CatLab Interactive.',
 
     // Offline
     'Offline': 'Hors ligne',
@@ -449,4 +452,131 @@ export default {
     'No tables configured for this event. Use the generate button above to create tables.': 'Aucune table configurée pour cet événement. Utilisez le bouton générer ci-dessus pour créer des tables.',
     'Waiter dashboard': 'Tableau de bord du serveur',
     'Are you sure you want to remove this table?': 'Êtes-vous sûr de vouloir supprimer cette table ?',
+    // Placeholder pages
+    'Hello world': 'Bonjour le monde',
+    'This is the hello world.': 'Ceci est le bonjour le monde.',
+    'Home': 'Accueil',
+    'This is the home.': 'Ceci est la page d\'accueil.',
+
+    // Device capabilities
+    'Allow sales': 'Autoriser les ventes',
+    'Allow card topups': 'Autoriser le rechargement des cartes',
+    'This device can process orders and sales.': 'Cet appareil peut traiter les commandes et les ventes.',
+    'This device can topup, reset and manage NFC cards.': 'Cet appareil peut recharger, réinitialiser et gérer les cartes NFC.',
+    'Capabilities': 'Fonctions',
+    'Sales': 'Ventes',
+    'Disabled': 'Désactivé',
+    'This device has no functions enabled.': 'Cet appareil n\'a aucune fonction activée.',
+    'Please contact your administrator to enable sales or topups for this device.': 'Veuillez contacter votre administrateur pour activer les ventes ou les rechargements pour cet appareil.',
+    'Unauthorized': 'Non autorisé',
+    'This transaction was uploaded by a device that is not allowed to topup cards.': 'Cette transaction a été envoyée par un appareil qui n\'est pas autorisé à recharger les cartes.',
+
+    // Instance testing mode
+    'You are using this shared instance in testing mode. Feel free to try things out, but for production events please set up your own instance.': 'Vous utilisez cette instance partagée en mode test. N\'hésitez pas à faire des essais, mais pour des événements en production, veuillez mettre en place votre propre instance.',
+    'How to set up your own instance': 'Comment mettre en place votre propre instance',
+
+    // Manage - Devices (additions)
+    'Pair a device': 'Associer un appareil',
+    'Deleted': 'Supprimé',
+    'Online': 'En ligne',
+    'Approved': 'Approuvée',
+    'Pending': 'En attente',
+    'No key': 'Aucune clé',
+    'Approve Key': 'Approuver la clé',
+    'Approve Public Key': 'Approuver la clé publique',
+    'Revoke Key': 'Révoquer la clé',
+    'Revoke Public Key': 'Révoquer la clé publique',
+    'Pending orders': 'Commandes en attente',
+    'Public Key': 'Clé publique',
+    'Signed Cards': 'Cartes signées',
+    'POS (Point of Sale) devices authenticate separately from your management account.': 'Les appareils POS (point de vente) s\'authentifient séparément de votre compte de gestion.',
+    'Each POS terminal requires its own pairing to ensure secure, independent operation—even if the management session expires, POS devices continue to function.': 'Chaque terminal POS nécessite sa propre association pour un fonctionnement sûr et indépendant — même si la session de gestion expire, les appareils POS continuent de fonctionner.',
+    'No signed cards found.': 'Aucune carte signée trouvée.',
+    'Card UID': 'UID de la carte',
+
+    // Manage - Events - Order token
+    'Remote order token': 'Jeton de commande à distance',
+    'Attendees': 'Participants',
+    'Order page URL': 'URL de la page de commande',
+    'Share this link with your customers to let them order remotely.': 'Partagez ce lien avec vos clients pour leur permettre de commander à distance.',
+    'The order token consists of a public part and a secret part, separated by a dash. The public part identifies the event in the order page URL. The secret part is used by integrating applications, such as QuizWitz, to sign order parameters (card and name) with HMAC-SHA256.': 'Le jeton de commande se compose d\'une partie publique et d\'une partie secrète, séparées par un tiret. La partie publique identifie l\'événement dans l\'URL de la page de commande. La partie secrète est utilisée par les applications intégrées, comme QuizWitz, pour signer les paramètres de commande (card et name) avec HMAC-SHA256.',
+    'Only share the full token with trusted integrations.': 'Ne partagez le jeton complet qu\'avec des intégrations de confiance.',
+
+    // Manage - Categories (additions)
+    'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.': 'En définissant plusieurs catégories de produits, vous pouvez répartir vos commandes entre différents endroits. Les catégories doivent rester générales : par ex. \'Nourriture\' pour la cuisine et \'Boissons\' pour le bar.',
+    '+ Create new category': '+ Créer une nouvelle catégorie',
+
+    // Manage - Public Keys
+    'Public Keys': 'Clés publiques',
+    'This page shows all public keys for POS devices in your organisation, including keys from deleted devices. Each public key is used to verify NFC card signatures.': 'Cette page affiche toutes les clés publiques des appareils POS de votre organisation, y compris celles des appareils supprimés. Chaque clé publique sert à vérifier les signatures des cartes NFC.',
+    'Pending Approval': 'En attente d\'approbation',
+    'Approve': 'Approuver',
+    'Revoke': 'Révoquer',
+    'No public keys found. Devices will register their public keys when they connect.': 'Aucune clé publique trouvée. Les appareils enregistreront leur clé publique lors de leur connexion.',
+
+    // NFC Signing Credentials
+    'NFC Card Signing Credentials': 'Identifiants de signature des cartes NFC',
+    'This device needs to generate signing credentials before it can read or write NFC cards.': 'Cet appareil doit générer des identifiants de signature avant de pouvoir lire ou écrire des cartes NFC.',
+    'After generating, your organisation administrator must approve the credentials before card operations are allowed.': 'Après la génération, l\'administrateur de votre organisation doit approuver les identifiants avant que les opérations sur les cartes ne soient autorisées.',
+    'This is a security measure to prevent unauthorized devices from writing card data.': 'Il s\'agit d\'une mesure de sécurité pour empêcher les appareils non autorisés d\'écrire des données de carte.',
+    'Generate Credentials': 'Générer les identifiants',
+    'Waiting for approval': 'En attente d\'approbation',
+    'Your signing credentials have been generated and submitted to the server.': 'Vos identifiants de signature ont été générés et envoyés au serveur.',
+    'An organisation administrator must now approve this device\'s credentials in the management dashboard before card operations are allowed.': 'Un administrateur de l\'organisation doit maintenant approuver les identifiants de cet appareil dans le tableau de bord de gestion avant que les opérations sur les cartes ne soient autorisées.',
+    'The NFC indicator in the toolbar will turn green once the credentials are approved. You can close this dialog and continue using other features in the meantime.': 'L\'indicateur NFC dans la barre d\'outils deviendra vert une fois les identifiants approuvés. Vous pouvez fermer cette fenêtre et continuer à utiliser les autres fonctionnalités en attendant.',
+    'Check Approval Status': 'Vérifier le statut d\'approbation',
+    'Credentials revoked': 'Identifiants révoqués',
+    'This device\'s signing credentials have been revoked by an administrator. Card operations are disabled.': 'Les identifiants de signature de cet appareil ont été révoqués par un administrateur. Les opérations sur les cartes sont désactivées.',
+    'You can generate new credentials below. They will need to be approved again before card operations are allowed.': 'Vous pouvez générer de nouveaux identifiants ci-dessous. Ils devront être approuvés à nouveau avant que les opérations sur les cartes ne soient autorisées.',
+    'Generate New Credentials': 'Générer de nouveaux identifiants',
+    'Credentials approved!': 'Identifiants approuvés !',
+    'Your signing credentials have been approved. This device can now read and write NFC cards.': 'Vos identifiants de signature ont été approuvés. Cet appareil peut désormais lire et écrire des cartes NFC.',
+    'Failed to generate credentials. Please try again.': 'Échec de la génération des identifiants. Veuillez réessayer.',
+    'NFC Space Limit Exceeded': 'Limite d\'espace NFC dépassée',
+    'The topup URL is too long to fit on the NFC card together with the signed card data.': 'L\'URL de rechargement est trop longue pour tenir sur la carte NFC avec les données de carte signées.',
+    'Please configure a shorter topup domain in the organisation settings to resolve this issue.': 'Veuillez configurer un domaine de rechargement plus court dans les paramètres de l\'organisation pour résoudre ce problème.',
+    'Close': 'Fermer',
+    'NFC ⚠️': 'NFC ⚠️',
+    'NFC ⏳': 'NFC ⏳',
+    'NFC 🔑': 'NFC 🔑',
+
+    // POS - Authenticate (additions)
+    'Back': 'Retour',
+    'Authenticate': 'S\'authentifier',
+    'Invalid response...': 'Réponse invalide...',
+
+    // POS - License
+    'Requires': 'Nécessite',
+    'an additional service': 'un service supplémentaire',
+    'Expires:': 'Expire :',
+    'Cards scanned:': 'Cartes scannées :',
+    'Remaining:': 'Restant :',
+    'Please purchase a license to remove the card scan limit.': 'Veuillez acheter une licence pour supprimer la limite de scan de cartes.',
+    'Visit the management portal to buy and activate a license for this device.': 'Rendez-vous sur le portail de gestion pour acheter et activer une licence pour cet appareil.',
+
+    // Card details (additions)
+    'Card gives': 'La carte donne',
+    '% at all sales.': '% sur toutes les ventes.',
+    'Rebuild error: {message}': 'Erreur de reconstruction : {message}',
+    'Validation error: {message}': 'Erreur de validation : {message}',
+
+    // Payment (additions)
+    'Collect': 'Encaissez',
+    'vouchers': 'bons',
+    'or': 'ou',
+
+    // Remote orders (additions)
+    '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.': '{count} commande(s) ne peuvent pas être traitées car aucun POS en ligne n\'accepte leur catégorie. Au moins un POS doit modifier son filtre pour traiter ces commandes.',
+    'Only show assigned orders': 'Afficher uniquement les commandes attribuées',
+    'On my way!': 'J\'arrive !',
+    'Failed to save category filter. Reverting to previous value.': 'Échec de l\'enregistrement du filtre de catégories. Retour à la valeur précédente.',
+
+    // Attendees (additions)
+    'Email': 'E-mail',
+
+    // Card test
+    'Start test': 'Démarrer le test',
+    'Stop test': 'Arrêter le test',
+    'Scan card to start test': 'Scannez une carte pour démarrer le test',
+    'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Attention ! Cela appliquera des transactions aléatoires à toute carte présentée. Voulez-vous continuer ?',
 };

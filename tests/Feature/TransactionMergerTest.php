@@ -251,4 +251,148 @@ class TransactionMergerTest extends TestCase
 
 		$response->assertStatus(200);
 	}
+
+	public function testMergeRecordsUploadingDevice(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+		]);
+		// allow_topup has a DB-level default (true) that isn't hydrated onto the
+		// in-memory model after INSERT on MySQL; refresh to observe the real value,
+		// matching the pattern used in DeviceControllerTest::testCapabilityFlagsDefaultToEnabled.
+		$device->refresh();
+		$card = $this->createCard();
+
+		$merger = new TransactionMerger($this->organisation, $device);
+		$merger->mergeTransactions([
+			$this->makeTransaction($card->uid, 1, 500, 'topup'),
+		]);
+
+		$stored = Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first();
+		$this->assertEquals($device->id, $stored->uploaded_by_device_id);
+		$this->assertFalse($stored->unauthorized);
+	}
+
+	public function testTopupFromNonTopupDeviceIsFlagged(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+			'allow_topup' => false,
+		]);
+		$card = $this->createCard();
+
+		$merger = new TransactionMerger($this->organisation, $device);
+		$merger->mergeTransactions([
+			$this->makeTransaction($card->uid, 1, 500, 'topup'),
+			$this->makeTransaction($card->uid, 2, -200, 'sale'),
+		]);
+
+		$topup = Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first();
+		$sale = Transaction::where('card_id', $card->id)->where('card_sync_id', 2)->first();
+		$this->assertTrue($topup->unauthorized);
+		$this->assertFalse($sale->unauthorized);
+	}
+
+	public function testResetAndRefundFromNonTopupDeviceAreFlagged(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+			'allow_topup' => false,
+		]);
+		$card = $this->createCard();
+
+		$merger = new TransactionMerger($this->organisation, $device);
+		$merger->mergeTransactions([
+			$this->makeTransaction($card->uid, 1, 500, 'reset'),
+			$this->makeTransaction($card->uid, 2, -100, 'refund'),
+		]);
+
+		$this->assertTrue(Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first()->unauthorized);
+		$this->assertTrue(Transaction::where('card_id', $card->id)->where('card_sync_id', 2)->first()->unauthorized);
+	}
+
+	public function testMergeWithoutDeviceDoesNotFlag(): void
+	{
+		$card = $this->createCard();
+
+		$merger = new TransactionMerger($this->organisation);
+		$merger->mergeTransactions([
+			$this->makeTransaction($card->uid, 1, 500, 'topup'),
+		]);
+
+		$stored = Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first();
+		$this->assertNull($stored->uploaded_by_device_id);
+		$this->assertFalse($stored->unauthorized);
+	}
+
+	public function testPositiveSaleFromNonTopupDeviceIsFlagged(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+			'allow_topup' => false,
+		]);
+		$card = $this->createCard();
+
+		$merger = new TransactionMerger($this->organisation, $device);
+		$merger->mergeTransactions([
+			$this->makeTransaction($card->uid, 1, 500, 'sale'),
+		]);
+
+		$stored = Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first();
+		$this->assertTrue($stored->unauthorized);
+	}
+
+	public function testPositiveReversalFromNonTopupDeviceIsNotFlagged(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+			'allow_topup' => false,
+		]);
+		$card = $this->createCard();
+
+		$merger = new TransactionMerger($this->organisation, $device);
+		$merger->mergeTransactions([
+			$this->makeTransaction($card->uid, 1, 500, 'reversal'),
+		]);
+
+		$stored = Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first();
+		$this->assertFalse($stored->unauthorized);
+	}
+
+	public function testMergeEndpointFlagsUnauthorizedTopup(): void
+	{
+		$device = Device::factory()->create([
+			'organisation_id' => $this->organisation->id,
+			'allow_topup' => false,
+		]);
+		$card = $this->createCard('card-unauth-001');
+
+		$token = new DeviceAccessToken([
+			'device_id' => $device->id,
+			'access_token' => 'unauth-test-token',
+			'expires_at' => now()->addHour(),
+		]);
+		$token->created_by = $this->user->id;
+		$token->save();
+
+		$response = $this
+			->withHeader('Authorization', 'Bearer ' . $token->access_token)
+			->postJson('/pos-api/v1/organisations/' . $this->organisation->id . '/merge-transactions', [
+				'items' => [
+					[
+						'card' => 'card-unauth-001',
+						'card_transaction' => 1,
+						'value' => 500,
+						'type' => 'topup',
+						'has_synced' => true,
+					],
+				],
+			]);
+
+		$response->assertStatus(200);
+
+		$stored = Transaction::where('card_id', $card->id)->where('card_sync_id', 1)->first();
+		$this->assertTrue($stored->unauthorized);
+		$this->assertEquals($device->id, $stored->uploaded_by_device_id);
+	}
 }

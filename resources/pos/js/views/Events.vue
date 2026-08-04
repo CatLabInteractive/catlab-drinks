@@ -39,15 +39,6 @@
 						<router-link :to="{ name: 'hq', params: { id: row.item.id } }">{{ row.item.name }}</router-link>
 					</template>
 
-					<template v-slot:cell(order_token)="row">
-						<!--
-						<a :href="row.item.order_url" target="_blank" title="Client panel">
-							<pre>{{ row.item.order_token }}></pre>
-						</a>
-						-->
-						<input @click="selectOrderToken($event)" :value="row.item.full_order_token" class="order-token" readonly></input>
-					</template>
-
 					<template v-slot:cell(actions)="row">
 
 						<b-dropdown :text="$t('Actions')" size="sm" right>
@@ -209,12 +200,6 @@
 					payment_cards: true,
 					allow_unpaid_online_orders: false
 				};
-			},
-
-			selectOrderToken(evt) {
-				evt.preventDefault();
-				evt.stopPropagation();
-				evt.target.select();
 			}
 
 		}

@@ -156,4 +156,29 @@ class Organisation extends Model
 
         return $topupDomains[0] ?? null;
     }
+
+    /**
+     * Is this organisation allowed to use this instance in production?
+     * True when no whitelist is configured (private instance) or when the
+     * organisation is on the whitelist.
+     * @return bool
+     */
+    public function isProductionAllowed(): bool
+    {
+        $ids = config('instance.production_organisation_ids', []);
+        if (empty($ids)) {
+            return true;
+        }
+
+        return in_array($this->id, $ids, true);
+    }
+
+    /**
+     * Inverse of isProductionAllowed, exposed to the API as test_mode.
+     * @return bool
+     */
+    public function getTestModeAttribute(): bool
+    {
+        return !$this->isProductionAllowed();
+    }
 }

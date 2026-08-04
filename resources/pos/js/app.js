@@ -57,6 +57,8 @@ import Relax from "../../shared/js/components/Relax";
 
 import Authenticate from "./views/Authenticate";
 import { getAuthData, clearAuthData } from "../../shared/js/services/DeviceAuth";
+import Disabled from './views/Disabled.vue';
+import { getDeviceCapabilities, resolveCapabilityRedirect } from './deviceCapabilities';
 
 async function launch() {
 
@@ -205,8 +207,23 @@ async function launch() {
 				path: '/financial-overview',
 				name: 'financialOverview',
 				component: FinancialOverview
+			},
+
+			{
+				path: '/disabled',
+				name: 'disabled',
+				component: Disabled
 			}
 		],
+	});
+
+	router.beforeEach((to, from, next) => {
+		const redirect = resolveCapabilityRedirect(to.name, getDeviceCapabilities());
+		if (redirect) {
+			next({ name: redirect });
+		} else {
+			next();
+		}
 	});
 
 	/**
@@ -244,6 +261,8 @@ async function launch() {
 				window.DEVICE_NAME = deviceData.name;
 				window.DEVICE_APPROVED_AT = deviceData.approved_at || null;
 				window.DEVICE_PUBLIC_KEY = deviceData.public_key || null;
+				window.DEVICE_ALLOW_SALES = deviceData.allow_sales !== false;
+				window.DEVICE_ALLOW_TOPUP = deviceData.allow_topup !== false;
 
 				// Set device license if LicenseService is available
 				if (deviceData.license_key && typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.LicenseService) {

@@ -69,6 +69,13 @@ class OrganisationController extends ResourceController
     protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
     {
         $this->traitBeforeSaveEntity($request, $entity, $isNew);
+
+        // Profile-linked organisations are renamed on the accounts server;
+        // the mirror would overwrite any local rename on the next sync.
+        if (!$isNew && $entity->profile_id !== null && $entity->isDirty('name')) {
+            abort(422, 'This organisation\'s name is managed on CatLab Accounts.');
+        }
+
         return $entity;
     }
 }

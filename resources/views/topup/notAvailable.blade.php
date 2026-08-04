@@ -3,10 +3,10 @@
 @section('content')
     <div class="container">
 
-        <!--<p class="alert alert-danger">Online herladen is nog niet beschikbaar.</p>-->
-        <h2>Kaart opladen</h2>
+        <!--<p class="alert alert-danger">{{ __('topup.not_available') }}</p>-->
+        <h2>{{ __('topup.title') }}</h2>
         <div class="alert alert-danger">
-            Online herladen is nog niet beschikbaar.
+            {{ __('topup.not_available') }}
         </div>
 
     </div>

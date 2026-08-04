@@ -52,25 +52,27 @@
 							></b-form-input>
 						</b-form-group>
 
-						<b-form-group
-							id="allow_live_orders"
-							:description="$t('This terminal can process orders at the bar')"
-						>
-							<label>
-								<input type="checkbox" v-model="allowLiveOrders" :disabled="allowTableService" />
-								{{ $t('Allow live orders at this terminal') }}<br />
-							</label>
-						</b-form-group>
+						<template v-if="allowSales">
+							<b-form-group
+								id="allow_live_orders"
+								:description="$t('This terminal can process orders at the bar')"
+							>
+								<label>
+									<input type="checkbox" v-model="allowLiveOrders" :disabled="allowTableService" />
+									{{ $t('Allow live orders at this terminal') }}<br />
+								</label>
+							</b-form-group>
 
-						<b-form-group
-							id="allow_remote_orders"
-							:description="$t('This terminal can process orders from tables')"
-						>
-							<label>
-								<input type="checkbox" v-model="allowRemoteOrders" :disabled="allowTableService" />
-								{{ $t('Allow remote orders at this terminal') }}<br />
-							</label>
-						</b-form-group>
+							<b-form-group
+								id="allow_remote_orders"
+								:description="$t('This terminal can process orders from tables')"
+							>
+								<label>
+									<input type="checkbox" v-model="allowRemoteOrders" :disabled="allowTableService" />
+									{{ $t('Allow remote orders at this terminal') }}<br />
+								</label>
+							</b-form-group>
+						</template>
 
 						<b-form-group
 							id="allow_table_service"
@@ -281,6 +283,8 @@
 				allowLiveOrders: false,
 				allowRemoteOrders: false,
 				allowTableService: false,
+
+				allowSales: window.DEVICE_ALLOW_SALES !== false,
 
 				licenseStatus: null,
 

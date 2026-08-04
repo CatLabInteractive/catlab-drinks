@@ -53,4 +53,19 @@ return [
     'license_warranty' => 'LE LOGICIEL EST FOURNI "TEL QUEL", SANS GARANTIE D\'AUCUNE SORTE, EXPRESSE OU IMPLICITE, Y COMPRIS MAIS SANS S\'Y LIMITER AUX GARANTIES DE QUALITÉ MARCHANDE, D\'ADÉQUATION À UN USAGE PARTICULIER ET DE NON-CONTREFAÇON.',
 
     'language' => 'Langue',
+
+    'meta_description' => 'CatLab Drinks est un système de paiement sans contact open-source et indépendant du matériel pour événements et festivals. Utilisez des tags NFC bon marché, hébergez sur votre propre serveur et déployez une infrastructure de paiement festival complète.',
+    'meta_keywords' => 'système de paiement sans contact indépendant du matériel, système de recharge NFC économique pour festivals, infrastructure de paiement festival DIY, point de vente open-source, paiement NFC, événement cashless, paiement festival, automatisation de bar auto-hébergée',
+
+    'faq_title' => 'Questions fréquemment posées',
+    'faq_1_q' => 'Puis-je utiliser des tags NFC standard pour un système de paiement de festival ?',
+    'faq_1_a' => 'Oui. CatLab Drinks fonctionne avec des tags NFC NTAG213 standard qui ne coûtent que 0,10 € pièce. Il n\'est pas nécessaire d\'acheter des bracelets propriétaires coûteux ou du matériel verrouillé par un fournisseur.',
+    'faq_2_q' => 'Quel matériel faut-il pour organiser un événement cashless ?',
+    'faq_2_a' => 'N\'importe quel téléphone ou tablette Android avec NFC peut servir de terminal de caisse. Pour les configurations de bureau, un lecteur NFC USB tel que l\'ACR122U fonctionne avec notre service compagnon. Le système est totalement indépendant du matériel.',
+    'faq_3_q' => 'CatLab Drinks convient-il aux petits événements avec un budget limité ?',
+    'faq_3_a' => 'Absolument. Le logiciel est gratuit et open source, les tags NFC sont extrêmement bon marché et vous pouvez utiliser des appareils Android existants comme terminaux. C\'est idéal pour les associations étudiantes, les événements communautaires et les petits festivals.',
+    'faq_4_q' => 'Comment fonctionne la sécurité des cartes NFC ?',
+    'faq_4_a' => 'Chaque terminal de caisse possède sa propre paire de clés cryptographiques ECDSA. Les données de la carte sont signées avec la clé privée du terminal et vérifiées à l\'aide de clés publiques approuvées. L\'UID matériel de la carte est inclus dans la signature pour empêcher le clonage.',
+    'faq_5_q' => 'Le système fonctionne-t-il hors ligne ?',
+    'faq_5_a' => 'Oui. Comme le solde est stocké directement sur la carte NFC, les transactions peuvent être traitées même sans connexion Internet. Les données se synchronisent automatiquement lorsque la connectivité est rétablie.',
 ];

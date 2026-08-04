@@ -39,6 +39,7 @@
                     <a href="javascript:void(0)" class="btn btn-sm btn-info" v-on:click="showOrder(row.item.order)">Order #{{row.item.order.id}}</a>
                 </span>
                 <span v-else>{{ row.item.type }}</span>
+                <span v-if="row.item.unauthorized" class="badge badge-danger ml-1" :title="$t('This transaction was uploaded by a device that is not allowed to topup cards.')">{{ $t('Unauthorized') }}</span>
             </template>
 
             <template v-slot:cell(amount)="row">

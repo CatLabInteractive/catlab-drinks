@@ -35,9 +35,14 @@ try {
  * We'll load the axios HTTP library which allows us to easily issue requests
  * to our Laravel back-end. This library automatically handles sending the
  * CSRF token as a header based on the value of the "XSRF" token cookie.
+ *
+ * WARNING: if an axios instance is already defined, this will be used instead of
+ * the default axios instance, as it might have interceptors that are required
+ * for specific environments.
  */
-
-window.axios = require('axios');
+if (typeof(window.axios) === 'undefined') {
+	window.axios = require('axios');
+}
 
 if (typeof(CATLAB_DRINKS_CONFIG) === 'undefined') {
     window.CATLAB_DRINKS_CONFIG = {};

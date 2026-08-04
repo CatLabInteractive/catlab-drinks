@@ -52,17 +52,27 @@ php artisan route:list                  # Verify routes are registered correctly
 php artisan route:list --path=<prefix>  # Filter routes by path prefix
 ```
 
-PHPUnit test suite: `./vendor/bin/phpunit` (Unit + Feature; Feature tests need a MySQL
-database `catlab_drinks_test`, user `test`/`test` — see phpunit.xml).
-
-If the host PHP install lacks the `pdo_mysql` extension, run the suite in the dockerized
-runner instead: `docker compose run --rm phpunit [args]`. This spins up the `mysql-test`
-and `phpunit` compose services (both behind the `test` profile, so they don't start with
-a plain `docker compose up`) — a throwaway MySQL 8.0 instance on tmpfs plus a
-`thecodingmachine/php:8.1-v5-cli` container with `pdo_mysql` preinstalled. Nothing persists
-between runs.
-
 The lock file requires PHP ~8.1 or ~8.2; use `--ignore-platform-reqs` on newer PHP versions.
+
+### PHP Tests
+
+**Always run the PHP test suite through the dockerized runner:**
+
+```bash
+docker compose run --rm phpunit                      # Full suite
+docker compose run --rm phpunit --filter FooTest     # Single test class
+```
+
+This spins up the `mysql-test` and `phpunit` compose services (both behind the `test`
+profile, so they don't start with a plain `docker compose up`) — a throwaway MySQL 8.0
+instance on tmpfs mirroring the CI service plus a `thecodingmachine/php:8.1-v5-cli`
+container with `pdo_mysql` preinstalled. Nothing persists between runs, so results are
+reproducible regardless of the host PHP setup.
+
+Feature tests use the `RefreshDatabase` trait against the `catlab_drinks_test` MySQL
+database (user `test`/`test`, see phpunit.xml). GitHub Actions
+(`.github/workflows/tests.yml`) runs the full PHP suite (PHP 8.1/8.2/8.3 matrix + MySQL 8
+service) and `npm test` on every push/PR to main/master/develop.
 
 ### JavaScript Tests
 ```bash
@@ -258,6 +268,46 @@ version(1) + deviceId(3) + balance(4) + txCount(4) + timestamp(4) + prevTx(5×4=
 The `KeyManager` must be set on `NfcReader` **before** cards are scanned via `nfcReader.setKeyManager(keyManager)`.
 The reader injects it into each `Card` object before calling `parseNdef()`.
 Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPublicKeys(keys)` during device boot.
+
+---
+
+## Instance Configuration
+
+- `config/instance.php` + `App\Support\InstanceSettings`: `PRODUCTION_ORGANISATION_IDS`
+  (comma-separated org IDs; orgs not on the list get `test_mode = true` on the Management
+  API organisation resource and see a testing-mode banner in Manage) and
+  `REGISTRATION_OPEN` (keeps registration open after the first user; default closed).
+- First-run setup: while no users exist (and no SSO is configured), the
+  `setup.redirect` middleware sends `/`, `/home`, `/login`, `/register`, `/manage` to
+  `/setup` (`SetupController`), which creates the founding user + organisation.
+- Registration gates live in `Auth\RegisterController` (local) and
+  `Auth\SsoLoginController` (SSO first-login); both render `auth.registration-closed`.
+- Database connection/migration failures render `errors/database.blade.php` via
+  `App\Exceptions\DatabaseErrorClassifier` in the exception handler (non-debug only).
+- `DISABLE_PROFILE_MIRROR=1` disables the CatLab Accounts profile sync (kill switch for
+  `App\Services\ProfileMirror` — see "Accounts Profile Sync" below).
+
+---
+
+## Accounts Profile Sync (SSO instances)
+
+- `App\Services\ProfileMirror` mirrors CatLab accounts "profiles" into local
+  organisations: link via `organisations.profile_id` (unique), membership via
+  the roster endpoint, incremental skip via `organisations.profile_sync_version`
+  vs the accounts `version`. Names of linked organisations are canonical on
+  accounts and read-only in the drinks API.
+- Triggers: SSO login (`SsoLoginController`) + `SyncAccountsProfiles`
+  middleware on the `web`/`api` groups (throttled 15 min per user via
+  `users.last_profile_sync`; failure backoff 60 s). Kill switch:
+  `DISABLE_PROFILE_MIRROR=1`.
+- `POST /delegated/users` (secret-authenticated, `accounts.manage` middleware)
+  handles accounts-initiated user `delete`/`logout`; register it as
+  `manage_user_uri` on the accounts OAuth client.
+- Manage supports multiple organisations: boot picks the org stored in
+  localStorage (`catlab_drinks_manage_organisation_id`) via
+  `resources/manage/js/services/organisationSelection.js`; a navbar dropdown
+  switches (stores + reloads). `window.ORGANISATIONS` holds the full list.
+- Design: `docs/superpowers/specs/2026-08-04-profiles-organisations-sync-design.md`.
 
 ---
 

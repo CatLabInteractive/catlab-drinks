@@ -24,6 +24,14 @@
 
 		<h1>{{ $t('Organisation Settings') }}</h1>
 
+		<p v-if="organisationName">
+			<strong>{{ organisationName }}</strong>
+			<template v-if="profileId">
+				&mdash;
+				<a :href="accountsProfileUrl" target="_blank" rel="noopener">{{ $t('Rename on CatLab Accounts') }}</a>
+			</template>
+		</p>
+
 		<div class="text-center" v-if="!loaded">
 			<b-spinner :label="$t('Loading data')" />
 		</div>
@@ -141,7 +149,13 @@
 		},
 
 		data() {
+			const currentOrganisation = (window.ORGANISATIONS || []).find(
+				(organisation) => organisation.id === window.ORGANISATION_ID
+			) || null;
+
 			return {
+				organisationName: currentOrganisation ? currentOrganisation.name : '',
+				profileId: currentOrganisation ? currentOrganisation.profile_id : null,
 				loaded: false,
 				saving: false,
 				gateways: [],
@@ -163,6 +177,13 @@
 					is_active: true
 				}
 			}
+		},
+
+		computed: {
+			accountsProfileUrl() {
+				return (window.CATLAB_DRINKS_CONFIG.ACCOUNTS_URL || 'https://accounts.catlab.eu')
+					+ '/profiles/' + this.profileId;
+			},
 		},
 
 		methods: {

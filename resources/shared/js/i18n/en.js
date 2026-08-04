@@ -383,6 +383,7 @@ export default {
     'Your Pay.nl service ID (e.g. SL-xxxx-xxxx)': 'Your Pay.nl service ID (e.g. SL-xxxx-xxxx)',
     'Test mode': 'Test mode',
     'Are you sure you want to remove the {gateway} payment gateway?': 'Are you sure you want to remove the {gateway} payment gateway?',
+    'Rename on CatLab Accounts': 'Rename on CatLab Accounts',
 
     // Client - Order
     'Order': 'Order',
@@ -397,6 +398,8 @@ export default {
     'Please order at least 1 item.': 'Please order at least 1 item.',
     'Network connection error. Please check network connection.': 'Network connection error. Please check network connection.',
     'Your table number: {tableNumber}': 'Your table number: {tableNumber}',
+    'Welcome, {name}!': 'Welcome, {name}!',
+    '{catlabDrinks} is an open source project by CatLab Interactive.': '{catlabDrinks} is an open source project by CatLab Interactive.',
 
     // Offline
     'Offline': 'Offline',
@@ -413,4 +416,132 @@ export default {
 
     // Language toggle
     'Language': 'Language',
+
+    // Placeholder pages
+    'Hello world': 'Hello world',
+    'This is the hello world.': 'This is the hello world.',
+    'Home': 'Home',
+    'This is the home.': 'This is the home.',
+
+    // Device capabilities
+    'Allow sales': 'Allow sales',
+    'Allow card topups': 'Allow card topups',
+    'This device can process orders and sales.': 'This device can process orders and sales.',
+    'This device can topup, reset and manage NFC cards.': 'This device can topup, reset and manage NFC cards.',
+    'Capabilities': 'Capabilities',
+    'Sales': 'Sales',
+    'Disabled': 'Disabled',
+    'This device has no functions enabled.': 'This device has no functions enabled.',
+    'Please contact your administrator to enable sales or topups for this device.': 'Please contact your administrator to enable sales or topups for this device.',
+    'Unauthorized': 'Unauthorized',
+    'This transaction was uploaded by a device that is not allowed to topup cards.': 'This transaction was uploaded by a device that is not allowed to topup cards.',
+
+    // Instance testing mode
+    'You are using this shared instance in testing mode. Feel free to try things out, but for production events please set up your own instance.': 'You are using this shared instance in testing mode. Feel free to try things out, but for production events please set up your own instance.',
+    'How to set up your own instance': 'How to set up your own instance',
+
+    // Manage - Devices (additions)
+    'Pair a device': 'Pair a device',
+    'Deleted': 'Deleted',
+    'Online': 'Online',
+    'Approved': 'Approved',
+    'Pending': 'Pending',
+    'No key': 'No key',
+    'Approve Key': 'Approve Key',
+    'Approve Public Key': 'Approve Public Key',
+    'Revoke Key': 'Revoke Key',
+    'Revoke Public Key': 'Revoke Public Key',
+    'Pending orders': 'Pending orders',
+    'Public Key': 'Public Key',
+    'Signed Cards': 'Signed Cards',
+    'POS (Point of Sale) devices authenticate separately from your management account.': 'POS (Point of Sale) devices authenticate separately from your management account.',
+    'Each POS terminal requires its own pairing to ensure secure, independent operation—even if the management session expires, POS devices continue to function.': 'Each POS terminal requires its own pairing to ensure secure, independent operation—even if the management session expires, POS devices continue to function.',
+    'No signed cards found.': 'No signed cards found.',
+    'Card UID': 'Card UID',
+
+    // Manage - Events - Order token
+    'Remote order token': 'Remote order token',
+    'Attendees': 'Attendees',
+    'Order page URL': 'Order page URL',
+    'Share this link with your customers to let them order remotely.': 'Share this link with your customers to let them order remotely.',
+    'The order token consists of a public part and a secret part, separated by a dash. The public part identifies the event in the order page URL. The secret part is used by integrating applications, such as QuizWitz, to sign order parameters (card and name) with HMAC-SHA256.': 'The order token consists of a public part and a secret part, separated by a dash. The public part identifies the event in the order page URL. The secret part is used by integrating applications, such as QuizWitz, to sign order parameters (card and name) with HMAC-SHA256.',
+    'Only share the full token with trusted integrations.': 'Only share the full token with trusted integrations.',
+
+    // Manage - Categories (additions)
+    'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.': 'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.',
+    '+ Create new category': '+ Create new category',
+
+    // Manage - Public Keys
+    'Public Keys': 'Public Keys',
+    'This page shows all public keys for POS devices in your organisation, including keys from deleted devices. Each public key is used to verify NFC card signatures.': 'This page shows all public keys for POS devices in your organisation, including keys from deleted devices. Each public key is used to verify NFC card signatures.',
+    'Pending Approval': 'Pending Approval',
+    'Approve': 'Approve',
+    'Revoke': 'Revoke',
+    'No public keys found. Devices will register their public keys when they connect.': 'No public keys found. Devices will register their public keys when they connect.',
+
+    // NFC Signing Credentials
+    'NFC Card Signing Credentials': 'NFC Card Signing Credentials',
+    'This device needs to generate signing credentials before it can read or write NFC cards.': 'This device needs to generate signing credentials before it can read or write NFC cards.',
+    'After generating, your organisation administrator must approve the credentials before card operations are allowed.': 'After generating, your organisation administrator must approve the credentials before card operations are allowed.',
+    'This is a security measure to prevent unauthorized devices from writing card data.': 'This is a security measure to prevent unauthorized devices from writing card data.',
+    'Generate Credentials': 'Generate Credentials',
+    'Waiting for approval': 'Waiting for approval',
+    'Your signing credentials have been generated and submitted to the server.': 'Your signing credentials have been generated and submitted to the server.',
+    'An organisation administrator must now approve this device\'s credentials in the management dashboard before card operations are allowed.': 'An organisation administrator must now approve this device\'s credentials in the management dashboard before card operations are allowed.',
+    'The NFC indicator in the toolbar will turn green once the credentials are approved. You can close this dialog and continue using other features in the meantime.': 'The NFC indicator in the toolbar will turn green once the credentials are approved. You can close this dialog and continue using other features in the meantime.',
+    'Check Approval Status': 'Check Approval Status',
+    'Credentials revoked': 'Credentials revoked',
+    'This device\'s signing credentials have been revoked by an administrator. Card operations are disabled.': 'This device\'s signing credentials have been revoked by an administrator. Card operations are disabled.',
+    'You can generate new credentials below. They will need to be approved again before card operations are allowed.': 'You can generate new credentials below. They will need to be approved again before card operations are allowed.',
+    'Generate New Credentials': 'Generate New Credentials',
+    'Credentials approved!': 'Credentials approved!',
+    'Your signing credentials have been approved. This device can now read and write NFC cards.': 'Your signing credentials have been approved. This device can now read and write NFC cards.',
+    'Failed to generate credentials. Please try again.': 'Failed to generate credentials. Please try again.',
+    'NFC Space Limit Exceeded': 'NFC Space Limit Exceeded',
+    'The topup URL is too long to fit on the NFC card together with the signed card data.': 'The topup URL is too long to fit on the NFC card together with the signed card data.',
+    'Please configure a shorter topup domain in the organisation settings to resolve this issue.': 'Please configure a shorter topup domain in the organisation settings to resolve this issue.',
+    'Close': 'Close',
+    'NFC ⚠️': 'NFC ⚠️',
+    'NFC ⏳': 'NFC ⏳',
+    'NFC 🔑': 'NFC 🔑',
+
+    // POS - Authenticate (additions)
+    'Back': 'Back',
+    'Authenticate': 'Authenticate',
+    'Invalid response...': 'Invalid response...',
+
+    // POS - License
+    'Requires': 'Requires',
+    'an additional service': 'an additional service',
+    'Expires:': 'Expires:',
+    'Cards scanned:': 'Cards scanned:',
+    'Remaining:': 'Remaining:',
+    'Please purchase a license to remove the card scan limit.': 'Please purchase a license to remove the card scan limit.',
+    'Visit the management portal to buy and activate a license for this device.': 'Visit the management portal to buy and activate a license for this device.',
+
+    // Card details (additions)
+    'Card gives': 'Card gives',
+    '% at all sales.': '% at all sales.',
+    'Rebuild error: {message}': 'Rebuild error: {message}',
+    'Validation error: {message}': 'Validation error: {message}',
+
+    // Payment (additions)
+    'Collect': 'Collect',
+    'vouchers': 'vouchers',
+    'or': 'or',
+
+    // Remote orders (additions)
+    '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.': '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.',
+    'Only show assigned orders': 'Only show assigned orders',
+    'On my way!': 'On my way!',
+    'Failed to save category filter. Reverting to previous value.': 'Failed to save category filter. Reverting to previous value.',
+
+    // Attendees (additions)
+    'Email': 'Email',
+
+    // Card test
+    'Start test': 'Start test',
+    'Stop test': 'Stop test',
+    'Scan card to start test': 'Scan card to start test',
+    'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Warning! This will apply random transactions to any card that is presented. Do you want to continue?',
 };

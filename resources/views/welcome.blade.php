@@ -3,6 +3,9 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="{{ __('welcome.meta_description') }}">
+        <meta name="keywords" content="{{ __('welcome.meta_keywords') }}">
+        <link rel="canonical" href="{{ url('/') }}">
 
         <title>{{ __('welcome.title') }} — {{ __('welcome.tagline') }}</title>
 
@@ -12,6 +15,55 @@
         <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
         @include('blocks.favicon')
+
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": "{{ __('welcome.faq_1_q') }}",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "{{ __('welcome.faq_1_a') }}"
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "{{ __('welcome.faq_2_q') }}",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "{{ __('welcome.faq_2_a') }}"
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "{{ __('welcome.faq_3_q') }}",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "{{ __('welcome.faq_3_a') }}"
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "{{ __('welcome.faq_4_q') }}",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "{{ __('welcome.faq_4_a') }}"
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "{{ __('welcome.faq_5_q') }}",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "{{ __('welcome.faq_5_a') }}"
+                    }
+                }
+            ]
+        }
+        </script>
 
     @if(config('services.gtm'))
         <!-- Google Tag Manager -->
@@ -167,6 +219,39 @@
                     <a href="https://github.com/catlab-drinks/nfc-socketio">{{ __('welcome.nfc_companion_link') }}</a>
                     {{ __('welcome.nfc_companion_after') }}
                 </p>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2>{{ __('welcome.faq_title') }}</h2>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <h5>{{ __('welcome.faq_1_q') }}</h5>
+                    <p>{{ __('welcome.faq_1_a') }}</p>
+                </div>
+                <div class="mb-3">
+                    <h5>{{ __('welcome.faq_2_q') }}</h5>
+                    <p>{{ __('welcome.faq_2_a') }}</p>
+                </div>
+                <div class="mb-3">
+                    <h5>{{ __('welcome.faq_3_q') }}</h5>
+                    <p>{{ __('welcome.faq_3_a') }}</p>
+                </div>
+                <div class="mb-3">
+                    <h5>{{ __('welcome.faq_4_q') }}</h5>
+                    <p>{{ __('welcome.faq_4_a') }}</p>
+                </div>
+                <div class="mb-3">
+                    <h5>{{ __('welcome.faq_5_q') }}</h5>
+                    <p>{{ __('welcome.faq_5_a') }}</p>
+                </div>
             </div>
         </div>
 

@@ -48,6 +48,15 @@
 
 						<language-toggle />
 
+						<b-nav-item-dropdown v-if="organisations.length > 1" :text="currentOrganisationName" right>
+							<b-dropdown-item
+								v-for="organisation in organisations"
+								:key="organisation.id"
+								:active="organisation.id === currentOrganisationId"
+								@click="switchOrganisation(organisation)"
+							>{{ organisation.name }}</b-dropdown-item>
+						</b-nav-item-dropdown>
+
 						<li class="nav-item">
 							<logout-link />
 						</li>
@@ -56,6 +65,11 @@
 				</b-navbar-nav>
 			</b-collapse>
 		</b-navbar>
+
+		<b-alert v-if="testMode" show variant="warning" class="mb-0 text-center rounded-0">
+			{{ $t('You are using this shared instance in testing mode. Feel free to try things out, but for production events please set up your own instance.') }}
+			<a href="https://github.com/CatLabInteractive/catlab-drinks#run-your-own-instance" target="_blank" rel="noopener" class="alert-link">{{ $t('How to set up your own instance') }}</a>
+		</b-alert>
 
 		<router-view></router-view>
 
@@ -66,6 +80,7 @@
 
 	import LogoutLink from '../components/LogoutLink.vue';
 	import LanguageToggle from '../../../shared/js/components/LanguageToggle.vue';
+	import { ORGANISATION_STORAGE_KEY } from '../services/organisationSelection';
 
 	export default {
 
@@ -76,7 +91,26 @@
 
 		data() {
 			return {
-				kioskMode: false
+				kioskMode: false,
+				testMode: !!window.ORGANISATION_TEST_MODE,
+				organisations: window.ORGANISATIONS || [],
+				currentOrganisationId: window.ORGANISATION_ID
+			}
+		},
+
+		computed: {
+			currentOrganisationName() {
+				const current = this.organisations.find(
+					(organisation) => organisation.id === this.currentOrganisationId
+				);
+				return current ? current.name : '';
+			}
+		},
+
+		methods: {
+			switchOrganisation(organisation) {
+				window.localStorage.setItem(ORGANISATION_STORAGE_KEY, String(organisation.id));
+				window.location.reload();
 			}
 		},
 

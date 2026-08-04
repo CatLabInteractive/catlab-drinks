@@ -43,16 +43,6 @@
 						<router-link :to="{ name: 'menu', params: { id: row.item.id } }">{{ row.item.name }}</router-link>
 					</template>
 
-					<template v-slot:cell(order_token)="row">
-						<!--
-						<a :href="row.item.order_url" target="_blank" title="Client panel">
-							<pre>{{ row.item.order_token }}></pre>
-						</a>
-						-->
-						<input @click="selectOrderToken($event)" :value="row.item.full_order_token" class="order-token"
-							   readonly></input>
-					</template>
-
 					<template v-slot:cell(actions)="row">
 
 						<b-dropdown :text="$t('Actions')" size="sm" right>
@@ -85,6 +75,11 @@
 								<b-dropdown-item :href="row.item.order_url" target="_blank" :title="$t('Client order form')">
 									👤
 									{{ $t('Client order form') }}
+								</b-dropdown-item>
+
+								<b-dropdown-item @click="showOrderToken(row.item)" :title="$t('Remote order token')">
+									🔑
+									{{ $t('Remote order token') }}
 								</b-dropdown-item>
 
 
@@ -234,6 +229,28 @@
 		</template>
 	</b-modal>
 
+	<b-modal :title="$t('Remote order token')" ok-only ref="orderTokenModal">
+		<div v-if="orderTokenEvent">
+			<h5>{{ orderTokenEvent.name }}</h5>
+
+			<b-form-group :label="$t('Order page URL')"
+						  :description="$t('Share this link with your customers to let them order remotely.')">
+				<input @click="selectOrderToken($event)" :value="orderTokenEvent.order_url"
+					   class="form-control order-token" readonly />
+			</b-form-group>
+
+			<b-form-group :label="$t('Order token')">
+				<input @click="selectOrderToken($event)" :value="orderTokenEvent.full_order_token"
+					   class="form-control order-token" readonly />
+			</b-form-group>
+
+			<p class="text-muted small">
+				{{ $t('The order token consists of a public part and a secret part, separated by a dash. The public part identifies the event in the order page URL. The secret part is used by integrating applications, such as QuizWitz, to sign order parameters (card and name) with HMAC-SHA256.') }}
+				{{ $t('Only share the full token with trusted integrations.') }}
+			</p>
+		</div>
+	</b-modal>
+
 </template>
 
 <script>
@@ -262,10 +279,6 @@ export default {
 					label: this.$t('Event'),
 				},
 				{
-					key: 'order_token',
-					label: this.$t('Order token'),
-				},
-				{
 					key: 'is_selling',
 					label: this.$t('Remote orders'),
 					class: 'text-center'
@@ -276,7 +289,8 @@ export default {
 					class: 'text-right'
 				}
 			],
-			model: {}
+			model: {},
+			orderTokenEvent: null
 		}
 	},
 
@@ -349,6 +363,11 @@ export default {
 				payment_cards: true,
 				allow_unpaid_online_orders: false
 			};
+		},
+
+		showOrderToken(event) {
+			this.orderTokenEvent = event;
+			this.$refs.orderTokenModal.show();
 		},
 
 		selectOrderToken(evt) {

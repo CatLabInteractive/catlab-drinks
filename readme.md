@@ -17,6 +17,40 @@ Deploy your own instance with a single click:
 > - `APP_KEY` — generate with `php -r "echo 'base64:'.base64_encode(random_bytes(32));"`
 > - `DATABASE_URL` — create a [Managed MySQL cluster](https://cloud.digitalocean.com/databases) first and paste the connection string (`mysql://user:pass@host:port/dbname`)
 
+Run your own instance
+---------------------
+The shared instance at [drinks.catlab.eu](https://drinks.catlab.eu) is free to use **for
+testing**. For production events, set up your own instance:
+
+1. **Deploy** using one of the options above (Heroku / DigitalOcean one-click), the
+   [Docker Compose setup](#setup-with-docker), the [manual setup](#manual-setup-without-docker),
+   or Dokku.
+2. **Open your instance in a browser.** A fresh instance greets you with a first-run setup
+   page where you create your administrator account and organisation. After that,
+   registration closes automatically: nobody else can register on your instance unless you
+   explicitly open it (see `REGISTRATION_OPEN` below).
+3. **Back up your `APP_KEY`** immediately (see the warning below — losing it makes NFC
+   cards unusable).
+4. Optionally configure a [topup domain](#topup-domain) and [NFC reader](#nfc-cashless-topup).
+
+If the app shows a "Database not available" page instead of the setup screen, follow the
+checklist on that page: verify the database environment variables and run
+`php artisan migrate`.
+
+### Environment variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `APP_KEY` | — (required) | Encrypts secrets and NFC card data. Generate with `php artisan key:generate`. **Back it up.** |
+| `APP_ENV` / `APP_DEBUG` | `production` / `false` | Standard Laravel environment switches. |
+| `DATABASE_URL` or `DB_*` | — (required) | Database connection (MySQL). |
+| `REGISTRATION_OPEN` | `false` | Keep public registration open after the first user has been created. Leave unset for a private instance. |
+| `PRODUCTION_ORGANISATION_IDS` | — (unset) | Comma-separated organisation IDs that use this instance in production. When set, all *other* organisations see a "testing mode" warning in the admin panel. Leave unset on private instances. |
+| `TOPUP_DOMAIN_NAME` | — (unset) | Short domain written to NFC cards for topup links (see [Topup Domain](#topup-domain)). |
+| `CATLAB_CLIENT_ID` / `CATLAB_CLIENT_SECRET` | — (unset) | Optional CatLab Accounts single sign-on. When set, login/registration is delegated to the SSO server and the first-run setup page is skipped (the first SSO login creates the founding user). |
+| `PASSPORT_PRIVATE_KEY` / `PASSPORT_PUBLIC_KEY` | — | OAuth keys; alternative to `php artisan passport:keys` on ephemeral filesystems (Heroku/Dokku). |
+| `MAIL_*` | log driver | Outgoing mail (password resets, verification). |
+
 Architecture
 ------------
 
@@ -98,7 +132,8 @@ Once the containers are running, the application is available at [http://localho
 6. `npm install` — install JS dependencies
 7. `npm run production` — compile frontend assets
 
-You should now be able to register an account at the website.
+Open the website and you will be greeted by the first-run setup page, where you create
+your administrator account and organisation.
 
 Development
 -----------

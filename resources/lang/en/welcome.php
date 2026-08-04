@@ -53,4 +53,19 @@ return [
     'license_warranty' => 'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.',
 
     'language' => 'Language',
+
+    'meta_description' => 'CatLab Drinks is an open-source, hardware-agnostic cashless payment system for events and festivals. Use budget NFC tags, self-host on your own server, and run a complete DIY festival payment infrastructure.',
+    'meta_keywords' => 'hardware-agnostic cashless payment system, budget NFC top-up system for festivals, DIY festival payment infrastructure, open-source POS, NFC payment, cashless event, festival payment, self-hosted bar automation',
+
+    'faq_title' => 'Frequently Asked Questions',
+    'faq_1_q' => 'Can I use standard NFC tags for a festival payment system?',
+    'faq_1_a' => 'Yes. CatLab Drinks works with standard NTAG213 NFC tags that cost as little as €0.10 each. There is no need for expensive proprietary wristbands or vendor-locked hardware.',
+    'faq_2_q' => 'What hardware do I need to run a cashless event?',
+    'faq_2_a' => 'Any Android phone or tablet with NFC can serve as a POS terminal. For desktop setups, a USB NFC reader such as the ACR122U works with our companion service. The system is fully hardware-agnostic.',
+    'faq_3_q' => 'Is CatLab Drinks suitable for small events on a tight budget?',
+    'faq_3_a' => 'Absolutely. The software is free and open-source, NFC tags are extremely cheap, and you can use existing Android devices as terminals. This makes it ideal for student unions, community events, and small festivals.',
+    'faq_4_q' => 'How does the NFC card security work?',
+    'faq_4_a' => 'Each POS terminal has its own ECDSA cryptographic key pair. Card data is signed with the terminal private key and verified using approved public keys. The card hardware UID is included in the signature to prevent cloning.',
+    'faq_5_q' => 'Does the system work offline?',
+    'faq_5_a' => 'Yes. Because the balance is stored directly on the NFC card, transactions can be processed even without an internet connection. Data syncs automatically when connectivity is restored.',
 ];
