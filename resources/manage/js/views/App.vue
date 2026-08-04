@@ -51,6 +51,7 @@
 						</b-nav-item-dropdown>
 
 						<b-nav-item-dropdown :text="$t('Settings')" right>
+							<b-dropdown-item v-if="ssoAccount" href="/account" target="_blank" rel="noopener">{{ $t('My CatLab Account') }}</b-dropdown-item>
 							<b-dropdown-item :to="{ name: 'settings' }">{{ $t('Organisation Settings') }}</b-dropdown-item>
 							<b-dropdown-item :to="{ name: 'publicKeys' }">{{ $t('Public Keys') }}</b-dropdown-item>
 						</b-nav-item-dropdown>
@@ -94,7 +95,8 @@
 				kioskMode: false,
 				testMode: !!window.ORGANISATION_TEST_MODE,
 				organisations: window.ORGANISATIONS || [],
-				currentOrganisationId: window.ORGANISATION_ID
+				currentOrganisationId: window.ORGANISATION_ID,
+				ssoAccount: !!(window.CATLAB_DRINKS_CONFIG && window.CATLAB_DRINKS_CONFIG.SSO_ACCOUNT)
 			}
 		},
 

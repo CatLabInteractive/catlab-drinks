@@ -384,6 +384,7 @@ export default {
     'Test mode': 'Test mode',
     'Are you sure you want to remove the {gateway} payment gateway?': 'Are you sure you want to remove the {gateway} payment gateway?',
     'Rename on CatLab Accounts': 'Rename on CatLab Accounts',
+    'My CatLab Account': 'My CatLab Account',
 
     // Client - Order
     'Order': 'Order',

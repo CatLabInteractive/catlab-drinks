@@ -383,6 +383,7 @@ export default {
     'Test mode': 'Modo de prueba',
     'Are you sure you want to remove the {gateway} payment gateway?': '¿Está seguro de que desea eliminar la pasarela de pago {gateway}?',
     'Rename on CatLab Accounts': 'Renombrar en CatLab Accounts',
+    'My CatLab Account': 'Mi cuenta de CatLab',
 
     // Client - Order
     'Order': 'Pedir',
