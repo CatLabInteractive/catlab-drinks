@@ -25,6 +25,7 @@ namespace App\Services;
 use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -35,7 +36,7 @@ use Illuminate\Support\Facades\Log;
  * licenses). Pull-based: runs on SSO login and throttled on authenticated
  * requests, using the user's stored accounts access token.
  *
- * See docs/superpowers/specs/2026-08-04-profiles-organisations-sync.md
+ * @see docs/superpowers/specs/2026-08-04-profiles-organisations-sync-design.md
  */
 class ProfileMirror
 {
@@ -133,6 +134,63 @@ class ProfileMirror
             $organisation->name = $name;
             $organisation->save();
         }
+
+        // Incremental-sync skip guard: nothing changed on accounts since the
+        // stored version AND this user is already a local member (a member
+        // added accounts-side before their own first login must not be
+        // skipped: their membership only lands when they sync themselves).
+        $version = array_key_exists('version', $item) ? (int)$item['version'] : null;
+
+        if (!$force && !$created && $version !== null
+            && $organisation->profile_sync_version !== null
+            && (int)$organisation->profile_sync_version === $version
+            && $organisation->users()->whereKey($user->id)->exists()) {
+            return true;
+        }
+
+        // Roster. A failed fetch must never wipe membership.
+        $members = $this->fetchItems($this->getMembersUrl($profileId), $user->catlab_access_token);
+        if ($members === null) {
+            Log::warning('ProfileMirror: could not fetch members', [
+                'user' => $user->id,
+                'profile' => $profileId,
+            ]);
+            return false;
+        }
+
+        $catlabIds = [];
+        foreach ($members as $member) {
+            if (is_array($member) && isset($member['userId'])) {
+                $catlabIds[] = (int)$member['userId'];
+            }
+        }
+
+        // Unknown members are skipped; they are picked up at their own first
+        // login (guaranteed by the skip guard's membership term above).
+        $localUserIds = User::query()
+            ->whereIn('catlab_id', $catlabIds)
+            ->pluck('id')
+            ->all();
+
+        // Apply + stamp serialized per organisation: last-to-apply is also
+        // last-to-stamp, so a stale applier stamps its own stale version and
+        // the next sync self-heals.
+        DB::transaction(function () use ($organisation, $localUserIds, $version) {
+            $locked = Organisation::query()
+                ->whereKey($organisation->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$locked) {
+                return;
+            }
+
+            $locked->users()->sync($localUserIds);
+            $locked->profile_sync_version = $version;
+            $locked->save();
+        });
+
+        $organisation->unsetRelation('users');
 
         return true;
     }

@@ -216,4 +216,201 @@ class ProfileMirrorTest extends TestCase
 
         $this->assertGreaterThan($sentAfterFirst, count(Http::recorded()));
     }
+
+    public function testRosterAddsOtherLocalMembers(): void
+    {
+        $userA = $this->makeSsoUser(1001);
+        $userB = $this->makeSsoUser(1002);
+
+        $this->fakeAccounts(
+            [
+                ['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true, 'version' => 1],
+                ['id' => 502, 'name' => 'Team Bar', 'role' => 1, 'personal' => false, 'version' => 3],
+            ],
+            [
+                501 => [['userId' => 1001, 'role' => 10]],
+                502 => [['userId' => 1001, 'role' => 1], ['userId' => 1002, 'role' => 10]],
+            ]
+        );
+
+        (new ProfileMirror())->sync($userA);
+
+        $teamOrg = Organisation::query()->where('profile_id', 502)->first();
+        $this->assertTrue($teamOrg->users()->whereKey($userA->id)->exists());
+        $this->assertTrue($teamOrg->users()->whereKey($userB->id)->exists());
+        $this->assertSame(3, (int)$teamOrg->profile_sync_version);
+    }
+
+    public function testRosterRemovesDepartedMembers(): void
+    {
+        $userA = $this->makeSsoUser(1001);
+        $userB = $this->makeSsoUser(1002);
+
+        $org = $userA->organisations()->first();
+        $org->profile_id = 501;
+        $org->save();
+        $org->users()->attach($userB->id);
+
+        $this->fakeAccounts(
+            [['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true, 'version' => 5]],
+            [501 => [['userId' => 1001, 'role' => 10]]]
+        );
+
+        (new ProfileMirror())->sync($userA);
+
+        $this->assertTrue($org->users()->whereKey($userA->id)->exists());
+        $this->assertFalse($org->users()->whereKey($userB->id)->exists());
+    }
+
+    public function testUnknownRosterMembersAreSkipped(): void
+    {
+        $user = $this->makeSsoUser(1001);
+
+        $this->fakeAccounts(
+            [['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true, 'version' => 1]],
+            [501 => [['userId' => 1001, 'role' => 10], ['userId' => 9999, 'role' => 1]]]
+        );
+
+        (new ProfileMirror())->sync($user);
+
+        $org = Organisation::query()->where('profile_id', 501)->first();
+        $this->assertSame(1, $org->users()->count());
+    }
+
+    public function testSkipGuardSkipsRosterFetchButStillRenames(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        $org = $user->organisations()->first();
+        $org->profile_id = 501;
+        $org->profile_sync_version = 7;
+        $org->name = 'Stale name';
+        $org->save();
+
+        $this->fakeAccounts(
+            [['id' => 501, 'name' => 'Fresh name', 'role' => 10, 'personal' => true, 'version' => 7]],
+            [501 => [['userId' => 1001, 'role' => 10]]]
+        );
+
+        (new ProfileMirror())->sync($user);
+
+        Http::assertNotSent(function ($request) {
+            return str_contains($request->url(), '/members');
+        });
+        $this->assertSame('Fresh name', $org->fresh()->name);
+    }
+
+    public function testSkipGuardIgnoredWhenVersionDiffers(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        $org = $user->organisations()->first();
+        $org->profile_id = 501;
+        $org->profile_sync_version = 7;
+        $org->save();
+
+        $this->fakeAccounts(
+            [['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true, 'version' => 8]],
+            [501 => [['userId' => 1001, 'role' => 10]]]
+        );
+
+        (new ProfileMirror())->sync($user);
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '/members');
+        });
+        $this->assertSame(8, (int)$org->fresh()->profile_sync_version);
+    }
+
+    public function testSkipGuardIgnoredWhenUserIsNotLocalMember(): void
+    {
+        // A member added on accounts before their own first login: the org
+        // exists at the right version but they are not a local member yet.
+        $owner = $this->makeSsoUser(1001);
+        $org = $owner->organisations()->first();
+        $org->profile_id = 502;
+        $org->profile_sync_version = 3;
+        $org->save();
+
+        $newcomer = $this->makeSsoUser(1002);
+
+        $this->fakeAccounts(
+            [
+                ['id' => 601, 'name' => 'Newcomer', 'role' => 10, 'personal' => true, 'version' => 1],
+                ['id' => 502, 'name' => 'Team Bar', 'role' => 1, 'personal' => false, 'version' => 3],
+            ],
+            [
+                601 => [['userId' => 1002, 'role' => 10]],
+                502 => [['userId' => 1001, 'role' => 10], ['userId' => 1002, 'role' => 1]],
+            ]
+        );
+
+        (new ProfileMirror())->sync($newcomer);
+
+        $this->assertTrue($org->users()->whereKey($newcomer->id)->exists());
+    }
+
+    public function testForceBypassesSkipGuard(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        $org = $user->organisations()->first();
+        $org->profile_id = 501;
+        $org->profile_sync_version = 7;
+        $org->save();
+
+        $this->fakeAccounts(
+            [['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true, 'version' => 7]],
+            [501 => [['userId' => 1001, 'role' => 10]]]
+        );
+
+        (new ProfileMirror())->sync($user, true);
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '/members');
+        });
+    }
+
+    public function testMissingVersionAlwaysFullSyncs(): void
+    {
+        $user = $this->makeSsoUser(1001);
+        $org = $user->organisations()->first();
+        $org->profile_id = 501;
+        $org->profile_sync_version = 7;
+        $org->save();
+
+        $this->fakeAccounts(
+            [['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true]],
+            [501 => [['userId' => 1001, 'role' => 10]]]
+        );
+
+        (new ProfileMirror())->sync($user);
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '/members');
+        });
+        // Stored version tracks what accounts last said - including "nothing".
+        $this->assertNull($org->fresh()->profile_sync_version);
+    }
+
+    public function testFailedRosterFetchKeepsMembershipAndVersion(): void
+    {
+        $userA = $this->makeSsoUser(1001);
+        $userB = $this->makeSsoUser(1002);
+        $org = $userA->organisations()->first();
+        $org->profile_id = 501;
+        $org->profile_sync_version = 4;
+        $org->save();
+        $org->users()->attach($userB->id);
+
+        Http::fake([
+            'https://accounts.test/api/1.0/profiles/501/members' => Http::response('Server error', 500),
+            'https://accounts.test/api/1.0/profiles' => Http::response([
+                'items' => [['id' => 501, 'name' => 'Thijs', 'role' => 10, 'personal' => true, 'version' => 9]],
+            ]),
+            '*' => Http::response('Not found', 404),
+        ]);
+
+        (new ProfileMirror())->sync($userA);
+
+        $this->assertSame(2, $org->users()->count());
+        $this->assertSame(4, (int)$org->fresh()->profile_sync_version);
+    }
 }
