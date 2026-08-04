@@ -385,6 +385,10 @@ export default {
     'Are you sure you want to remove the {gateway} payment gateway?': 'Êtes-vous sûr de vouloir supprimer la passerelle de paiement {gateway} ?',
     'Rename on CatLab Accounts': 'Renommer sur CatLab Accounts',
     'My CatLab Account': 'Mon compte CatLab',
+    'Testing mode': 'Mode test',
+    'Your organisation is using this shared instance in testing mode. You can buy a license and it will work here, but for production events we recommend setting up your own instance.': 'Votre organisation utilise cette instance partagée en mode test. Vous pouvez acheter une licence et elle fonctionnera ici, mais pour des événements en production nous recommandons de mettre en place votre propre instance.',
+    'Are you sure you want to continue to the license purchase?': 'Voulez-vous vraiment continuer vers l\'achat de licence ?',
+    'Continue to purchase': 'Continuer vers l\'achat',
 
     // Client - Order
     'Order': 'Commander',
