@@ -63,6 +63,24 @@ class SyncAccountsProfiles
             return $request->user();
         }
 
+        if ($this->isDeviceApiRequest($request)) {
+            return null;
+        }
+
         return $request->user('api');
+    }
+
+    /**
+     * POS device requests (mounted at /pos-api/v1, see routes/api.php and
+     * app/Http/DeviceApi/V1/routes.php) authenticate via the "device" guard,
+     * never Passport. Probing `$request->user('api')` on a device bearer
+     * token makes Passport's TokenGuard throw + report an
+     * OAuthServerException per request (log spam) and can blank the
+     * Authorization header as a side effect, so device requests must never
+     * reach that call.
+     */
+    private function isDeviceApiRequest(Request $request): bool
+    {
+        return $request->is('pos-api/*');
     }
 }

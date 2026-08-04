@@ -58,6 +58,10 @@ class ProfileSyncTriggerTest extends TestCase
         Route::get('/_test/api-ping', function () {
             return response('pong');
         })->middleware('api');
+
+        Route::get('/pos-api/v1/_test/device-ping', function (\Illuminate\Http\Request $request) {
+            return response((string)$request->header('Authorization'));
+        })->middleware('api');
     }
 
     private function mockSocialiteUser(string $catlabId): void
@@ -162,6 +166,20 @@ class ProfileSyncTriggerTest extends TestCase
 
         $this->get('/_test/web-ping')->assertStatus(200);
 
+        Http::assertNothingSent();
+    }
+
+    public function testDeviceApiRequestWithGarbageBearerTokenDoesNotProbePassport(): void
+    {
+        Http::fake();
+
+        $response = $this->withHeaders(['Authorization' => 'Bearer garbage-device-token'])
+            ->get('/pos-api/v1/_test/device-ping');
+
+        $response->assertStatus(200);
+        // The middleware never touched the Passport guard, so the
+        // Authorization header reaches the route handler untouched.
+        $response->assertSee('Bearer garbage-device-token', false);
         Http::assertNothingSent();
     }
 
