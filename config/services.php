@@ -46,7 +46,8 @@ return [
         'client_secret' => env('CATLAB_CLIENT_SECRET'),
         'redirect'=> env('APP_URL') . '/login/callback',
         'authorizePath'=> '/oauth2/authorize?reset=1&language=nl&',
-        'model' => \App\Models\User::class
+        'model' => \App\Models\User::class,
+        'disable_profile_mirror' => env('DISABLE_PROFILE_MIRROR', false),
     ],
 
     'gtm' => env('GOOGLE_TAG_MANAGER_ID')

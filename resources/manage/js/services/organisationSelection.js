@@ -1,5 +1,4 @@
-<?php
-/**
+/*
  * CatLab Drinks - Simple bar automation system
  * Copyright (C) 2019 Thijs Van der Schaeghe
  * CatLab Interactive bvba, Gent, Belgium
@@ -20,25 +19,31 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-namespace App\Http\Middleware;
+/**
+ * localStorage key holding the id of the organisation the user last
+ * selected in the Manage app.
+ */
+export const ORGANISATION_STORAGE_KEY = 'catlab_drinks_manage_organisation_id';
 
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
+/**
+ * Pick the active organisation at boot: the stored selection when it is
+ * still in the user's list, otherwise the first organisation.
+ *
+ * @param {Array|null} items organisations from GET /api/v1/users/me
+ * @param {string|null} storedId value from localStorage
+ * @returns {Object|null}
+ */
+export function selectOrganisation(items, storedId) {
+	if (!items || items.length === 0) {
+		return null;
+	}
 
-class VerifyCsrfToken extends Middleware
-{
-    /**
-     * Indicates whether the XSRF-TOKEN cookie should be set on the response.
-     *
-     * @var bool
-     */
-    protected $addHttpCookie = true;
+	if (storedId !== null && storedId !== undefined) {
+		const stored = items.find((item) => String(item.id) === String(storedId));
+		if (stored) {
+			return stored;
+		}
+	}
 
-    /**
-     * The URIs that should be excluded from CSRF verification.
-     *
-     * @var array
-     */
-    protected $except = [
-        'delegated/*',
-    ];
+	return items[0];
 }

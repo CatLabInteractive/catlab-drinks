@@ -24,6 +24,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
@@ -39,6 +40,8 @@ class SsoRegistrationGateTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Http::fake(['*' => Http::response('Not found', 404)]);
 
         Route::get('/_test/sso-callback', [
             \App\Http\Controllers\Auth\SsoLoginController::class,

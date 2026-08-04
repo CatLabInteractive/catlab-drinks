@@ -41,6 +41,15 @@
 
 					<b-navbar-nav>
 
+						<b-nav-item-dropdown v-if="organisations.length > 1" :text="currentOrganisationName" right>
+							<b-dropdown-item
+								v-for="organisation in organisations"
+								:key="organisation.id"
+								:active="organisation.id === currentOrganisationId"
+								@click="switchOrganisation(organisation)"
+							>{{ organisation.name }}</b-dropdown-item>
+						</b-nav-item-dropdown>
+
 						<b-nav-item-dropdown :text="$t('Settings')" right>
 							<b-dropdown-item :to="{ name: 'settings' }">{{ $t('Organisation Settings') }}</b-dropdown-item>
 							<b-dropdown-item :to="{ name: 'publicKeys' }">{{ $t('Public Keys') }}</b-dropdown-item>
@@ -71,6 +80,7 @@
 
 	import LogoutLink from '../components/LogoutLink.vue';
 	import LanguageToggle from '../../../shared/js/components/LanguageToggle.vue';
+	import { ORGANISATION_STORAGE_KEY } from '../services/organisationSelection';
 
 	export default {
 
@@ -82,7 +92,25 @@
 		data() {
 			return {
 				kioskMode: false,
-				testMode: !!window.ORGANISATION_TEST_MODE
+				testMode: !!window.ORGANISATION_TEST_MODE,
+				organisations: window.ORGANISATIONS || [],
+				currentOrganisationId: window.ORGANISATION_ID
+			}
+		},
+
+		computed: {
+			currentOrganisationName() {
+				const current = this.organisations.find(
+					(organisation) => organisation.id === this.currentOrganisationId
+				);
+				return current ? current.name : '';
+			}
+		},
+
+		methods: {
+			switchOrganisation(organisation) {
+				window.localStorage.setItem(ORGANISATION_STORAGE_KEY, String(organisation.id));
+				window.location.reload();
 			}
 		},
 
