@@ -100,7 +100,7 @@
 								{{ $t('Edit') }}
 							</b-dropdown-item>
 
-							<b-dropdown-item :href="buyLicenseUrl(row.item)" :title="$t('Buy License')">
+							<b-dropdown-item @click="buyLicense(row.item)" :title="$t('Buy License')">
 								🔑
 								{{ $t('Buy License') }}
 							</b-dropdown-item>
@@ -234,6 +234,23 @@
 		</template>
 	</b-modal>
 
+	<!-- Test-mode license purchase warning -->
+	<b-modal :title="$t('Testing mode')" ref="buyLicenseWarningModal">
+
+		<p>
+			{{ $t('Your organisation is using this shared instance in testing mode. You can buy a license and it will work here, but for production events we recommend setting up your own instance.') }}
+			<a href="https://github.com/CatLabInteractive/catlab-drinks#run-your-own-instance" target="_blank" rel="noopener">{{ $t('How to set up your own instance') }}</a>
+		</p>
+		<p>{{ $t('Are you sure you want to continue to the license purchase?') }}</p>
+
+		<template #modal-footer>
+			<b-btn type="button" variant="light" @click="$refs.buyLicenseWarningModal.hide()">{{ $t('Cancel') }}</b-btn>
+			<b-btn type="button" variant="warning" @click="confirmBuyLicense()">
+				<span class="mr-1">🔑</span> {{ $t('Continue to purchase') }}
+			</b-btn>
+		</template>
+	</b-modal>
+
 	<signed-cards-modal ref="signedCardsModal" />
 
 </template>
@@ -318,7 +335,8 @@
 				editModel: {},
 				licenseDevice: null,
 				licenseKey: null,
-				licenseError: null
+				licenseError: null,
+				buyLicenseDevice: null
 			}
 		},
 
@@ -420,6 +438,20 @@
 			buyLicenseUrl(device) {
 				const returnUrl = window.location.origin + '/manage/devices/apply-license?device_id=' + encodeURIComponent(device.id);
 				return 'https://accounts.catlab.eu/licenses/10/buy?data[device_uid]=' + encodeURIComponent(device.uid) + '&return=' + encodeURIComponent(returnUrl);
+			},
+
+			buyLicense(device) {
+				if (!window.ORGANISATION_TEST_MODE) {
+					window.location.href = this.buyLicenseUrl(device);
+					return;
+				}
+
+				this.buyLicenseDevice = device;
+				this.$refs.buyLicenseWarningModal.show();
+			},
+
+			confirmBuyLicense() {
+				window.location.href = this.buyLicenseUrl(this.buyLicenseDevice);
 			},
 
 			async handleLicenseReturn() {

@@ -28,6 +28,12 @@ Route::get('/manage/devices/apply-license', 'LicenseController@applyLicense')
     ->middleware('auth');
 
 /*
+ * Deeplink to the CatLab accounts "my account" page (SSO users only).
+ */
+Route::get('/account', 'AccountLinkController@redirect')
+    ->middleware('auth');
+
+/*
  * Link to the single page web application
  */
 Route::get('/manage/{any?}', 'ClientController@manage')
