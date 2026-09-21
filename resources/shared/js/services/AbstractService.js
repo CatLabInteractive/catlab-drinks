@@ -77,14 +77,28 @@ export class AbstractService {
 				if (status === 422) {
 					console.log({422:error});
 
+					const data = error.response.data || {};
+					let message = error.message;
 					var issues = [];
-					for (var k in error.response.data.error.issues) {
-						if (error.response.data.error.issues.hasOwnProperty(k)) {
-							issues.push(error.response.data.error.issues[k][0]);
+
+					if (data.error) {
+						// Charon CrudController format: { error: { message, issues: { field: [ ... ] } } }
+						message = data.error.message;
+						for (var k in data.error.issues) {
+							if (data.error.issues.hasOwnProperty(k)) {
+								issues.push(data.error.issues[k][0]);
+							}
 						}
+					} else if (Array.isArray(data.errors)) {
+						// Charon exception handler format: { errors: [ { title, detail } ] }
+						message = data.errors[0].title;
+						issues = data.errors.map(e => e.detail).filter(d => d);
 					}
 
-					alert(error.response.data.error.message + ': \n' + issues.join(', \n'));
+					alert(message + ': \n' + issues.join(', \n'));
+
+					// The user has been informed; don't report this to the error tracker.
+					error.userNotified = true;
 					return Promise.reject(error);
 				}
 
