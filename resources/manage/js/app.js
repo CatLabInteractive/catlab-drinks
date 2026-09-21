@@ -54,6 +54,9 @@ function launch() {
 	if (typeof (AIRBRAKE_CONFIG) !== 'undefined' && AIRBRAKE_CONFIG !== null) {
 		var airbrake = new AirbrakeClient(AIRBRAKE_CONFIG);
 		Vue.config.errorHandler = function (err, vm, info) {
+			if (err && err.userNotified) {
+				return;
+			}
 			airbrake.notify({
 				error: err,
 				params: {info: info}

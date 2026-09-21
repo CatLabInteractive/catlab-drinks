@@ -280,14 +280,22 @@ export default {
 			}
 
 			this.saving = true;
-			if (this.model.id) {
-				await this.service.update(this.model.id, this.model);
-			} else {
-				await this.service.create(this.model);
-				this.resetForm();
+			try {
+				if (this.model.id) {
+					await this.service.update(this.model.id, this.model);
+				} else {
+					await this.service.create(this.model);
+					this.resetForm();
+				}
+			} catch (e) {
+				// Validation errors are shown to the user by the service; keep the form open.
+				if (e && e.userNotified) {
+					return;
+				}
+				throw e;
+			} finally {
+				this.saving = false;
 			}
-
-			this.saving = false;
 
 			this.$refs.editFormModal.hide();
 			this.refreshEvents();
@@ -318,8 +326,16 @@ export default {
 
 			this.toggling = model.id;
 			model.is_selling = !model.is_selling;
-			await this.service.update(model.id, model);
-			this.toggling = null;
+			try {
+				await this.service.update(model.id, model);
+			} catch (e) {
+				model.is_selling = !model.is_selling;
+				if (!(e && e.userNotified)) {
+					throw e;
+				}
+			} finally {
+				this.toggling = null;
+			}
 
 		},
 

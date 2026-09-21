@@ -34,6 +34,9 @@ import i18n from "../../shared/js/i18n/index";
 if (typeof (AIRBRAKE_CONFIG) !== 'undefined' && AIRBRAKE_CONFIG !== null) {
     var airbrake = new AirbrakeClient(AIRBRAKE_CONFIG);
     Vue.config.errorHandler = function (err, vm, info) {
+        if (err && err.userNotified) {
+            return;
+        }
         airbrake.notify({
             error: err,
             params: {info: info}
