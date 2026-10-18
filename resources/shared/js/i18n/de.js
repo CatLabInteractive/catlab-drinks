@@ -357,6 +357,15 @@ export default {
     'Invalid license key: license has expired.': 'Ungültiger Lizenzschlüssel: Lizenz ist abgelaufen.',
     'Failed to save license. Please try again.': 'Lizenz konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.',
 
+    // Manage - Organisation Settings - POS devices
+    'POS Devices': 'Kassengeräte',
+    'Device authentication lifetime (days)': 'Gültigkeitsdauer der Geräteauthentifizierung (Tage)',
+    'Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.': 'Neu gekoppelte Kassengeräte bleiben so viele Tage authentifiziert (1-365). Bereits gekoppelte Geräte behalten ihr aktuelles Ablaufdatum, bis sie erneut gekoppelt werden.',
+    'Please enter a number of days between 1 and 365.': 'Bitte eine Anzahl Tage zwischen 1 und 365 eingeben.',
+    'Could not save the setting.': 'Die Einstellung konnte nicht gespeichert werden.',
+    'Authenticated until {date}': 'Authentifiziert bis {date}',
+    'Authentication expired': 'Authentifizierung abgelaufen',
+
     // Manage - Organisation Settings
     'Organisation Settings': 'Organisationseinstellungen',
     'Payment Gateways': 'Zahlungsgateways',

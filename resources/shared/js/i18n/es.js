@@ -357,6 +357,15 @@ export default {
     'Invalid license key: license has expired.': 'Clave de licencia inválida: licencia expirada.',
     'Failed to save license. Please try again.': 'Error al guardar la licencia. Por favor, inténtelo de nuevo.',
 
+    // Manage - Organisation Settings - POS devices
+    'POS Devices': 'Dispositivos TPV',
+    'Device authentication lifetime (days)': 'Duración de la autenticación de dispositivos (días)',
+    'Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.': 'Los dispositivos TPV recién emparejados permanecen autenticados durante este número de días (1-365). Los dispositivos ya emparejados conservan su caducidad actual hasta que se vuelvan a emparejar.',
+    'Please enter a number of days between 1 and 365.': 'Introduce un número de días entre 1 y 365.',
+    'Could not save the setting.': 'No se pudo guardar el ajuste.',
+    'Authenticated until {date}': 'Autenticado hasta {date}',
+    'Authentication expired': 'Autenticación caducada',
+
     // Manage - Organisation Settings
     'Organisation Settings': 'Configuración de la organización',
     'Payment Gateways': 'Pasarelas de pago',

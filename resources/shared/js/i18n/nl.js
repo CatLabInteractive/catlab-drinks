@@ -357,6 +357,15 @@ export default {
     'Invalid license key: license has expired.': 'Ongeldige licentiesleutel: licentie is verlopen.',
     'Failed to save license. Please try again.': 'Licentie opslaan mislukt. Probeer het opnieuw.',
 
+    // Manage - Organisation Settings - POS devices
+    'POS Devices': 'Kassatoestellen',
+    'Device authentication lifetime (days)': 'Geldigheidsduur van de toestelauthenticatie (dagen)',
+    'Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.': 'Nieuw gekoppelde kassatoestellen blijven zoveel dagen aangemeld (1-365). Toestellen die al gekoppeld zijn behouden hun huidige vervaldatum tot ze opnieuw gekoppeld worden.',
+    'Please enter a number of days between 1 and 365.': 'Geef een aantal dagen op tussen 1 en 365.',
+    'Could not save the setting.': 'De instelling kon niet worden opgeslagen.',
+    'Authenticated until {date}': 'Aangemeld tot {date}',
+    'Authentication expired': 'Authenticatie verlopen',
+
     // Manage - Organisation Settings
     'Organisation Settings': 'Organisatie-instellingen',
     'Payment Gateways': 'Betalingsgateways',

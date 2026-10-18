@@ -358,6 +358,15 @@ export default {
     'Invalid license key: license has expired.': 'Invalid license key: license has expired.',
     'Failed to save license. Please try again.': 'Failed to save license. Please try again.',
 
+    // Manage - Organisation Settings - POS devices
+    'POS Devices': 'POS Devices',
+    'Device authentication lifetime (days)': 'Device authentication lifetime (days)',
+    'Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.': 'Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.',
+    'Please enter a number of days between 1 and 365.': 'Please enter a number of days between 1 and 365.',
+    'Could not save the setting.': 'Could not save the setting.',
+    'Authenticated until {date}': 'Authenticated until {date}',
+    'Authentication expired': 'Authentication expired',
+
     // Manage - Organisation Settings
     'Organisation Settings': 'Organisation Settings',
     'Payment Gateways': 'Payment Gateways',

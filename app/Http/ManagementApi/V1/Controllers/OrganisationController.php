@@ -23,6 +23,7 @@
 namespace App\Http\ManagementApi\V1\Controllers;
 
 use App\Http\ManagementApi\V1\ResourceDefinitions\OrganisationResourceDefinition;
+use App\Models\Organisation;
 use CatLab\Charon\Collections\RouteCollection;
 use Illuminate\Http\Request;
 use App\Http\Shared\V1\Controllers\Base\ResourceController;
@@ -74,6 +75,17 @@ class OrganisationController extends ResourceController
         // the mirror would overwrite any local rename on the next sync.
         if (!$isNew && $entity->profile_id !== null && $entity->isDirty('name')) {
             abort(422, 'This organisation\'s name is managed on CatLab Accounts.');
+        }
+
+        if (
+            $entity->isDirty('device_token_lifetime_days')
+            && !Organisation::isValidDeviceTokenLifetimeDays((int) $entity->device_token_lifetime_days)
+        ) {
+            abort(422, sprintf(
+                'Device token lifetime must be between %d and %d days.',
+                Organisation::MIN_DEVICE_TOKEN_LIFETIME_DAYS,
+                Organisation::MAX_DEVICE_TOKEN_LIFETIME_DAYS
+            ));
         }
 
         return $entity;

@@ -65,6 +65,12 @@ class OrganisationResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->writeable(false, false);
 
+        // How long POS device access tokens stay valid after pairing.
+        $this->field('device_token_lifetime_days')
+            ->int()
+            ->visible(true)
+            ->writeable(true, true);
+
         $this->field('secret')
             ->string()
             ->visible(false, false);

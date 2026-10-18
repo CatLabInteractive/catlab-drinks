@@ -83,6 +83,12 @@ class DeviceResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->writeable(false);
 
+        $this->field('tokenExpiresAt')
+            ->display('token_expires_at')
+            ->datetime()
+            ->visible(true)
+            ->writeable(false);
+
         $this->field('isOnline')
             ->display('is_online')
             ->bool()

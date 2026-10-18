@@ -38,6 +38,37 @@
 
 		<div v-if="loaded">
 
+			<h2>{{ $t('POS Devices') }}</h2>
+
+			<b-form @submit.prevent="saveTokenLifetime" class="mb-4">
+				<b-form-group
+					:label="$t('Device authentication lifetime (days)')"
+					label-for="device-token-lifetime"
+					:description="$t('Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.')"
+				>
+					<b-input-group style="max-width: 16rem">
+						<b-form-input
+							id="device-token-lifetime"
+							type="number"
+							min="1"
+							max="365"
+							step="1"
+							required
+							v-model="tokenLifetimeDays"
+						/>
+						<b-input-group-append>
+							<b-btn type="submit" variant="success" :disabled="savingTokenLifetime">
+								<b-spinner small v-if="savingTokenLifetime" />
+								<span class="mr-1" v-if="!savingTokenLifetime">💾</span>
+								{{ $t('Save') }}
+							</b-btn>
+						</b-input-group-append>
+					</b-input-group>
+					<small v-if="tokenLifetimeSaved" class="text-success d-block mt-1">{{ $t('Saved') }}</small>
+					<small v-if="tokenLifetimeError" class="text-danger d-block mt-1">{{ tokenLifetimeError }}</small>
+				</b-form-group>
+			</b-form>
+
 			<h2>{{ $t('Payment Gateways') }}</h2>
 			<p class="text-muted">{{ $t('Configure payment gateways for online top-ups. Credentials are stored encrypted and are never exposed via the API.') }}</p>
 
@@ -145,6 +176,7 @@
 
 		mounted() {
 			this.service = new PaymentGatewayService(window.ORGANISATION_ID);
+			this.loadOrganisation();
 			this.loadGateways();
 		},
 
@@ -158,6 +190,11 @@
 				profileId: currentOrganisation ? currentOrganisation.profile_id : null,
 				loaded: false,
 				saving: false,
+				organisation: null,
+				tokenLifetimeDays: 7,
+				savingTokenLifetime: false,
+				tokenLifetimeSaved: false,
+				tokenLifetimeError: null,
 				gateways: [],
 				editingGateway: null,
 				gatewayFields: [
@@ -187,6 +224,40 @@
 		},
 
 		methods: {
+
+			async loadOrganisation() {
+				this.organisation = await this.$organisationService.get(window.ORGANISATION_ID);
+				if (this.organisation && this.organisation.device_token_lifetime_days) {
+					this.tokenLifetimeDays = this.organisation.device_token_lifetime_days;
+				}
+			},
+
+			async saveTokenLifetime() {
+				const days = parseInt(this.tokenLifetimeDays, 10);
+				this.tokenLifetimeSaved = false;
+				this.tokenLifetimeError = null;
+
+				if (isNaN(days) || days < 1 || days > 365) {
+					this.tokenLifetimeError = this.$t('Please enter a number of days between 1 and 365.');
+					return;
+				}
+
+				this.savingTokenLifetime = true;
+				try {
+					// The API requires the name on every update; sending it unchanged is a no-op.
+					this.organisation = await this.$organisationService.update(window.ORGANISATION_ID, {
+						name: this.organisation ? this.organisation.name : this.organisationName,
+						device_token_lifetime_days: days
+					});
+					this.tokenLifetimeDays = this.organisation.device_token_lifetime_days || days;
+					this.tokenLifetimeSaved = true;
+				} catch (e) {
+					console.error(e);
+					this.tokenLifetimeError = this.$t('Could not save the setting.');
+				} finally {
+					this.savingTokenLifetime = false;
+				}
+			},
 
 			async loadGateways() {
 				const response = await this.service.index();

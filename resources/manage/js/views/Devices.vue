@@ -51,6 +51,10 @@
 						<span v-else class="text-muted">
 							🔴 {{ $t('Offline') }}
 						</span>
+						<div v-if="row.item.token_expires_at" class="small" :class="isTokenExpired(row.item) ? 'text-danger' : 'text-muted'">
+							<template v-if="isTokenExpired(row.item)">{{ $t('Authentication expired') }}</template>
+							<template v-else>{{ $t('Authenticated until {date}', { date: $filters.formatDate(row.item.token_expires_at) }) }}</template>
+						</div>
 					</template>
 
 					<template v-slot:cell(capabilities)="row">
@@ -242,6 +246,7 @@
 
 	import { DeviceService } from '../services/DeviceService';
 	import QrcodeVue from 'qrcode.vue';
+	import moment from 'moment';
 	import SignedCardsModal from '../../../shared/js/components/SignedCardsModal.vue';
 
 	export default {
@@ -411,6 +416,10 @@
 					await this.refreshDevices();
 				}
 
+			},
+
+			isTokenExpired(item) {
+				return !!item.token_expires_at && !moment(item.token_expires_at).isAfter(moment());
 			},
 
 			selectConnectUrl(evt) {

@@ -165,6 +165,16 @@ class Device extends Model implements
 	}
 
 	/**
+	 * Expiry of the device's current access token (null when it has none).
+	 * @return \Carbon\Carbon|null
+	 */
+	public function getTokenExpiresAtAttribute(): ?Carbon
+	{
+		$expiresAt = $this->accessTokens()->max('expires_at');
+		return $expiresAt ? Carbon::parse($expiresAt) : null;
+	}
+
+	/**
 	 * @return HasMany
 	 */
 	public function connectRequests()
@@ -283,7 +293,10 @@ class Device extends Model implements
 		$this->accessTokens()->delete();
 
 		if (!$lifetimeSeconds) {
-			$lifetimeSeconds = 60 * 60 * 24 * 7; // 7 days
+			// Lifetime is configured per organisation (defaults to 7 days).
+			$lifetimeSeconds = $this->organisation
+				? $this->organisation->getDeviceTokenLifetimeSeconds()
+				: Organisation::DEFAULT_DEVICE_TOKEN_LIFETIME_DAYS * 24 * 60 * 60;
 		}
 
 		$accessToken = new DeviceAccessToken();

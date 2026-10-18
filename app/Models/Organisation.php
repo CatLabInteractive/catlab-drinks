@@ -35,8 +35,24 @@ class Organisation extends Model
 {
     use HasFactory;
 
+    /**
+     * Default, minimum and maximum lifetime (in days) of a POS device access token.
+     */
+    public const DEFAULT_DEVICE_TOKEN_LIFETIME_DAYS = 7;
+    public const MIN_DEVICE_TOKEN_LIFETIME_DAYS = 1;
+    public const MAX_DEVICE_TOKEN_LIFETIME_DAYS = 365;
+
     protected $fillable = [
-        'name'
+        'name',
+        'device_token_lifetime_days',
+    ];
+
+    protected $casts = [
+        'device_token_lifetime_days' => 'integer',
+    ];
+
+    protected $attributes = [
+        'device_token_lifetime_days' => self::DEFAULT_DEVICE_TOKEN_LIFETIME_DAYS,
     ];
 
     /**
@@ -180,5 +196,30 @@ class Organisation extends Model
     public function getTestModeAttribute(): bool
     {
         return !$this->isProductionAllowed();
+    }
+
+    /**
+     * Lifetime of a newly issued POS device access token, in seconds.
+     * Falls back to the default when the setting is missing or out of range.
+     * @return int
+     */
+    public function getDeviceTokenLifetimeSeconds(): int
+    {
+        $days = (int) ($this->device_token_lifetime_days ?? self::DEFAULT_DEVICE_TOKEN_LIFETIME_DAYS);
+        if (!self::isValidDeviceTokenLifetimeDays($days)) {
+            $days = self::DEFAULT_DEVICE_TOKEN_LIFETIME_DAYS;
+        }
+
+        return $days * 24 * 60 * 60;
+    }
+
+    /**
+     * @param int $days
+     * @return bool
+     */
+    public static function isValidDeviceTokenLifetimeDays(int $days): bool
+    {
+        return $days >= self::MIN_DEVICE_TOKEN_LIFETIME_DAYS
+            && $days <= self::MAX_DEVICE_TOKEN_LIFETIME_DAYS;
     }
 }

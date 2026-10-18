@@ -232,6 +232,13 @@ POS devices don't use OAuth — they use device access tokens stored in localSto
 3. New device shows pairing code → admin enters it via `POST /device-connect-requests/{token}/pair`
 4. Device receives access token → stored in localStorage
 
+### Token Lifetime
+Device access tokens are issued once at pairing (`Device::createAccessToken()`) and expire after
+`organisations.device_token_lifetime_days` (default 7, range 1–365). The setting is writeable on the
+Management API organisation resource and edited in Manage → Organisation Settings → POS Devices.
+Changing it only affects tokens issued afterwards; already-paired devices keep their expiry until
+re-paired. `token_expires_at` on the device resource exposes the current expiry.
+
 ### 401 Handling
 The POS Axios interceptor (`resources/pos/js/bootstrap.js`) clears all localStorage keys
 and reloads on 401, returning the device to the pairing screen.
