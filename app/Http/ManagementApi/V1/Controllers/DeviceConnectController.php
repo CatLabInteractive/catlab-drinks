@@ -129,6 +129,11 @@ class DeviceConnectController extends ResourceController
 		$connectRequest->createdBy()->associate(\Auth::user());
 
 		$connectRequest->expires_at = \Carbon\Carbon::now()->addMinutes(2);
+
+		// Start from the organisation default; the admin can override it while connecting.
+		$connectRequest->token_lifetime_days = $organisation->device_token_lifetime_days;
+		$this->applyTokenLifetimeInput($request, $connectRequest);
+
 		$connectRequest->save();
 
 		$context = $this->getContext(Action::VIEW);
@@ -136,6 +141,38 @@ class DeviceConnectController extends ResourceController
 
 		return new ResourceResponse($resource);
 
+	}
+
+	/**
+	 * Apply an optional `token_lifetime_days` parameter (query or body) to a connect request.
+	 * @param Request $request
+	 * @param DeviceConnectRequest $connectRequest
+	 * @return void
+	 * @throws ResourceValidationException
+	 */
+	protected function applyTokenLifetimeInput(Request $request, DeviceConnectRequest $connectRequest): void
+	{
+		if (!$request->has('token_lifetime_days') || $request->input('token_lifetime_days') === null) {
+			return;
+		}
+
+		$days = $request->input('token_lifetime_days');
+		if (
+			!is_numeric($days)
+			|| (int) $days != $days
+			|| !Organisation::isValidDeviceTokenLifetimeDays((int) $days)
+		) {
+			$messages = new MessageCollection();
+			$messages->add(new Message(sprintf(
+				'Token lifetime must be between %d and %d days.',
+				Organisation::MIN_DEVICE_TOKEN_LIFETIME_DAYS,
+				Organisation::MAX_DEVICE_TOKEN_LIFETIME_DAYS
+			)));
+
+			throw ResourceValidationException::make($messages);
+		}
+
+		$connectRequest->token_lifetime_days = (int) $days;
 	}
 
 	/**
@@ -147,6 +184,7 @@ class DeviceConnectController extends ResourceController
 	{
 		$connectRequest = DeviceConnectRequest::where('token', $token)->firstOrFail();
 		$connectRequest->expires_at = \Carbon\Carbon::now()->addMinutes(2);
+		$this->applyTokenLifetimeInput($request, $connectRequest);
 		$connectRequest->save();
 
 		$context = $this->getContext(Action::VIEW);
@@ -200,7 +238,10 @@ class DeviceConnectController extends ResourceController
 			if ($device) {
 				// Create a new access token for the device
 				// This can't be passport as passport doesn't support multiple providers.
-				$claim->access_token = $device->createAccessToken($connectRequest->createdBy)->access_token;
+				$claim->access_token = $device->createAccessToken(
+					$connectRequest->createdBy,
+					$connectRequest->getTokenLifetimeSeconds()
+				)->access_token;
 
 			}
 		} catch (\LogicException $e) {
@@ -258,6 +299,7 @@ class DeviceConnectController extends ResourceController
 		$pairingCode = $pair->pairing_code;
 		$deviceName = $pair->device_name;
 
+		$this->applyTokenLifetimeInput($request, $connectRequest);
 		$connectRequest->verifyPairingCode($pairingCode, $deviceName);
 
 		$context = $this->getContext(Action::VIEW);

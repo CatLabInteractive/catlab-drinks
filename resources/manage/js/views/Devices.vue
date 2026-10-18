@@ -152,6 +152,23 @@
 
 		<div v-if="!creatingRequest && connectRequest">
 
+			<b-form-group
+				:label="$t('Authentication lifetime (days)')"
+				label-for="connect-token-lifetime"
+				:description="$t('How long this device stays authenticated after connecting (1-365 days). Prefilled with the organisation default.')"
+			>
+				<b-form-input
+					id="connect-token-lifetime"
+					type="number"
+					min="1"
+					max="365"
+					step="1"
+					v-model="connectTokenLifetimeDays"
+					:state="connectTokenLifetimeValid ? null : false"
+					style="max-width: 8rem"
+				/>
+			</b-form-group>
+
 			<div v-if="connectRequest.state === 'pending'" class="text-center">
 				<p>{{ $t('Scan this QR code with the POS device to connect:') }}</p>
 				<qrcode-vue :value="connectUrl" :size="256" level="M" />
@@ -317,6 +334,7 @@
 				],
 				creatingRequest: false,
 				connectRequest: null,
+				connectTokenLifetimeDays: null,
 				pinger: null,
 				pairingCode: null,
 				deviceName: null,
@@ -328,6 +346,22 @@
 		},
 
 		computed: {
+			connectTokenLifetimeValid() {
+				const days = parseInt(this.connectTokenLifetimeDays, 10);
+				return !isNaN(days) && days >= 1 && days <= 365;
+			},
+
+			/**
+			 * Query parameters carrying the chosen lifetime to connect request endpoints.
+			 * Empty while the input is invalid, so the last valid value stays in effect.
+			 */
+			connectLifetimeParameters() {
+				if (!this.connectTokenLifetimeValid) {
+					return {};
+				}
+				return { token_lifetime_days: parseInt(this.connectTokenLifetimeDays, 10) };
+			},
+
 			connectUrl() {
 				if (this.connectRequest && this.connectRequest.url) {
 					return 'https://drinks.catlab.eu/connect?data=' + encodeURIComponent(this.connectRequest.url);
@@ -355,11 +389,16 @@
 
 				this.creatingRequest = true;
 				this.connectRequest = await this.service.createConnectRequest();
+				this.connectTokenLifetimeDays = this.connectRequest.token_lifetime_days;
 				this.creatingRequest = false;
 
-				// Start pinger.
+				// Start pinger. Each ping also carries the (valid) lifetime chosen in the modal,
+				// so the connect request always reflects it before the device claims it.
 				this.pinger = setInterval(async () => {
-					this.connectRequest = await this.service.pingConnectRequest(this.connectRequest);
+					this.connectRequest = await this.service.pingConnectRequest(
+						this.connectRequest,
+						this.connectLifetimeParameters
+					);
 
 					// Process any updates that we might have.
 					switch (this.connectRequest.state) {
@@ -377,6 +416,7 @@
 				this.pairingCode = null;
 				this.deviceName = null;
 				this.connectRequest = null;
+				this.connectTokenLifetimeDays = null;
 
 				if (this.pinger) {
 					clearInterval(this.pinger);
@@ -385,7 +425,12 @@
 
 			async submitPairingCode() {
 
-				await this.service.submitPairingCode(this.connectRequest, this.pairingCode, this.deviceName);
+				await this.service.submitPairingCode(
+					this.connectRequest,
+					this.pairingCode,
+					this.deviceName,
+					this.connectLifetimeParameters
+				);
 
 			},
 

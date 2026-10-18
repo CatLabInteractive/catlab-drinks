@@ -41,6 +41,12 @@ class DeviceConnectRequestResourceDefinition extends ResourceDefinition
 		$this->field('url')
 			->visible(true);
 
+		// Lifetime (days) of the access token that will be issued on claim.
+		$this->field('token_lifetime_days')
+			->int()
+			->visible(true)
+			->writeable(false, false);
+
 		$this->field('pairing_code')
 			->string()
 			->writeable()

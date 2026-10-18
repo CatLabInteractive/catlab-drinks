@@ -360,8 +360,10 @@ export default {
 
     // Manage - Organisation Settings - POS devices
     'POS Devices': 'Terminaux de caisse',
-    'Device authentication lifetime (days)': 'Durée de validité de l\'authentification des terminaux (jours)',
-    'Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.': 'Les terminaux nouvellement appairés restent authentifiés pendant ce nombre de jours (1-365). Les terminaux déjà appairés conservent leur date d\'expiration actuelle jusqu\'à un nouvel appairage.',
+    'Default device authentication lifetime (days)': 'Durée de validité par défaut de l\'authentification des terminaux (jours)',
+    'Authentication lifetime (days)': 'Durée de validité de l\'authentification (jours)',
+    'Default for newly connected POS devices (1-365 days). You can override it each time you connect a device. Devices that are already paired keep their current expiry until they are paired again.': 'Valeur par défaut pour les terminaux nouvellement connectés (1-365 jours). Vous pouvez la modifier à chaque connexion d\'un terminal. Les terminaux déjà appairés conservent leur date d\'expiration actuelle jusqu\'à un nouvel appairage.',
+    'How long this device stays authenticated after connecting (1-365 days). Prefilled with the organisation default.': 'Durée pendant laquelle ce terminal reste authentifié après la connexion (1-365 jours). Préremplie avec la valeur par défaut de l\'organisation.',
     'Please enter a number of days between 1 and 365.': 'Veuillez saisir un nombre de jours entre 1 et 365.',
     'Could not save the setting.': 'Impossible d\'enregistrer le paramètre.',
     'Authenticated until {date}': 'Authentifié jusqu\'au {date}',

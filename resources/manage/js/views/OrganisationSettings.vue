@@ -42,9 +42,9 @@
 
 			<b-form @submit.prevent="saveTokenLifetime" class="mb-4">
 				<b-form-group
-					:label="$t('Device authentication lifetime (days)')"
+					:label="$t('Default device authentication lifetime (days)')"
 					label-for="device-token-lifetime"
-					:description="$t('Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.')"
+					:description="$t('Default for newly connected POS devices (1-365 days). You can override it each time you connect a device. Devices that are already paired keep their current expiry until they are paired again.')"
 				>
 					<b-input-group style="max-width: 16rem">
 						<b-form-input

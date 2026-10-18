@@ -360,8 +360,10 @@ export default {
 
     // Manage - Organisation Settings - POS devices
     'POS Devices': 'POS Devices',
-    'Device authentication lifetime (days)': 'Device authentication lifetime (days)',
-    'Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.': 'Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.',
+    'Default device authentication lifetime (days)': 'Default device authentication lifetime (days)',
+    'Authentication lifetime (days)': 'Authentication lifetime (days)',
+    'Default for newly connected POS devices (1-365 days). You can override it each time you connect a device. Devices that are already paired keep their current expiry until they are paired again.': 'Default for newly connected POS devices (1-365 days). You can override it each time you connect a device. Devices that are already paired keep their current expiry until they are paired again.',
+    'How long this device stays authenticated after connecting (1-365 days). Prefilled with the organisation default.': 'How long this device stays authenticated after connecting (1-365 days). Prefilled with the organisation default.',
     'Please enter a number of days between 1 and 365.': 'Please enter a number of days between 1 and 365.',
     'Could not save the setting.': 'Could not save the setting.',
     'Authenticated until {date}': 'Authenticated until {date}',

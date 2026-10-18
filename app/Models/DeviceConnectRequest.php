@@ -17,6 +17,11 @@ class DeviceConnectRequest extends Model
 	public const STATE_ACCEPTED = 'accepted';
 	public const STATE_REQUIRES_PAIRING_CODE = 'requires_pairing_code';
 
+	protected $casts = [
+		'token_lifetime_days' => 'integer',
+		'pairing_code_accepted' => 'boolean',
+	];
+
 	/**
 	 * @return BelongsTo<Organisation>
 	 */
@@ -148,6 +153,21 @@ class DeviceConnectRequest extends Model
 		$this->save();
 
 		return null;
+	}
+
+	/**
+	 * Lifetime (in seconds) of the access token issued when this request is claimed.
+	 * Uses the lifetime chosen for this request, or the organisation default.
+	 * @return int
+	 */
+	public function getTokenLifetimeSeconds(): int
+	{
+		$days = $this->token_lifetime_days;
+		if ($days !== null && Organisation::isValidDeviceTokenLifetimeDays((int) $days)) {
+			return ((int) $days) * 24 * 60 * 60;
+		}
+
+		return $this->organisation->getDeviceTokenLifetimeSeconds();
 	}
 
 	/**

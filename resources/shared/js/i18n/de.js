@@ -359,8 +359,10 @@ export default {
 
     // Manage - Organisation Settings - POS devices
     'POS Devices': 'Kassengeräte',
-    'Device authentication lifetime (days)': 'Gültigkeitsdauer der Geräteauthentifizierung (Tage)',
-    'Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.': 'Neu gekoppelte Kassengeräte bleiben so viele Tage authentifiziert (1-365). Bereits gekoppelte Geräte behalten ihr aktuelles Ablaufdatum, bis sie erneut gekoppelt werden.',
+    'Default device authentication lifetime (days)': 'Standard-Gültigkeitsdauer der Geräteauthentifizierung (Tage)',
+    'Authentication lifetime (days)': 'Gültigkeitsdauer der Authentifizierung (Tage)',
+    'Default for newly connected POS devices (1-365 days). You can override it each time you connect a device. Devices that are already paired keep their current expiry until they are paired again.': 'Standard für neu verbundene Kassengeräte (1-365 Tage). Sie können den Wert bei jeder Verbindung eines Geräts anpassen. Bereits gekoppelte Geräte behalten ihr aktuelles Ablaufdatum, bis sie erneut gekoppelt werden.',
+    'How long this device stays authenticated after connecting (1-365 days). Prefilled with the organisation default.': 'Wie lange dieses Gerät nach dem Verbinden authentifiziert bleibt (1-365 Tage). Vorausgefüllt mit dem Standardwert der Organisation.',
     'Please enter a number of days between 1 and 365.': 'Bitte eine Anzahl Tage zwischen 1 und 365 eingeben.',
     'Could not save the setting.': 'Die Einstellung konnte nicht gespeichert werden.',
     'Authenticated until {date}': 'Authentifiziert bis {date}',

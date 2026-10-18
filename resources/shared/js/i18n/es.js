@@ -359,8 +359,10 @@ export default {
 
     // Manage - Organisation Settings - POS devices
     'POS Devices': 'Dispositivos TPV',
-    'Device authentication lifetime (days)': 'Duración de la autenticación de dispositivos (días)',
-    'Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.': 'Los dispositivos TPV recién emparejados permanecen autenticados durante este número de días (1-365). Los dispositivos ya emparejados conservan su caducidad actual hasta que se vuelvan a emparejar.',
+    'Default device authentication lifetime (days)': 'Duración predeterminada de la autenticación de dispositivos (días)',
+    'Authentication lifetime (days)': 'Duración de la autenticación (días)',
+    'Default for newly connected POS devices (1-365 days). You can override it each time you connect a device. Devices that are already paired keep their current expiry until they are paired again.': 'Valor predeterminado para los dispositivos TPV recién conectados (1-365 días). Puedes cambiarlo cada vez que conectes un dispositivo. Los dispositivos ya emparejados conservan su caducidad actual hasta que se vuelvan a emparejar.',
+    'How long this device stays authenticated after connecting (1-365 days). Prefilled with the organisation default.': 'Cuánto tiempo permanece autenticado este dispositivo tras conectarse (1-365 días). Rellenado con el valor predeterminado de la organización.',
     'Please enter a number of days between 1 and 365.': 'Introduce un número de días entre 1 y 365.',
     'Could not save the setting.': 'No se pudo guardar el ajuste.',
     'Authenticated until {date}': 'Autenticado hasta {date}',

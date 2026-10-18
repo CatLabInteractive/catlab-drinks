@@ -359,8 +359,10 @@ export default {
 
     // Manage - Organisation Settings - POS devices
     'POS Devices': 'Kassatoestellen',
-    'Device authentication lifetime (days)': 'Geldigheidsduur van de toestelauthenticatie (dagen)',
-    'Newly paired POS devices stay authenticated for this many days (1-365). Devices that are already paired keep their current expiry until they are paired again.': 'Nieuw gekoppelde kassatoestellen blijven zoveel dagen aangemeld (1-365). Toestellen die al gekoppeld zijn behouden hun huidige vervaldatum tot ze opnieuw gekoppeld worden.',
+    'Default device authentication lifetime (days)': 'Standaard geldigheidsduur van de toestelauthenticatie (dagen)',
+    'Authentication lifetime (days)': 'Geldigheidsduur authenticatie (dagen)',
+    'Default for newly connected POS devices (1-365 days). You can override it each time you connect a device. Devices that are already paired keep their current expiry until they are paired again.': 'Standaard voor nieuw verbonden kassatoestellen (1-365 dagen). Je kan dit aanpassen telkens je een toestel verbindt. Toestellen die al gekoppeld zijn behouden hun huidige vervaldatum tot ze opnieuw gekoppeld worden.',
+    'How long this device stays authenticated after connecting (1-365 days). Prefilled with the organisation default.': 'Hoe lang dit toestel aangemeld blijft na het verbinden (1-365 dagen). Vooraf ingevuld met de standaardwaarde van de organisatie.',
     'Please enter a number of days between 1 and 365.': 'Geef een aantal dagen op tussen 1 en 365.',
     'Could not save the setting.': 'De instelling kon niet worden opgeslagen.',
     'Authenticated until {date}': 'Aangemeld tot {date}',
