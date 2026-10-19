@@ -36,7 +36,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => env('AIRBRAKE_PROJECT_ID') ? ['daily', 'airbrake'] : ['daily'],
+            'channels' => \App\Support\Telemetry::airbrakeProject()['projectId'] ? ['daily', 'airbrake'] : ['daily'],
         ],
 
         'single' => [

@@ -59,12 +59,14 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \Laravel\Passport\Http\Middleware\CreateFreshApiToken::class,
             \App\Http\Middleware\SyncAccountsProfiles::class,
+            \App\Http\Middleware\ReportUsage::class,
         ],
 
         'api' => [
             //'throttle:60,1',
             'bindings',
             \App\Http\Middleware\SyncAccountsProfiles::class,
+            \App\Http\Middleware\ReportUsage::class,
         ],
     ];
 
