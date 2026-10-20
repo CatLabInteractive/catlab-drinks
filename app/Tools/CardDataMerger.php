@@ -115,8 +115,21 @@ class CardDataMerger
             // now check if the balance is correct
             $transactionBalance = $card->getBalance();
             if (abs($transactionBalance - $cardData->balance) > 0) {
+                $correction = $cardData->balance - $transactionBalance;
+
                 $overflowTransaction = $card->getOverflowTransaction();
-                $overflowTransaction->value -= $transactionBalance - $cardData->balance;
+                $overflowTransaction->value += $correction;
+
+                // A device that may not top up cards cannot legitimately report
+                // a higher balance than we know about; keep it but flag it.
+                if (
+                    $correction > 0 &&
+                    $this->signingDevice &&
+                    !$this->signingDevice->allow_topup
+                ) {
+                    $overflowTransaction->unauthorized = true;
+                }
+
                 $overflowTransaction->save();
             }
 

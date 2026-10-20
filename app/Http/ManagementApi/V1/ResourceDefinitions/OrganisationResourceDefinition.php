@@ -22,6 +22,7 @@
 
 namespace App\Http\ManagementApi\V1\ResourceDefinitions;
 
+use App\Http\Shared\V1\Transformers\OrganisationSecretTransformer;
 use App\Models\Organisation;
 use CatLab\Charon\Models\ResourceDefinition;
 
@@ -67,6 +68,7 @@ class OrganisationResourceDefinition extends ResourceDefinition
 
         $this->field('secret')
             ->string()
+            ->transformer(OrganisationSecretTransformer::class)
             ->visible(false, false);
 
         $this->field('topup_domain')

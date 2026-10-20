@@ -38,9 +38,9 @@ class DevicePolicy extends BasePolicy
 	 * @param User|null $user
 	 * @return bool
 	 */
-	public function index(?Authorizable $user)
+	public function index(?Authorizable $user, Organisation $organisation)
 	{
-		return true;
+		return $this->isMyOrganisation($user, $organisation);
 	}
 
 	/**

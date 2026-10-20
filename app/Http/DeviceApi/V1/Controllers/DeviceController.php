@@ -131,6 +131,7 @@ class DeviceController extends ResourceController {
 	public function strandedOrders(Request $request, $event)
 	{
 		$event = Event::findOrFail($event);
+		$this->authorize('view', $event);
 
 		$assignmentService = new OrderAssignmentService();
 

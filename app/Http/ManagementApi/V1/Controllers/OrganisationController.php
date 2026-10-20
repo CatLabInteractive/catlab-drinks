@@ -60,6 +60,16 @@ class OrganisationController extends ResourceController
     }
 
     /**
+     * Only list the organisations the current user belongs to.
+     * @param Request $request
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    protected function getIndexQuery(Request $request)
+    {
+        return \Auth::user()->organisations();
+    }
+
+    /**
      * Called before saveEntity
      * @param Request $request
      * @param \Illuminate\Database\Eloquent\Model $entity

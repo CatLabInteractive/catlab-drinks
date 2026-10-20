@@ -23,6 +23,7 @@
 namespace App\Policies;
 
 use App\Models\Event;
+use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Access\Authorizable;
 
@@ -36,18 +37,19 @@ class EventPolicy extends BasePolicy
      * @param User|null $user
      * @return bool
      */
-    public function index(?Authorizable $user)
+    public function index(?Authorizable $user, Organisation $organisation)
     {
-        return true;
+        return $this->isDeviceOrUserPartOfOrganisation($user, $organisation);
     }
 
     /**
      * @param $user
+     * @param Organisation $organisation
      * @return bool
      */
-    public function create(?Authorizable $user)
+    public function create(?Authorizable $user, Organisation $organisation)
     {
-        return true;
+        return $this->isMyOrganisation($user, $organisation);
     }
 
     public function view(?Authorizable $user, Event $event)

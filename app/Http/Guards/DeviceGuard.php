@@ -26,12 +26,16 @@ class DeviceGuard implements Guard
 
 	public function check()
 	{
-		$accessToken = $this->request->bearerToken();
-		
-		$token = DeviceAccessToken::where('access_token', $accessToken)
-			->where('expires_at', '>', now())
-			->first();
+		// Resolve the current request instead of the one captured at construction,
+		// so a long-lived container (tests, octane) doesn't reuse a stale token.
+		$request = app()->bound('request') ? app('request') : $this->request;
 
+		$accessToken = $request->bearerToken();
+		if (!$accessToken) {
+			return false;
+		}
+
+		$token = DeviceAccessToken::findValid($accessToken);
 		if (!$token) {
 			return false;
 		}

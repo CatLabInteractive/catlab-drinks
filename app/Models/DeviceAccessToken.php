@@ -13,11 +13,51 @@ class DeviceAccessToken extends Model
 {
 	protected $table = 'device_access_tokens';
 
+	/**
+	 * The unhashed token, only available right after creation.
+	 * @var string|null
+	 */
+	public ?string $plainTextToken = null;
+
 	protected $fillable = [
 		'device_id',
 		'access_token',
 		'expires_at'
 	];
+
+	/**
+	 * Tokens are stored hashed. Tokens issued before hashing was introduced are
+	 * still stored in plain text; they are accepted once and upgraded in place.
+	 *
+	 * @param string $plainToken
+	 * @return DeviceAccessToken|null
+	 */
+	public static function findValid(string $plainToken): ?DeviceAccessToken
+	{
+		$valid = static::where('expires_at', '>', now());
+
+		$token = (clone $valid)->where('access_token', self::hash($plainToken))->first();
+		if ($token) {
+			return $token;
+		}
+
+		$token = (clone $valid)->where('access_token', $plainToken)->first();
+		if ($token) {
+			$token->access_token = self::hash($plainToken);
+			$token->save();
+		}
+
+		return $token;
+	}
+
+	/**
+	 * @param string $plainToken
+	 * @return string
+	 */
+	public static function hash(string $plainToken): string
+	{
+		return hash('sha256', $plainToken);
+	}
 
 	/**
 	 * @return BelongsTo<Device>

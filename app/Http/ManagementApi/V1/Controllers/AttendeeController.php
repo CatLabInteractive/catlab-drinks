@@ -23,6 +23,7 @@
 namespace App\Http\ManagementApi\V1\Controllers;
 
 use App\Http\ManagementApi\V1\ResourceDefinitions\AttendeeResourceDefinition;
+use App\Models\Attendee;
 use App\Models\Event;
 use CatLab\Charon\Collections\RouteCollection;
 use Illuminate\Http\Request;
@@ -61,11 +62,25 @@ class AttendeeController extends \App\Http\Shared\V1\Controllers\AttendeeControl
     {
         /** @var Event $event */
         $event = $this->getParent($request);
-        $event->attendees()->delete();
+        $this->authorize('create', [ Attendee::class, $event ]);
 
-        $attendees = $request->json('attendees');
+        $attendees = (string) $request->json('attendees');
         $lines = explode("\n", $attendees);
 
+        \DB::transaction(function() use ($event, $lines) {
+            $event->attendees()->delete();
+            $this->createAttendees($event, $lines);
+        });
+
+        return \Response::json([ 'success' => true ]);
+    }
+
+    /**
+     * @param Event $event
+     * @param array $lines
+     */
+    private function createAttendees(Event $event, array $lines)
+    {
         foreach ($lines as $line) {
             $parts = explode(':', $line);
             if (count($parts) > 1) {
@@ -92,7 +107,5 @@ class AttendeeController extends \App\Http\Shared\V1\Controllers\AttendeeControl
                 $event->attendees()->create($attributes);
             }
         }
-
-        return \Response::json([ 'success' => true ]);
     }
 }

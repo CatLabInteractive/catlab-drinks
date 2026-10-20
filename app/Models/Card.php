@@ -83,7 +83,7 @@ class Card extends Model
      */
     public static function getFromOrderTokenOrAlias(Organisation $organisation, $token)
     {
-        $card = Card::where('order_token', '=', $token)->first();
+        $card = $organisation->cards()->where('order_token', '=', $token)->first();
         if ($card) {
             return $card;
         }
@@ -208,34 +208,57 @@ class Card extends Model
         $totalPrice = 0;
         foreach ($orders as $order) {
             $order->discount_percentage = $this->discount_percentage;
-            $totalPrice += $order->getDiscountedCurrentCardCost();
+            $cost = $order->getDiscountedCurrentCardCost();
+            if ($cost < 0) {
+                return false;
+            }
+            $totalPrice += $cost;
         }
 
         return $this->getBalance() >= $totalPrice;
     }
 
     /**
+     * Spend the order's total from this card. The balance check and the
+     * debit run inside one locked transaction so concurrent orders can't
+     * both pass the check.
+     *
      * @param Order $order
      * @throws InsufficientFundsException
+     * @throws \Throwable
      */
     public function spend(Order $order)
     {
         $order->discount_percentage = $this->discount_percentage;
         $totalPrice = $order->getDiscountedCurrentCardCost();
 
-        $balance = $this->getBalance();
-        if ($totalPrice > 0 && $balance < $totalPrice) {
+        if ($totalPrice < 0) {
+            throw new \InvalidArgumentException('Order total must not be negative.');
+        }
+
+        // Cheap early exit before taking any locks.
+        if ($totalPrice > 0 && $this->getBalance() < $totalPrice) {
             throw new InsufficientFundsException('Insufficient funds.');
         }
 
-        $transaction = new Transaction();
-        $transaction->card()->associate($this);
-        $transaction->transaction_type = Transaction::TYPE_SALE;
-        $transaction->has_synced = false;
-        $transaction->value = 0 - $totalPrice;
-        $transaction->order_uid = $order->uid;
+        DB::transaction(function() use ($order, $totalPrice) {
+            // Lock the card row; every other spend/topup on this card waits here.
+            Card::where('id', '=', $this->id)->lockForUpdate()->first();
 
-        $transaction->save();
+            $balance = $this->getBalance();
+            if ($totalPrice > 0 && $balance < $totalPrice) {
+                throw new InsufficientFundsException('Insufficient funds.');
+            }
+
+            $transaction = new Transaction();
+            $transaction->card()->associate($this);
+            $transaction->transaction_type = Transaction::TYPE_SALE;
+            $transaction->has_synced = false;
+            $transaction->value = 0 - $totalPrice;
+            $transaction->order_uid = $order->uid;
+
+            $transaction->save();
+        }, 5);
     }
 
     /**

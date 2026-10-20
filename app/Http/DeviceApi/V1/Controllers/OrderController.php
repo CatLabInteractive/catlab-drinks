@@ -73,7 +73,7 @@ class OrderController extends \App\Http\Shared\V1\Controllers\OrderController
             $entity = $this->toEntity($inputResource, $writeContext);
 
             // Look for unique identifier duplicate
-            $existing = Order::where('uid', '=', $entity->uid)->first();
+            $existing = $this->getRelationship($request)->where('uid', '=', $entity->uid)->first();
             if ($existing) {
                 $resources[] = $this->toResource($existing, $readContext);
                 continue;

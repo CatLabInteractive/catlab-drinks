@@ -151,6 +151,11 @@ Policies live in `app/Policies/` and extend `BasePolicy`.
 - **Read-only** POS endpoints should pass `$allowDevices = true`
 - **Write/admin** endpoints should use the default `false`
 
+**Parent checks on `index` / `create`:**
+- Charon's `ChildCrudController` calls `authorize('index', [Entity::class, $parent])` and `authorize('create', [Entity::class, $parent])`, so policy `index()` / `create()` methods receive the parent model (usually `Organisation` or `Event`) as their second argument
+- Always check that parent (`isMyOrganisation()` / `isMyEvent()`); a policy method that ignores it and returns `true` grants access across organisations, because Laravel silently drops the extra argument
+- Top-level `CrudController` index routes (e.g. organisations) have no parent; scope them by overriding `getIndexQuery()` in the controller instead
+
 **Device self-management:**
 - `DevicePolicy::view()` and `DevicePolicy::edit()` allow a device to view/edit itself (`$user->id === $device->id`)
 - This enables POS devices to update their own settings (category filter, order preferences) via `PUT /pos-api/v1/devices/current`
@@ -231,6 +236,12 @@ POS devices don't use OAuth — they use device access tokens stored in localSto
 2. Device scans QR / pastes URL → calls `POST /api/v1/device-connect`
 3. New device shows pairing code → admin enters it via `POST /device-connect-requests/{token}/pair`
 4. Device receives access token → stored in localStorage
+
+### Device Access Tokens
+`device_access_tokens.access_token` stores a SHA-256 hash of the bearer token. `Device::createAccessToken()`
+returns the model with the unhashed value in `$token->plainTextToken` (only available right after creation);
+`DeviceAccessToken::findValid()` looks tokens up by hash and transparently upgrades rows that still hold a
+plain-text token from before hashing was introduced.
 
 ### 401 Handling
 The POS Axios interceptor (`resources/pos/js/bootstrap.js`) clears all localStorage keys

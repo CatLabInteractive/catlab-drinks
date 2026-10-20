@@ -22,6 +22,7 @@ class DailyReportController extends Controller
 
         $transactions = Transaction::select('card_transactions.*')
             ->leftJoin('cards', 'cards.id', '=', 'card_transactions.card_id')
+            ->where('cards.organisation_id', '=', $organisation->id)
             ->whereDate('card_transactions.created_at', '=', $date->format('Y-m-d'))
             ->where('card_transactions.transaction_type', '=', 'topup')
             ->get();
