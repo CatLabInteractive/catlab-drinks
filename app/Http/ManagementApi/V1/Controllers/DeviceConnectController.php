@@ -148,8 +148,12 @@ class DeviceConnectController extends ResourceController
 		$connectRequest = DeviceConnectRequest::where('token', $token)->firstOrFail();
 		$this->authorize('connectDevice', Device::class, $connectRequest->organisation);
 
-		$connectRequest->expires_at = \Carbon\Carbon::now()->addMinutes(2);
-		$connectRequest->save();
+		// Keep the request alive while the admin is watching it, unless it was
+		// locked because of too many wrong pairing codes.
+		if (!$connectRequest->isLocked()) {
+			$connectRequest->expires_at = \Carbon\Carbon::now()->addMinutes(2);
+			$connectRequest->save();
+		}
 
 		$context = $this->getContext(Action::VIEW);
 		$resource = $this->toResource($connectRequest, $context);

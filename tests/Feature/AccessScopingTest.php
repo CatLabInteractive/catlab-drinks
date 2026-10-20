@@ -154,6 +154,10 @@ class AccessScopingTest extends TestCase
 		Passport::actingAs($this->user);
 
 		$this->putJson('/api/v1/events/' . $event->id . '/attendees/import', [
+			'attendees' => [ 'alpha: Alice' ],
+		])->assertStatus(422);
+
+		$this->putJson('/api/v1/events/' . $event->id . '/attendees/import', [
 			'attendees' => "alpha: Alice\tAlice@example.com\nbeta: Bob",
 		])->assertStatus(200);
 
@@ -246,6 +250,17 @@ class AccessScopingTest extends TestCase
 		])->assertStatus(422);
 
 		$this->assertFalse((bool) $connectRequest->fresh()->pairing_code_accepted);
+
+		// The admin UI keeps pinging the request; that must not revive it.
+		$this->postJson('/api/v1/device-connect-requests/' . $connectRequest->token . '/ping')
+			->assertStatus(200);
+
+		$this->postJson('/api/v1/device-connect-requests/' . $connectRequest->token . '/pair', [
+			'pairing_code' => '123456',
+			'device_name' => 'Tablet',
+		])->assertStatus(422);
+
+		$this->assertFalse((bool) $connectRequest->fresh()->pairing_code_accepted);
 	}
 
 	public function testPairingDeniedForUsersOutsideTheOrganisation(): void
@@ -297,6 +312,11 @@ class AccessScopingTest extends TestCase
 		$this->withHeader('Authorization', 'Bearer legacy-plain-token')
 			->getJson('/pos-api/v1/devices/current')
 			->assertStatus(200);
+
+		// The stored hash itself is never a valid token.
+		$this->withHeader('Authorization', 'Bearer ' . $token->access_token)
+			->getJson('/pos-api/v1/devices/current')
+			->assertStatus(401);
 
 		$this->assertEquals(DeviceAccessToken::hash('legacy-plain-token'), $legacy->fresh()->access_token);
 	}

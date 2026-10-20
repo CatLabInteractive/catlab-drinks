@@ -3,14 +3,14 @@
 namespace App\Http\Shared\V1\Transformers;
 
 use CatLab\Charon\Interfaces\Context;
-use CatLab\Charon\Transformers\DateTransformer;
+use CatLab\Charon\Interfaces\Transformer;
 use LogicException;
 
 /**
  * Only exposes the organisation secret when the controller explicitly
  * marks the context as allowed to see it (see DeviceApi OrganisationController).
  */
-class OrganisationSecretTransformer extends DateTransformer
+class OrganisationSecretTransformer implements Transformer
 {
     const CONTEXT_PARAMETER = 'can_view_organisation_secret';
 

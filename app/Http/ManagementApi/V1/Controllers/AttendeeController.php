@@ -26,6 +26,9 @@ use App\Http\ManagementApi\V1\ResourceDefinitions\AttendeeResourceDefinition;
 use App\Models\Attendee;
 use App\Models\Event;
 use CatLab\Charon\Collections\RouteCollection;
+use CatLab\Requirements\Exceptions\ResourceValidationException;
+use CatLab\Requirements\Collections\MessageCollection;
+use CatLab\Requirements\Models\Message;
 use Illuminate\Http\Request;
 
 /**
@@ -64,7 +67,14 @@ class AttendeeController extends \App\Http\Shared\V1\Controllers\AttendeeControl
         $event = $this->getParent($request);
         $this->authorize('create', [ Attendee::class, $event ]);
 
-        $attendees = (string) $request->json('attendees');
+        $attendees = $request->json('attendees', '');
+        if (!is_string($attendees)) {
+            $messages = new MessageCollection();
+            $messages->add(new Message('Attendees must be provided as a single text block.'));
+
+            throw ResourceValidationException::make($messages);
+        }
+
         $lines = explode("\n", $attendees);
 
         \DB::transaction(function() use ($event, $lines) {

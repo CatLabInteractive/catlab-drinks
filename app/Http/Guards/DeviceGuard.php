@@ -29,6 +29,7 @@ class DeviceGuard implements Guard
 		// Resolve the current request instead of the one captured at construction,
 		// so a long-lived container (tests, octane) doesn't reuse a stale token.
 		$request = app()->bound('request') ? app('request') : $this->request;
+		$this->user = null;
 
 		$accessToken = $request->bearerToken();
 		if (!$accessToken) {

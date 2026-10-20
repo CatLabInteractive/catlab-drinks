@@ -53,6 +53,15 @@ class DeviceConnectRequest extends Model
 	}
 
 	/**
+	 * Too many wrong pairing codes were entered; the request can't be used anymore.
+	 * @return bool
+	 */
+	public function isLocked(): bool
+	{
+		return ($this->pairing_attempts ?? 0) >= self::MAX_PAIRING_ATTEMPTS;
+	}
+
+	/**
 	 *
 	 * @param string $code
 	 * @param string $deviceName
@@ -62,6 +71,10 @@ class DeviceConnectRequest extends Model
 	{
 		if (!$this->pairing_code) {
 			throw new LogicException('Connect request is not waiting for a pairing code.');
+		}
+
+		if ($this->isLocked()) {
+			throw new LogicException('Too many invalid pairing attempts, please create a new connect request.');
 		}
 
 		if (!hash_equals((string) $this->pairing_code, $code)) {

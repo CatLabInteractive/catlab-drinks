@@ -41,6 +41,13 @@ class DeviceAccessToken extends Model
 			return $token;
 		}
 
+		// Legacy tokens were random alphanumeric strings; anything shaped like a
+		// stored hash is never looked up in plain text, so a leaked hash can't be
+		// used as a token.
+		if (self::looksLikeHash($plainToken)) {
+			return null;
+		}
+
 		$token = (clone $valid)->where('access_token', $plainToken)->first();
 		if ($token) {
 			$token->access_token = self::hash($plainToken);
@@ -48,6 +55,15 @@ class DeviceAccessToken extends Model
 		}
 
 		return $token;
+	}
+
+	/**
+	 * @param string $value
+	 * @return bool
+	 */
+	public static function looksLikeHash(string $value): bool
+	{
+		return preg_match('/^[0-9a-f]{64}$/', $value) === 1;
 	}
 
 	/**

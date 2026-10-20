@@ -63,7 +63,19 @@ $routes->group(
 			],
 			function(RouteCollection $routes) {
 				\App\Http\ManagementApi\V1\Controllers\PublicCardNameController::setRoutes($routes);
+			}
+		);
 
+		// Device pairing: both the admin UI and the new device poll these once a
+		// second, so the limit must stay well above 60/min. Guessing the pairing
+		// code is bounded by DeviceConnectRequest::MAX_PAIRING_ATTEMPTS instead.
+		$routes->group(
+			[
+				'middleware' => [
+					'throttle:public'
+				]
+			],
+			function(RouteCollection $routes) {
 				// Device connect controller handles its own authentication
 				\App\Http\ManagementApi\V1\Controllers\DeviceConnectController::setRoutes($routes);
 			}
