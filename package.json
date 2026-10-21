@@ -36,7 +36,7 @@
         "laravel-mix": "^6.0.49",
         "localforage": "^1.10.0",
         "lodash": "^4.18.1",
-        "moment": "^2.30.1",
+        "moment": "^2.31.0",
         "ndef": "^0.2.0",
         "node-fetch": "^3.3.2",
         "qrcode.vue": "^3.8.0",
