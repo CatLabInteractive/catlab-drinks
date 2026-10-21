@@ -52,7 +52,7 @@ php artisan route:list                  # Verify routes are registered correctly
 php artisan route:list --path=<prefix>  # Filter routes by path prefix
 ```
 
-The lock file requires PHP ~8.1 or ~8.2; use `--ignore-platform-reqs` on newer PHP versions.
+The lock file is resolved for PHP 8.5 (`config.platform.php`); production runs `thecodingmachine/php:8.5-v5-slim-apache`.
 
 ### PHP Tests
 ```bash
@@ -61,7 +61,7 @@ vendor/bin/phpunit --filter FooTest     # Single test class
 ```
 Feature tests use the `RefreshDatabase` trait against the `catlab_drinks_test` MySQL
 database (127.0.0.1:3306, user `test`/`test`). GitHub Actions (`.github/workflows/tests.yml`)
-runs the full PHP suite (PHP 8.1/8.2/8.3 matrix + MySQL 8 service) and `npm test` on every
+runs the full PHP suite (PHP 8.5 + MySQL 8 service) and `npm test` on every
 push/PR to main/master/develop.
 
 ### JavaScript Tests
@@ -189,7 +189,7 @@ The app supports two deployment targets that coexist in the same repo:
 | Target | Build method | Web process |
 |--------|-------------|-------------|
 | **Heroku** | Buildpacks (`heroku/nodejs` + `heroku/php`) | `heroku-php-apache2 public/` |
-| **Dokku** | `Dockerfile` (`thecodingmachine/php:8.1-v5-slim-apache`) | `apache2-foreground` (via image entrypoint) |
+| **Dokku** | `Dockerfile` (`thecodingmachine/php:8.5-v5-slim-apache`) | `apache2-foreground` (via image entrypoint) |
 
 ### How it works
 - **`Procfile`** contains the `web:` command with a bash fallback:
@@ -212,7 +212,7 @@ heroku buildpacks:add --index 1 heroku/nodejs
 |------|---------|
 | `Procfile` | Web process + release task for both Heroku and Dokku |
 | `app.json` | Heroku "Deploy to Heroku" button config (stack, buildpacks, env vars, addons) |
-| `Dockerfile` | Dokku build (uses `thecodingmachine/php:8.1-v5-slim-apache`) |
+| `Dockerfile` | Dokku build (uses `thecodingmachine/php:8.5-v5-slim-apache`) |
 | `heroku.yml` | **Deleted** — not used; would conflict with buildpack stack |
 
 ---

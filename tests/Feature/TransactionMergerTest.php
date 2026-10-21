@@ -39,7 +39,7 @@ class TransactionMergerTest extends TestCase
 		$this->organisation->users()->attach($this->user->id);
 	}
 
-	private function createCard(string $uid = null): Card
+	private function createCard(?string $uid = null): Card
 	{
 		$card = new Card();
 		$card->uid = $uid ?? 'card-' . Str::random(8);

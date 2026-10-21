@@ -50,7 +50,7 @@ class CardDataMerger
      * @param Card $card
      * @param Device|null $signingDevice
      */
-    public function __construct(Card $card, Device $signingDevice = null)
+    public function __construct(Card $card, ?Device $signingDevice = null)
     {
         $this->card = $card;
         $this->signingDevice = $signingDevice;

@@ -58,12 +58,6 @@ class Transaction extends Model
 
     protected $table = 'card_transactions';
 
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'client_date'
-    ];
-
     const TYPE_SALE = 'sale';
     const TYPE_TOPUP = 'topup';
     const TYPE_REFUND = 'refund';
@@ -83,6 +77,7 @@ class Transaction extends Model
 
     protected $casts = [
         'unauthorized' => 'boolean',
+        'client_date' => 'datetime',
     ];
 
     /**

@@ -91,7 +91,7 @@ return [
 
         'airbrake' => [
             'driver' => 'custom',
-            'via' => Kouz\LaravelAirbrake\AirbrakeLogger::class,
+            'via' => App\Logging\AirbrakeLogger::class,
             'level' => 'error',
         ]
     ],
