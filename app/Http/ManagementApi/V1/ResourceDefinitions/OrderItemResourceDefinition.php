@@ -39,6 +39,8 @@ class OrderItemResourceDefinition extends ResourceDefinition
 
         $this->field('amount')
             ->int()
+            ->min(1)
+            ->max(1000)
             ->required()
             ->writeable(true, true)
             ->visible(true, true);

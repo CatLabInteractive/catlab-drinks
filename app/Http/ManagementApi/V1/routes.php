@@ -54,11 +54,38 @@ $routes->group(
 		$routes->returns()->statusCode(403)->describe('Authentication error');
 		$routes->returns()->statusCode(404)->describe('Entity not found');
 
-		\App\Http\ManagementApi\V1\Controllers\PublicCardNameController::setRoutes($routes);
-
+		// Unauthenticated endpoints that take guessable input get a tight limit.
 		$routes->group(
 			[
 				'middleware' => [
+					'throttle:sensitive'
+				]
+			],
+			function(RouteCollection $routes) {
+				\App\Http\ManagementApi\V1\Controllers\PublicCardNameController::setRoutes($routes);
+			}
+		);
+
+		// Device pairing: both the admin UI and the new device poll these once a
+		// second, so the limit must stay well above 60/min. Guessing the pairing
+		// code is bounded by DeviceConnectRequest::MAX_PAIRING_ATTEMPTS instead.
+		$routes->group(
+			[
+				'middleware' => [
+					'throttle:public'
+				]
+			],
+			function(RouteCollection $routes) {
+				// Device connect controller handles its own authentication
+				\App\Http\ManagementApi\V1\Controllers\DeviceConnectController::setRoutes($routes);
+			}
+		);
+
+		// Customer ordering: many customers share one venue IP, so keep this generous.
+		$routes->group(
+			[
+				'middleware' => [
+					'throttle:public',
 					\App\Http\Middleware\PublicEventApiAuthentication::class
 				]
 			],
@@ -66,9 +93,6 @@ $routes->group(
 				\App\Http\ManagementApi\V1\Controllers\PublicController::setRoutes($routes);
 			}
 		);
-
-		// Device connect controller handles its own authentication
-		\App\Http\ManagementApi\V1\Controllers\DeviceConnectController::setRoutes($routes);
 
 		// Controllers: oauth middleware is required
 		$routes->group(

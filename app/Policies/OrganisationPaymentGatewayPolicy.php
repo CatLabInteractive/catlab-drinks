@@ -22,6 +22,7 @@
 
 namespace App\Policies;
 
+use App\Models\Organisation;
 use App\Models\OrganisationPaymentGateway;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Access\Authorizable;
@@ -36,18 +37,19 @@ class OrganisationPaymentGatewayPolicy extends BasePolicy
 	 * @param User|null $user
 	 * @return bool
 	 */
-	public function index(?Authorizable $user)
+	public function index(?Authorizable $user, Organisation $organisation)
 	{
-		return true;
+		return $this->isMyOrganisation($user, $organisation);
 	}
 
 	/**
 	 * @param $user
+	 * @param Organisation $organisation
 	 * @return bool
 	 */
-	public function create(?Authorizable $user)
+	public function create(?Authorizable $user, Organisation $organisation)
 	{
-		return true;
+		return $this->isMyOrganisation($user, $organisation);
 	}
 
 	/**

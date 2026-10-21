@@ -90,8 +90,12 @@ class Topup extends Model
             return;
         }
 
-        $this->status = self::STATUS_SUCCESS;
-        $this->save();
+        // The gateway notification and the customer's return page can arrive at
+        // the same time; only the request that flips the status credits the card.
+        $changed = $this->transitionStatus($this->status, self::STATUS_SUCCESS);
+        if (!$changed) {
+            return;
+        }
 
         $this->card->topup($this);
     }
@@ -106,13 +110,35 @@ class Topup extends Model
             return;
         }
 
-        $this->status = self::STATUS_CANCELLED;
-        $this->save();
+        $previousStatus = $this->status;
+        $changed = $this->transitionStatus($previousStatus, self::STATUS_CANCELLED);
+        if (!$changed) {
+            return;
+        }
 
         // is this a topup that is already processed
-        if ($this->isSuccess()) {
+        if ($previousStatus === self::STATUS_SUCCESS) {
             $this->card->cancelTopup($this);
         }
+    }
+
+    /**
+     * Atomically move from one status to another. Returns false when another
+     * request already changed the status in the meantime.
+     * @param string $from
+     * @param string $to
+     * @return bool
+     */
+    protected function transitionStatus(string $from, string $to): bool
+    {
+        $updated = static::query()
+            ->where('id', $this->id)
+            ->where('status', $from)
+            ->update([ 'status' => $to, 'updated_at' => now() ]);
+
+        $this->refresh();
+
+        return $updated === 1;
     }
 
     /**

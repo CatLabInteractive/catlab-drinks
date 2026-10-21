@@ -17,6 +17,8 @@ class DeviceConnectRequest extends Model
 	public const STATE_ACCEPTED = 'accepted';
 	public const STATE_REQUIRES_PAIRING_CODE = 'requires_pairing_code';
 
+	public const MAX_PAIRING_ATTEMPTS = 5;
+
 	/**
 	 * @return BelongsTo<Organisation>
 	 */
@@ -51,6 +53,15 @@ class DeviceConnectRequest extends Model
 	}
 
 	/**
+	 * Too many wrong pairing codes were entered; the request can't be used anymore.
+	 * @return bool
+	 */
+	public function isLocked(): bool
+	{
+		return ($this->pairing_attempts ?? 0) >= self::MAX_PAIRING_ATTEMPTS;
+	}
+
+	/**
 	 *
 	 * @param string $code
 	 * @param string $deviceName
@@ -58,7 +69,24 @@ class DeviceConnectRequest extends Model
 	 */
 	public function verifyPairingCode(string $code, string $deviceName)
 	{
-		if ($this->pairing_code !== $code) {
+		if (!$this->pairing_code) {
+			throw new LogicException('Connect request is not waiting for a pairing code.');
+		}
+
+		if ($this->isLocked()) {
+			throw new LogicException('Too many invalid pairing attempts, please create a new connect request.');
+		}
+
+		if (!hash_equals((string) $this->pairing_code, $code)) {
+			$this->pairing_attempts = ($this->pairing_attempts ?? 0) + 1;
+
+			// A six digit code must not be guessable; after a few wrong
+			// attempts the request is invalidated and a new one is needed.
+			if ($this->pairing_attempts >= self::MAX_PAIRING_ATTEMPTS) {
+				$this->expires_at = \Carbon\Carbon::now()->subMinute();
+			}
+
+			$this->save();
 			throw new LogicException('Invalid pairing code.');
 		}
 
@@ -185,6 +213,6 @@ class DeviceConnectRequest extends Model
 	 */
 	protected function generatePairingCode(): void
 	{
-		$this->pairing_code = mt_rand(100000, 999999);
+		$this->pairing_code = (string) random_int(100000, 999999);
 	}
 }

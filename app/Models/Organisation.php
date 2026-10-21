@@ -126,6 +126,7 @@ class Organisation extends Model
         return $this->paymentGateways()
             ->where('gateway', $gateway)
             ->where('is_active', true)
+            ->orderBy('id')
             ->first();
     }
 

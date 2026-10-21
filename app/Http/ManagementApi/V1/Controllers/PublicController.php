@@ -34,6 +34,9 @@ use CatLab\Charon\Enums\Action;
 use CatLab\Charon\Exceptions\InvalidContextAction;
 use CatLab\Charon\Exceptions\InvalidEntityException;
 use CatLab\Charon\Laravel\Models\ResourceResponse;
+use CatLab\Requirements\Collections\MessageCollection;
+use CatLab\Requirements\Exceptions\ResourceValidationException;
+use CatLab\Requirements\Models\Message;
 use Illuminate\Http\JsonResponse;
 use Ramsey\Uuid\Uuid;
 use App\Http\Shared\V1\Controllers\Base\ResourceController;
@@ -169,6 +172,12 @@ class PublicController extends ResourceController
 
         // Lock the price of the order items down.
         foreach ($entity->order as $orderItem) {
+            if ($orderItem->amount < 1 || $orderItem->amount > 1000) {
+                $messages = new MessageCollection();
+                $messages->add(new Message('Property \'amount\' must be between 1 and 1000.'));
+                return $this->getValidationErrorResponse(ResourceValidationException::make($messages));
+            }
+
             $orderItem->price = $orderItem->menuItem->price;
         }
 

@@ -146,8 +146,14 @@ class DeviceConnectController extends ResourceController
 	public function ping(Request $request, string $token)
 	{
 		$connectRequest = DeviceConnectRequest::where('token', $token)->firstOrFail();
-		$connectRequest->expires_at = \Carbon\Carbon::now()->addMinutes(2);
-		$connectRequest->save();
+		$this->authorize('connectDevice', Device::class, $connectRequest->organisation);
+
+		// Keep the request alive while the admin is watching it, unless it was
+		// locked because of too many wrong pairing codes.
+		if (!$connectRequest->isLocked()) {
+			$connectRequest->expires_at = \Carbon\Carbon::now()->addMinutes(2);
+			$connectRequest->save();
+		}
 
 		$context = $this->getContext(Action::VIEW);
 		$resource = $this->toResource($connectRequest, $context);
@@ -200,7 +206,7 @@ class DeviceConnectController extends ResourceController
 			if ($device) {
 				// Create a new access token for the device
 				// This can't be passport as passport doesn't support multiple providers.
-				$claim->access_token = $device->createAccessToken($connectRequest->createdBy)->access_token;
+				$claim->access_token = $device->createAccessToken($connectRequest->createdBy)->plainTextToken;
 
 			}
 		} catch (\LogicException $e) {
@@ -245,6 +251,7 @@ class DeviceConnectController extends ResourceController
 		// Find the connect request
 		/** @var DeviceConnectRequest $connectRequest */
 		$connectRequest = DeviceConnectRequest::where('token', $token)->firstOrFail();
+		$this->authorize('connectDevice', Device::class, $connectRequest->organisation);
 
 		// Check if the connect request is still valid
 		if ($connectRequest->expires_at < \Carbon\Carbon::now()) {
@@ -258,7 +265,14 @@ class DeviceConnectController extends ResourceController
 		$pairingCode = $pair->pairing_code;
 		$deviceName = $pair->device_name;
 
-		$connectRequest->verifyPairingCode($pairingCode, $deviceName);
+		try {
+			$connectRequest->verifyPairingCode($pairingCode, $deviceName);
+		} catch (\LogicException $e) {
+			$messages = new MessageCollection();
+			$messages->add(new Message($e->getMessage()));
+
+			throw ResourceValidationException::make($messages);
+		}
 
 		$context = $this->getContext(Action::VIEW);
 		$resource = $this->toResource($connectRequest, $context);

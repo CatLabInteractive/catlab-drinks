@@ -23,29 +23,54 @@ class OrganisationPaymentGatewayPolicyTest extends TestCase
     }
 
     /**
-     * Test that index is always allowed.
+     * Test that index is only allowed for members of the organisation.
      */
-    public function testIndexAlwaysAllowed(): void
+    public function testIndexRequiresOrganisationMembership(): void
     {
+        $organisation = new Organisation();
+        $organisation->id = 1;
+
+        $otherOrganisation = new Organisation();
+        $otherOrganisation->id = 2;
+
         $user = $this->createMock(User::class);
-        $this->assertTrue($this->policy->index($user));
+        $user->method('__get')
+            ->with('organisations')
+            ->willReturn(new Collection([$organisation]));
+
+        $this->assertTrue($this->policy->index($user, $organisation));
+        $this->assertFalse($this->policy->index($user, $otherOrganisation));
     }
 
     /**
-     * Test that index is allowed for null user.
+     * Test that index is denied for null user.
      */
-    public function testIndexAllowedForNullUser(): void
+    public function testIndexDeniedForNullUser(): void
     {
-        $this->assertTrue($this->policy->index(null));
+        $organisation = new Organisation();
+        $organisation->id = 1;
+
+        $this->assertFalse($this->policy->index(null, $organisation));
     }
 
     /**
-     * Test that create is always allowed.
+     * Test that create is only allowed for members of the organisation.
      */
-    public function testCreateAlwaysAllowed(): void
+    public function testCreateRequiresOrganisationMembership(): void
     {
+        $organisation = new Organisation();
+        $organisation->id = 1;
+
+        $otherOrganisation = new Organisation();
+        $otherOrganisation->id = 2;
+
         $user = $this->createMock(User::class);
-        $this->assertTrue($this->policy->create($user));
+        $user->method('__get')
+            ->with('organisations')
+            ->willReturn(new Collection([$organisation]));
+
+        $this->assertTrue($this->policy->create($user, $organisation));
+        $this->assertFalse($this->policy->create($user, $otherOrganisation));
     }
 
     /**
