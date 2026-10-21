@@ -38,7 +38,7 @@ class DatabaseErrorPageTest extends TestCase
         $pdo = new \PDOException('SQLSTATE[HY000] [2002] Connection refused');
         $pdo->errorInfo = ['HY000', 2002, 'Connection refused'];
 
-        return new QueryException('select 1', [], $pdo);
+        return new QueryException('mysql', 'select 1', [], $pdo);
     }
 
     private function missingTableException(): QueryException
@@ -46,7 +46,7 @@ class DatabaseErrorPageTest extends TestCase
         $pdo = new \PDOException("SQLSTATE[42S02]: Base table or view not found: 1146 Table 'db.users' doesn't exist");
         $pdo->errorInfo = ['42S02', 1146, "Table 'db.users' doesn't exist"];
 
-        return new QueryException('select * from `users`', [], $pdo);
+        return new QueryException('mysql', 'select * from `users`', [], $pdo);
     }
 
     public function testClassifiesConnectionErrors(): void
@@ -80,7 +80,7 @@ class DatabaseErrorPageTest extends TestCase
     {
         $this->assertFalse(DatabaseErrorClassifier::isDatabaseSetupError(new \RuntimeException('nope')));
         $this->assertFalse(DatabaseErrorClassifier::isDatabaseSetupError(
-            new QueryException('select 1', [], new \PDOException('Syntax error', 42000))
+            new QueryException('mysql', 'select 1', [], new \PDOException('Syntax error', 42000))
         ));
     }
 
@@ -91,7 +91,7 @@ class DatabaseErrorPageTest extends TestCase
         Route::get('/_test/db-error', function () {
             $pdo = new \PDOException('SQLSTATE[HY000] [2002] Connection refused');
             $pdo->errorInfo = ['HY000', 2002, 'Connection refused'];
-            throw new QueryException('select 1', [], $pdo);
+            throw new QueryException('mysql', 'select 1', [], $pdo);
         });
 
         $response = $this->get('/_test/db-error');
@@ -108,7 +108,7 @@ class DatabaseErrorPageTest extends TestCase
         Route::get('/_test/db-error-debug', function () {
             $pdo = new \PDOException('SQLSTATE[HY000] [2002] Connection refused');
             $pdo->errorInfo = ['HY000', 2002, 'Connection refused'];
-            throw new QueryException('select 1', [], $pdo);
+            throw new QueryException('mysql', 'select 1', [], $pdo);
         });
 
         $response = $this->get('/_test/db-error-debug');

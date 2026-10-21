@@ -10,34 +10,35 @@
         }
     ],
     "require": {
-        "php": "^8.1",
+        "php": "^8.5",
         "ext-json": "*",
+        "airbrake/phpbrake": "^1.0",
         "appstract/laravel-opcache": "^4.0",
-        "catlabinteractive/charon-laravel": "~1.8.0",
+        "catlabinteractive/charon-laravel": "^1.12",
         "catlabinteractive/cursor-pagination": "^1.0.8",
-        "catlabinteractive/laravel-catlab-accounts": "^4.0",
+        "catlabinteractive/laravel-catlab-accounts": "^4.3",
         "catlabinteractive/requirements": "^1.0.3",
-        "doctrine/dbal": "^3.6",
         "endroid/qr-code": "^4.5.2",
-        "fideloper/proxy": "^4.0",
         "guzzlehttp/guzzle": "^7.7",
-        "kouz/laravel-airbrake": "^0.8.0",
-        "laravel/framework": "^9.0.0",
-        "laravel/passport": "^11.8.0",
+        "laravel/framework": "^12.0",
+        "laravel/passport": "^12.4",
         "laravel/ui": "^4.2",
         "paynl/omnipay-paynl": "~3.0.3",
         "php-http/guzzle7-adapter": "^1.0"
     },
     "require-dev": {
+        "fakerphp/faker": "^1.24",
         "filp/whoops": "^2.0",
-        "fzaninotto/faker": "^1.4",
-        "mockery/mockery": "^1.0",
-        "phpunit/phpunit": "^9.0"
+        "mockery/mockery": "^1.6",
+        "phpunit/phpunit": "^11.5"
     },
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
+        "platform": {
+            "php": "8.5.0"
+        },
         "allow-plugins": {
             "kylekatarnls/update-helper": false,
             "endroid/installer": false,

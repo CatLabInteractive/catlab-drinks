@@ -58,7 +58,7 @@ services:
 
   # Containerized PHPUnit runner: no PHP extensions needed on the host.
   phpunit:
-    image: thecodingmachine/php:8.1-v5-cli
+    image: thecodingmachine/php:8.5-v5-cli
     profiles: ["test"]
     working_dir: /var/www/html
     volumes:

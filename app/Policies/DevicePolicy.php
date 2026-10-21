@@ -125,7 +125,7 @@ class DevicePolicy extends BasePolicy
 	 * @param Organisation $organisation
 	 * @return bool
 	 */
-	public function viewPublicKeys(?Authorizable $user, Organisation $organisation = null)
+	public function viewPublicKeys(?Authorizable $user, ?Organisation $organisation = null)
 	{
 		if ($organisation) {
 			return $this->isDeviceOrUserPartOfOrganisation($user, $organisation);

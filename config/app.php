@@ -183,7 +183,6 @@ return [
         CatLab\Accounts\Client\CatLabAccountsServiceProvider::class,
         SocialiteProviders\Manager\ServiceProvider::class,
 
-        Kouz\LaravelAirbrake\ServiceProvider::class,
 
 
     ],
