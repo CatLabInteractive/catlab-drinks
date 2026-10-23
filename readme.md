@@ -50,6 +50,21 @@ checklist on that page: verify the database environment variables and run
 | `CATLAB_CLIENT_ID` / `CATLAB_CLIENT_SECRET` | — (unset) | Optional CatLab Accounts single sign-on. When set, login/registration is delegated to the SSO server and the first-run setup page is skipped (the first SSO login creates the founding user). |
 | `PASSPORT_PRIVATE_KEY` / `PASSPORT_PUBLIC_KEY` | — | OAuth keys; alternative to `php artisan passport:keys` on ephemeral filesystems (Heroku/Dokku). |
 | `MAIL_*` | log driver | Outgoing mail (password resets, verification). |
+| `USAGE_REPORTING` | `false` | Opt in to an anonymous daily usage report to CatLab (see [Usage and error reporting](#usage-and-error-reporting)). |
+| `ERROR_REPORTING` | `false` | Opt in to sending errors to CatLab's error tracker, unless you set your own `AIRBRAKE_*` project. |
+
+### Usage and error reporting
+
+Both are off unless you turn them on; they help us see how CatLab Drinks is used and fix bugs.
+
+With `USAGE_REPORTING=true` the instance sends one anonymous report per day: a random
+instance ID, the software version (commit, PHP, Laravel, database driver), the hosting
+type, whether SSO is on, and the number of organisations, users, devices, events, cards
+and orders. It never sends names, email addresses, menu items, amounts or your URL.
+Run `php artisan drinks:report-usage --dry-run` to see exactly what would be sent.
+
+With `ERROR_REPORTING=true` server and browser errors are sent to CatLab's error tracker.
+Passwords, tokens, secrets, email addresses and card data are stripped first.
 
 Architecture
 ------------

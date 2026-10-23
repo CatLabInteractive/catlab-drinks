@@ -21,6 +21,7 @@ Current documents:
 | `.ai/charon-bulk-delete-instructions.md` | Bulk delete support in Charon v1.8.0 — route format, request/response shape, and a known `mergeOptions()` type-hint bug with middleware arrays |
 | `.ai/deployment.md` | Heroku + Dokku dual-deployment setup — buildpacks, Procfile fallback, app.json, Dockerfile |
 | `.ai/signed-order-urls.md` | Signed remote order URLs — HMAC-SHA256 signature algorithm, token structure, integration guide with code examples |
+| `.ai/usage-reporting.md` | Opt-in usage heartbeat (Matomo) and error reporting (Errbit/Airbrake) — what is sent, triggers, config |
 
 ---
 
@@ -285,6 +286,8 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
   `Auth\SsoLoginController` (SSO first-login); both render `auth.registration-closed`.
 - Database connection/migration failures render `errors/database.blade.php` via
   `App\Exceptions\DatabaseErrorClassifier` in the exception handler (non-debug only).
+- `USAGE_REPORTING` / `ERROR_REPORTING` (both off by default) opt in to reporting
+  back to CatLab — see `.ai/usage-reporting.md`.
 - `DISABLE_PROFILE_MIRROR=1` disables the CatLab Accounts profile sync (kill switch for
   `App\Services\ProfileMirror` — see "Accounts Profile Sync" below).
 
