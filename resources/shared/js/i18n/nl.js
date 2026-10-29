@@ -285,12 +285,6 @@ export default {
     'Manage & Pair Devices': 'Apparaten beheren en koppelen',
     'Edit event ID#{id}': 'Evenement ID#{id} bewerken',
     'New event': 'Nieuw evenement',
-    'Allow payment with NFC topup cards': 'Betaling met NFC-opwaardeerkaarten toestaan',
-    'Allow payment in cash': 'Contante betaling toestaan',
-    'Allow payment with vouchers': 'Betaling met bonnen toestaan',
-    'Allow unpaid online orders (without providing card alias)': 'Onbetaalde online bestellingen toestaan (zonder kaart-alias)',
-    'Split orders by product categories (e.g drinks for the bar, food for the kitchen)': 'Bestellingen splitsen per productcategorie (bijv. dranken voor de bar, eten voor de keuken)',
-    'Voucher value': 'Bonwaarde',
     'Checkin URL (callback)': 'Check-in URL (callback)',
     'Are you sure you want to remove this event?': 'Weet je zeker dat je dit evenement wilt verwijderen?',
 

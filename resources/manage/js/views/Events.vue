@@ -141,62 +141,9 @@
 
 	</b-container>
 
-	<b-modal :title="(model.id ? $t('Edit event ID#{id}', { id: model.id }) : $t('New event'))" @hide="resetForm" ref="editFormModal">
-		<form @submit.prevent="save">
-			<b-form-group :label="$t('Name')">
-				<b-form-input type="text" v-model="model.name"></b-form-input>
-			</b-form-group>
-
-			<b-form-group>
-				<label>
-					<input type="checkbox" v-model="model.payment_cards">
-					{{ $t('Allow payment with NFC topup cards') }}<br/>
-				</label>
-			</b-form-group>
-
-			<b-form-group>
-				<label>
-					<input type="checkbox" v-model="model.payment_cash">
-					{{ $t('Allow payment in cash') }}
-				</label>
-			</b-form-group>
-
-			<b-form-group>
-				<label>
-					<input type="checkbox" v-model="model.payment_vouchers">
-					{{ $t('Allow payment with vouchers') }}
-				</label>
-			</b-form-group>
-
-			<b-form-group>
-				<label>
-					<input type="checkbox" v-model="model.allow_unpaid_online_orders">
-					{{ $t('Allow unpaid online orders (without providing card alias)') }}
-				</label>
-			</b-form-group>
-
-			<b-form-group>
-				<label>
-					<input type="checkbox" v-model="model.split_orders_by_categories">
-					{{ $t('Split orders by product categories (e.g drinks for the bar, food for the kitchen)') }}
-				</label>
-			</b-form-group>
-
-			<b-form-group :label="$t('Voucher value')">
-				<b-form-input type="number" v-model="model.payment_voucher_value" step="0.01"></b-form-input>
-			</b-form-group>
-
-			<b-form-group :label="$t('Checkin URL (callback)')">
-				<b-form-input type="text" v-model="model.checkin_url"></b-form-input>
-			</b-form-group>
-		</form>
-
-		<template #modal-footer>
-			<b-btn type="button" variant="light" @click="resetForm()">{{ $t('Reset') }}</b-btn>
-			<b-btn type="submit" variant="success" @click="save()">{{ $t('Save') }}</b-btn>
-
-			<b-alert v-if="saving" variant="none" show>{{ $t('Saving') }}</b-alert>
-		</template>
+	<b-modal :title="modalTitle" hide-footer @hide="resetForm" ref="editFormModal">
+		<event-form :event="model" :mode="model.id ? 'single' : 'wizard'" :saving="saving"
+					@submit="save" @cancel="$refs.editFormModal.hide()" @step="wizardStep = $event" />
 	</b-modal>
 
 	<b-modal :title="$t('Remote order token')" ok-only ref="orderTokenModal">
@@ -226,8 +173,13 @@
 <script>
 
 import {EventService} from "../../../shared/js/services/EventService";
+import EventForm from '../components/EventForm.vue';
 
 export default {
+	components: {
+		EventForm,
+	},
+
 	mounted() {
 
 		this.service = new EventService(window.ORGANISATION_ID); // hacky hacky
@@ -260,7 +212,17 @@ export default {
 				}
 			],
 			model: {},
+			wizardStep: 1,
 			orderTokenEvent: null
+		}
+	},
+
+	computed: {
+		modalTitle() {
+			if (this.model.id) {
+				return this.$t('Edit event ID#{id}', { id: this.model.id });
+			}
+			return this.$t('New event: step {step} of 3', { step: this.wizardStep });
 		}
 	},
 
@@ -273,21 +235,18 @@ export default {
 
 		},
 
-		async save() {
-
-			if (!this.model.payment_vouchers) {
-				this.model.payment_voucher_value = null;
-			}
+		async save(payload) {
 
 			this.saving = true;
-			if (this.model.id) {
-				await this.service.update(this.model.id, this.model);
-			} else {
-				await this.service.create(this.model);
-				this.resetForm();
+			try {
+				if (payload.id) {
+					await this.service.update(payload.id, payload);
+				} else {
+					await this.service.create(payload);
+				}
+			} finally {
+				this.saving = false;
 			}
-
-			this.saving = false;
 
 			this.$refs.editFormModal.hide();
 			this.refreshEvents();
@@ -329,10 +288,8 @@ export default {
 		},
 
 		resetForm() {
-			this.model = {
-				payment_cards: true,
-				allow_unpaid_online_orders: false
-			};
+			this.model = {};
+			this.wizardStep = 1;
 		},
 
 		showOrderToken(event) {

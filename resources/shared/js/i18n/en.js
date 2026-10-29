@@ -286,12 +286,6 @@ export default {
     'Manage & Pair Devices': 'Manage & Pair Devices',
     'Edit event ID#{id}': 'Edit event ID#{id}',
     'New event': 'New event',
-    'Allow payment with NFC topup cards': 'Allow payment with NFC topup cards',
-    'Allow payment in cash': 'Allow payment in cash',
-    'Allow payment with vouchers': 'Allow payment with vouchers',
-    'Allow unpaid online orders (without providing card alias)': 'Allow unpaid online orders (without providing card alias)',
-    'Split orders by product categories (e.g drinks for the bar, food for the kitchen)': 'Split orders by product categories (e.g drinks for the bar, food for the kitchen)',
-    'Voucher value': 'Voucher value',
     'Checkin URL (callback)': 'Checkin URL (callback)',
     'Are you sure you want to remove this event?': 'Are you sure you want to remove this event?',
 

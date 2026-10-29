@@ -103,3 +103,28 @@ describe('POS Events.vue order token cleanup', () => {
 		expect(readVueFile('pos')).not.toContain('order_token');
 	});
 });
+
+describe('Manage Events.vue event form', () => {
+	const file = readVueFile('manage');
+	const template = readVueTemplate('manage');
+
+	it('renders the EventForm component inside the modal', () => {
+		expect(file).toContain("import EventForm from '../components/EventForm.vue'");
+		expect(template).toContain('<event-form');
+		expect(template).toContain('@submit="save"');
+	});
+	it('switches between wizard and single mode on the event id', () => {
+		expect(template).toMatch(/:mode="model\.id \? 'single' : 'wizard'"/);
+	});
+	it('no longer renders the raw flag checkboxes', () => {
+		expect(template).not.toContain('model.allow_unpaid_online_orders');
+		expect(template).not.toContain('model.payment_cards');
+		expect(template).not.toContain('Allow unpaid online orders');
+	});
+	it('titles the wizard with the step number', () => {
+		expect(file).toContain("$t('New event: step {step} of 3'");
+	});
+	it('resets to an empty model so the form falls back to create defaults', () => {
+		expect(file).toMatch(/resetForm\(\)\s*{\s*this\.model = {};/);
+	});
+});

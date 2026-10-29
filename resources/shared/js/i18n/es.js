@@ -285,12 +285,6 @@ export default {
     'Manage & Pair Devices': 'Gestionar y vincular dispositivos',
     'Edit event ID#{id}': 'Editar evento ID#{id}',
     'New event': 'Nuevo evento',
-    'Allow payment with NFC topup cards': 'Permitir pago con tarjetas NFC recargables',
-    'Allow payment in cash': 'Permitir pago en efectivo',
-    'Allow payment with vouchers': 'Permitir pago con vales',
-    'Allow unpaid online orders (without providing card alias)': 'Permitir pedidos en línea no pagados (sin proporcionar alias de tarjeta)',
-    'Split orders by product categories (e.g drinks for the bar, food for the kitchen)': 'Dividir pedidos por categorías de producto (ej. bebidas para la barra, comida para la cocina)',
-    'Voucher value': 'Valor del vale',
     'Checkin URL (callback)': 'URL de registro (callback)',
     'Are you sure you want to remove this event?': '¿Está seguro de que desea eliminar este evento?',
 
