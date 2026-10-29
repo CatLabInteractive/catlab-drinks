@@ -22,6 +22,42 @@
 import $ from 'jquery';
 import {installCacheInterceptors} from './ApiCacheService';
 
+/**
+ * Extract the message and issues from an API error response.
+ * Both APIs return { error: { status, message, issues?: { field: [ message ] } } }
+ * (see App\Exceptions\ApiErrorResponse). Responses that never reached the API
+ * (proxy errors, HTML error pages) have no such body.
+ * @param error
+ * @returns {{message: (string|null), issues: string[]}}
+ */
+function parseApiError(error) {
+	const data = error && error.response ? error.response.data : null;
+	const apiError = data && typeof data === 'object' ? data.error : null;
+
+	if (!apiError || typeof apiError !== 'object') {
+		return { message: null, issues: [] };
+	}
+
+	return {
+		message: apiError.message || null,
+		issues: Object.values(apiError.issues || {}).map((messages) => messages[0])
+	};
+}
+
+/**
+ * Human readable message for a failed API request, or null if the
+ * response does not contain one.
+ * @param error
+ * @returns {string|null}
+ */
+export function getApiErrorMessage(error) {
+	const parsed = parseApiError(error);
+	if (parsed.issues.length > 0) {
+		return parsed.issues.join(', \n');
+	}
+	return parsed.message;
+}
+
 export class AbstractService {
 
 	constructor() {
@@ -77,14 +113,14 @@ export class AbstractService {
 				if (status === 422) {
 					console.log({422:error});
 
-					var issues = [];
-					for (var k in error.response.data.error.issues) {
-						if (error.response.data.error.issues.hasOwnProperty(k)) {
-							issues.push(error.response.data.error.issues[k][0]);
-						}
-					}
+					const parsed = parseApiError(error);
+					const message = parsed.message || error.message;
 
-					alert(error.response.data.error.message + ': \n' + issues.join(', \n'));
+					if (parsed.issues.length > 0) {
+						alert(message + ': \n' + parsed.issues.join(', \n'));
+					} else {
+						alert(message);
+					}
 					return Promise.reject(error);
 				}
 

@@ -80,6 +80,14 @@ class Handler extends ExceptionHandler
             ], 503);
         }
 
+        // Both APIs return errors in one format: { error: { status, message, issues? } }
+        if ($request->is('api/*', 'pos-api/*')) {
+            $response = ApiErrorResponse::fromException($this->prepareException($exception));
+            if ($response) {
+                return $response;
+            }
+        }
+
         // Try to use Charons  handler
         $charonHandler = new CharonErrorHandler();
         $response = $charonHandler->handleException($request, $exception);

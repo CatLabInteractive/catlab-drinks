@@ -241,6 +241,7 @@
 <script>
 
 	import { DeviceService } from '../services/DeviceService';
+	import { getApiErrorMessage } from '../../../shared/js/services/AbstractService';
 	import QrcodeVue from 'qrcode.vue';
 	import SignedCardsModal from '../../../shared/js/components/SignedCardsModal.vue';
 
@@ -424,7 +425,8 @@
 
 			async handleLicenseReturn() {
 				const urlParams = new URLSearchParams(window.location.search);
-				const license = urlParams.get('license');
+				// URLSearchParams decodes an unencoded '+' as a space; base64 never contains spaces.
+				const license = urlParams.has('license') ? urlParams.get('license').replace(/ /g, '+') : null;
 				const deviceId = urlParams.get('device_id');
 
 				if (license && deviceId) {
@@ -512,9 +514,7 @@
 					this.resetLicenseForm();
 					await this.refreshDevices();
 				} catch (e) {
-					this.licenseError = e.response && e.response.data && e.response.data.error
-						? e.response.data.error.message
-						: this.$t('Failed to save license. Please try again.');
+					this.licenseError = getApiErrorMessage(e) || this.$t('Failed to save license. Please try again.');
 				}
 			},
 

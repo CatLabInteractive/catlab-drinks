@@ -7,7 +7,7 @@
  * with "Cannot read properties of undefined (reading 'items')".
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AbstractService } from '../shared/js/services/AbstractService';
+import { AbstractService, getApiErrorMessage } from '../shared/js/services/AbstractService';
 
 let requestHandler;
 let reloadMock;
@@ -101,5 +101,55 @@ describe('AbstractService error interceptor', () => {
 
 		await expect(service.update(1, { name: '' })).rejects.toBe(error);
 		expect(window.alert).toHaveBeenCalledWith('Could not save: \nName is required');
+	});
+
+	it('alerts the issues of an uncaught validation exception (no property name)', async () => {
+		const service = createService();
+		const error = httpError(422, {
+			error: {
+				status: 422,
+				message: 'Could not decode resource.',
+				issues: { '': ['Invalid license key: not valid base64.'] }
+			}
+		});
+		requestHandler = () => Promise.reject(error);
+
+		await expect(service.update(1, { name: '' })).rejects.toBe(error);
+		expect(window.alert).toHaveBeenCalledWith('Could not decode resource.: \nInvalid license key: not valid base64.');
+	});
+
+	it('alerts the message of a 422 without issues', async () => {
+		const service = createService();
+		const error = httpError(422, { error: { status: 422, message: 'This organisation\'s name is managed on CatLab Accounts.' } });
+		requestHandler = () => Promise.reject(error);
+
+		await expect(service.update(1, { name: '' })).rejects.toBe(error);
+		expect(window.alert).toHaveBeenCalledWith('This organisation\'s name is managed on CatLab Accounts.');
+	});
+
+	it('still rejects (instead of crashing) on a 422 without a body', async () => {
+		const service = createService();
+		const error = httpError(422, '');
+		requestHandler = () => Promise.reject(error);
+
+		await expect(service.update(1, { name: '' })).rejects.toBe(error);
+		expect(window.alert).toHaveBeenCalledWith('Request failed with status code 422');
+	});
+});
+
+describe('getApiErrorMessage', () => {
+	it('reads the CatLab error format', () => {
+		expect(getApiErrorMessage(httpError(422, { error: { message: 'Device has no public key to approve.' } })))
+			.toBe('Device has no public key to approve.');
+	});
+
+	it('prefers the issues over the generic message', () => {
+		expect(getApiErrorMessage(httpError(422, { error: { message: 'Could not decode resource.', issues: { '': ['Invalid license key: license has expired.'] } } })))
+			.toBe('Invalid license key: license has expired.');
+	});
+
+	it('returns null when the response has no recognisable message', () => {
+		expect(getApiErrorMessage(httpError(500, '<html></html>'))).toBe(null);
+		expect(getApiErrorMessage(new Error('Network Error'))).toBe(null);
 	});
 });
