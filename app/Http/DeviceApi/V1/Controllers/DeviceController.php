@@ -137,6 +137,7 @@ class DeviceController extends ResourceController {
 
 		$summary = new StrandedOrdersSummary();
 		$summary->count = $assignmentService->countStrandedOrders($event);
+		$summary->active_devices = $assignmentService->countActiveDevices($event);
 
 		$context = $this->getContext(Action::VIEW);
 		$resource = $this->toResource($summary, $context, StrandedOrdersSummaryResourceDefinition::class);

@@ -612,6 +612,32 @@ class OrderAssignmentServiceTest extends TestCase
 	}
 
 	// ──────────────────────────────────────────────────
+	// Active Devices (Round Robin) Tests
+	// ──────────────────────────────────────────────────
+
+	/**
+	 * Test countActiveDevices only counts online devices that accept remote orders and sales.
+	 */
+	public function testCountActiveDevices(): void
+	{
+		$this->createDevice(['last_ping' => Carbon::now()->subSeconds(10), 'allow_remote_orders' => true, 'allow_sales' => true]);
+		$this->createDevice(['last_ping' => Carbon::now()->subSeconds(10), 'allow_remote_orders' => true, 'allow_sales' => true]);
+
+		// Not counted: offline, remote orders disabled, sales disabled, other organisation
+		$this->createDevice(['last_ping' => Carbon::now()->subHours(1), 'allow_remote_orders' => true, 'allow_sales' => true]);
+		$this->createDevice(['last_ping' => Carbon::now()->subSeconds(10), 'allow_remote_orders' => false, 'allow_sales' => true]);
+		$this->createDevice(['last_ping' => Carbon::now()->subSeconds(10), 'allow_remote_orders' => true, 'allow_sales' => false]);
+		$this->createDevice([
+			'organisation_id' => Organisation::factory()->create()->id,
+			'last_ping' => Carbon::now()->subSeconds(10),
+			'allow_remote_orders' => true,
+			'allow_sales' => true,
+		]);
+
+		$this->assertEquals(2, $this->service->countActiveDevices($this->event));
+	}
+
+	// ──────────────────────────────────────────────────
 	// Edge Cases
 	// ──────────────────────────────────────────────────
 
