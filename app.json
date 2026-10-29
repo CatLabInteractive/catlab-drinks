@@ -56,6 +56,14 @@
 		"PRODUCTION_ORGANISATION_IDS": {
 			"description": "Comma-separated organisation IDs allowed to use this instance in production. Leave unset to allow all organisations.",
 			"required": false
+		},
+		"USAGE_REPORTING": {
+			"description": "Set to true to send CatLab an anonymous daily usage report (versions and counts; no names, emails or amounts).",
+			"required": false
+		},
+		"ERROR_REPORTING": {
+			"description": "Set to true to send errors to CatLab's error tracker (passwords, tokens and emails are stripped).",
+			"required": false
 		}
 	},
 	"addons": [
