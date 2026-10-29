@@ -22,6 +22,55 @@
 import $ from 'jquery';
 import {installCacheInterceptors} from './ApiCacheService';
 
+/**
+ * Extract a message and a list of issues from an API error response.
+ * The API returns errors in several shapes:
+ * - CatLab: { error: { message, issues: { field: [ message ] } } }
+ * - JSON:API (Charon error handler): { errors: [ { title, detail } ] }
+ * - Laravel: { message, errors: { field: [ message ] } }
+ * @param error
+ * @returns {{message: (string|null), issues: string[]}}
+ */
+function parseApiError(error) {
+	const data = error && error.response ? error.response.data : null;
+	const firstOfEach = (map) => Object.values(map || {})
+		.map((value) => Array.isArray(value) ? value[0] : value)
+		.filter((value) => typeof value === 'string');
+
+	if (data && typeof data === 'object') {
+		if (data.error && typeof data.error === 'object') {
+			return { message: data.error.message || null, issues: firstOfEach(data.error.issues) };
+		}
+
+		if (Array.isArray(data.errors)) {
+			return {
+				message: data.errors[0] && data.errors[0].title ? data.errors[0].title : null,
+				issues: data.errors.map((e) => e && e.detail).filter((detail) => typeof detail === 'string')
+			};
+		}
+
+		if (typeof data.message === 'string') {
+			return { message: data.message, issues: firstOfEach(data.errors) };
+		}
+	}
+
+	return { message: null, issues: [] };
+}
+
+/**
+ * Human readable message for a failed API request, or null if the
+ * response does not contain one.
+ * @param error
+ * @returns {string|null}
+ */
+export function getApiErrorMessage(error) {
+	const parsed = parseApiError(error);
+	if (parsed.issues.length > 0) {
+		return parsed.issues.join(', \n');
+	}
+	return parsed.message;
+}
+
 export class AbstractService {
 
 	constructor() {
@@ -77,14 +126,14 @@ export class AbstractService {
 				if (status === 422) {
 					console.log({422:error});
 
-					var issues = [];
-					for (var k in error.response.data.error.issues) {
-						if (error.response.data.error.issues.hasOwnProperty(k)) {
-							issues.push(error.response.data.error.issues[k][0]);
-						}
-					}
+					const parsed = parseApiError(error);
+					const message = parsed.message || error.message;
 
-					alert(error.response.data.error.message + ': \n' + issues.join(', \n'));
+					if (parsed.issues.length > 0) {
+						alert(message + ': \n' + parsed.issues.join(', \n'));
+					} else {
+						alert(message);
+					}
 					return Promise.reject(error);
 				}
 
