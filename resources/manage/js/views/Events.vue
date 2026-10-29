@@ -141,7 +141,7 @@
 
 	</b-container>
 
-	<b-modal :title="modalTitle" hide-footer @hide="resetForm" ref="editFormModal">
+	<b-modal :title="modalTitle" hide-footer @hidden="resetForm" ref="editFormModal">
 		<event-form :event="model" :mode="model.id ? 'single' : 'wizard'" :saving="saving"
 					@submit="save" @cancel="$refs.editFormModal.hide()" @step="wizardStep = $event" />
 	</b-modal>

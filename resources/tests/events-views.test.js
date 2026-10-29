@@ -128,3 +128,11 @@ describe('Manage Events.vue event form', () => {
 		expect(file).toMatch(/resetForm\(\)\s*{\s*this\.model = {};/);
 	});
 });
+
+describe('Manage Events.vue modal reset timing', () => {
+	it('resets the form after the modal has finished hiding, not while it fades out', () => {
+		const template = readVueTemplate('manage');
+		expect(template).toContain('@hidden="resetForm"');
+		expect(template).not.toContain('@hide="resetForm"');
+	});
+});
