@@ -23,38 +23,25 @@ import $ from 'jquery';
 import {installCacheInterceptors} from './ApiCacheService';
 
 /**
- * Extract a message and a list of issues from an API error response.
- * The API returns errors in several shapes:
- * - CatLab: { error: { message, issues: { field: [ message ] } } }
- * - JSON:API (Charon error handler): { errors: [ { title, detail } ] }
- * - Laravel: { message, errors: { field: [ message ] } }
+ * Extract the message and issues from an API error response.
+ * Both APIs return { error: { status, message, issues?: { field: [ message ] } } }
+ * (see App\Exceptions\ApiErrorResponse). Responses that never reached the API
+ * (proxy errors, HTML error pages) have no such body.
  * @param error
  * @returns {{message: (string|null), issues: string[]}}
  */
 function parseApiError(error) {
 	const data = error && error.response ? error.response.data : null;
-	const firstOfEach = (map) => Object.values(map || {})
-		.map((value) => Array.isArray(value) ? value[0] : value)
-		.filter((value) => typeof value === 'string');
+	const apiError = data && typeof data === 'object' ? data.error : null;
 
-	if (data && typeof data === 'object') {
-		if (data.error && typeof data.error === 'object') {
-			return { message: data.error.message || null, issues: firstOfEach(data.error.issues) };
-		}
-
-		if (Array.isArray(data.errors)) {
-			return {
-				message: data.errors[0] && data.errors[0].title ? data.errors[0].title : null,
-				issues: data.errors.map((e) => e && e.detail).filter((detail) => typeof detail === 'string')
-			};
-		}
-
-		if (typeof data.message === 'string') {
-			return { message: data.message, issues: firstOfEach(data.errors) };
-		}
+	if (!apiError || typeof apiError !== 'object') {
+		return { message: null, issues: [] };
 	}
 
-	return { message: null, issues: [] };
+	return {
+		message: apiError.message || null,
+		issues: Object.values(apiError.issues || {}).map((messages) => messages[0])
+	};
 }
 
 /**

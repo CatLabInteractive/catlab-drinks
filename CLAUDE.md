@@ -132,6 +132,13 @@ The backend uses CatLab Charon for REST API scaffolding:
 - Register model events in the model's `boot()` or `booted()` method
 - Use `wasChanged()` (not `isDirty()`) in `updated` events, since `isDirty()` is cleared after save
 
+**API error format:** every error under `/api/*` and `/pos-api/*` is returned as
+`{ "error": { "status", "message", "issues"?: { property: [message] } } }`, built by
+`App\Exceptions\ApiErrorResponse` (used by `ResourceController::getValidationErrorResponse()` and by
+`App\Exceptions\Handler` for uncaught exceptions). Throwing `ResourceValidationException` or calling
+`abort()` from a custom endpoint is fine; don't hand-build other error shapes. The frontend interceptor
+in `AbstractService.js` and `getApiErrorMessage()` read only this format.
+
 ### Adding a New API Endpoint
 1. Create or update the ResourceDefinition (in Shared if used by both APIs, otherwise in the specific API namespace)
 2. Create or update the Controller using Charon traits (in Shared if used by both APIs)

@@ -103,22 +103,24 @@ describe('AbstractService error interceptor', () => {
 		expect(window.alert).toHaveBeenCalledWith('Could not save: \nName is required');
 	});
 
-	it('alerts the details and rejects on a JSON:API style 422 (Charon error handler)', async () => {
+	it('alerts the issues of an uncaught validation exception (no property name)', async () => {
 		const service = createService();
 		const error = httpError(422, {
-			errors: [
-				{ status: 422, title: 'Resource validation failed.', detail: 'Invalid license key: not valid base64.' }
-			]
+			error: {
+				status: 422,
+				message: 'Could not decode resource.',
+				issues: { '': ['Invalid license key: not valid base64.'] }
+			}
 		});
 		requestHandler = () => Promise.reject(error);
 
 		await expect(service.update(1, { name: '' })).rejects.toBe(error);
-		expect(window.alert).toHaveBeenCalledWith('Resource validation failed.: \nInvalid license key: not valid base64.');
+		expect(window.alert).toHaveBeenCalledWith('Could not decode resource.: \nInvalid license key: not valid base64.');
 	});
 
-	it('alerts the message and rejects on a Laravel style 422', async () => {
+	it('alerts the message of a 422 without issues', async () => {
 		const service = createService();
-		const error = httpError(422, { message: 'This organisation\'s name is managed on CatLab Accounts.' });
+		const error = httpError(422, { error: { status: 422, message: 'This organisation\'s name is managed on CatLab Accounts.' } });
 		requestHandler = () => Promise.reject(error);
 
 		await expect(service.update(1, { name: '' })).rejects.toBe(error);
@@ -141,8 +143,8 @@ describe('getApiErrorMessage', () => {
 			.toBe('Device has no public key to approve.');
 	});
 
-	it('reads the JSON:API error format', () => {
-		expect(getApiErrorMessage(httpError(422, { errors: [{ title: 'Resource validation failed.', detail: 'Invalid license key: license has expired.' }] })))
+	it('prefers the issues over the generic message', () => {
+		expect(getApiErrorMessage(httpError(422, { error: { message: 'Could not decode resource.', issues: { '': ['Invalid license key: license has expired.'] } } })))
 			.toBe('Invalid license key: license has expired.');
 	});
 
