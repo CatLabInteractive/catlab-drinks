@@ -45,3 +45,18 @@ describe('EventForm.vue', () => {
 		expect(source).toMatch(/['"]answers\.payment_cards['"]\s*[:(]/);
 	});
 });
+
+describe('EventForm.vue review fixes', () => {
+	it('takes the voucher value as decimal text, never as a number input', () => {
+		// Chrome strips a typed decimal comma from <input type="number">, turning "2,50" into 250.
+		expect(source).not.toContain('type="number"');
+		expect(source).toMatch(/inputmode="decimal"/);
+	});
+	it('collapses the compact payment tiles to one column at phone width', () => {
+		expect(source).toMatch(/@media\s*\(max-width:\s*575\.98px\)[\s\S]*\.event-form__tiles--compact\s*{\s*grid-template-columns:\s*1fr/);
+	});
+	it('marks tiles with a checkbox or radio control', () => {
+		expect(source).toContain('event-tile__control--check');
+		expect(source).toContain('event-tile__control--radio');
+	});
+});

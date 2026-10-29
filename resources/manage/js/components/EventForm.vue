@@ -42,6 +42,7 @@
 			<div class="event-form__tiles" :class="{ 'event-form__tiles--compact': !isWizard }">
 				<button type="button" class="event-tile" :class="{ 'event-tile--selected': answers.payment_cards }"
 						:aria-pressed="answers.payment_cards ? 'true' : 'false'" @click="togglePayment('payment_cards')">
+					<span class="event-tile__control event-tile__control--check" aria-hidden="true"></span>
 					<span class="event-tile__icon" aria-hidden="true">💳</span>
 					<span class="event-tile__text">
 						<strong>{{ $t('NFC topup cards') }}</strong>
@@ -51,6 +52,7 @@
 
 				<button type="button" class="event-tile" :class="{ 'event-tile--selected': answers.payment_cash }"
 						:aria-pressed="answers.payment_cash ? 'true' : 'false'" @click="togglePayment('payment_cash')">
+					<span class="event-tile__control event-tile__control--check" aria-hidden="true"></span>
 					<span class="event-tile__icon" aria-hidden="true">💶</span>
 					<span class="event-tile__text">
 						<strong>{{ $t('Cash') }}</strong>
@@ -60,6 +62,7 @@
 
 				<button type="button" class="event-tile" :class="{ 'event-tile--selected': answers.payment_vouchers }"
 						:aria-pressed="answers.payment_vouchers ? 'true' : 'false'" @click="togglePayment('payment_vouchers')">
+					<span class="event-tile__control event-tile__control--check" aria-hidden="true"></span>
 					<span class="event-tile__icon" aria-hidden="true">🎟️</span>
 					<span class="event-tile__text">
 						<strong>{{ $t('Vouchers') }}</strong>
@@ -71,7 +74,7 @@
 			<b-form-group v-if="answers.payment_vouchers" :label="$t('Value of one voucher')" :label-for="voucherInputId"
 						  label-cols-sm="auto" class="mt-2 mb-0 align-items-center">
 				<b-input-group prepend="€" class="event-form__voucher-value">
-					<b-form-input :id="voucherInputId" type="number" step="0.01" min="0.01"
+					<b-form-input :id="voucherInputId" type="text" inputmode="decimal" placeholder="2,50"
 								  v-model="answers.payment_voucher_value" />
 				</b-input-group>
 			</b-form-group>
@@ -90,6 +93,7 @@
 						:class="{ 'event-tile--selected': answers.online_ordering === ONLINE_ORDERING.NONE }"
 						:aria-checked="answers.online_ordering === ONLINE_ORDERING.NONE ? 'true' : 'false'"
 						@click="selectOnlineOrdering(ONLINE_ORDERING.NONE)">
+					<span class="event-tile__control event-tile__control--radio" aria-hidden="true"></span>
 					<span class="event-tile__icon" aria-hidden="true">🧑‍🍳</span>
 					<span class="event-tile__text">
 						<strong>{{ $t('No, only at the bar') }}</strong>
@@ -101,6 +105,7 @@
 						:class="{ 'event-tile--selected': answers.online_ordering === ONLINE_ORDERING.UNPAID }"
 						:aria-checked="answers.online_ordering === ONLINE_ORDERING.UNPAID ? 'true' : 'false'"
 						@click="selectOnlineOrdering(ONLINE_ORDERING.UNPAID)">
+					<span class="event-tile__control event-tile__control--radio" aria-hidden="true"></span>
 					<span class="event-tile__icon" aria-hidden="true">📱</span>
 					<span class="event-tile__text">
 						<strong>{{ $t('Yes, and we handle payment ourselves') }}</strong>
@@ -112,6 +117,7 @@
 						:class="{ 'event-tile--selected': answers.online_ordering === ONLINE_ORDERING.INTEGRATION }"
 						:aria-checked="answers.online_ordering === ONLINE_ORDERING.INTEGRATION ? 'true' : 'false'"
 						@click="selectOnlineOrdering(ONLINE_ORDERING.INTEGRATION)">
+					<span class="event-tile__control event-tile__control--radio" aria-hidden="true"></span>
 					<span class="event-tile__icon" aria-hidden="true">🔗</span>
 					<span class="event-tile__text">
 						<strong>{{ $t('Yes, through an integration that passes the card') }}</strong>
@@ -351,6 +357,43 @@ export default {
 	cursor: not-allowed;
 }
 
+.event-tile__control {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.1rem;
+	height: 1.1rem;
+	margin-top: 0.2rem;
+	border: 2px solid #adb5bd;
+	border-radius: 0.25rem;
+	background: #fff;
+	color: #fff;
+	font-size: 0.8rem;
+	line-height: 1;
+}
+
+.event-tile__control--radio {
+	border-radius: 50%;
+}
+
+.event-tile--selected .event-tile__control {
+	border-color: #28a745;
+	background: #28a745;
+}
+
+.event-tile--selected .event-tile__control--check::after {
+	content: '✓';
+}
+
+.event-tile--selected .event-tile__control--radio::after {
+	content: '';
+	width: 0.4rem;
+	height: 0.4rem;
+	border-radius: 50%;
+	background: #fff;
+}
+
 .event-tile__icon {
 	font-size: 1.4rem;
 	line-height: 1.2;
@@ -359,6 +402,8 @@ export default {
 .event-tile__text {
 	display: flex;
 	flex-direction: column;
+	min-width: 0;
+	overflow-wrap: break-word;
 }
 
 .event-tile__description {
@@ -371,14 +416,46 @@ export default {
 }
 
 .event-form__tiles--compact .event-tile {
+	position: relative;
 	flex-direction: column;
 	align-items: center;
 	text-align: center;
 	gap: 0.25rem;
+	padding: 1rem 0.4rem 0.6rem;
+}
+
+.event-form__tiles--compact .event-tile strong {
+	font-size: 0.9rem;
+}
+
+.event-form__tiles--compact .event-tile__control {
+	position: absolute;
+	top: 0.4rem;
+	left: 0.4rem;
+	margin-top: 0;
 }
 
 .event-form__tiles--compact .event-tile__description {
 	display: none;
+}
+
+/* Phone width: the three-column grid cannot fit titles like "NFC-opwaardeerkaarten". */
+@media (max-width: 575.98px) {
+	.event-form__tiles--compact {
+		grid-template-columns: 1fr;
+	}
+
+	.event-form__tiles--compact .event-tile {
+		flex-direction: row;
+		align-items: center;
+		text-align: left;
+		gap: 0.6rem;
+		padding-top: 0.6rem;
+	}
+
+	.event-form__tiles--compact .event-tile__control {
+		position: static;
+	}
 }
 
 .event-form__voucher-value {
