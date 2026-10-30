@@ -558,6 +558,10 @@ export default {
     // Remote orders (additions)
     '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.': '{count} bestelling(en) kunnen niet worden verwerkt omdat geen enkele online POS hun categorie accepteert. Minstens één POS moet zijn filter aanpassen om deze bestellingen te verwerken.',
     'Only show assigned orders': 'Alleen toegewezen bestellingen tonen',
+    'Round robin': 'Round robin',
+    'Round robin is active': 'Round robin is actief',
+    'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.': 'Bestellingen op afstand worden verdeeld over {count} POS-terminals. Deze terminal toont enkel de bestellingen die eraan toegewezen zijn.',
+    'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.': 'Alle bestellingen worden getoond, ook die van de {others} andere POS-terminal(s). Overleg met hen voor je hun bestellingen afhandelt.',
     'On my way!': 'Onderweg!',
     'Failed to save category filter. Reverting to previous value.': 'Opslaan van categoriefilter mislukt. Vorige waarde wordt hersteld.',
 
