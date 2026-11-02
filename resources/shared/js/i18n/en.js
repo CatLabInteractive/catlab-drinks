@@ -31,7 +31,7 @@ export default {
     'Balance': 'Balance',
     'Last transaction': 'Last transaction',
     'Confirm topup': 'Confirm topup',
-    'Are you sure you want to topup for €{amount}?': 'Are you sure you want to topup for €{amount}?',
+    'Are you sure you want to topup for {amount}?': 'Are you sure you want to topup for {amount}?',
     'Please wait': 'Please wait',
     'Topup failed.': 'Topup failed.',
     'Card reset successful.': 'Card reset successful.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Menu items',
-    'Total: {amount} items = €{price}': 'Total: {amount} items = €{price}',
+    'Total: {amount} items = {price}': 'Total: {amount} items = {price}',
     'Confirm order': 'Confirm order',
     'Payment successful': 'Payment successful',
     'Order registered successfully.': 'Order registered successfully.',

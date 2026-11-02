@@ -40,7 +40,7 @@
                     <h2>{{ $t('Topup') }}</h2>
                     <div class="topup-amounts">
                         <div v-for="amount in defaultAmounts" v-on:click="topupForAmount(amount)" class="amount">
-                            €{{ amount.toFixed(2) }}
+                            {{ $filters.money(amount) }}
                         </div>
                     </div>
 
@@ -112,7 +112,7 @@
 
         <!-- Modal Component -->
         <b-modal ref="confirmModal" class="order-confirm-modal" :title="$t('Confirm topup')" @ok="confirmTopup" @cancel="cancelTopup" button-size="lg" no-close-on-backdrop>
-            <p>{{ $t('Are you sure you want to topup for €{amount}?', { amount: topupAmount.toFixed(2) }) }}</p>
+            <p>{{ $t('Are you sure you want to topup for {amount}?', { amount: $filters.money(topupAmount) }) }}</p>
         </b-modal>
 
         <!-- Modal Component -->

@@ -31,7 +31,7 @@ export default {
     'Balance': 'Saldo',
     'Last transaction': 'Laatste transactie',
     'Confirm topup': 'Opwaardering bevestigen',
-    'Are you sure you want to topup for €{amount}?': 'Weet je zeker dat je wilt opwaarderen voor €{amount}?',
+    'Are you sure you want to topup for {amount}?': 'Weet je zeker dat je wilt opwaarderen voor {amount}?',
     'Please wait': 'Even wachten',
     'Topup failed.': 'Opwaardering mislukt.',
     'Card reset successful.': 'Kaart reset geslaagd.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Menu-items',
-    'Total: {amount} items = €{price}': 'Totaal: {amount} items = €{price}',
+    'Total: {amount} items = {price}': 'Totaal: {amount} items = {price}',
     'Payment successful': 'Betaling geslaagd',
     'Order registered successfully.': 'Bestelling succesvol geregistreerd.',
     'Payment failed': 'Betaling mislukt',

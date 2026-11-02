@@ -31,7 +31,7 @@ export default {
     'Balance': 'Guthaben',
     'Last transaction': 'Letzte Transaktion',
     'Confirm topup': 'Aufladung bestätigen',
-    'Are you sure you want to topup for €{amount}?': 'Sind Sie sicher, dass Sie für €{amount} aufladen möchten?',
+    'Are you sure you want to topup for {amount}?': 'Sind Sie sicher, dass Sie für {amount} aufladen möchten?',
     'Please wait': 'Bitte warten',
     'Topup failed.': 'Aufladung fehlgeschlagen.',
     'Card reset successful.': 'Karte erfolgreich zurückgesetzt.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Menüpunkte',
-    'Total: {amount} items = €{price}': 'Gesamt: {amount} Artikel = €{price}',
+    'Total: {amount} items = {price}': 'Gesamt: {amount} Artikel = {price}',
     'Payment successful': 'Zahlung erfolgreich',
     'Order registered successfully.': 'Bestellung erfolgreich registriert.',
     'Payment failed': 'Zahlung fehlgeschlagen',

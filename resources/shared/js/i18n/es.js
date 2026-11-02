@@ -31,7 +31,7 @@ export default {
     'Balance': 'Saldo',
     'Last transaction': 'Última transacción',
     'Confirm topup': 'Confirmar recarga',
-    'Are you sure you want to topup for €{amount}?': '¿Está seguro de que desea recargar por €{amount}?',
+    'Are you sure you want to topup for {amount}?': '¿Está seguro de que desea recargar por {amount}?',
     'Please wait': 'Por favor espere',
     'Topup failed.': 'Recarga fallida.',
     'Card reset successful.': 'Reinicio de tarjeta exitoso.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Artículos del menú',
-    'Total: {amount} items = €{price}': 'Total: {amount} artículos = €{price}',
+    'Total: {amount} items = {price}': 'Total: {amount} artículos = {price}',
     'Payment successful': 'Pago exitoso',
     'Order registered successfully.': 'Pedido registrado exitosamente.',
     'Payment failed': 'Pago fallido',

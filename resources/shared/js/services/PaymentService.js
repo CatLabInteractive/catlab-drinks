@@ -20,6 +20,7 @@
  */
 
 import {Eventable} from "../utils/Eventable";
+import {formatMoney} from "../utils/money";
 import {NoCardFoundException} from "../nfccards/exceptions/NoCardFoundException";
 import {NfcWriteException} from "../nfccards/exceptions/NfcWriteException";
 import {InsufficientFundsException} from "../nfccards/exceptions/InsufficientFundsException";
@@ -34,7 +35,6 @@ export class PaymentService extends Eventable {
     constructor() {
         super();
 
-		this.currencySymbol = '€';
         this.allow_nfc_payments = true;
         this.allow_cash_payments = false;
         this.allow_voucher_payment = false;
@@ -268,9 +268,8 @@ export class PaymentService extends Eventable {
     }
 
 	visualiseCurrency(price) {
-		// Display in european format, with 2 decimals and a comma 
-		// as a decimal separator.
-		return this.currencySymbol + (price.toFixed(2).replace('.', ','));
+		// Labelled with the organisation's currency in the interface language.
+		return formatMoney(price);
 	}
 
 	visualisePrice(price) {

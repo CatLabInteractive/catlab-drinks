@@ -49,6 +49,8 @@
 
 </template>
 <script>
+    import { formatMoney } from '../utils/money';
+
     export default {
 
         unmounted() {
@@ -69,7 +71,7 @@
                 this.error = transaction.error;
                 this.loading = transaction.loading;
 
-                this.cashAmount = '€' + this.amount;
+                this.cashAmount = formatMoney(this.amount);
                 this.voucherAmount = Math.ceil(this.amount / this.$paymentService.voucher_value);
 
                 this.instructions = this.getInstructions();
