@@ -35,6 +35,7 @@ import {KioskService} from "../../shared/js/services/KioskService";
 import {OfflineManager} from "../../shared/js/services/OfflineManager";
 import {installCacheInterceptors, cacheResponse, getCachedResponse} from "../../shared/js/services/ApiCacheService";
 import i18n from "../../shared/js/i18n/index";
+import { setCurrency, formatMoney } from '../../shared/js/utils/money';
 
 import App from './views/App'
 import Hello from '../../shared/js/views/Hello'
@@ -253,6 +254,8 @@ async function launch() {
 				}
 
 				window.ORGANISATION_ID = deviceData.organisation.id;
+				// A payload cached before the currency existed leaves the default in place.
+				setCurrency(deviceData.organisation.currency);
 				window.DEVICE_ID = deviceData.id;
 				window.DEVICE_UID = deviceData.uid;
 				window.DEVICE_CATEGORY_FILTER_ID = deviceData.category_filter_id || null;
@@ -378,7 +381,8 @@ async function launch() {
 						if (value) {
 							return moment(value).format('DD/MM/YYYY HH:mm:ss');
 						}
-					}
+					},
+					money: formatMoney
 				  }
 
 				app.use(router);
