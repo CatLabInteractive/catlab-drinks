@@ -65,6 +65,7 @@ services:
       - ./:/var/www/html
     environment:
       PHP_EXTENSION_PDO_MYSQL: "1"
+      PHP_EXTENSION_INTL: "1"
       DB_HOST: mysql-test
       DB_PORT: 3306
     depends_on:
