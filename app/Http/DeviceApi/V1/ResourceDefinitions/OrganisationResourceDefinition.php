@@ -22,5 +22,10 @@ class OrganisationResourceDefinition extends ResourceDefinition
 		$this->field('name')
 			->string()
 			->required();
+
+		$this->field('currency')
+			->string()
+			->visible(true)
+			->writeable(false);
 	}
 }

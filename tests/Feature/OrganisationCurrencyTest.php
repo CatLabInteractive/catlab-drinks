@@ -22,6 +22,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Device;
+use App\Models\DeviceAccessToken;
+use App\Models\Event;
+use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -96,5 +100,35 @@ class OrganisationCurrencyTest extends TestCase
             ->assertStatus(200);
         $this->assertSame('GBP', $organisation->fresh()->currency);
         $this->assertSame('Test User', $organisation->fresh()->name);
+    }
+
+    public function testDeviceApiExposesOrganisationCurrency(): void
+    {
+        $organisation = Organisation::factory()->create(['currency' => 'USD']);
+        $device = Device::factory()->create(['organisation_id' => $organisation->id]);
+        $user = $this->makeUser();
+        $organisation->users()->attach($user->id);
+        $token = new DeviceAccessToken([
+            'device_id' => $device->id,
+            'access_token' => 'test-access-token-' . Str::random(8),
+            'expires_at' => now()->addHour(),
+        ]);
+        $token->created_by = $user->id;
+        $token->save();
+
+        $this->withHeader('Authorization', 'Bearer ' . $token->access_token)
+            ->getJson('/pos-api/v1/devices/current')
+            ->assertStatus(200)
+            ->assertJsonPath('organisation.currency', 'USD');
+    }
+
+    public function testOrderPageEmitsEventCurrency(): void
+    {
+        $organisation = Organisation::factory()->create(['currency' => 'USD']);
+        $event = Event::factory()->create(['organisation_id' => $organisation->id]);
+
+        $this->get('/order/' . $event->order_token)
+            ->assertStatus(200)
+            ->assertSee('var EVENT_CURRENCY = "USD";', false);
     }
 }
