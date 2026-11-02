@@ -51,6 +51,12 @@ class OrganisationResourceDefinition extends ResourceDefinition
             ->writeable(true, true)
         ;
 
+        $this->field('currency')
+            ->string()
+            ->visible(true)
+            ->writeable(true, true)
+        ;
+
         $this->field('profile_id')
             ->int()
             ->visible(true)
