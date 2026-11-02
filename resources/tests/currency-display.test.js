@@ -7,11 +7,33 @@
  *    $filters.money to its templates.
  */
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readdirSync, readFileSync } from 'fs';
+import { resolve, join } from 'path';
+
+const APPS = ['manage', 'pos', 'clients', 'shared'];
 
 function readFile(relativePath) {
 	return readFileSync(resolve(__dirname, '..', relativePath), 'utf-8');
+}
+
+// Every Vue and JS source of the four apps. TypeScript is left out on purpose:
+// nfccards/models/Card.ts quotes a cent limit as a euro amount in a comment.
+function sourceFiles() {
+	const files = [];
+	const walk = (dir) => {
+		for (const entry of readdirSync(dir, { withFileTypes: true })) {
+			const path = join(dir, entry.name);
+			if (entry.isDirectory()) {
+				walk(path);
+			} else if (/\.(vue|js)$/.test(entry.name) && !/\.test\./.test(entry.name)) {
+				files.push(path);
+			}
+		}
+	};
+	for (const app of APPS) {
+		walk(resolve(__dirname, '..', app, 'js'));
+	}
+	return files;
 }
 
 describe('currency wiring at boot', () => {
@@ -52,5 +74,12 @@ describe('shared components use the money filter', () => {
 			expect(source).toContain("'Are you sure you want to topup for {amount}?'");
 			expect(source).not.toContain('€');
 		}
+	});
+});
+
+describe('no hardcoded currency symbol', () => {
+	it('no Vue or JS source under resources/ contains a literal euro sign', () => {
+		const offenders = sourceFiles().filter((file) => readFileSync(file, 'utf-8').includes('€'));
+		expect(offenders).toEqual([]);
 	});
 });

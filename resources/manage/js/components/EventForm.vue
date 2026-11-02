@@ -73,7 +73,7 @@
 
 			<b-form-group v-if="answers.payment_vouchers" :label="$t('Value of one voucher')" :label-for="voucherInputId"
 						  label-cols-sm="auto" class="mt-2 mb-0 align-items-center">
-				<b-input-group prepend="€" class="event-form__voucher-value">
+				<b-input-group :prepend="voucherCurrencySymbol" class="event-form__voucher-value">
 					<b-form-input :id="voucherInputId" type="text" inputmode="decimal" placeholder="2,50"
 								  v-model="answers.payment_voucher_value" />
 				</b-input-group>
@@ -165,6 +165,7 @@
 <script>
 
 import { ONLINE_ORDERING, answersFromEvent, eventFromAnswers, validateAnswers } from '../services/eventSettings';
+import { currencySymbol as moneySymbol } from '../../../shared/js/utils/money';
 
 let instanceCounter = 0;
 
@@ -211,6 +212,10 @@ export default {
 	computed: {
 		isWizard() {
 			return this.mode === 'wizard';
+		},
+
+		voucherCurrencySymbol() {
+			return moneySymbol();
 		},
 
 		errors() {
