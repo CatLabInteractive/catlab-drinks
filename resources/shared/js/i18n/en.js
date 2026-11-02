@@ -569,4 +569,8 @@ export default {
     'Stop test': 'Stop test',
     'Scan card to start test': 'Scan card to start test',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Warning! This will apply random transactions to any card that is presented. Do you want to continue?',
+
+    // Organisation currency
+    'Currency': 'Currency',
+    'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.': 'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.',
 };

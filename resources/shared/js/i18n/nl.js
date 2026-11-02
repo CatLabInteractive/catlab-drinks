@@ -569,4 +569,8 @@ export default {
     'Stop test': 'Test stoppen',
     'Scan card to start test': 'Scan een kaart om de test te starten',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Waarschuwing! Dit voert willekeurige transacties uit op elke kaart die wordt aangeboden. Wil je doorgaan?',
+
+    // Organisation currency
+    'Currency': 'Valuta',
+    'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.': 'Wordt gebruikt om prijzen, saldo\'s en opwaarderingen te labelen. Wijzigen hernoemt ook eerdere verkopen; er worden geen bedragen omgerekend.',
 };

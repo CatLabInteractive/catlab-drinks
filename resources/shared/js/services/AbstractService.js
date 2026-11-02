@@ -164,6 +164,23 @@ export class AbstractService {
 		);
 	}
 
+	/**
+	 * Partial update: only the given fields are validated and written.
+	 * (update() issues PUT, which Charon validates as a whole resource.)
+	 */
+	async patch (id, data, parameters) {
+
+		if (typeof(parameters) === 'undefined') {
+			parameters = {};
+		}
+
+		return this.execute(
+			'patch',
+			'/' + this.entityUrl + '/' + id + "?" + $.param(parameters),
+			this.mapToServerData(data)
+		);
+	}
+
 	async delete (id, parameters) {
 
 		if (typeof(parameters) === 'undefined') {

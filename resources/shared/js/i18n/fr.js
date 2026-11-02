@@ -569,4 +569,8 @@ export default {
     'Stop test': 'Arrêter le test',
     'Scan card to start test': 'Scannez une carte pour démarrer le test',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Attention ! Cela appliquera des transactions aléatoires à toute carte présentée. Voulez-vous continuer ?',
+
+    // Organisation currency
+    'Currency': 'Devise',
+    'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.': 'Sert à libeller les prix, les soldes et les rechargements. Un changement s\'applique aussi aux ventes passées ; aucun montant n\'est converti.',
 };

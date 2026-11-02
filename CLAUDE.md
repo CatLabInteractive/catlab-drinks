@@ -336,6 +336,7 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
 - POS Events page has an Actions dropdown per event with links to Sales overview and Order history
 - Manage Events page has a richer Actions dropdown including edit, delete, menu editing, attendees, etc.
 - When adding POS access to an existing Manage-only feature: move controller + resource definitions to Shared, create thin stubs in both API namespaces, update the policy's `$allowDevices` flag, add frontend links
+- Amounts of money are formatted with the shared helper (`resources/shared/js/utils/money.js` in the frontends via `$filters.money()`, `App\Support\Money::format()` in PHP) using the organisation's `currency`; never hardcode a currency symbol. Amounts always show two decimals, whatever the currency.
 
 ---
 
