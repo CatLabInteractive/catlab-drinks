@@ -54,7 +54,7 @@
                             <span v-if="row.item.isHeading" class="order-heading">{{row.item.name}}</span>
                             <template v-else>
                                 {{row.item.name}}<br />
-                                <span class="price">€{{row.item.price.toFixed(2)}}</span>
+                                <span class="price">{{ $filters.money(row.item.price) }}</span>
                             </template>
                         </template>
 

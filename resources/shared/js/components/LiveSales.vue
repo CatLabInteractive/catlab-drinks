@@ -66,7 +66,7 @@
 		<b-row>
 			<b-col cols="12">
 				<div class="total">
-					<p>{{ $t('Total: {amount} items = €{price}', { amount: totals.amount, price: totals.price.toFixed(2) }) }}</p>
+					<p>{{ $t('Total: {amount} items = {price}', { amount: totals.amount, price: $filters.money(totals.price) }) }}</p>
 				</div>
 
 				<p>
@@ -92,7 +92,7 @@
 				</li>
 			</ul>
 
-			<p class="total">{{ $t('Total: {amount} items = €{price}', { amount: totals.amount, price: totals.price.toFixed(2) }) }}</p>
+			<p class="total">{{ $t('Total: {amount} items = {price}', { amount: totals.amount, price: $filters.money(totals.price) }) }}</p>
 		</b-modal>
 
 		<!-- Modal Component -->

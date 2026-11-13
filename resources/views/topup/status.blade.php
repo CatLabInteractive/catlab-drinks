@@ -17,7 +17,7 @@
             </div>
         @elseif($topup->isSuccess())
             <div class="alert alert-success">
-                {{ __('topup.payment_success', ['amount' => $topup->amount]) }}
+                {{ __('topup.payment_success', ['amount' => $amountFormatted]) }}
             </div>
         @endif
 

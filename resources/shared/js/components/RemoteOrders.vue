@@ -29,7 +29,22 @@
 				<span>✏️</span>
 				<span class="sr-only">{{ $t('Menu items') }}</span>
 			</b-button>
+
+			<b-badge v-if="roundRobinActive" variant="primary" class="ml-1">
+				🔀 {{ $t('Round robin') }}
+			</b-badge>
 		</h2>
+
+		<!-- Round robin indicator (POS only): orders are split between several online POS terminals -->
+		<b-alert v-if="roundRobinActive && onlyAssignedOrders" variant="primary" show>
+			<strong>🔀 {{ $t('Round robin is active') }}</strong><br />
+			{{ $t('Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.', { count: activeDevicesCount }) }}
+		</b-alert>
+
+		<b-alert v-if="roundRobinActive && !onlyAssignedOrders" variant="warning" show>
+			<strong>🔀 {{ $t('Round robin is active') }}</strong><br />
+			{{ $t('Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.', { others: activeDevicesCount - 1 }) }}
+		</b-alert>
 
 		<!-- Stranded orders warning (POS only) -->
 		<b-alert v-if="strandedOrdersCount > 0" variant="warning" show>
@@ -191,8 +206,20 @@
 				onlyAssignedOrders: true,
 				currentDeviceId: this.deviceId || null,
 				strandedOrdersCount: 0,
+				activeDevicesCount: 0,
 				isOffline: false
 			}
+		},
+
+		computed: {
+
+			/**
+			 * Round robin is active when this POS shares remote orders with other online POS terminals.
+			 */
+			roundRobinActive() {
+				return !!this.currentDeviceId && this.activeDevicesCount > 1;
+			}
+
 		},
 
 		watch: {
@@ -290,6 +317,7 @@
 				try {
 					const response = await this.orderService.strandedOrders();
 					this.strandedOrdersCount = response.count || 0;
+					this.activeDevicesCount = response.active_devices || 0;
 				} catch (e) {
 					// Silently fail — don't block the UI for this check
 					console.error('Failed to check stranded orders:', e);

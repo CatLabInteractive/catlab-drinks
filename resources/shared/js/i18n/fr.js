@@ -31,7 +31,7 @@ export default {
     'Balance': 'Solde',
     'Last transaction': 'Dernière transaction',
     'Confirm topup': 'Confirmer le rechargement',
-    'Are you sure you want to topup for €{amount}?': 'Êtes-vous sûr de vouloir recharger pour €{amount} ?',
+    'Are you sure you want to topup for {amount}?': 'Êtes-vous sûr de vouloir recharger pour {amount} ?',
     'Please wait': 'Veuillez patienter',
     'Topup failed.': 'Rechargement échoué.',
     'Card reset successful.': 'Réinitialisation de la carte réussie.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Articles du menu',
-    'Total: {amount} items = €{price}': 'Total : {amount} articles = €{price}',
+    'Total: {amount} items = {price}': 'Total : {amount} articles = {price}',
     'Confirm order': 'Confirmer la commande',
     'Payment successful': 'Paiement réussi',
     'Order registered successfully.': 'Commande enregistrée avec succès.',
@@ -589,6 +589,10 @@ export default {
     // Remote orders (additions)
     '{count} order(s) cannot be processed because no online POS accepts their station. At least one POS must change its filter to handle these orders.': '{count} commande(s) ne peuvent pas être traitées car aucun POS en ligne n\'accepte leur poste. Au moins un POS doit modifier son filtre pour traiter ces commandes.',
     'Only show assigned orders': 'Afficher uniquement les commandes attribuées',
+    'Round robin': 'Round robin',
+    'Round robin is active': 'Le round robin est actif',
+    'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.': 'Les commandes à distance sont réparties entre {count} terminaux POS. Ce terminal n\'affiche que les commandes qui lui sont attribuées.',
+    'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.': 'Toutes les commandes sont affichées, y compris celles attribuées aux {others} autre(s) terminal(aux) POS. Concertez-vous avec eux avant de traiter leurs commandes.',
     'On my way!': 'J\'arrive !',
     'Failed to save station filter. Reverting to previous value.': 'Échec de l\'enregistrement du filtre de poste. Retour à la valeur précédente.',
 
@@ -600,4 +604,8 @@ export default {
     'Stop test': 'Arrêter le test',
     'Scan card to start test': 'Scannez une carte pour démarrer le test',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Attention ! Cela appliquera des transactions aléatoires à toute carte présentée. Voulez-vous continuer ?',
+
+    // Organisation currency
+    'Currency': 'Devise',
+    'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.': 'Sert à libeller les prix, les soldes et les rechargements. Un changement s\'applique aussi aux ventes passées ; aucun montant n\'est converti.',
 };

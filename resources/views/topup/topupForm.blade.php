@@ -8,7 +8,7 @@
 
         <h2>{{ __('topup.current_balance') }}</h2>
         <p>
-            € {{ $balance }}
+            {{ $balance }}
         </p>
 
         <h2>{{ __('topup.title') }}</h2>
@@ -23,7 +23,7 @@
             </div>
         @endif
 
-        <p>{{ __('topup.choose_amount', ['min' => $minTopup]) }}</p>
+        <p>{{ __('topup.choose_amount', ['min' => $minTopupFormatted]) }}</p>
 
         <form class="{{ $action }}" method="post">
             @csrf

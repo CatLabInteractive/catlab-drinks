@@ -38,6 +38,18 @@
 
 		<div v-if="loaded">
 
+			<h2>{{ $t('Currency') }}</h2>
+			<p class="text-muted">{{ $t('Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.') }}</p>
+			<b-form inline @submit.prevent="saveCurrency" class="mb-4">
+				<b-form-select id="organisation-currency" v-model="currency" :options="currencyOptions" class="mr-2" />
+				<b-btn variant="success" type="submit" :disabled="savingCurrency || currency === savedCurrency">
+					<b-spinner small v-if="savingCurrency" />
+					<span class="mr-1" v-if="!savingCurrency">💾</span>
+					{{ $t('Save') }}
+				</b-btn>
+				<b-alert v-if="currencySaved" variant="success" :show="2" class="mb-0 ml-2 py-1">{{ $t('Saved') }}</b-alert>
+			</b-form>
+
 			<h2>{{ $t('Payment Gateways') }}</h2>
 			<p class="text-muted">{{ $t('Configure payment gateways for online top-ups. Credentials are stored encrypted and are never exposed via the API.') }}</p>
 
@@ -140,6 +152,8 @@
 <script>
 
 	import { PaymentGatewayService } from '../services/PaymentGatewayService';
+	import { currencyOptions, setCurrency, DEFAULT_CURRENCY } from '../../../shared/js/utils/money';
+	import { getLocale } from '../../../shared/js/i18n/index';
 
 	export default {
 
@@ -153,9 +167,19 @@
 				(organisation) => organisation.id === window.ORGANISATION_ID
 			) || null;
 
+			const currentCurrency = currentOrganisation && currentOrganisation.currency
+				? currentOrganisation.currency
+				: DEFAULT_CURRENCY;
+
 			return {
 				organisationName: currentOrganisation ? currentOrganisation.name : '',
 				profileId: currentOrganisation ? currentOrganisation.profile_id : null,
+				currency: currentCurrency,
+				savedCurrency: currentCurrency,
+				savingCurrency: false,
+				currencySaved: false,
+				// The current code is always in the list, even on browsers with the short fallback list.
+				currencyOptions: currencyOptions(currentCurrency, getLocale()),
 				loaded: false,
 				saving: false,
 				gateways: [],
@@ -187,6 +211,30 @@
 		},
 
 		methods: {
+
+			async saveCurrency() {
+				this.savingCurrency = true;
+				this.currencySaved = false;
+
+				try {
+					// PATCH: a PUT would have to carry the (required) name as well.
+					// Errors are alerted by the axios interceptor in bootstrap.js.
+					await this.$organisationService.patch(window.ORGANISATION_ID, { currency: this.currency });
+
+					const organisation = (window.ORGANISATIONS || []).find(
+						(candidate) => candidate.id === window.ORGANISATION_ID
+					);
+					if (organisation) {
+						organisation.currency = this.currency;
+					}
+
+					setCurrency(this.currency);
+					this.savedCurrency = this.currency;
+					this.currencySaved = true;
+				} finally {
+					this.savingCurrency = false;
+				}
+			},
 
 			async loadGateways() {
 				const response = await this.service.index();

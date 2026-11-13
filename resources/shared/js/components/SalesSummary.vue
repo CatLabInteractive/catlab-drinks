@@ -67,11 +67,11 @@
 								</span>
 							</td>
 							<td>{{product.amount}}</td>
-							<td><span v-if="product.menuItem">€{{product.price.toFixed(2)}}</span></td>
+							<td><span v-if="product.menuItem">{{ $filters.money(product.price) }}</span></td>
 							<td><span v-if="product.menuItem && product.vat_percentage">{{product.vat_percentage.toFixed(2)}}%</span></td>
-							<td class="text-right"><span v-if="product.net_total">€{{product.net_total.toFixed(2)}}</span></td>
-							<td class="text-right"><span v-if="product.vat_total">€{{product.vat_total.toFixed(2)}}</span></td>
-							<td class="text-right">€{{product.totalSales.toFixed(2)}}</td>
+							<td class="text-right"><span v-if="product.net_total">{{ $filters.money(product.net_total) }}</span></td>
+							<td class="text-right"><span v-if="product.vat_total">{{ $filters.money(product.vat_total) }}</span></td>
+							<td class="text-right">{{ $filters.money(product.totalSales) }}</td>
 						</tr>
 					</template>
 				</tbody>
@@ -83,9 +83,9 @@
 						<th>{{summary.amount}}</th>
 						<th>&nbsp;</th>
 						<th>&nbsp;</th>
-						<th class="text-right"><span v-if="summary.net_total">€{{summary.net_total.toFixed(2)}}</span></th>
-						<th class="text-right"><span v-if="summary.vat_total">€{{summary.vat_total.toFixed(2)}}</span></th>
-						<th class="text-right">€{{summary.totalSales.toFixed(2)}}</th>
+						<th class="text-right"><span v-if="summary.net_total">{{ $filters.money(summary.net_total) }}</span></th>
+						<th class="text-right"><span v-if="summary.vat_total">{{ $filters.money(summary.vat_total) }}</span></th>
+						<th class="text-right">{{ $filters.money(summary.totalSales) }}</th>
 					</tr>
 				</tfoot>
 			</table>

@@ -5,7 +5,7 @@ return [
     'title' => 'Kaart opladen',
     'scan_qr' => 'Scan de QR-code op de kaart om een opwaardering te starten.',
     'current_balance' => 'Huidige balans',
-    'choose_amount' => 'Kies het gewenste bedrag (vanaf €:min).',
+    'choose_amount' => 'Kies het gewenste bedrag (vanaf :min).',
     'amount_label' => 'Bedrag',
     'amount_placeholder' => 'Bedrag',
     'submit' => 'Opladen',

@@ -31,7 +31,7 @@ export default {
     'Balance': 'Balance',
     'Last transaction': 'Last transaction',
     'Confirm topup': 'Confirm topup',
-    'Are you sure you want to topup for €{amount}?': 'Are you sure you want to topup for €{amount}?',
+    'Are you sure you want to topup for {amount}?': 'Are you sure you want to topup for {amount}?',
     'Please wait': 'Please wait',
     'Topup failed.': 'Topup failed.',
     'Card reset successful.': 'Card reset successful.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Menu items',
-    'Total: {amount} items = €{price}': 'Total: {amount} items = €{price}',
+    'Total: {amount} items = {price}': 'Total: {amount} items = {price}',
     'Confirm order': 'Confirm order',
     'Payment successful': 'Payment successful',
     'Order registered successfully.': 'Order registered successfully.',
@@ -589,6 +589,10 @@ export default {
     // Remote orders (additions)
     '{count} order(s) cannot be processed because no online POS accepts their station. At least one POS must change its filter to handle these orders.': '{count} order(s) cannot be processed because no online POS accepts their station. At least one POS must change its filter to handle these orders.',
     'Only show assigned orders': 'Only show assigned orders',
+    'Round robin': 'Round robin',
+    'Round robin is active': 'Round robin is active',
+    'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.': 'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.',
+    'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.': 'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.',
     'On my way!': 'On my way!',
     'Failed to save station filter. Reverting to previous value.': 'Failed to save station filter. Reverting to previous value.',
 
@@ -600,4 +604,8 @@ export default {
     'Stop test': 'Stop test',
     'Scan card to start test': 'Scan card to start test',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Warning! This will apply random transactions to any card that is presented. Do you want to continue?',
+
+    // Organisation currency
+    'Currency': 'Currency',
+    'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.': 'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.',
 };

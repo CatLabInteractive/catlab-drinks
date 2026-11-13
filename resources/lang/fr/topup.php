@@ -5,7 +5,7 @@ return [
     'title' => 'Recharger la carte',
     'scan_qr' => 'Veuillez scanner le code QR sur la carte pour initier un rechargement.',
     'current_balance' => 'Solde actuel',
-    'choose_amount' => 'Choisissez le montant souhaité (à partir de :min €).',
+    'choose_amount' => 'Choisissez le montant souhaité (à partir de :min).',
     'amount_label' => 'Montant',
     'amount_placeholder' => 'Montant',
     'submit' => 'Recharger',

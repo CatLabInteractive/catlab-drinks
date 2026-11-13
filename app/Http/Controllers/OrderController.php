@@ -68,6 +68,7 @@ class OrderController
                 'signature' => $request->query('signature', ''),
                 'cardToken' => $request->query('card', ''),
                 'orderName' => $request->query('name', ''),
+                'currency' => $event->organisation->currency,
             ]
         );
     }

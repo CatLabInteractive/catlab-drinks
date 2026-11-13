@@ -31,7 +31,7 @@ export default {
     'Balance': 'Saldo',
     'Last transaction': 'Última transacción',
     'Confirm topup': 'Confirmar recarga',
-    'Are you sure you want to topup for €{amount}?': '¿Está seguro de que desea recargar por €{amount}?',
+    'Are you sure you want to topup for {amount}?': '¿Está seguro de que desea recargar por {amount}?',
     'Please wait': 'Por favor espere',
     'Topup failed.': 'Recarga fallida.',
     'Card reset successful.': 'Reinicio de tarjeta exitoso.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Artículos del menú',
-    'Total: {amount} items = €{price}': 'Total: {amount} artículos = €{price}',
+    'Total: {amount} items = {price}': 'Total: {amount} artículos = {price}',
     'Payment successful': 'Pago exitoso',
     'Order registered successfully.': 'Pedido registrado exitosamente.',
     'Payment failed': 'Pago fallido',
@@ -589,6 +589,10 @@ export default {
     // Remote orders (additions)
     '{count} order(s) cannot be processed because no online POS accepts their station. At least one POS must change its filter to handle these orders.': '{count} pedido(s) no se pueden procesar porque ningún POS en línea acepta su estación. Al menos un POS debe cambiar su filtro para gestionar estos pedidos.',
     'Only show assigned orders': 'Mostrar solo pedidos asignados',
+    'Round robin': 'Round robin',
+    'Round robin is active': 'El round robin está activo',
+    'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.': 'Los pedidos remotos se reparten entre {count} terminales POS. Este terminal solo muestra los pedidos asignados a él.',
+    'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.': 'Se muestran todos los pedidos, incluidos los asignados a los otros {others} terminal(es) POS. Coordina con ellos antes de gestionar sus pedidos.',
     'On my way!': '¡Voy en camino!',
     'Failed to save station filter. Reverting to previous value.': 'Error al guardar el filtro de estaciones. Se restaura el valor anterior.',
 
@@ -600,4 +604,8 @@ export default {
     'Stop test': 'Detener prueba',
     'Scan card to start test': 'Escanee una tarjeta para iniciar la prueba',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': '¡Advertencia! Esto aplicará transacciones aleatorias a cualquier tarjeta que se presente. ¿Desea continuar?',
+
+    // Organisation currency
+    'Currency': 'Moneda',
+    'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.': 'Se usa para etiquetar precios, saldos y recargas. Cambiarla también afecta a las ventas pasadas; no se convierte ningún importe.',
 };

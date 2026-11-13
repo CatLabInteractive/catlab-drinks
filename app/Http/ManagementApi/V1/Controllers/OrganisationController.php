@@ -23,6 +23,7 @@
 namespace App\Http\ManagementApi\V1\Controllers;
 
 use App\Http\ManagementApi\V1\ResourceDefinitions\OrganisationResourceDefinition;
+use App\Models\Organisation;
 use CatLab\Charon\Collections\RouteCollection;
 use Illuminate\Http\Request;
 use App\Http\Shared\V1\Controllers\Base\ResourceController;
@@ -84,6 +85,11 @@ class OrganisationController extends ResourceController
         // the mirror would overwrite any local rename on the next sync.
         if (!$isNew && $entity->profile_id !== null && $entity->isDirty('name')) {
             abort(422, 'This organisation\'s name is managed on CatLab Accounts.');
+        }
+
+        // Charon has no pattern validator; the currency must be a bare ISO 4217 code.
+        if ($entity->isDirty('currency') && !Organisation::isValidCurrencyCode($entity->currency)) {
+            abort(422, 'Currency must be a three-letter ISO 4217 code, e.g. EUR.');
         }
 
         return $entity;

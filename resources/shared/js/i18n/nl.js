@@ -31,7 +31,7 @@ export default {
     'Balance': 'Saldo',
     'Last transaction': 'Laatste transactie',
     'Confirm topup': 'Opwaardering bevestigen',
-    'Are you sure you want to topup for €{amount}?': 'Weet je zeker dat je wilt opwaarderen voor €{amount}?',
+    'Are you sure you want to topup for {amount}?': 'Weet je zeker dat je wilt opwaarderen voor {amount}?',
     'Please wait': 'Even wachten',
     'Topup failed.': 'Opwaardering mislukt.',
     'Card reset successful.': 'Kaart reset geslaagd.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Menu-items',
-    'Total: {amount} items = €{price}': 'Totaal: {amount} items = €{price}',
+    'Total: {amount} items = {price}': 'Totaal: {amount} items = {price}',
     'Payment successful': 'Betaling geslaagd',
     'Order registered successfully.': 'Bestelling succesvol geregistreerd.',
     'Payment failed': 'Betaling mislukt',
@@ -589,6 +589,10 @@ export default {
     // Remote orders (additions)
     '{count} order(s) cannot be processed because no online POS accepts their station. At least one POS must change its filter to handle these orders.': '{count} bestelling(en) kunnen niet worden verwerkt omdat geen enkele online POS hun station accepteert. Minstens één POS moet zijn filter aanpassen om deze bestellingen te verwerken.',
     'Only show assigned orders': 'Alleen toegewezen bestellingen tonen',
+    'Round robin': 'Round robin',
+    'Round robin is active': 'Round robin is actief',
+    'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.': 'Bestellingen op afstand worden verdeeld over {count} POS-terminals. Deze terminal toont enkel de bestellingen die eraan toegewezen zijn.',
+    'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.': 'Alle bestellingen worden getoond, ook die van de {others} andere POS-terminal(s). Overleg met hen voor je hun bestellingen afhandelt.',
     'On my way!': 'Onderweg!',
     'Failed to save station filter. Reverting to previous value.': 'Opslaan van stationfilter mislukt. Vorige waarde wordt hersteld.',
 
@@ -600,4 +604,8 @@ export default {
     'Stop test': 'Test stoppen',
     'Scan card to start test': 'Scan een kaart om de test te starten',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Waarschuwing! Dit voert willekeurige transacties uit op elke kaart die wordt aangeboden. Wil je doorgaan?',
+
+    // Organisation currency
+    'Currency': 'Valuta',
+    'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.': 'Wordt gebruikt om prijzen, saldo\'s en opwaarderingen te labelen. Wijzigen hernoemt ook eerdere verkopen; er worden geen bedragen omgerekend.',
 };
