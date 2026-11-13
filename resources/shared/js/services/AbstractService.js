@@ -121,6 +121,9 @@ export class AbstractService {
 					} else {
 						alert(message);
 					}
+
+					// The user has been informed; don't report this to the error tracker.
+					error.userNotified = true;
 					return Promise.reject(error);
 				}
 
