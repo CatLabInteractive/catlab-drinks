@@ -29,6 +29,7 @@ export class MenuService extends AbstractService {
     constructor(eventId) {
         super();
 
+        this.eventId = eventId;
         this.indexUrl = 'events/' + eventId + '/menu';
         this.entityUrl = 'menuitems';
     }
@@ -40,7 +41,37 @@ export class MenuService extends AbstractService {
             description: data.description,
             category: data.category ? { id: data.category.id } : null,
             image: data.image,
-			is_selling: data.is_selling
+			is_selling: data.is_selling,
+            vat_percentage: data.vat_percentage
         };
+    }
+
+    /**
+     * Send only the given fields. The caller includes name and price, the
+     * update endpoint requires them.
+     */
+    updateFields(id, changes) {
+        return this.client({
+            method: 'put',
+            url: this.entityUrl + '/' + id,
+            data: changes
+        }).then(response => response.data);
+    }
+
+    bulkCreate(dataList) {
+        return this.client({
+            method: 'post',
+            url: this.indexUrl,
+            data: { items: dataList },
+            headers: { 'X-Bulk-Request': '1' }
+        }).then(response => response.data.items);
+    }
+
+    saveSequence(ids) {
+        return this.client({
+            method: 'put',
+            url: this.indexUrl + '/sequence',
+            data: { items: ids.map(id => ({ id })) }
+        }).then(() => undefined);
     }
 }
