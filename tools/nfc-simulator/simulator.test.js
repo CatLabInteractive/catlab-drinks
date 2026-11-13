@@ -5,10 +5,12 @@ import { createSimulator } from './simulator.mjs';
 
 let sim;
 let socket;
+let base;
 
 async function start(options = {}) {
 	sim = createSimulator(options);
 	const port = await sim.listen(0, '127.0.0.1');
+	base = 'http://127.0.0.1:' + port;
 	socket = io('http://127.0.0.1:' + port, { transports: ['websocket'] });
 	await once(socket, 'connect');
 }
@@ -138,5 +140,77 @@ describe('nfc simulator socket protocol', () => {
 		sim.forget(uid);
 		expect(sim.state()).toEqual({ current: null, cards: [] });
 		expect(() => sim.tap('not-hex')).toThrow(RangeError);
+	});
+});
+
+describe('nfc simulator http interface', () => {
+	test('POST /cards/{uid}/tap puts the card on the reader', async () => {
+		await start();
+		await hello(socket, '');
+		const connect = once(socket, 'nfc:card:connect');
+		const res = await fetch(base + '/cards/04a1b2c3d4e5f6/tap', { method: 'POST' });
+		expect(res.status).toBe(200);
+		expect(res.headers.get('access-control-allow-origin')).toBe('*');
+		expect(await res.json()).toEqual({ current: '04a1b2c3d4e5f6', cards: [{ uid: '04a1b2c3d4e5f6', ndef: null }] });
+		expect(await connect).toEqual({ uid: '04a1b2c3d4e5f6' });
+	});
+
+	test('POST /remove takes the card off and GET /cards shows the state', async () => {
+		await start();
+		sim.tap('aaaaaaaa');
+		expect((await (await fetch(base + '/remove', { method: 'POST' })).json()).current).toBe(null);
+		expect(await (await fetch(base + '/cards')).json()).toEqual({ current: null, cards: [{ uid: 'aaaaaaaa', ndef: null }] });
+	});
+
+	test('DELETE /cards/{uid} forgets the card', async () => {
+		await start();
+		sim.tap('aaaaaaaa');
+		const res = await fetch(base + '/cards/aaaaaaaa', { method: 'DELETE' });
+		expect(await res.json()).toEqual({ current: null, cards: [] });
+	});
+
+	test('an invalid uid gives 400 and creates no card', async () => {
+		await start();
+		const res = await fetch(base + '/cards/not-hex/tap', { method: 'POST' });
+		expect(res.status).toBe(400);
+		expect((await res.json()).error).toEqual(expect.any(String));
+		expect(sim.state().cards).toEqual([]);
+	});
+
+	test('an unknown route gives 404', async () => {
+		await start();
+		expect((await fetch(base + '/nothing')).status).toBe(404);
+	});
+});
+
+describe('nfc simulator edge cases', () => {
+	test('close on a simulator that never listened resolves', async () => {
+		const idle = createSimulator();
+		await expect(idle.close()).resolves.toBeUndefined();
+	});
+
+	test('a write with an ndef that is not a non-empty string fails and stores nothing', async () => {
+		await start();
+		await hello(socket, '');
+		sim.tap(uid);
+		await once(socket, 'nfc:card:connect');
+		for (const ndef of [undefined, '', 5, null]) {
+			const ack = await emitWithAck(socket, 'nfc:write', { uid, ndef });
+			expect(ack).toEqual({ success: false, error: { error: { name: 'InvalidNdef' } } });
+		}
+		expect(sim.state().cards).toEqual([{ uid, ndef: null }]);
+	});
+
+	test('nfc:password for a card that is not on the reader is ignored', async () => {
+		await start();
+		await hello(socket, '');
+		sim.tap('aaaaaaaa');
+		sim.tap('bbbbbbbb');
+		await new Promise((r) => setTimeout(r, 50));
+		let events = 0;
+		socket.on('nfc:data', () => events++);
+		socket.emit('nfc:password', { uid: 'aaaaaaaa', password: 'x' });
+		await new Promise((r) => setTimeout(r, 100));
+		expect(events).toBe(0);
 	});
 });

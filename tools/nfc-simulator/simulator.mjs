@@ -14,10 +14,45 @@ export function createSimulator(options = {}) {
 	let current = null;
 
 	const httpServer = http.createServer((request, response) => {
-		response.statusCode = 404;
-		response.end();
+		handleRequest(request, response);
 	});
 	const io = new Server(httpServer, { cors: { origin: '*' } });
+
+	const send = (response, status, body) => {
+		response.writeHead(status, {
+			'Content-Type': 'application/json',
+			'Access-Control-Allow-Origin': '*',
+		});
+		response.end(JSON.stringify(body));
+	};
+
+	const handleRequest = (request, response) => {
+		const path = new URL(request.url, 'http://localhost').pathname;
+		const method = request.method;
+		const tapMatch = path.match(/^\/cards\/([^/]+)\/tap$/);
+		const cardMatch = path.match(/^\/cards\/([^/]+)$/);
+		if (method === 'GET' && path === '/cards') {
+			send(response, 200, api.state());
+		} else if (method === 'POST' && tapMatch) {
+			try {
+				api.tap(decodeURIComponent(tapMatch[1]));
+				send(response, 200, api.state());
+			} catch (error) {
+				if (!(error instanceof RangeError)) {
+					throw error;
+				}
+				send(response, 400, { error: error.message });
+			}
+		} else if (method === 'POST' && path === '/remove') {
+			api.remove();
+			send(response, 200, api.state());
+		} else if (method === 'DELETE' && cardMatch) {
+			api.forget(decodeURIComponent(cardMatch[1]));
+			send(response, 200, api.state());
+		} else {
+			send(response, 404, { error: 'Not found' });
+		}
+	};
 
 	const acknowledge = (callback, payload) => {
 		if (typeof callback === 'function') {
@@ -39,7 +74,7 @@ export function createSimulator(options = {}) {
 		});
 
 		socket.on('nfc:password', (payload, callback) => {
-			if (!socket.rooms.has(READERS) || !cards.has(payload?.uid)) {
+			if (!socket.rooms.has(READERS) || payload?.uid !== current) {
 				return;
 			}
 			acknowledge(callback, { success: true });
@@ -57,6 +92,10 @@ export function createSimulator(options = {}) {
 				acknowledge(callback, { success: false, error: { error: { name: 'CardNotPresent' } } });
 				return;
 			}
+			if (typeof payload.ndef !== 'string' || payload.ndef === '') {
+				acknowledge(callback, { success: false, error: { error: { name: 'InvalidNdef' } } });
+				return;
+			}
 			cards.set(current, payload.ndef);
 			acknowledge(callback, { success: true });
 		});
@@ -71,7 +110,7 @@ export function createSimulator(options = {}) {
 		io.to(READERS).emit('nfc:card:disconnect', { uid });
 	};
 
-	return {
+	const api = {
 		httpServer,
 
 		listen(port, host) {
@@ -85,7 +124,10 @@ export function createSimulator(options = {}) {
 		},
 
 		async close() {
-			await io.close(); // also closes httpServer
+			// io.close() also closes httpServer, which rejects when it never listened.
+			await new Promise((resolve) => {
+				io.close(() => resolve());
+			});
 		},
 
 		tap(uid) {
@@ -104,7 +146,11 @@ export function createSimulator(options = {}) {
 		remove,
 
 		forget(uid) {
-			cards.delete(String(uid).toLowerCase());
+			uid = String(uid).toLowerCase();
+			if (uid === current) {
+				remove();
+			}
+			cards.delete(uid);
 		},
 
 		state() {
@@ -114,4 +160,6 @@ export function createSimulator(options = {}) {
 			};
 		},
 	};
+
+	return api;
 }
