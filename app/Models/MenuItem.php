@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AssignsNextPosition;
 use Illuminate\Database\Eloquent\Builder;
 use CatLab\Charon\Laravel\Database\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,20 +10,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MenuItem extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, AssignsNextPosition;
 
     protected $table = 'menu_items';
-
-    protected static function booted()
-    {
-        static::creating(function (MenuItem $item) {
-            if (empty($item->position)) {
-                $item->position = (int) static::withTrashed()
-                    ->where('event_id', $item->event_id)
-                    ->max('position') + 1;
-            }
-        });
-    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -38,6 +28,14 @@ class MenuItem extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function heading()
+    {
+        return $this->belongsTo(MenuHeading::class, 'heading_id');
     }
 
     /**
