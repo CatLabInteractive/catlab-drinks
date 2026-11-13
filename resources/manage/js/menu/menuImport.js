@@ -27,7 +27,7 @@
 
 import { parsePrice, parseNumber } from './priceParser';
 
-export const COLUMN_TYPES = ['name', 'description', 'price', 'vat_percentage', 'ignore'];
+export const COLUMN_TYPES = ['name', 'description', 'price', 'vat_percentage', 'category', 'heading', 'ignore'];
 
 const MAX_PRICE_TOKENS = 3;
 const NAME_TRAILER = /[\s.…:\-–—]+$/;
@@ -132,6 +132,8 @@ export function buildImportRows(rows, types) {
 			description: cell(row, 'description'),
 			price,
 			vat_percentage: vat === '' ? null : parseNumber(vat),
+			category: cell(row, 'category'),
+			heading: cell(row, 'heading'),
 			errors,
 		};
 	});
@@ -144,21 +146,95 @@ export function canImport(types, importRows) {
 		&& importRows.every((row) => row.errors.length === 0);
 }
 
+function normalizedName(name) {
+	return String(name === undefined || name === null ? '' : name).trim().toLowerCase();
+}
+
+/**
+ * The entry of the list with this name, ignoring letter case and outer
+ * spaces. An empty name matches nothing.
+ */
+export function matchByName(name, list) {
+	const wanted = normalizedName(name);
+	if (wanted === '') {
+		return null;
+	}
+	return list.find((entry) => normalizedName(entry.name) === wanted) || null;
+}
+
+/**
+ * The names of the import rows (field 'category' or 'heading') that match
+ * nothing in the existing list, each once (the first spelling wins). Names
+ * of preferredOrder come first, in that order, then the others in order of
+ * first appearance.
+ */
+export function namesToCreate(importRows, field, existing, preferredOrder = []) {
+	const names = [];
+	const seen = new Set();
+	importRows.forEach((row) => {
+		const name = String(row[field] || '').trim();
+		const key = normalizedName(name);
+		if (key === '' || seen.has(key) || matchByName(name, existing)) {
+			return;
+		}
+		seen.add(key);
+		names.push(name);
+	});
+	const rank = (name) => {
+		const index = preferredOrder.findIndex((preferred) => normalizedName(preferred) === normalizedName(name));
+		return index === -1 ? Infinity : index;
+	};
+	return names
+		.map((name, order) => ({ name, order }))
+		.sort((a, b) => (rank(a.name) === rank(b.name) ? a.order - b.order : (rank(a.name) < rank(b.name) ? -1 : 1)))
+		.map((entry) => entry.name);
+}
+
+/**
+ * The distinct heading names of the items, in heading position, then
+ * heading id order.
+ */
+export function headingOrderFromItems(items) {
+	const headings = new Map();
+	items.forEach((item) => {
+		if (item.heading && !headings.has(item.heading.id)) {
+			headings.set(item.heading.id, item.heading);
+		}
+	});
+	return Array.from(headings.values())
+		.sort((a, b) => (a.position - b.position) || (a.id - b.id))
+		.map((heading) => heading.name);
+}
+
 const COPY_TYPES = ['name', 'description', 'price', 'vat_percentage'];
+
+const OPTIONAL_COLUMNS = [
+	['description', (item) => item.description],
+	['vat_percentage', (item) => (item.vat_percentage === undefined || item.vat_percentage === null ? '' : String(Number(item.vat_percentage)))],
+	['category', (item) => (item.category ? item.category.name : '')],
+	['heading', (item) => (item.heading ? item.heading.name : '')],
+];
 
 /**
  * Turns the products of a menu into a sheet, so that they can be imported
- * like a paste: name, description, price with two decimals and VAT.
+ * like a paste: name, description, price with two decimals, VAT, category
+ * and heading. A column that is empty for all products is left out; name and
+ * price always stay.
  */
 export function sheetFromItems(items) {
 	const text = (value) => (value === undefined || value === null ? '' : String(value));
+	if (items.length === 0) {
+		return { cells: [], types: COPY_TYPES.slice() };
+	}
+	const columns = [
+		['name', (item) => item.name],
+		['description', OPTIONAL_COLUMNS[0][1]],
+		['price', (item) => Number(item.price).toFixed(2)],
+		...OPTIONAL_COLUMNS.slice(1),
+	].filter(([type, read]) => !OPTIONAL_COLUMNS.some(([optional]) => optional === type)
+		|| items.some((item) => text(read(item)) !== ''));
 	return {
-		cells: items.map((item) => [
-			text(item.name),
-			text(item.description),
-			Number(item.price).toFixed(2),
-			item.vat_percentage === undefined || item.vat_percentage === null ? '' : String(Number(item.vat_percentage)),
-		]),
-		types: COPY_TYPES.slice(),
+		cells: items.map((item) => columns.map(([, read]) => text(read(item)))),
+		types: columns.map(([type]) => type),
 	};
 }
