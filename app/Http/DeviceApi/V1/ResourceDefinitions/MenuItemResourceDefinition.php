@@ -81,6 +81,11 @@ class MenuItemResourceDefinition extends ResourceDefinition
             ->visible(true)
             ->expanded();
 
+        $this->relationship('heading', \App\Http\ManagementApi\V1\ResourceDefinitions\MenuHeadingResourceDefinition::class)
+            ->one()
+            ->visible(true)
+            ->expanded();
+
 
     }
 }

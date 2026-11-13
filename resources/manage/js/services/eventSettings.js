@@ -55,7 +55,8 @@ export function answersFromEvent(event) {
 			payment_vouchers: false,
 			payment_voucher_value: null,
 			online_ordering: null,
-			split_orders_by_categories: false,
+			// On for a new event: each station gets its own order.
+			split_orders_by_categories: true,
 			checkin_url: '',
 		};
 	}

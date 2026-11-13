@@ -241,7 +241,6 @@ export default {
     'Editing the menu can only be done from the management console.': 'Das Menü bearbeiten ist nur über die Verwaltungskonsole möglich.',
     'Here you can only change the availability of products.': 'Hier können Sie nur die Verfügbarkeit von Produkten ändern.',
     'Product name': 'Produktname',
-    'Category': 'Kategorie',
     'Not selling': 'Nicht im Verkauf',
     'Selling': 'Im Verkauf',
 
@@ -314,7 +313,8 @@ export default {
     'Requires NFC topup cards': 'Erfordert NFC-Aufladekarten',
     'Choose how guests order.': 'Wählen Sie, wie Gäste bestellen.',
     'Advanced settings': 'Erweiterte Einstellungen',
-    'Split orders by product category (bar / kitchen)': 'Bestellungen nach Produktkategorie aufteilen (Bar / Küche)',
+    'Split orders per station': 'Bestellungen pro Station aufteilen',
+    'Each station (for example the bar and the kitchen) gets its own order.': 'Jede Station (zum Beispiel die Bar und die Küche) erhält ihre eigene Bestellung.',
     'Next': 'Weiter',
     'Create event': 'Veranstaltung erstellen',
     'New event: step {step} of 3': 'Neue Veranstaltung: Schritt {step} von 3',
@@ -326,13 +326,10 @@ export default {
     'Description': 'Beschreibung',
     'Price (all taxes included)': 'Preis (inkl. aller Steuern)',
     'VAT / Tax percentage (optional)': 'MwSt. / Steuerprozentsatz (optional)',
-    'Product category': 'Produktkategorie',
-    'By defining multiple product categories, you can split your orders between different locations.': 'Durch die Definition mehrerer Produktkategorien können Sie Ihre Bestellungen auf verschiedene Standorte aufteilen.',
-    'Create new category': 'Neue Kategorie erstellen',
     'Please enter a name for the product.': 'Bitte geben Sie einen Namen für das Produkt ein.',
     'Please enter a price for the product.': 'Bitte geben Sie einen Preis für das Produkt ein.',
     'Are you sure you want to remove this menu item?': 'Sind Sie sicher, dass Sie diesen Menüpunkt entfernen möchten?',
-    'Enter the name of the new category:': 'Geben Sie den Namen der neuen Kategorie ein:',
+    'Enter the name of the new station:': 'Geben Sie den Namen der neuen Station ein:',
     'Unsaved changes': 'Nicht gespeicherte Änderungen',
     'All changes saved': 'Alle Änderungen gespeichert',
     'Import menu': 'Menü importieren',
@@ -347,7 +344,7 @@ export default {
     'Type to add a product…': 'Tippen, um ein Produkt hinzuzufügen…',
     'Paste a table from an email, Word, or Excel into the first cell.': 'Fügen Sie eine Tabelle aus einer E-Mail, aus Word oder aus Excel in die erste Zelle ein.',
     'Ignore': 'Ignorieren',
-    'Category for all products': 'Kategorie für alle Produkte',
+    'Station for all products': 'Station für alle Produkte',
     'Delete marked rows': 'Markierte Zeilen löschen',
     'Add {count} products': '{count} Produkte hinzufügen',
     'Rows without a name or a readable price are marked. Fix or delete them.': 'Zeilen ohne Namen oder ohne lesbaren Preis sind markiert. Korrigieren oder löschen Sie sie.',
@@ -516,9 +513,25 @@ export default {
     'The order token consists of a public part and a secret part, separated by a dash. The public part identifies the event in the order page URL. The secret part is used by integrating applications, such as QuizWitz, to sign order parameters (card and name) with HMAC-SHA256.': 'Das Bestelltoken besteht aus einem öffentlichen und einem geheimen Teil, getrennt durch einen Bindestrich. Der öffentliche Teil identifiziert die Veranstaltung in der URL der Bestellseite. Der geheime Teil wird von integrierenden Anwendungen wie QuizWitz verwendet, um Bestellparameter (card und name) mit HMAC-SHA256 zu signieren.',
     'Only share the full token with trusted integrations.': 'Geben Sie das vollständige Token nur an vertrauenswürdige Integrationen weiter.',
 
-    // Manage - Categories (additions)
-    'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.': 'Durch die Definition mehrerer Produktkategorien können Sie Ihre Bestellungen auf verschiedene Orte aufteilen. Kategorien sollten breit gefasst sein: z. B. \'Essen\' für die Küche und \'Getränke\' für die Bar.',
-    '+ Create new category': '+ Neue Kategorie erstellen',
+    // Manage - Stations (additions)
+    '+ Create new station': '+ Neue Station erstellen',
+
+    // Manage - Menu headings
+    'Heading': 'Rubrik',
+    'Headings': 'Rubriken',
+    '+ Create new heading': '+ Neue Rubrik erstellen',
+    'Enter the name of the new heading:': 'Geben Sie den Namen der neuen Rubrik ein:',
+    'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.': 'Rubriken gruppieren Produkte auf den Bestellbildschirmen. Stationen senden Bestellungen an einen Ort, zum Beispiel die Bar oder die Küche.',
+    'No headings yet. Create one in the "Heading" column of a product.': 'Noch keine Rubriken. Erstellen Sie eine in der Spalte „Rubrik“ eines Produkts.',
+    'Station': 'Station',
+    'Heading for all products': 'Rubrik für alle Produkte',
+    'Add also creates 1 station: {names}': 'Hinzufügen erstellt auch 1 Station: {names}',
+    'Add also creates {count} stations: {names}': 'Hinzufügen erstellt auch {count} Stationen: {names}',
+    'Add also creates 1 heading: {names}': 'Hinzufügen erstellt auch 1 Rubrik: {names}',
+    'Add also creates {count} headings: {names}': 'Hinzufügen erstellt auch {count} Rubriken: {names}',
+    'A product needs a name and a valid price.': 'Ein Produkt braucht einen Namen und einen gültigen Preis.',
+    'The VAT % of a product is not a number.': 'Der MwSt.-Satz eines Produkts ist keine Zahl.',
+    'A heading needs a name.': 'Eine Rubrik braucht einen Namen.',
 
     // Manage - Public Keys
     'Public Keys': 'Öffentliche Schlüssel',
@@ -580,14 +593,14 @@ export default {
     'or': 'oder',
 
     // Remote orders (additions)
-    '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.': '{count} Bestellung(en) können nicht verarbeitet werden, da kein Online-POS ihre Kategorie akzeptiert. Mindestens ein POS muss seinen Filter ändern, um diese Bestellungen zu verarbeiten.',
+    '{count} order(s) cannot be processed because no online POS accepts their station. At least one POS must change its filter to handle these orders.': '{count} Bestellung(en) können nicht verarbeitet werden, da kein Online-POS ihre Station akzeptiert. Mindestens ein POS muss seinen Filter ändern, um diese Bestellungen zu verarbeiten.',
     'Only show assigned orders': 'Nur zugewiesene Bestellungen anzeigen',
     'Round robin': 'Round Robin',
     'Round robin is active': 'Round Robin ist aktiv',
     'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.': 'Remote-Bestellungen werden auf {count} POS-Terminals verteilt. Dieses Terminal zeigt nur die ihm zugewiesenen Bestellungen.',
     'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.': 'Alle Bestellungen werden angezeigt, auch die der {others} anderen POS-Terminal(s). Sprich dich mit ihnen ab, bevor du ihre Bestellungen bearbeitest.',
     'On my way!': 'Bin unterwegs!',
-    'Failed to save category filter. Reverting to previous value.': 'Speichern des Kategoriefilters fehlgeschlagen. Vorheriger Wert wird wiederhergestellt.',
+    'Failed to save station filter. Reverting to previous value.': 'Speichern des Stationsfilters fehlgeschlagen. Vorheriger Wert wird wiederhergestellt.',
 
     // Attendees (additions)
     'Email': 'E-Mail',

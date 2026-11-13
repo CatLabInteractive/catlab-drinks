@@ -24,9 +24,14 @@ namespace App\Http\Shared\V1\Controllers;
 
 use App\Http\ManagementApi\V1\ResourceDefinitions\MenuItemResourceDefinition;
 use App\Http\Shared\V1\Controllers\Base\ResourceController;
+use App\Models\Category;
 use App\Models\Event;
+use App\Models\MenuHeading;
 use Auth;
 use CatLab\Charon\Collections\RouteCollection;
+use CatLab\Requirements\Collections\MessageCollection;
+use CatLab\Requirements\Exceptions\ResourceValidationException;
+use CatLab\Requirements\Models\Message;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -108,6 +113,38 @@ abstract class MenuController extends ResourceController
     protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
     {
         $this->traitBeforeSaveEntity($request, $entity, $isNew);
+        $this->assertLinksBelongToTheEvent($request, $entity, (bool) $isNew);
         return $entity;
+    }
+
+    /**
+     * A new heading or category of a product must be live rows of the event of that product.
+     * @param Request $request
+     * @param Model $entity
+     * @throws ResourceValidationException
+     */
+    private function assertLinksBelongToTheEvent(Request $request, Model $entity, bool $isNew): void
+    {
+        $eventId = $entity->event_id ?? $this->getParent($request)->getKey();
+
+        $links = [
+            'heading' => [MenuHeading::class, 'heading_id'],
+            'category' => [Category::class, 'category_id'],
+        ];
+
+        foreach ($links as $property => [$class, $column]) {
+            // Only a new link is checked. Existing products may hold legacy links.
+            $id = $entity->$column;
+            if ($id === null || !($isNew || $entity->isDirty($column))) {
+                continue;
+            }
+
+            $linked = $class::query()->find($id);
+            if (!$linked || (int) $linked->event_id !== (int) $eventId) {
+                $messages = new MessageCollection();
+                $messages->add(new Message('The ' . $property . ' does not belong to this event.'));
+                throw ResourceValidationException::make($messages);
+            }
+        }
     }
 }

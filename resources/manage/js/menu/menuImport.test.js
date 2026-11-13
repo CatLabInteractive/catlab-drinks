@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
 	COLUMN_TYPES, smartSplitLine, prepareSheet, guessColumnTypes, setColumnType, buildImportRows, canImport,
-	sheetFromItems,
+	sheetFromItems, matchByName, namesToCreate, headingOrderFromItems,
 } from './menuImport';
 
 describe('COLUMN_TYPES', () => {
 	it('lists the assignable types', () => {
-		expect(COLUMN_TYPES).toEqual(['name', 'description', 'price', 'vat_percentage', 'ignore']);
+		expect(COLUMN_TYPES).toEqual(['name', 'description', 'price', 'vat_percentage', 'category', 'heading', 'ignore']);
 	});
 });
 
@@ -56,6 +56,11 @@ describe('guessColumnTypes', () => {
 	it('tolerates a header row and a missing price', () => {
 		expect(guessColumnTypes([['Product', 'Prijs'], ['Pils', '2,50'], ['Cola', '2'], ['Koffie', '']])).toEqual(['name', 'price']);
 	});
+	it('never guesses category or heading', () => {
+		const types = guessColumnTypes([['Pils', 'Bar', 'Bieren', '2,50'], ['Cola', 'Bar', 'Frisdrank', '2']]);
+		expect(types).not.toContain('category');
+		expect(types).not.toContain('heading');
+	});
 	it('returns an empty list for no rows', () => { expect(guessColumnTypes([])).toEqual([]); });
 });
 
@@ -74,10 +79,17 @@ describe('buildImportRows', () => {
 			[['Pils', '25cl', '2,50', '21%'], ['Koffie', '', '', ''], ['', '', '3', ''], ['Thee', '', 'gratis', '']],
 			['name', 'description', 'price', 'vat_percentage'],
 		)).toEqual([
-			{ name: 'Pils', description: '25cl', price: 2.5, vat_percentage: 21, errors: [] },
-			{ name: 'Koffie', description: '', price: null, vat_percentage: null, errors: ['price'] },
-			{ name: '', description: '', price: 3, vat_percentage: null, errors: ['name'] },
-			{ name: 'Thee', description: '', price: null, vat_percentage: null, errors: ['price'] },
+			{ name: 'Pils', description: '25cl', price: 2.5, vat_percentage: 21, category: '', heading: '', errors: [] },
+			{ name: 'Koffie', description: '', price: null, vat_percentage: null, category: '', heading: '', errors: ['price'] },
+			{ name: '', description: '', price: 3, vat_percentage: null, category: '', heading: '', errors: ['name'] },
+			{ name: 'Thee', description: '', price: null, vat_percentage: null, category: '', heading: '', errors: ['price'] },
+		]);
+	});
+	it('reads category and heading as trimmed text without causing errors', () => {
+		const types = ['name', 'price', 'category', 'heading'];
+		expect(buildImportRows([['Pils', '2', ' Bar ', ' Bieren '], ['Cola', '2', '', '']], types)).toEqual([
+			{ name: 'Pils', description: '', price: 2, vat_percentage: null, category: 'Bar', heading: 'Bieren', errors: [] },
+			{ name: 'Cola', description: '', price: 2, vat_percentage: null, category: '', heading: '', errors: [] },
 		]);
 	});
 });
@@ -100,9 +112,14 @@ describe('canImport', () => {
 
 describe('sheetFromItems', () => {
 	const TYPES = ['name', 'description', 'price', 'vat_percentage'];
+	const ALL_TYPES = [...TYPES, 'category', 'heading'];
 	const items = [
 		{ id: 1, name: 'Pils', description: '25cl', price: 2.5, vat_percentage: 21 },
 		{ id: 2, name: 'Cola', description: null, price: 2, vat_percentage: null },
+	];
+	const withNames = [
+		{ id: 1, name: 'Pils', description: '25cl', price: 2.5, vat_percentage: 21, category: { id: 1, name: 'Drinks' }, heading: { id: 4, name: 'Bieren', position: 1 } },
+		{ id: 2, name: 'Cola', description: null, price: 2, vat_percentage: null, category: { id: 1, name: 'Drinks' } },
 	];
 
 	it('builds one row per product with the four column types', () => {
@@ -111,8 +128,26 @@ describe('sheetFromItems', () => {
 			types: TYPES,
 		});
 	});
+	it('adds a category column and a heading column with the names', () => {
+		expect(sheetFromItems(withNames)).toEqual({
+			cells: [['Pils', '25cl', '2.50', '21', 'Drinks', 'Bieren'], ['Cola', '', '2.00', '', 'Drinks', '']],
+			types: ALL_TYPES,
+		});
+	});
+	it('leaves out a column that is empty for all products', () => {
+		const sheet = sheetFromItems([
+			{ id: 1, name: 'Pils', description: null, price: 2.5, vat_percentage: null, category: { id: 1, name: 'Drinks' } },
+		]);
+		expect(sheet).toEqual({ cells: [['Pils', '2.50', 'Drinks']], types: ['name', 'price', 'category'] });
+		expect(sheetFromItems([{ id: 1, name: 'Pils', price: 2 }])).toEqual({ cells: [['Pils', '2.00']], types: ['name', 'price'] });
+	});
+	it('round trips category and heading names', () => {
+		const sheet = sheetFromItems(withNames);
+		expect(buildImportRows(sheet.cells, sheet.types).map(row => [row.category, row.heading]))
+			.toEqual([['Drinks', 'Bieren'], ['Drinks', '']]);
+	});
 	it('writes a VAT with decimals as plain number text', () => {
-		const sheet = sheetFromItems([{ name: 'Wijn', description: '', price: 4, vat_percentage: 6.5 }]);
+		const sheet = sheetFromItems([{ name: 'Wijn', description: 'rood', price: 4, vat_percentage: 6.5 }]);
 		expect(sheet.cells[0][3]).toBe('6.5');
 	});
 	it('gives an empty sheet for no products', () => {
@@ -121,8 +156,40 @@ describe('sheetFromItems', () => {
 	it('reads back to the same products', () => {
 		const sheet = sheetFromItems(items);
 		expect(buildImportRows(sheet.cells, sheet.types)).toEqual([
-			{ name: 'Pils', description: '25cl', price: 2.5, vat_percentage: 21, errors: [] },
-			{ name: 'Cola', description: '', price: 2, vat_percentage: null, errors: [] },
+			{ name: 'Pils', description: '25cl', price: 2.5, vat_percentage: 21, category: '', heading: '', errors: [] },
+			{ name: 'Cola', description: '', price: 2, vat_percentage: null, category: '', heading: '', errors: [] },
 		]);
+	});
+});
+
+describe('matchByName', () => {
+	it('ignores letter case and outer spaces', () => {
+		expect(matchByName(' bieren ', [{ id: 1, name: 'Bieren' }]).id).toBe(1);
+		expect(matchByName('Bier', [{ id: 1, name: 'Bieren' }])).toBeNull();
+		expect(matchByName('', [{ id: 1, name: 'Bieren' }])).toBeNull();
+		expect(matchByName('  ', [{ id: 1, name: '' }])).toBeNull();
+	});
+});
+
+describe('namesToCreate', () => {
+	const rows = ['Bieren', 'bieren', 'Snacks', '', 'Frisdrank'].map(heading => ({ heading, category: '' }));
+	it('returns each unmatched name once, preferred names first', () => {
+		expect(namesToCreate(rows, 'heading', [{ id: 1, name: 'Snacks' }], ['Frisdrank'])).toEqual(['Frisdrank', 'Bieren']);
+	});
+	it('keeps the order of appearance without a preferred order', () => {
+		expect(namesToCreate(rows, 'heading', [])).toEqual(['Bieren', 'Snacks', 'Frisdrank']);
+	});
+	it('works on categories too', () => {
+		expect(namesToCreate([{ category: 'Bar' }, { category: 'bar' }], 'category', [])).toEqual(['Bar']);
+	});
+});
+
+describe('headingOrderFromItems', () => {
+	it('returns each heading name once, by position then id', () => {
+		const a = { id: 2, name: 'Bieren', position: 2 };
+		const b = { id: 5, name: 'Frisdrank', position: 1 };
+		expect(headingOrderFromItems([
+			{ name: 'Pils', heading: a }, { name: 'Chips' }, { name: 'Cola', heading: b }, { name: 'Duvel', heading: a },
+		])).toEqual(['Frisdrank', 'Bieren']);
 	});
 });

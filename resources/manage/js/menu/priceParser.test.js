@@ -39,3 +39,12 @@ describe('never NaN', () => {
 		expect(finiteOrNull(parseNumber(input))).toBe(true);
 	});
 });
+
+describe('parsePrice with other currency marks', () => {
+	it.each([
+		['$ 4.50', 4.5], ['$4.50', 4.5], ['£3', 3], ['3 £', 3], ['USD 2', 2], ['2 CHF', 2], ['SEK 25,00', 25],
+	])('reads %s as %s', (input, expected) => { expect(parsePrice(input)).toBe(expected); });
+
+	it.each(['2 chf', 'usd 2', '2 CHFS', 'AB 2', '5 stuks'])(
+		'does not read %s as a price', (input) => { expect(parsePrice(input)).toBeNull(); });
+});

@@ -26,9 +26,9 @@ import {
 } from './menuChanges';
 
 const items = [
-	{ id: 1, name: 'Pils', description: null, price: 2.5, vat_percentage: 21, is_selling: true, position: 1, category: { id: 7, name: 'Drinks' } },
-	{ id: 2, name: 'Cola', description: 'fles', price: 2, vat_percentage: null, is_selling: false, position: 2, category: null },
-	{ id: 3, name: 'Croque', description: null, price: 5, vat_percentage: 6, is_selling: true, position: 3, category: null },
+	{ id: 1, name: 'Pils', description: null, price: 2.5, vat_percentage: 21, is_selling: true, position: 1, category: { id: 7, name: 'Drinks' }, heading: null },
+	{ id: 2, name: 'Cola', description: 'fles', price: 2, vat_percentage: null, is_selling: false, position: 2, category: null, heading: null },
+	{ id: 3, name: 'Croque', description: null, price: 5, vat_percentage: 6, is_selling: true, position: 3, category: null, heading: null },
 ];
 
 describe('menuChanges', () => {
@@ -71,6 +71,24 @@ describe('menuChanges', () => {
 			{ id: 2, changes: { name: 'Cola', price: 2, category: { id: 7 } } },
 		]);
 	});
+	it('sends a heading change as an object and a cleared heading as null', () => {
+		const rows = rowsFromItems(items); rows[0].heading_id = 4;
+		expect(buildSavePlan(items, rows).updates).toEqual([{ id: 1, changes: { name: 'Pils', price: 2.5, heading: { id: 4 } } }]);
+		const withHeading = items.map(item => (item.id === 1 ? { ...item, heading: { id: 4, name: 'Bieren' } } : item));
+		const cleared = rowsFromItems(withHeading); cleared[0].heading_id = null;
+		expect(buildSavePlan(withHeading, cleared).updates).toEqual([{ id: 1, changes: { name: 'Pils', price: 2.5, heading: null } }]);
+	});
+	it('leaves the heading out of the changes of an untouched heading', () => {
+		const rows = rowsFromItems(items); rows[0].price = '3';
+		expect('heading' in buildSavePlan(items, rows).updates[0].changes).toBe(false);
+	});
+	it('reads a missing heading key like null', () => {
+		const { heading, ...without } = items[0];
+		expect(rowFromItem(without).heading_id).toBeNull();
+		expect(buildSavePlan([without, ...items.slice(1)], rowsFromItems(items)).updates).toEqual([]);
+		expect(rowFromItem({ ...items[0], heading: { id: 4, name: 'Bieren' } }).heading_id).toBe(4);
+		expect(newRow().heading_id).toBeNull();
+	});
 	it('sends a cleared VAT and a cleared description as null', () => {
 		const rows = rowsFromItems(items); rows[0].vat_percentage = ''; rows[1].description = '';
 		expect(buildSavePlan(items, rows).updates).toEqual([
@@ -82,7 +100,7 @@ describe('menuChanges', () => {
 		const rows = [...rowsFromItems(items), newRow({ name: 'Thee', price: '2' }), newRow()];
 		const plan = buildSavePlan(items, rows);
 		expect(plan.creates).toEqual([{ key: rows[3].key, data: {
-			name: 'Thee', description: null, price: 2, vat_percentage: null, is_selling: true, category: null } }]);
+			name: 'Thee', description: null, price: 2, vat_percentage: null, is_selling: true, category: null, heading: null } }]);
 		expect(plan.sequenceKeys).toEqual([rows[0].key, rows[1].key, rows[2].key, rows[3].key]);
 		expect(plan.sequenceChanged).toBe(true);
 	});
@@ -191,6 +209,14 @@ describe('menuChanges', () => {
 		expect(isBlank(newRow({ name: ' ' }))).toBe(true);
 		expect(isBlank(newRow({ price: '1' }))).toBe(false);
 		expect(isBlank(rowFromItem(items[0]))).toBe(false);
+	});
+	it('puts a heading on a row from an import row', () => {
+		const importRow = { name: 'Pils', description: '', price: 2.5, vat_percentage: null, errors: [] };
+		const row = rowFromImport(importRow, 7, 4);
+		expect(row).toMatchObject({ category_id: 7, heading_id: 4 });
+		expect(rowFromImport(importRow, 7).heading_id).toBeNull();
+		const plan = buildSavePlan([], [row]);
+		expect(plan.creates[0].data.heading).toEqual({ id: 4 });
 	});
 	it('builds a row from an import row', () => {
 		expect(rowFromImport({ name: 'Pils', description: '25cl', price: 2.5, vat_percentage: 21, errors: [] }, 7))

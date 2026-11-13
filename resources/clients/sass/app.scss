@@ -34,6 +34,24 @@ td.order-buttons {
   color: gray;
 }
 
+// A heading title in the order table: groups the products below it. Not a product,
+// so it gets no hover background. A table with titles has no stripes (see Order.vue).
+.order-table.table-hover tbody tr.order-heading-row:hover {
+  background-color: transparent;
+  color: #212529;
+}
+
+.order-table tbody tr.order-heading-row td {
+  padding-top: 1.25rem;
+  border-top: 0;
+  border-bottom: 2px solid #6c757d;
+}
+
+.order-heading {
+  font-size: 120%;
+  font-weight: bold;
+}
+
 .amount {
   font-size: 140%;
 }
