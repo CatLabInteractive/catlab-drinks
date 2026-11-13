@@ -26,7 +26,7 @@ export function createSimulator(options = {}) {
 		response.end(JSON.stringify(body));
 	};
 
-	const handleRequest = (request, response) => {
+	const route = (request, response) => {
 		const path = new URL(request.url, 'http://localhost').pathname;
 		const method = request.method;
 		const tapMatch = path.match(/^\/cards\/([^/]+)\/tap$/);
@@ -34,15 +34,8 @@ export function createSimulator(options = {}) {
 		if (method === 'GET' && path === '/cards') {
 			send(response, 200, api.state());
 		} else if (method === 'POST' && tapMatch) {
-			try {
-				api.tap(decodeURIComponent(tapMatch[1]));
-				send(response, 200, api.state());
-			} catch (error) {
-				if (!(error instanceof RangeError)) {
-					throw error;
-				}
-				send(response, 400, { error: error.message });
-			}
+			api.tap(decodeURIComponent(tapMatch[1]));
+			send(response, 200, api.state());
 		} else if (method === 'POST' && path === '/remove') {
 			api.remove();
 			send(response, 200, api.state());
@@ -51,6 +44,16 @@ export function createSimulator(options = {}) {
 			send(response, 200, api.state());
 		} else {
 			send(response, 404, { error: 'Not found' });
+		}
+	};
+
+	// A bad request must never take the whole simulator down.
+	const handleRequest = (request, response) => {
+		try {
+			route(request, response);
+		} catch (error) {
+			const bad = error instanceof RangeError || error instanceof URIError || error instanceof TypeError;
+			send(response, bad ? 400 : 500, { error: bad ? error.message : 'Internal error' });
 		}
 	};
 

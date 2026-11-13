@@ -177,6 +177,15 @@ describe('nfc simulator http interface', () => {
 		expect(sim.state().cards).toEqual([]);
 	});
 
+	test('a malformed url gives 400 and the simulator keeps running', async () => {
+		await start();
+		const res = await fetch(base + '/cards/%zz/tap', { method: 'POST' });
+		expect(res.status).toBe(400);
+		expect((await res.json()).error).toEqual(expect.any(String));
+		expect(sim.state().cards).toEqual([]);
+		expect((await fetch(base + '/cards')).status).toBe(200);
+	});
+
 	test('an unknown route gives 404', async () => {
 		await start();
 		expect((await fetch(base + '/nothing')).status).toBe(404);
