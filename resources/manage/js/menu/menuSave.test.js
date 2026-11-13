@@ -29,12 +29,15 @@ const items = [
 	{ id: 3, name: 'Croque', description: null, price: 5, vat_percentage: 6, is_selling: true, position: 3, category: null },
 ];
 
-function fakeService({ failUpdate = null, failSequence = false } = {}) {
+function fakeService({ failUpdate = null, failSequence = false, serverValues = {} } = {}) {
 	const service = {
 		calls: [],
 		args: [],
 		failUpdate,
 		failSequence,
+		// Fields that the server answers with for an item, regardless of what was sent
+		// (stands in for a change that a POS device made in the meantime).
+		serverValues,
 		updateFields(id, changes) {
 			service.calls.push('updateFields ' + id);
 			service.args.push({ id, changes });
@@ -42,7 +45,7 @@ function fakeService({ failUpdate = null, failSequence = false } = {}) {
 				return Promise.reject(new Error('update failed'));
 			}
 			const original = items.find(item => item.id === id);
-			return Promise.resolve({ ...original, ...changes });
+			return Promise.resolve({ ...original, ...changes, ...(service.serverValues[id] || {}) });
 		},
 		bulkCreate(dataList) {
 			service.calls.push('bulkCreate ' + dataList.length);
@@ -129,5 +132,61 @@ describe('runSave', () => {
 		await runSave(fakeService(), items, rows);
 		expect(items).toEqual(originalsCopy);
 		expect(rows).toEqual(rowsCopy);
+	});
+	it.each([
+		[true, false],
+		[false, true],
+	])('takes over is_selling from the server answer (page %s, server %s)', async (pageValue, serverValue) => {
+		const originals = items.map(item => (item.id === 1 ? { ...item, is_selling: pageValue } : item));
+		const rows = rowsFromItems(originals);
+		rows[0].price = '3';
+		const keyBefore = rows[0].key;
+		const service = fakeService({ serverValues: { 1: { is_selling: serverValue } } });
+		const result = await runSave(service, originals, rows);
+		expect(result.error).toBeNull();
+		expect(service.args[0]).toEqual({ id: 1, changes: { name: 'Pils', price: 3 } });
+		expect(hasChanges(result.originals, result.rows)).toBe(false);
+		const row = result.rows.find(candidate => candidate.id === 1);
+		expect(row.is_selling).toBe(serverValue);
+		expect(row.key).toBe(keyBefore);
+		expect(row.price).toBe('3.00');
+
+		const second = fakeService({ serverValues: { 1: { is_selling: serverValue } } });
+		await runSave(second, result.originals, result.rows);
+		expect(second.calls).toEqual([]);
+	});
+	it('takes over the values of the server answer for a created row', async () => {
+		const rows = rowsFromItems(items);
+		rows.push(newRow({ name: 'Thee', price: '2', description: '  ' }));
+		const keyBefore = rows[3].key;
+		const service = fakeService();
+		service.bulkCreate = dataList => {
+			service.calls.push('bulkCreate ' + dataList.length);
+			return Promise.resolve(dataList.map((data, i) => ({ ...data, id: 100 + i, is_selling: false })));
+		};
+		const result = await runSave(service, items, rows);
+		expect(result.error).toBeNull();
+		const row = result.rows.find(candidate => candidate.id === 100);
+		expect(row.key).toBe(keyBefore);
+		expect(row.is_selling).toBe(false);
+		expect(hasChanges(result.originals, result.rows)).toBe(false);
+	});
+	it('drops a typed and then deleted new row after the save', async () => {
+		const rows = rowsFromItems(items);
+		rows[0].price = '3';
+		rows.push(newRow({ name: 'Thee', price: '2', deleted: true }));
+		const result = await runSave(fakeService(), items, rows);
+		expect(result.error).toBeNull();
+		expect(result.rows.find(row => row.name === 'Thee')).toBeUndefined();
+		expect(hasChanges(result.originals, result.rows)).toBe(false);
+	});
+	it('drops a typed and then deleted new row also when no request is needed', async () => {
+		const rows = rowsFromItems(items);
+		rows.push(newRow({ name: 'Thee', price: '2', deleted: true }));
+		const service = fakeService();
+		const result = await runSave(service, items, rows);
+		expect(service.calls).toEqual([]);
+		expect(result.rows).toHaveLength(3);
+		expect(hasChanges(result.originals, result.rows)).toBe(false);
 	});
 });

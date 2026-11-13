@@ -23,10 +23,30 @@
  * Runs what the Save button has to send, one request at a time. After every
  * request that succeeds, the result is written into copies of the originals
  * and the rows, so that a failure in the middle leaves a state from which a
- * second run sends only what is still open. Never throws.
+ * second run sends only what is still open. The row of a request that
+ * succeeded is rebuilt from the item that the server returned, so that row
+ * and original agree and a later run does not send stale values (for
+ * example an is_selling that a POS device changed in the meantime). Never
+ * throws.
  */
 
-import { buildSavePlan } from './menuChanges';
+import { buildSavePlan, rowFromItem } from './menuChanges';
+
+/**
+ * The row for an item that the server returned, with the key of the row it
+ * replaces.
+ */
+function rowFromServer(item, row) {
+	return { ...rowFromItem(item), key: row.key };
+}
+
+/**
+ * New rows that the user typed and then deleted were never sent; they are
+ * dropped once the run is done.
+ */
+function withoutDeletedNewRows(rows) {
+	return rows.filter(row => !(row.deleted && row.id === null));
+}
 
 export async function runSave(service, originals, rows) {
 	let currentOriginals = originals.map(item => ({ ...item }));
@@ -39,13 +59,13 @@ export async function runSave(service, originals, rows) {
 			currentOriginals = currentOriginals.map(original =>
 				original.id === update.id ? { position: original.position, ...item } : original
 			);
+			currentRows = currentRows.map(row => (row.id === update.id ? rowFromServer(item, row) : row));
 		}
 
 		if (plan.creates.length) {
 			const created = await service.bulkCreate(plan.creates.map(create => create.data));
 			plan.creates.forEach((create, i) => {
-				const row = currentRows.find(candidate => candidate.key === create.key);
-				row.id = created[i].id;
+				currentRows = currentRows.map(row => (row.key === create.key ? rowFromServer(created[i], row) : row));
 				// No position until the sequence request has succeeded.
 				currentOriginals.push({ ...created[i], position: null });
 			});
@@ -69,5 +89,5 @@ export async function runSave(service, originals, rows) {
 		return { originals: currentOriginals, rows: currentRows, error };
 	}
 
-	return { originals: currentOriginals, rows: currentRows, error: null };
+	return { originals: currentOriginals, rows: withoutDeletedNewRows(currentRows), error: null };
 }
