@@ -333,6 +333,14 @@ export default {
     'Please enter a price for the product.': 'Bitte geben Sie einen Preis für das Produkt ein.',
     'Are you sure you want to remove this menu item?': 'Sind Sie sicher, dass Sie diesen Menüpunkt entfernen möchten?',
     'Enter the name of the new category:': 'Geben Sie den Namen der neuen Kategorie ein:',
+    'Unsaved changes': 'Nicht gespeicherte Änderungen',
+    'All changes saved': 'Alle Änderungen gespeichert',
+    'Import menu': 'Menü importieren',
+    'Drag to change the sequence': 'Ziehen, um die Reihenfolge zu ändern',
+    'Discard all unsaved changes?': 'Alle nicht gespeicherten Änderungen verwerfen?',
+    'You have unsaved changes. Leave this page?': 'Sie haben nicht gespeicherte Änderungen. Diese Seite verlassen?',
+    'Some changes were not saved. Press Save to try again.': 'Einige Änderungen wurden nicht gespeichert. Drücken Sie auf Speichern, um es erneut zu versuchen.',
+    'Type to add a product…': 'Tippen, um ein Produkt hinzuzufügen…',
 
     // Manage - Devices
     'Point of sale devices': 'Kassengeräte',

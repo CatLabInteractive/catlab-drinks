@@ -334,6 +334,14 @@ export default {
     'Please enter a price for the product.': 'Veuillez entrer un prix pour le produit.',
     'Are you sure you want to remove this menu item?': 'Êtes-vous sûr de vouloir supprimer cet article du menu ?',
     'Enter the name of the new category:': 'Entrez le nom de la nouvelle catégorie :',
+    'Unsaved changes': 'Modifications non enregistrées',
+    'All changes saved': 'Toutes les modifications sont enregistrées',
+    'Import menu': 'Importer un menu',
+    'Drag to change the sequence': 'Faites glisser pour changer l\'ordre',
+    'Discard all unsaved changes?': 'Annuler toutes les modifications non enregistrées ?',
+    'You have unsaved changes. Leave this page?': 'Vous avez des modifications non enregistrées. Quitter cette page ?',
+    'Some changes were not saved. Press Save to try again.': 'Certaines modifications n\'ont pas été enregistrées. Appuyez sur Enregistrer pour réessayer.',
+    'Type to add a product…': 'Tapez pour ajouter un produit…',
 
     // Manage - Devices
     'Point of sale devices': 'Appareils point de vente',

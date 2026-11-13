@@ -333,6 +333,14 @@ export default {
     'Please enter a price for the product.': 'Voer een prijs in voor het product.',
     'Are you sure you want to remove this menu item?': 'Weet je zeker dat je dit menu-item wilt verwijderen?',
     'Enter the name of the new category:': 'Voer de naam van de nieuwe categorie in:',
+    'Unsaved changes': 'Niet-opgeslagen wijzigingen',
+    'All changes saved': 'Alle wijzigingen opgeslagen',
+    'Import menu': 'Menu importeren',
+    'Drag to change the sequence': 'Sleep om de volgorde te wijzigen',
+    'Discard all unsaved changes?': 'Alle niet-opgeslagen wijzigingen verwerpen?',
+    'You have unsaved changes. Leave this page?': 'Je hebt niet-opgeslagen wijzigingen. Deze pagina verlaten?',
+    'Some changes were not saved. Press Save to try again.': 'Sommige wijzigingen zijn niet opgeslagen. Druk op Opslaan om het opnieuw te proberen.',
+    'Type to add a product…': 'Typ om een product toe te voegen…',
 
     // Manage - Devices
     'Point of sale devices': 'Kassa-apparaten',

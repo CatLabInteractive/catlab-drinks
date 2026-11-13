@@ -334,6 +334,14 @@ export default {
     'Please enter a price for the product.': 'Please enter a price for the product.',
     'Are you sure you want to remove this menu item?': 'Are you sure you want to remove this menu item?',
     'Enter the name of the new category:': 'Enter the name of the new category:',
+    'Unsaved changes': 'Unsaved changes',
+    'All changes saved': 'All changes saved',
+    'Import menu': 'Import menu',
+    'Drag to change the sequence': 'Drag to change the sequence',
+    'Discard all unsaved changes?': 'Discard all unsaved changes?',
+    'You have unsaved changes. Leave this page?': 'You have unsaved changes. Leave this page?',
+    'Some changes were not saved. Press Save to try again.': 'Some changes were not saved. Press Save to try again.',
+    'Type to add a product…': 'Type to add a product…',
 
     // Manage - Devices
     'Point of sale devices': 'Point of sale devices',
