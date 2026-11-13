@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\Device;
 use App\Models\Event;
 use App\Models\MenuItem;
@@ -215,6 +216,67 @@ class MenuSequenceTest extends TestCase
 		$this->assertNotNull($response->json('items.0.id'));
 		$this->assertEquals(21, MenuItem::find($response->json('items.0.id'))->vat_percentage);
 		$this->assertTrue((bool) MenuItem::find($response->json('items.1.id'))->is_selling);
+	}
+
+	public function testUpdateWithNameAndPriceKeepsOtherFields(): void
+	{
+		[$category, $item] = $this->makeDetailedItem();
+		Passport::actingAs($this->user);
+		$this->putJson('/api/v1/menuitems/' . $item->id, ['name' => 'Pils', 'price' => 3])->assertStatus(200);
+		$item->refresh();
+		$this->assertEquals(3, $item->price);
+		$this->assertEquals('Pils', $item->name);
+		$this->assertEquals('25cl', $item->description);
+		$this->assertEquals(21, $item->vat_percentage);
+		$this->assertEquals($category->id, $item->category_id);
+		$this->assertFalse((bool) $item->is_selling);
+	}
+
+	public function testUpdateCanClearCategoryDescriptionAndVat(): void
+	{
+		[, $item] = $this->makeDetailedItem();
+		Passport::actingAs($this->user);
+		$this->putJson('/api/v1/menuitems/' . $item->id, [
+			'name' => 'Pils', 'price' => 2.5, 'category' => null, 'description' => null, 'vat_percentage' => null,
+		])->assertStatus(200);
+		$item->refresh();
+		$this->assertNull($item->category_id);
+		$this->assertNull($item->description);
+		$this->assertNull($item->vat_percentage);
+		$this->assertFalse((bool) $item->is_selling);
+	}
+
+	public function testUpdateCanSetCategory(): void
+	{
+		$category = Category::factory()->create(['event_id' => $this->event->id]);
+		[$item] = $this->makeItems($this->event, ['Pils']);
+		Passport::actingAs($this->user);
+		$this->putJson('/api/v1/menuitems/' . $item->id, [
+			'name' => 'Pils', 'price' => 2.5, 'category' => ['id' => $category->id],
+		])->assertStatus(200);
+		$this->assertEquals($category->id, $item->fresh()->category_id);
+	}
+
+	public function testUpdateWithoutNameIsRejected(): void
+	{
+		[$item] = $this->makeItems($this->event, ['Pils']);
+		Passport::actingAs($this->user);
+		$response = $this->putJson('/api/v1/menuitems/' . $item->id, ['price' => 3])->assertStatus(422);
+		$this->assertNotNull($response->json('error.status'));
+		$this->assertNotNull($response->json('error.message'));
+	}
+
+	/**
+	 * @return array{0: Category, 1: MenuItem}
+	 */
+	private function makeDetailedItem(): array
+	{
+		$category = Category::factory()->create(['event_id' => $this->event->id]);
+		$item = MenuItem::factory()->create([
+			'event_id' => $this->event->id, 'category_id' => $category->id,
+			'name' => 'Pils', 'description' => '25cl', 'price' => 2.5, 'vat_percentage' => 21, 'is_selling' => false,
+		]);
+		return [$category, $item];
 	}
 
 	private function sequenceUrl(?Event $event = null): string
