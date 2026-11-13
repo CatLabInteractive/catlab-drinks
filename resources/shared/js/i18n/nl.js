@@ -519,6 +519,13 @@ export default {
     'No headings yet. Create one in the "Heading" column of a product.': 'Nog geen rubrieken. Maak er een aan in de kolom "Rubriek" van een product.',
     'Station': 'Station',
     'Heading for all products': 'Rubriek voor alle producten',
+    'Add also creates 1 station: {names}': 'Toevoegen maakt ook 1 station aan: {names}',
+    'Add also creates {count} stations: {names}': 'Toevoegen maakt ook {count} stations aan: {names}',
+    'Add also creates 1 heading: {names}': 'Toevoegen maakt ook 1 rubriek aan: {names}',
+    'Add also creates {count} headings: {names}': 'Toevoegen maakt ook {count} rubrieken aan: {names}',
+    'A product needs a name and a valid price.': 'Een product heeft een naam en een geldige prijs nodig.',
+    'The VAT % of a product is not a number.': 'Het btw-percentage van een product is geen getal.',
+    'A heading needs a name.': 'Een rubriek heeft een naam nodig.',
 
     // Manage - Public Keys
     'Public Keys': 'Publieke sleutels',

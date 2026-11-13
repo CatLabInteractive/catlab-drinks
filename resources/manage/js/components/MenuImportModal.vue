@@ -137,6 +137,12 @@
 				</div>
 
 				<div class="ml-auto mb-1 text-right">
+					<div
+						v-for="message in createMessages"
+						:key="message"
+						class="alert alert-warning small py-1 px-2 mb-1 text-left menu-import-create-message"
+					>{{ message }}</div>
+
 					<b-button v-if="hasErrors" variant="outline-danger" :disabled="adding" @click="deleteMarkedRows">
 						{{ $t('Delete marked rows') }}
 					</b-button>
@@ -220,7 +226,12 @@
 			list: 'categories',
 			create: 'createCategory',
 			newValue: NEW_CATEGORY,
-			prompt: vm => vm.$t('Enter the name of the new station:')
+			// The sequence in which Add creates the new entries.
+			preferredOrder: () => [],
+			prompt: vm => vm.$t('Enter the name of the new station:'),
+			createMessage: (vm, names) => (names.length === 1
+				? vm.$t('Add also creates 1 station: {names}', { names: names.join(', ') })
+				: vm.$t('Add also creates {count} stations: {names}', { count: names.length, names: names.join(', ') }))
 		},
 		heading: {
 			field: 'heading',
@@ -231,7 +242,11 @@
 			list: 'headings',
 			create: 'createHeading',
 			newValue: NEW_HEADING,
-			prompt: vm => vm.$t('Enter the name of the new heading:')
+			preferredOrder: vm => vm.copiedHeadingOrder,
+			prompt: vm => vm.$t('Enter the name of the new heading:'),
+			createMessage: (vm, names) => (names.length === 1
+				? vm.$t('Add also creates 1 heading: {names}', { names: names.join(', ') })
+				: vm.$t('Add also creates {count} headings: {names}', { count: names.length, names: names.join(', ') }))
 		}
 	};
 
@@ -354,6 +369,26 @@
 
 			importable() {
 				return canImport(this.types, this.importRows);
+			},
+
+			/**
+			 * The station and heading names that Add will create, in the
+			 * sequence in which it creates them: { category: [], heading: [] }.
+			 */
+			newNames() {
+				return {
+					category: this.namesToCreateFor(SELECTORS.category, this.importRows),
+					heading: this.namesToCreateFor(SELECTORS.heading, this.importRows)
+				};
+			},
+
+			/**
+			 * One line per kind that Add creates entries of, shown next to Add.
+			 */
+			createMessages() {
+				return ['category', 'heading']
+					.filter(kind => this.newNames[kind].length > 0)
+					.map(kind => SELECTORS[kind].createMessage(this, this.newNames[kind]));
 			}
 
 		},
@@ -361,6 +396,23 @@
 		methods: {
 
 			show() {
+				this.resetSheet();
+				this.$refs.modal.show();
+			},
+
+			/**
+			 * Closes the dialog without the discard question and throws the
+			 * sheet away. A running Add or copy stops: its late answer is
+			 * ignored and no further create request goes out. The page calls
+			 * this when it switches to a different event.
+			 */
+			discard() {
+				this.resetSheet();
+				this.closeWithoutQuestion = true;
+				this.hide();
+			},
+
+			resetSheet() {
 				this.cells = [emptyRow(2)];
 				this.types = ['name', 'price'];
 				this.categoryId = null;
@@ -375,7 +427,6 @@
 				this.resetAdd();
 				this.closeWithoutQuestion = false;
 				this.resetCopy();
-				this.$refs.modal.show();
 			},
 
 			/**
@@ -397,6 +448,14 @@
 				const name = prompt(selector.prompt(this));
 				if (!name || !name.trim()) {
 					this.restoreSelection(selector, select);
+					return;
+				}
+
+				// The name of an existing entry selects that entry.
+				const existing = matchByName(name, this[selector.list]);
+				if (existing) {
+					this[selector.value] = existing.id;
+					this[selector.previous] = existing.id;
 					return;
 				}
 
@@ -537,8 +596,8 @@
 
 				let categories, headings;
 				try {
-					categories = await this.createMissing(importRows, SELECTORS.category, [], request);
-					headings = await this.createMissing(importRows, SELECTORS.heading, this.copiedHeadingOrder, request);
+					categories = await this.createMissing(importRows, SELECTORS.category, request);
+					headings = await this.createMissing(importRows, SELECTORS.heading, request);
 				} catch (error) {
 					if (request === this.addRequest) {
 						this.adding = false;
@@ -567,10 +626,10 @@
 			 * match the rows against. Each name is matched against the current
 			 * prop value first, because the parent adds each created entry.
 			 */
-			async createMissing(importRows, selector, preferredOrder, request) {
+			async createMissing(importRows, selector, request) {
 				const created = [];
 				const current = () => this[selector.list].concat(created);
-				const names = namesToCreate(importRows, selector.field, current(), preferredOrder);
+				const names = this.namesToCreateFor(selector, importRows);
 				for (const name of names) {
 					if (request !== this.addRequest || !this[selector.create]) {
 						break;
@@ -580,6 +639,19 @@
 					}
 				}
 				return current();
+			},
+
+			/**
+			 * The names of the rows that match no entry of the list, in the
+			 * sequence in which Add creates them. The preview (`newNames`)
+			 * and Add both use this, so that they cannot disagree. Without a
+			 * create function, Add creates nothing.
+			 */
+			namesToCreateFor(selector, importRows) {
+				if (!this[selector.create]) {
+					return [];
+				}
+				return namesToCreate(importRows, selector.field, this[selector.list], selector.preferredOrder(this));
 			},
 
 			/**

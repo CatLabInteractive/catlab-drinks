@@ -519,6 +519,13 @@ export default {
     'No headings yet. Create one in the "Heading" column of a product.': 'Noch keine Rubriken. Erstellen Sie eine in der Spalte „Rubrik“ eines Produkts.',
     'Station': 'Station',
     'Heading for all products': 'Rubrik für alle Produkte',
+    'Add also creates 1 station: {names}': 'Hinzufügen erstellt auch 1 Station: {names}',
+    'Add also creates {count} stations: {names}': 'Hinzufügen erstellt auch {count} Stationen: {names}',
+    'Add also creates 1 heading: {names}': 'Hinzufügen erstellt auch 1 Rubrik: {names}',
+    'Add also creates {count} headings: {names}': 'Hinzufügen erstellt auch {count} Rubriken: {names}',
+    'A product needs a name and a valid price.': 'Ein Produkt braucht einen Namen und einen gültigen Preis.',
+    'The VAT % of a product is not a number.': 'Der MwSt.-Satz eines Produkts ist keine Zahl.',
+    'A heading needs a name.': 'Eine Rubrik braucht einen Namen.',
 
     // Manage - Public Keys
     'Public Keys': 'Öffentliche Schlüssel',

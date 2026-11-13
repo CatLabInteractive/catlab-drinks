@@ -343,6 +343,43 @@ describe('MenuImportModal Add', () => {
 		expect(vm.$emit).not.toHaveBeenCalled();
 	});
 
+	it('closes and resets without the question on discard, also during Add, and sends no further create', async () => {
+		const vm = makeVm();
+		const request = deferred();
+		vm.createHeading = vi.fn(() => request.promise);
+		sheet(vm, [['Pils', '2,50', 'Bieren'], ['Cola', '2,00', 'Frisdrank']], ['name', 'price', 'heading']);
+
+		const done = vm.submit();
+		await vi.waitFor(() => expect(vm.createHeading).toHaveBeenCalledTimes(1));
+		vm.discard();
+
+		expect(confirm).not.toHaveBeenCalled();
+		expect(vm.hiddenCount).toBe(1);
+		expect(vm.adding).toBe(false);
+		expect(vm.cells).toEqual([['', '']]);
+		expect(vm.types).toEqual(['name', 'price']);
+
+		const entry = { id: 1, name: 'Bieren' };
+		vm.headings.push(entry);
+		request.resolve(entry);
+		await done;
+
+		expect(vm.createHeading).toHaveBeenCalledTimes(1);
+		expect(vm.$emit).not.toHaveBeenCalled();
+		expect(vm.addMessage).toBe(null);
+	});
+
+	it('asks no question on discard of a pasted sheet', () => {
+		const vm = makeVm();
+		sheet(vm, [['Pils', '2,50']], ['name', 'price']);
+
+		vm.discard();
+
+		expect(confirm).not.toHaveBeenCalled();
+		expect(vm.hiddenCount).toBe(1);
+		expect(vm.contentRowIndexes).toEqual([]);
+	});
+
 	it('still adds plain rows with the selections for all', async () => {
 		const vm = makeVm({ categories: [{ id: 4, name: 'Bar' }], headings: [{ id: 5, name: 'Bieren', position: 1 }] });
 		creators(vm);
@@ -355,6 +392,90 @@ describe('MenuImportModal Add', () => {
 		const rows = emittedRows(vm);
 		expect(rows.map(row => [row.name, row.price, row.category_id, row.heading_id]))
 			.toEqual([['Pils', '2.50', 4, 5], ['Kriek', '3.00', 4, 5]]);
+	});
+});
+
+describe('MenuImportModal preview of the names that Add creates', () => {
+	it('names the stations and headings that submit then creates, in the same sequence', async () => {
+		const vm = makeVm({ categories: [{ id: 1, name: 'Bar' }], headings: [{ id: 5, name: 'Wijnen', position: 1 }] });
+		creators(vm);
+		sheet(vm, [
+			['Pils', '2,50', 'Keuken', 'Bieren'],
+			['Kriek', '3,00', 'bar', 'bieren'],
+			['Cola', '2,00', 'Terras', 'Frisdrank'],
+			['Wijn', '4,00', 'Keuken', ' wijnen ']
+		], ['name', 'price', 'category', 'heading']);
+
+		const preview = vm.newNames;
+		expect(preview).toEqual({ category: ['Keuken', 'Terras'], heading: ['Bieren', 'Frisdrank'] });
+		expect(vm.createMessages).toEqual([
+			'Add also creates {count} stations: {names}',
+			'Add also creates {count} headings: {names}'
+		]);
+
+		await vm.submit();
+
+		expect(vm.createCategory.mock.calls.map(call => call[0])).toEqual(preview.category);
+		expect(vm.createHeading.mock.calls.map(call => call[0])).toEqual(preview.heading);
+	});
+
+	it('follows the heading sequence of a copied event, as submit does', async () => {
+		menuIndex.mockResolvedValue({ items: [
+			{ id: 1, name: 'Pils', price: 2.5, heading: { id: 21, name: 'Bieren', position: 2 } },
+			{ id: 2, name: 'Cola', price: 2, heading: { id: 22, name: 'Frisdrank', position: 1 } }
+		] });
+		const vm = makeVm();
+		creators(vm);
+		await vm.copyFromEvent({ value: '9' });
+
+		const preview = vm.newNames.heading;
+		expect(preview).toEqual(['Frisdrank', 'Bieren']);
+		await vm.submit();
+		expect(vm.createHeading.mock.calls.map(call => call[0])).toEqual(preview);
+	});
+
+	it('is empty if every name matches an existing entry', () => {
+		const vm = makeVm({ categories: [{ id: 1, name: 'Bar' }], headings: [{ id: 5, name: 'Bieren', position: 1 }] });
+		creators(vm);
+		sheet(vm, [['Pils', '2,50', ' BAR', 'bieren '], ['Cola', '2,00', '', '']], ['name', 'price', 'category', 'heading']);
+
+		expect(vm.newNames).toEqual({ category: [], heading: [] });
+		expect(vm.createMessages).toEqual([]);
+	});
+
+	it('is empty without a create function, because Add creates nothing then', () => {
+		const vm = makeVm();
+		sheet(vm, [['Pils', '2,50', 'Bar', 'Bieren']], ['name', 'price', 'category', 'heading']);
+
+		expect(vm.newNames).toEqual({ category: [], heading: [] });
+	});
+
+	it('changes when a column type changes to ignore, and when a cell or a row changes', () => {
+		const vm = makeVm();
+		creators(vm);
+		sheet(vm, [['Pils', '2,50', '25cl'], ['Kriek', '3,00', '33cl']], ['name', 'price', 'heading']);
+		expect(vm.newNames.heading).toEqual(['25cl', '33cl']);
+
+		vm.changeType(2, 'ignore');
+		expect(vm.newNames.heading).toEqual([]);
+		expect(vm.createMessages).toEqual([]);
+
+		vm.changeType(2, 'heading');
+		vm.setCell(1, 2, '25CL');
+		expect(vm.newNames.heading).toEqual(['25cl']);
+		expect(vm.createMessages).toEqual(['Add also creates 1 heading: {names}']);
+
+		vm.deleteRow(0);
+		expect(vm.newNames.heading).toEqual(['25CL']);
+	});
+
+	it('passes the count and the names joined with a comma', () => {
+		const vm = makeVm();
+		creators(vm);
+		vm.$t = (key, values) => key.replace(/\{(\w+)\}/g, (match, name) => values[name]);
+		sheet(vm, [['Pils', '2,50', 'Bar'], ['Frietjes', '4,00', 'Keuken']], ['name', 'price', 'category']);
+
+		expect(vm.createMessages).toEqual(['Add also creates 2 stations: Bar, Keuken']);
 	});
 });
 
@@ -502,6 +623,32 @@ describe('MenuImportModal selectors for all products', () => {
 
 		expect(vm.headingId).toBe(null);
 		expect(vm.headingMessage).toBe('Name is taken: Bieren');
+	});
+
+	it('selects an existing heading with the typed name and creates nothing', async () => {
+		const vm = makeVm({ headings: [{ id: 1, name: 'Bieren', position: 1 }, { id: 2, name: 'Wijnen', position: 2 }] });
+		creators(vm);
+		prompt.mockReturnValue('  wijnen ');
+
+		await vm.onSelectorChange('heading', changeEvent(vm, 'headingId', vm.NEW_HEADING));
+
+		expect(vm.createHeading).not.toHaveBeenCalled();
+		expect(vm.headingId).toBe(2);
+		expect(vm.previousHeadingId).toBe(2);
+		expect(vm.headings.length).toBe(2);
+		expect(vm.creatingHeading).toBe(false);
+	});
+
+	it('selects an existing station with the typed name and creates nothing', async () => {
+		const vm = makeVm({ categories: [{ id: 3, name: 'Bar' }] });
+		creators(vm);
+		prompt.mockReturnValue('BAR');
+
+		await vm.onSelectorChange('category', changeEvent(vm, 'categoryId', vm.NEW_CATEGORY));
+
+		expect(vm.createCategory).not.toHaveBeenCalled();
+		expect(vm.categoryId).toBe(3);
+		expect(vm.categories.length).toBe(1);
 	});
 
 	it('works the same for a category', async () => {

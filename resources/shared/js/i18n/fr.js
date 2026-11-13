@@ -519,6 +519,13 @@ export default {
     'No headings yet. Create one in the "Heading" column of a product.': 'Pas encore de rubriques. Créez-en une dans la colonne « Rubrique » d\'un produit.',
     'Station': 'Poste',
     'Heading for all products': 'Rubrique pour tous les produits',
+    'Add also creates 1 station: {names}': 'Ajouter crée aussi 1 poste : {names}',
+    'Add also creates {count} stations: {names}': 'Ajouter crée aussi {count} postes : {names}',
+    'Add also creates 1 heading: {names}': 'Ajouter crée aussi 1 rubrique : {names}',
+    'Add also creates {count} headings: {names}': 'Ajouter crée aussi {count} rubriques : {names}',
+    'A product needs a name and a valid price.': 'Un produit doit avoir un nom et un prix valide.',
+    'The VAT % of a product is not a number.': 'Le % de TVA d\'un produit n\'est pas un nombre.',
+    'A heading needs a name.': 'Une rubrique doit avoir un nom.',
 
     // Manage - Public Keys
     'Public Keys': 'Clés publiques',

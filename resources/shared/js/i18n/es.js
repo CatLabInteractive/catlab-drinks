@@ -519,6 +519,13 @@ export default {
     'No headings yet. Create one in the "Heading" column of a product.': 'Todavía no hay secciones. Cree una en la columna «Sección» de un producto.',
     'Station': 'Estación',
     'Heading for all products': 'Sección para todos los productos',
+    'Add also creates 1 station: {names}': 'Añadir también crea 1 estación: {names}',
+    'Add also creates {count} stations: {names}': 'Añadir también crea {count} estaciones: {names}',
+    'Add also creates 1 heading: {names}': 'Añadir también crea 1 sección: {names}',
+    'Add also creates {count} headings: {names}': 'Añadir también crea {count} secciones: {names}',
+    'A product needs a name and a valid price.': 'Un producto necesita un nombre y un precio válido.',
+    'The VAT % of a product is not a number.': 'El % de IVA de un producto no es un número.',
+    'A heading needs a name.': 'Una sección necesita un nombre.',
 
     // Manage - Public Keys
     'Public Keys': 'Claves públicas',

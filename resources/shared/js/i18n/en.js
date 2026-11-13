@@ -519,6 +519,13 @@ export default {
     'No headings yet. Create one in the "Heading" column of a product.': 'No headings yet. Create one in the "Heading" column of a product.',
     'Station': 'Station',
     'Heading for all products': 'Heading for all products',
+    'Add also creates 1 station: {names}': 'Add also creates 1 station: {names}',
+    'Add also creates {count} stations: {names}': 'Add also creates {count} stations: {names}',
+    'Add also creates 1 heading: {names}': 'Add also creates 1 heading: {names}',
+    'Add also creates {count} headings: {names}': 'Add also creates {count} headings: {names}',
+    'A product needs a name and a valid price.': 'A product needs a name and a valid price.',
+    'The VAT % of a product is not a number.': 'The VAT % of a product is not a number.',
+    'A heading needs a name.': 'A heading needs a name.',
 
     // Manage - Public Keys
     'Public Keys': 'Public Keys',

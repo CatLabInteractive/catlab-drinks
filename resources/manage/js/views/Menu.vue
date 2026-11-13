@@ -30,7 +30,7 @@
 				{{ $t('Save changes') }}
 			</b-button>
 
-			<b-button variant="light" class="ml-2" @click="reset" :disabled="saving || loading">
+			<b-button variant="light" class="ml-2" @click="reset" :disabled="saving || loading || creatingCategory || creatingHeading">
 				{{ $t('Reset') }}
 			</b-button>
 
@@ -290,6 +290,7 @@
 		hasHeadingChanges,
 		runHeadingSave
 	} from "../menu/headingChanges";
+	import {matchByName} from "../menu/menuImport";
 	import MenuImportModal from "../components/MenuImportModal.vue";
 
 	/**
@@ -348,6 +349,11 @@
 			'$route' (to, from) {
 				// A different event reuses this view; load its menu.
 				if (to.params.id !== from.params.id) {
+					// The import belongs to the previous event: close it, so
+					// that a create request of its Add cannot go to the new event.
+					if (this.$refs.importModal) {
+						this.$refs.importModal.discard();
+					}
 					this.loadEvent(to.params.id);
 				}
 			},
@@ -520,6 +526,13 @@
 
 				this.showErrors = true;
 				if (this.invalid.length > 0 || this.invalidHeadings.length > 0) {
+					this.errorMessage = this.validationMessage();
+					this.$nextTick(() => {
+						const input = this.$el.querySelector('.is-invalid');
+						if (input) {
+							input.scrollIntoView({ block: 'center' });
+						}
+					});
 					return;
 				}
 
@@ -559,6 +572,24 @@
 					this.showErrors = false;
 				}
 
+			},
+
+			/**
+			 * Says which part blocks the Save: the products, the headings, or both.
+			 */
+			validationMessage() {
+				const messages = [];
+				const fields = this.invalid.reduce((all, problem) => all.concat(problem.fields), []);
+				if (fields.includes('name') || fields.includes('price')) {
+					messages.push(this.$t('A product needs a name and a valid price.'));
+				}
+				if (fields.includes('vat_percentage')) {
+					messages.push(this.$t('The VAT % of a product is not a number.'));
+				}
+				if (this.invalidHeadings.length > 0) {
+					messages.push(this.$t('A heading needs a name.'));
+				}
+				return messages.join(' ');
 			},
 
 			async reset() {
@@ -674,6 +705,14 @@
 					if (!name || !name.trim()) {
 						// Cancelled: show the previous heading again.
 						event.target.value = previous;
+						return;
+					}
+
+					// The name of an existing heading selects that heading.
+					const existing = matchByName(name, this.headings);
+					if (existing) {
+						row.heading_id = existing.id;
+						event.target.value = String(existing.id);
 						return;
 					}
 
@@ -801,6 +840,14 @@
 					if (!name) {
 						// Cancelled: show the previous category again.
 						event.target.value = row.category_id === null ? '' : String(row.category_id);
+						return;
+					}
+
+					// The name of an existing station selects that station.
+					const existing = matchByName(name, this.categories);
+					if (existing) {
+						row.category_id = existing.id;
+						event.target.value = String(existing.id);
 						return;
 					}
 
