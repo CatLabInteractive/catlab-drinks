@@ -66,5 +66,8 @@
         "webpack": "~5.106.2",
         "webpack-cli": "^5",
         "webpackbar": "^7.0.0"
+    },
+    "devDependencies": {
+        "socket.io": "^4.8.4"
     }
 }
