@@ -13,6 +13,17 @@ class MenuItem extends Model
 
     protected $table = 'menu_items';
 
+    protected static function booted()
+    {
+        static::creating(function (MenuItem $item) {
+            if (empty($item->position)) {
+                $item->position = (int) static::withTrashed()
+                    ->where('event_id', $item->event_id)
+                    ->max('position') + 1;
+            }
+        });
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
