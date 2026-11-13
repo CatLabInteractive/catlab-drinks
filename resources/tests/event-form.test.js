@@ -32,8 +32,17 @@ describe('EventForm.vue', () => {
 	});
 	it('keeps the advanced settings reachable', () => {
 		expect(source).toContain("$t('Advanced settings')");
-		expect(source).toContain('answers.split_orders_by_categories');
 		expect(source).toContain('answers.checkin_url');
+	});
+	it('shows the split option outside the advanced settings', () => {
+		const split = source.indexOf('answers.split_orders_by_categories');
+		const advancedStart = source.indexOf('<details class="event-form__advanced');
+		const advancedEnd = source.indexOf('</details>', advancedStart);
+		expect(split).toBeGreaterThan(-1);
+		expect(advancedStart).toBeGreaterThan(-1);
+		expect(split < advancedStart || split > advancedEnd).toBe(true);
+		expect(source.indexOf('answers.checkin_url')).toBeGreaterThan(advancedStart);
+		expect(source.indexOf('answers.checkin_url')).toBeLessThan(advancedEnd);
 	});
 	it('routes Enter through onSubmit instead of submitting directly', () => {
 		expect(source).toContain('@submit.prevent="onSubmit"');

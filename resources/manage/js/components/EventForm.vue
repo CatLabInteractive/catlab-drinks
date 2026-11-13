@@ -129,12 +129,15 @@
 
 			<p v-if="errors.onlineOrdering" class="text-muted small mt-2 mb-0">{{ $t('Choose how guests order.') }}</p>
 
-			<details class="event-form__advanced mt-3">
-				<summary>{{ $t('Advanced settings') }}</summary>
-				<b-form-checkbox v-model="answers.split_orders_by_categories" class="mt-2">
+			<div class="event-form__split mt-3">
+				<b-form-checkbox v-model="answers.split_orders_by_categories">
 					{{ $t('Split orders per station') }}
 				</b-form-checkbox>
 				<small class="form-text text-muted">{{ $t('Each station (for example the bar and the kitchen) gets its own order.') }}</small>
+			</div>
+
+			<details class="event-form__advanced mt-3">
+				<summary>{{ $t('Advanced settings') }}</summary>
 				<b-form-group :label="$t('Checkin URL (callback)')" :label-for="checkinInputId" class="mt-2 mb-0">
 					<b-form-input :id="checkinInputId" type="text" v-model="answers.checkin_url" placeholder="https://" />
 				</b-form-group>
