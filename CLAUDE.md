@@ -319,6 +319,29 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
 
 ---
 
+## Menu sequence and import
+
+- `menu_items.position` is the user-controlled sequence, per event. A `creating` hook in
+  `App\Models\MenuItem` gives new products the next position. Both `MenuItemResourceDefinition`
+  classes use `defaultOrder('position')` and expose a sortable `position` field; only the
+  Management API definition makes it writeable. All three menu reads (Management index, Device
+  index, public menu) return products in `position`, then `id` order.
+- `PUT /api/v1/events/{id}/menu/sequence` with `{ "items": [ { "id": 1 }, ... ] }` (Management API
+  only, users only, authorized with the `create` ability of `MenuItemPolicy`). Products not listed
+  keep their relative sequence after the listed ones. Invalid, foreign, duplicate or deleted IDs
+  give 422 and write nothing.
+- Charon rejects an update without `name` and `price`. Save in Manage therefore sends `name` and
+  `price` plus only the fields that changed. Reason: a POS device can switch a product to "not
+  selling" while the menu table is open, and Save must not revert that. `is_selling` is sent only
+  if the user changed it.
+- Pure modules in `resources/manage/js/menu/` (each with a Vitest file next to it): `priceParser.js`,
+  `clipboardTable.js`, `menuImport.js`, `menuChanges.js`, `menuSave.js`. The Vue parts are
+  `resources/manage/js/views/Menu.vue` and `resources/manage/js/components/MenuImportModal.vue`.
+- Design: `docs/superpowers/specs/2026-11-12-menu-import-and-ordering-design.md`. Stage 2
+  (category headings on the order screens) is not built yet.
+
+---
+
 ## Key Models
 | Model                | Table                  | Purpose                          |
 |----------------------|------------------------|----------------------------------|
@@ -362,6 +385,7 @@ app/
 
 resources/
 ├── manage/js/                  # Manage app (Vue components, services, views)
+│   └── menu/                   # Pure menu table/import modules (priceParser, menuImport, menuSave, ...)
 ├── pos/js/                     # POS app (Vue components, services, views)
 ├── clients/js/                 # Client order app
 ├── shared/js/                  # Shared Vue components and services
