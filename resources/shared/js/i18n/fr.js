@@ -242,7 +242,6 @@ export default {
     'Editing the menu can only be done from the management console.': 'La modification du menu ne peut se faire qu\'à partir de la console de gestion.',
     'Here you can only change the availability of products.': 'Ici, vous ne pouvez que modifier la disponibilité des produits.',
     'Product name': 'Nom du produit',
-    'Category': 'Catégorie',
     'Not selling': 'Non vendu',
     'Selling': 'En vente',
 
@@ -315,7 +314,8 @@ export default {
     'Requires NFC topup cards': 'Nécessite les cartes NFC rechargeables',
     'Choose how guests order.': 'Choisissez comment les invités commandent.',
     'Advanced settings': 'Paramètres avancés',
-    'Split orders by product category (bar / kitchen)': 'Séparer les commandes par catégorie de produit (bar / cuisine)',
+    'Split orders per station': 'Séparer les commandes par poste',
+    'Each station (for example the bar and the kitchen) gets its own order.': 'Chaque poste (par exemple le bar et la cuisine) reçoit sa propre commande.',
     'Next': 'Suivant',
     'Create event': 'Créer l\'événement',
     'New event: step {step} of 3': 'Nouvel événement : étape {step} sur 3',
@@ -327,13 +327,10 @@ export default {
     'Description': 'Description',
     'Price (all taxes included)': 'Prix (toutes taxes comprises)',
     'VAT / Tax percentage (optional)': 'TVA / Pourcentage de taxe (optionnel)',
-    'Product category': 'Catégorie de produit',
-    'By defining multiple product categories, you can split your orders between different locations.': 'En définissant plusieurs catégories de produits, vous pouvez diviser vos commandes entre différents emplacements.',
-    'Create new category': 'Créer une nouvelle catégorie',
     'Please enter a name for the product.': 'Veuillez entrer un nom pour le produit.',
     'Please enter a price for the product.': 'Veuillez entrer un prix pour le produit.',
     'Are you sure you want to remove this menu item?': 'Êtes-vous sûr de vouloir supprimer cet article du menu ?',
-    'Enter the name of the new category:': 'Entrez le nom de la nouvelle catégorie :',
+    'Enter the name of the new station:': 'Entrez le nom du nouveau poste :',
     'Unsaved changes': 'Modifications non enregistrées',
     'All changes saved': 'Toutes les modifications sont enregistrées',
     'Import menu': 'Importer un menu',
@@ -348,7 +345,7 @@ export default {
     'Type to add a product…': 'Tapez pour ajouter un produit…',
     'Paste a table from an email, Word, or Excel into the first cell.': 'Collez un tableau provenant d\'un e-mail, de Word ou d\'Excel dans la première cellule.',
     'Ignore': 'Ignorer',
-    'Category for all products': 'Catégorie pour tous les produits',
+    'Station for all products': 'Poste pour tous les produits',
     'Delete marked rows': 'Supprimer les lignes marquées',
     'Add {count} products': 'Ajouter {count} produits',
     'Rows without a name or a readable price are marked. Fix or delete them.': 'Les lignes sans nom ou sans prix lisible sont marquées. Corrigez-les ou supprimez-les.',
@@ -510,9 +507,8 @@ export default {
     'The order token consists of a public part and a secret part, separated by a dash. The public part identifies the event in the order page URL. The secret part is used by integrating applications, such as QuizWitz, to sign order parameters (card and name) with HMAC-SHA256.': 'Le jeton de commande se compose d\'une partie publique et d\'une partie secrète, séparées par un tiret. La partie publique identifie l\'événement dans l\'URL de la page de commande. La partie secrète est utilisée par les applications intégrées, comme QuizWitz, pour signer les paramètres de commande (card et name) avec HMAC-SHA256.',
     'Only share the full token with trusted integrations.': 'Ne partagez le jeton complet qu\'avec des intégrations de confiance.',
 
-    // Manage - Categories (additions)
-    'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.': 'En définissant plusieurs catégories de produits, vous pouvez répartir vos commandes entre différents endroits. Les catégories doivent rester générales : par ex. \'Nourriture\' pour la cuisine et \'Boissons\' pour le bar.',
-    '+ Create new category': '+ Créer une nouvelle catégorie',
+    // Manage - Stations (additions)
+    '+ Create new station': '+ Créer un nouveau poste',
 
     // Manage - Menu headings
     'Heading': 'Rubrique',
@@ -584,10 +580,10 @@ export default {
     'or': 'ou',
 
     // Remote orders (additions)
-    '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.': '{count} commande(s) ne peuvent pas être traitées car aucun POS en ligne n\'accepte leur catégorie. Au moins un POS doit modifier son filtre pour traiter ces commandes.',
+    '{count} order(s) cannot be processed because no online POS accepts their station. At least one POS must change its filter to handle these orders.': '{count} commande(s) ne peuvent pas être traitées car aucun POS en ligne n\'accepte leur poste. Au moins un POS doit modifier son filtre pour traiter ces commandes.',
     'Only show assigned orders': 'Afficher uniquement les commandes attribuées',
     'On my way!': 'J\'arrive !',
-    'Failed to save category filter. Reverting to previous value.': 'Échec de l\'enregistrement du filtre de catégories. Retour à la valeur précédente.',
+    'Failed to save station filter. Reverting to previous value.': 'Échec de l\'enregistrement du filtre de poste. Retour à la valeur précédente.',
 
     // Attendees (additions)
     'Email': 'E-mail',

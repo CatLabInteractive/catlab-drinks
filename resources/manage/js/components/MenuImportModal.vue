@@ -101,7 +101,7 @@
 		<template #modal-footer>
 			<div class="d-flex flex-wrap align-items-center w-100">
 				<div class="d-flex align-items-center mr-3 mb-1">
-					<label class="mb-0 mr-2" for="menu-import-category">{{ $t('Category for all products') }}</label>
+					<label class="mb-0 mr-2" for="menu-import-category">{{ $t('Station for all products') }}</label>
 					<select
 						id="menu-import-category"
 						class="form-control form-control-sm menu-import-category"
@@ -113,7 +113,7 @@
 						<option v-for="category in categories" :key="category.id" :value="category.id">
 							{{ category.name }}
 						</option>
-						<option v-if="createCategory" :value="NEW_CATEGORY">{{ $t('+ Create new category') }}</option>
+						<option v-if="createCategory" :value="NEW_CATEGORY">{{ $t('+ Create new station') }}</option>
 					</select>
 					<small class="text-danger ml-2 menu-import-category-message" v-if="categoryMessage">{{ categoryMessage }}</small>
 				</div>
@@ -220,7 +220,7 @@
 			list: 'categories',
 			create: 'createCategory',
 			newValue: NEW_CATEGORY,
-			prompt: vm => vm.$t('Enter the name of the new category:')
+			prompt: vm => vm.$t('Enter the name of the new station:')
 		},
 		heading: {
 			field: 'heading',

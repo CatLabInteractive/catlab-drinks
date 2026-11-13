@@ -57,7 +57,7 @@
 					<th>{{ $t('Description') }}</th>
 					<th class="menu-number-column">{{ $t('Price') }}</th>
 					<th class="menu-number-column">{{ $t('VAT %') }}</th>
-					<th>{{ $t('Category') }}</th>
+					<th>{{ $t('Station') }}</th>
 					<th>{{ $t('Heading') }}</th>
 					<th class="text-center">{{ $t('Status') }}</th>
 					<th class="text-right">{{ $t('Delete') }}</th>
@@ -142,7 +142,7 @@
 							class="form-control form-control-sm"
 							:value="row.category_id === null ? '' : String(row.category_id)"
 							:disabled="row.deleted || saving"
-							:aria-label="$t('Category')"
+							:aria-label="$t('Station')"
 							data-column="4"
 							@change="changeCategory($event, row)"
 							@keydown="onKeydown($event, index, 4)"
@@ -153,7 +153,7 @@
 								{{ category.name }}
 							</option>
 
-							<option value="new">{{ $t('+ Create new category') }}</option>
+							<option value="new">{{ $t('+ Create new station') }}</option>
 						</select>
 					</td>
 
@@ -797,7 +797,7 @@
 				const value = event.target.value;
 
 				if (value === 'new') {
-					const name = prompt(this.$t('Enter the name of the new category:'));
+					const name = prompt(this.$t('Enter the name of the new station:'));
 					if (!name) {
 						// Cancelled: show the previous category again.
 						event.target.value = row.category_id === null ? '' : String(row.category_id);

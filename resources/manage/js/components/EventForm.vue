@@ -132,8 +132,9 @@
 			<details class="event-form__advanced mt-3">
 				<summary>{{ $t('Advanced settings') }}</summary>
 				<b-form-checkbox v-model="answers.split_orders_by_categories" class="mt-2">
-					{{ $t('Split orders by product category (bar / kitchen)') }}
+					{{ $t('Split orders per station') }}
 				</b-form-checkbox>
+				<small class="form-text text-muted">{{ $t('Each station (for example the bar and the kitchen) gets its own order.') }}</small>
 				<b-form-group :label="$t('Checkin URL (callback)')" :label-for="checkinInputId" class="mt-2 mb-0">
 					<b-form-input :id="checkinInputId" type="text" v-model="answers.checkin_url" placeholder="https://" />
 				</b-form-group>

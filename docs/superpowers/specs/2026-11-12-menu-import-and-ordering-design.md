@@ -198,6 +198,7 @@ Nothing changes in the POS category filter, in the split of orders, or in the as
 ### Words
 
 - **Category**: routes an order to a location, for example "Drinks" to the bar and "Food" to the kitchen. Unchanged.
+  The interface calls a category a "Station" (French "Poste", German "Station", Spanish "Estación"). The code, the API, and the database keep `category`.
 - **Heading**: a title on the order screens that groups products for the reader, for example "Beers", "Sodas", "Snacks".
   A product has one heading or none. A heading belongs to one event and has a name and a position.
 
@@ -251,6 +252,7 @@ Nothing changes in the POS category filter, in the split of orders, or in the as
 
 The owner decided: headings are separate from categories, and a copy from a different event brings its categories and headings.
 The owner declined: a pasted heading line that becomes a heading automatically.
+The owner decided on 2026-11-13: the interface calls a category a "Station", because its one job is to decide where an order is prepared.
 
 The designer decided these. The owner can overrule each one.
 

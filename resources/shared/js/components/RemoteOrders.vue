@@ -33,7 +33,7 @@
 
 		<!-- Stranded orders warning (POS only) -->
 		<b-alert v-if="strandedOrdersCount > 0" variant="warning" show>
-			⚠️ {{ $t('{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.', { count: strandedOrdersCount }) }}
+			⚠️ {{ $t('{count} order(s) cannot be processed because no online POS accepts their station. At least one POS must change its filter to handle these orders.', { count: strandedOrdersCount }) }}
 		</b-alert>
 
 		<!-- Offline warning -->
@@ -355,7 +355,7 @@
 					this.serverCategoryFilter = categoryId;
 				} catch (e) {
 					console.error('Failed to save category filter:', e);
-					alert(this.$t('Failed to save category filter. Reverting to previous value.'));
+					alert(this.$t('Failed to save station filter. Reverting to previous value.'));
 					this.categoryFilter = this.serverCategoryFilter;
 					this.refresh();
 				}

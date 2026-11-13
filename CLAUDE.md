@@ -341,6 +341,7 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
 - Pure modules in `resources/manage/js/menu/` (each with a Vitest file next to it): `priceParser.js`,
   `clipboardTable.js`, `menuImport.js`, `menuChanges.js`, `menuSave.js`. The Vue parts are
   `resources/manage/js/views/Menu.vue` and `resources/manage/js/components/MenuImportModal.vue`.
+- "Station" in the interface is `category` in the code, API, and database.
 - Design: `docs/superpowers/specs/2026-11-12-menu-import-and-ordering-design.md`. Stage 2
   (category headings on the order screens) is not built yet.
 

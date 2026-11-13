@@ -241,7 +241,6 @@ export default {
     'Editing the menu can only be done from the management console.': 'Het menu bewerken kan alleen vanuit de beheerconsole.',
     'Here you can only change the availability of products.': 'Hier kun je alleen de beschikbaarheid van producten wijzigen.',
     'Product name': 'Productnaam',
-    'Category': 'Categorie',
     'Not selling': 'Niet te koop',
     'Selling': 'Te koop',
 
@@ -314,7 +313,8 @@ export default {
     'Requires NFC topup cards': 'Vereist NFC-opwaardeerkaarten',
     'Choose how guests order.': 'Kies hoe gasten bestellen.',
     'Advanced settings': 'Geavanceerde instellingen',
-    'Split orders by product category (bar / kitchen)': 'Bestellingen splitsen per productcategorie (bar / keuken)',
+    'Split orders per station': 'Bestellingen splitsen per station',
+    'Each station (for example the bar and the kitchen) gets its own order.': 'Elk station (bijvoorbeeld de bar en de keuken) krijgt zijn eigen bestelling.',
     'Next': 'Volgende',
     'Create event': 'Evenement aanmaken',
     'New event: step {step} of 3': 'Nieuw evenement: stap {step} van 3',
@@ -326,13 +326,10 @@ export default {
     'Description': 'Beschrijving',
     'Price (all taxes included)': 'Prijs (inclusief alle belastingen)',
     'VAT / Tax percentage (optional)': 'BTW / Belastingpercentage (optioneel)',
-    'Product category': 'Productcategorie',
-    'By defining multiple product categories, you can split your orders between different locations.': 'Door meerdere productcategorieën te definiëren, kun je bestellingen splitsen over verschillende locaties.',
-    'Create new category': 'Nieuwe categorie aanmaken',
     'Please enter a name for the product.': 'Voer een naam in voor het product.',
     'Please enter a price for the product.': 'Voer een prijs in voor het product.',
     'Are you sure you want to remove this menu item?': 'Weet je zeker dat je dit menu-item wilt verwijderen?',
-    'Enter the name of the new category:': 'Voer de naam van de nieuwe categorie in:',
+    'Enter the name of the new station:': 'Voer de naam van het nieuwe station in:',
     'Unsaved changes': 'Niet-opgeslagen wijzigingen',
     'All changes saved': 'Alle wijzigingen opgeslagen',
     'Import menu': 'Menu importeren',
@@ -347,7 +344,7 @@ export default {
     'Type to add a product…': 'Typ om een product toe te voegen…',
     'Paste a table from an email, Word, or Excel into the first cell.': 'Plak een tabel uit een e-mail, Word of Excel in de eerste cel.',
     'Ignore': 'Negeren',
-    'Category for all products': 'Categorie voor alle producten',
+    'Station for all products': 'Station voor alle producten',
     'Delete marked rows': 'Gemarkeerde rijen verwijderen',
     'Add {count} products': '{count} producten toevoegen',
     'Rows without a name or a readable price are marked. Fix or delete them.': 'Rijen zonder naam of zonder leesbare prijs zijn gemarkeerd. Verbeter of verwijder ze.',
@@ -510,9 +507,8 @@ export default {
     'The order token consists of a public part and a secret part, separated by a dash. The public part identifies the event in the order page URL. The secret part is used by integrating applications, such as QuizWitz, to sign order parameters (card and name) with HMAC-SHA256.': 'Het besteltoken bestaat uit een publiek deel en een geheim deel, gescheiden door een streepje. Het publieke deel identificeert het evenement in de URL van de bestelpagina. Het geheime deel wordt door integrerende applicaties, zoals QuizWitz, gebruikt om bestelparameters (card en name) te ondertekenen met HMAC-SHA256.',
     'Only share the full token with trusted integrations.': 'Deel het volledige token alleen met vertrouwde integraties.',
 
-    // Manage - Categories (additions)
-    'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.': 'Door meerdere productcategorieën te definiëren kun je bestellingen verdelen over verschillende locaties. Categorieën moeten breed zijn: bijv. \'Eten\' voor de keuken en \'Drank\' voor de bar.',
-    '+ Create new category': '+ Nieuwe categorie aanmaken',
+    // Manage - Stations (additions)
+    '+ Create new station': '+ Nieuw station aanmaken',
 
     // Manage - Menu headings
     'Heading': 'Rubriek',
@@ -584,10 +580,10 @@ export default {
     'or': 'of',
 
     // Remote orders (additions)
-    '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.': '{count} bestelling(en) kunnen niet worden verwerkt omdat geen enkele online POS hun categorie accepteert. Minstens één POS moet zijn filter aanpassen om deze bestellingen te verwerken.',
+    '{count} order(s) cannot be processed because no online POS accepts their station. At least one POS must change its filter to handle these orders.': '{count} bestelling(en) kunnen niet worden verwerkt omdat geen enkele online POS hun station accepteert. Minstens één POS moet zijn filter aanpassen om deze bestellingen te verwerken.',
     'Only show assigned orders': 'Alleen toegewezen bestellingen tonen',
     'On my way!': 'Onderweg!',
-    'Failed to save category filter. Reverting to previous value.': 'Opslaan van categoriefilter mislukt. Vorige waarde wordt hersteld.',
+    'Failed to save station filter. Reverting to previous value.': 'Opslaan van stationfilter mislukt. Vorige waarde wordt hersteld.',
 
     // Attendees (additions)
     'Email': 'E-mail',
