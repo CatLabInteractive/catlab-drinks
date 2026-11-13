@@ -514,6 +514,14 @@ export default {
     'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.': 'Door meerdere productcategorieën te definiëren kun je bestellingen verdelen over verschillende locaties. Categorieën moeten breed zijn: bijv. \'Eten\' voor de keuken en \'Drank\' voor de bar.',
     '+ Create new category': '+ Nieuwe categorie aanmaken',
 
+    // Manage - Menu headings
+    'Heading': 'Rubriek',
+    'Headings': 'Rubrieken',
+    '+ Create new heading': '+ Nieuwe rubriek aanmaken',
+    'Enter the name of the new heading:': 'Voer de naam van de nieuwe rubriek in:',
+    'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.': 'Rubrieken groeperen producten op de bestelschermen. Stations sturen bestellingen naar een locatie, bijvoorbeeld de bar of de keuken.',
+    'No headings yet. Create one in the "Heading" column of a product.': 'Nog geen rubrieken. Maak er een aan in de kolom "Rubriek" van een product.',
+
     // Manage - Public Keys
     'Public Keys': 'Publieke sleutels',
     'This page shows all public keys for POS devices in your organisation, including keys from deleted devices. Each public key is used to verify NFC card signatures.': 'Deze pagina toont alle publieke sleutels van POS-apparaten in je organisatie, inclusief sleutels van verwijderde apparaten. Elke publieke sleutel wordt gebruikt om handtekeningen op NFC-kaarten te verifiëren.',

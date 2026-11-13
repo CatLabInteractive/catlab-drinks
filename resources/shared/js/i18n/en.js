@@ -514,6 +514,14 @@ export default {
     'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.': 'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.',
     '+ Create new category': '+ Create new category',
 
+    // Manage - Menu headings
+    'Heading': 'Heading',
+    'Headings': 'Headings',
+    '+ Create new heading': '+ Create new heading',
+    'Enter the name of the new heading:': 'Enter the name of the new heading:',
+    'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.': 'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.',
+    'No headings yet. Create one in the "Heading" column of a product.': 'No headings yet. Create one in the "Heading" column of a product.',
+
     // Manage - Public Keys
     'Public Keys': 'Public Keys',
     'This page shows all public keys for POS devices in your organisation, including keys from deleted devices. Each public key is used to verify NFC card signatures.': 'This page shows all public keys for POS devices in your organisation, including keys from deleted devices. Each public key is used to verify NFC card signatures.',

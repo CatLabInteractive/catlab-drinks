@@ -514,6 +514,14 @@ export default {
     'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.': 'En définissant plusieurs catégories de produits, vous pouvez répartir vos commandes entre différents endroits. Les catégories doivent rester générales : par ex. \'Nourriture\' pour la cuisine et \'Boissons\' pour le bar.',
     '+ Create new category': '+ Créer une nouvelle catégorie',
 
+    // Manage - Menu headings
+    'Heading': 'Rubrique',
+    'Headings': 'Rubriques',
+    '+ Create new heading': '+ Créer une nouvelle rubrique',
+    'Enter the name of the new heading:': 'Entrez le nom de la nouvelle rubrique :',
+    'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.': 'Les rubriques regroupent les produits sur les écrans de commande. Les postes envoient les commandes vers un lieu, par exemple le bar ou la cuisine.',
+    'No headings yet. Create one in the "Heading" column of a product.': 'Pas encore de rubriques. Créez-en une dans la colonne « Rubrique » d\'un produit.',
+
     // Manage - Public Keys
     'Public Keys': 'Clés publiques',
     'This page shows all public keys for POS devices in your organisation, including keys from deleted devices. Each public key is used to verify NFC card signatures.': 'Cette page affiche toutes les clés publiques des appareils POS de votre organisation, y compris celles des appareils supprimés. Chaque clé publique sert à vérifier les signatures des cartes NFC.',

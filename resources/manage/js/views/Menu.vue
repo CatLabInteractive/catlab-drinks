@@ -26,7 +26,7 @@
 		<h2>{{ $t('Menu') }}</h2>
 
 		<div class="menu-toolbar d-flex align-items-center mb-2">
-			<b-button variant="success" @click="save" :disabled="saving || creatingCategory || !loaded || !dirty">
+			<b-button variant="success" @click="save" :disabled="saving || creatingCategory || creatingHeading || !loaded || !dirty">
 				{{ $t('Save changes') }}
 			</b-button>
 
@@ -58,6 +58,7 @@
 					<th class="menu-number-column">{{ $t('Price') }}</th>
 					<th class="menu-number-column">{{ $t('VAT %') }}</th>
 					<th>{{ $t('Category') }}</th>
+					<th>{{ $t('Heading') }}</th>
 					<th class="text-center">{{ $t('Status') }}</th>
 					<th class="text-right">{{ $t('Delete') }}</th>
 				</tr>
@@ -156,6 +157,26 @@
 						</select>
 					</td>
 
+					<td>
+						<select
+							class="form-control form-control-sm"
+							:value="row.heading_id === null ? '' : String(row.heading_id)"
+							:disabled="row.deleted || saving"
+							:aria-label="$t('Heading')"
+							data-column="5"
+							@change="changeHeading($event, row)"
+							@keydown="onKeydown($event, index, 5)"
+						>
+							<option value=""></option>
+
+							<option v-for="heading in headings" :key="heading.id" :value="String(heading.id)">
+								{{ heading.name }}
+							</option>
+
+							<option value="new">{{ $t('+ Create new heading') }}</option>
+						</select>
+					</td>
+
 					<td class="text-center">
 						<b-button
 							size="sm"
@@ -184,7 +205,62 @@
 			</tbody>
 		</table>
 
-		<menu-import-modal ref="importModal" :categories="categories" :other-events="otherEvents" :create-category="createCategory" @import="appendRows" />
+		<section class="menu-headings" v-if="loaded">
+			<h3>{{ $t('Headings') }}</h3>
+
+			<p class="text-muted">
+				{{ $t('Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.') }}
+			</p>
+
+			<p v-if="headingRows.length === 0" class="text-muted menu-headings-empty">
+				{{ $t('No headings yet. Create one in the "Heading" column of a product.') }}
+			</p>
+
+			<table class="table table-sm menu-headings-table" ref="headingTable" v-else>
+				<tbody>
+					<tr
+						v-for="(row, index) in headingRows"
+						:key="row.key"
+						:class="headingRowClass(row, index)"
+						:data-heading-index="index"
+						@dragover="onHeadingDragOver($event, index)"
+						@drop="onHeadingDrop($event, index)"
+					>
+						<td
+							class="menu-handle menu-handle-column"
+							draggable="true"
+							:title="$t('Drag to change the sequence')"
+							@dragstart="onHeadingDragStart($event, index)"
+							@dragend="endHeadingDrag"
+						>
+							<span aria-hidden="true">⠿</span>
+						</td>
+
+						<td>
+							<input
+								type="text"
+								class="form-control form-control-sm"
+								:class="{ 'is-invalid': hasHeadingError(row) }"
+								v-model="row.name"
+								:disabled="saving || loading"
+								:aria-label="$t('Heading')"
+								@keydown="onHeadingKeydown($event, index)"
+							/>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+
+		<menu-import-modal
+			ref="importModal"
+			:categories="categories"
+			:headings="headings"
+			:other-events="otherEvents"
+			:create-category="createCategory"
+			:create-heading="createHeading"
+			@import="appendRows"
+		/>
 
 	</b-container>
 
@@ -194,6 +270,7 @@
 
 	import {MenuService} from "../../../shared/js/services/MenuService";
 	import {CategoryService} from "../../../shared/js/services/CategoryService";
+	import {MenuHeadingService} from "../../../shared/js/services/MenuHeadingService";
 	import {EventService} from "../../../shared/js/services/EventService";
 	import {getApiErrorMessage} from "../../../shared/js/services/AbstractService";
 	import {
@@ -206,6 +283,13 @@
 		hasChanges
 	} from "../menu/menuChanges";
 	import {runSave} from "../menu/menuSave";
+	import {
+		headingRowsFrom,
+		headingStatuses,
+		validateHeadingRows,
+		hasHeadingChanges,
+		runHeadingSave
+	} from "../menu/headingChanges";
 	import MenuImportModal from "../components/MenuImportModal.vue";
 
 	/**
@@ -286,21 +370,47 @@
 				eventId: null,
 				saving: false,
 				creatingCategory: false,
+				creatingHeading: false,
 				showErrors: false,
 				errorMessage: null,
 				originals: [],
 				rows: [],
 				categories: [],
+				// The headings of the event as the server has them, and the
+				// rows of the Headings section that the user edits. The
+				// selectors read the rows (see `headings`).
+				headingOriginals: [],
+				headingRows: [],
 				events: [],
 				dragIndex: null,
-				dropTarget: null
+				dropTarget: null,
+				headingDragIndex: null,
+				headingDropTarget: null
 			}
 		},
 
 		computed: {
 
 			dirty() {
-				return hasChanges(this.originals, this.rows);
+				return hasChanges(this.originals, this.rows)
+					|| hasHeadingChanges(this.headingOriginals, this.headingRows);
+			},
+
+			/**
+			 * The headings of the event in the sequence of the Headings
+			 * section, with the names as the user typed them. The selectors of
+			 * the menu table and of the import dialog use this list.
+			 */
+			headings() {
+				return this.headingRows.map((row, index) => ({ id: row.id, name: row.name, position: index + 1 }));
+			},
+
+			invalidHeadings() {
+				return validateHeadingRows(this.headingRows);
+			},
+
+			headingRowStatuses() {
+				return headingStatuses(this.headingOriginals, this.headingRows);
 			},
 
 			invalid() {
@@ -343,11 +453,14 @@
 				this.eventId = eventId;
 				this.service = new MenuService(eventId);
 				this.categoriesService = new CategoryService(eventId);
+				this.headingService = new MenuHeadingService(eventId);
 				// Hide the menu of the previous event until the new one is loaded,
 				// so that Save cannot send it to the new event.
 				this.loaded = false;
 				this.originals = [];
 				this.rows = [];
+				this.headingOriginals = [];
+				this.headingRows = [];
 				this.showErrors = false;
 				this.errorMessage = null;
 				this.refresh();
@@ -372,11 +485,12 @@
 				this.loaded = false;
 				this.loading = true;
 
-				let menu, categories;
+				let menu, categories, headings;
 				try {
-					[menu, categories] = await Promise.all([
+					[menu, categories, headings] = await Promise.all([
 						this.service.index(),
-						this.categoriesService.index()
+						this.categoriesService.index(),
+						this.headingService.index()
 					]);
 				} catch (error) {
 					if (eventId === this.eventId) {
@@ -395,6 +509,8 @@
 				this.originals = menu.items;
 				this.categories = categories.items;
 				this.rows = withTrailingBlank(rowsFromItems(this.originals));
+				this.headingOriginals = headings.items;
+				this.headingRows = headingRowsFrom(this.headingOriginals);
 				this.loading = false;
 				this.loaded = true;
 
@@ -403,7 +519,7 @@
 			async save() {
 
 				this.showErrors = true;
-				if (this.invalid.length > 0) {
+				if (this.invalid.length > 0 || this.invalidHeadings.length > 0) {
 					return;
 				}
 
@@ -421,10 +537,23 @@
 
 				this.originals = result.originals;
 				this.rows = withTrailingBlank(result.rows);
+
+				// The headings are saved also when the menu was not saved
+				// completely; the first error is shown.
+				const headingResult = await runHeadingSave(this.headingService, this.headingOriginals, this.headingRows);
+
+				if (eventId !== this.eventId) {
+					this.saving = false;
+					return;
+				}
+
+				this.headingOriginals = headingResult.originals;
+				this.headingRows = headingResult.rows;
 				this.saving = false;
 
-				if (result.error) {
-					this.errorMessage = getApiErrorMessage(result.error)
+				const error = result.error || headingResult.error;
+				if (error) {
+					this.errorMessage = getApiErrorMessage(error)
 						|| this.$t('Some changes were not saved. Press Save to try again.');
 				} else {
 					this.showErrors = false;
@@ -496,6 +625,172 @@
 				} finally {
 					this.creatingCategory = false;
 				}
+			},
+
+			/**
+			 * Creates a heading at once (not at Save) and adds it to the
+			 * Headings section at the position that the server gave it, so that
+			 * it is not an unsaved change. Used by the menu table and by the
+			 * import dialog. Rejects if the request fails.
+			 */
+			async createHeading(name) {
+				const eventId = this.eventId;
+				const service = this.headingService;
+				this.creatingHeading = true;
+				let heading;
+				try {
+					heading = await service.create({name: name});
+				} finally {
+					this.creatingHeading = false;
+				}
+
+				// Left for a different event in the meantime, or already
+				// loaded by a refresh: nothing to add.
+				if (eventId !== this.eventId || this.headingOriginals.some(original => original.id === heading.id)) {
+					return heading;
+				}
+
+				this.headingOriginals = [...this.headingOriginals, heading];
+
+				const row = headingRowsFrom([heading])[0];
+				const positionOf = candidate => {
+					const original = this.headingOriginals.find(other => other.id === candidate.id);
+					return original && original.position !== null && original.position !== undefined ? original.position : Infinity;
+				};
+				const at = this.headingRows.findIndex(candidate => positionOf(candidate) > heading.position);
+				this.headingRows = at === -1
+					? [...this.headingRows, row]
+					: [...this.headingRows.slice(0, at), row, ...this.headingRows.slice(at)];
+
+				return heading;
+			},
+
+			async changeHeading(event, row) {
+				const value = event.target.value;
+				const previous = row.heading_id === null ? '' : String(row.heading_id);
+
+				if (value === 'new') {
+					const name = prompt(this.$t('Enter the name of the new heading:'));
+					if (!name || !name.trim()) {
+						// Cancelled: show the previous heading again.
+						event.target.value = previous;
+						return;
+					}
+
+					let heading;
+					try {
+						heading = await this.createHeading(name.trim());
+					} catch (error) {
+						event.target.value = previous;
+						this.errorMessage = getApiErrorMessage(error) || error.message;
+						return;
+					}
+
+					row.heading_id = heading.id;
+					// The option of the new heading is rendered on the next tick.
+					this.$nextTick(() => {
+						event.target.value = String(heading.id);
+					});
+				} else if (value) {
+					const heading = this.headings.find(candidate => String(candidate.id) === value);
+					row.heading_id = heading ? heading.id : null;
+				} else {
+					row.heading_id = null;
+				}
+			},
+
+			hasHeadingError(row) {
+				return this.showErrors && this.invalidHeadings.includes(row.key);
+			},
+
+			headingRowClass(row, index) {
+				const classes = [];
+				const statusClass = STATUS_CLASSES[this.headingRowStatuses[row.key]];
+				if (statusClass) {
+					classes.push(statusClass);
+				}
+				if (this.headingDropTarget && this.headingDropTarget.index === index) {
+					classes.push(this.headingDropTarget.after ? 'menu-drop-after' : 'menu-drop-before');
+				}
+				return classes;
+			},
+
+			onHeadingDragStart(event, index) {
+				if (this.saving || this.loading) {
+					event.preventDefault();
+					return;
+				}
+
+				this.headingDragIndex = index;
+				event.dataTransfer.effectAllowed = 'move';
+				// Firefox only starts a drag that carries data.
+				event.dataTransfer.setData('text/plain', String(index));
+
+				const tr = event.target.closest('tr');
+				if (tr) {
+					event.dataTransfer.setDragImage(tr, 0, tr.offsetHeight / 2);
+				}
+			},
+
+			onHeadingDragOver(event, index) {
+				if (this.headingDragIndex === null) {
+					return;
+				}
+
+				event.preventDefault();
+				event.dataTransfer.dropEffect = 'move';
+
+				const rect = event.currentTarget.getBoundingClientRect();
+				const after = event.clientY > rect.top + rect.height / 2;
+
+				if (!this.headingDropTarget || this.headingDropTarget.index !== index || this.headingDropTarget.after !== after) {
+					this.headingDropTarget = { index, after };
+				}
+			},
+
+			onHeadingDrop(event, index) {
+				if (this.headingDragIndex === null) {
+					return;
+				}
+
+				event.preventDefault();
+
+				const after = this.headingDropTarget && this.headingDropTarget.index === index && this.headingDropTarget.after;
+				// Position in the current list in front of which the row goes.
+				const before = after ? index + 1 : index;
+				const to = before > this.headingDragIndex ? before - 1 : before;
+
+				if (to !== this.headingDragIndex) {
+					this.headingRows = moveRow(this.headingRows, this.headingDragIndex, to);
+				}
+
+				this.endHeadingDrag();
+			},
+
+			endHeadingDrag() {
+				this.headingDragIndex = null;
+				this.headingDropTarget = null;
+			},
+
+			onHeadingKeydown(event, index) {
+				if (!event.altKey || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown')) {
+					return;
+				}
+
+				event.preventDefault();
+				const to = index + (event.key === 'ArrowUp' ? -1 : 1);
+				if (to < 0 || to >= this.headingRows.length) {
+					return;
+				}
+
+				this.headingRows = moveRow(this.headingRows, index, to);
+				this.$nextTick(() => {
+					const input = this.$refs.headingTable
+						&& this.$refs.headingTable.querySelector('tr[data-heading-index="' + to + '"] input');
+					if (input) {
+						input.focus();
+					}
+				});
 			},
 
 			async changeCategory(event, row) {
@@ -654,8 +949,14 @@
 </script>
 
 <style scoped>
-	.menu-table td {
+	.menu-table td,
+	.menu-headings-table td {
 		vertical-align: middle;
+	}
+
+	.menu-headings {
+		margin-top: 2em;
+		max-width: 40em;
 	}
 
 	.menu-table .form-control-sm {
@@ -680,7 +981,8 @@
 	/* Let the row colour show through the cells of a marked row. */
 	.menu-table tr.table-success .form-control,
 	.menu-table tr.table-warning .form-control,
-	.menu-table tr.table-danger .form-control {
+	.menu-table tr.table-danger .form-control,
+	.menu-headings-table tr.table-warning .form-control {
 		background-color: transparent;
 	}
 
