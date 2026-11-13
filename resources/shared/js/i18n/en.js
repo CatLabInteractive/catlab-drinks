@@ -339,6 +339,7 @@ export default {
     'Import menu': 'Import menu',
     'Drag to change the sequence': 'Drag to change the sequence',
     'Discard all unsaved changes?': 'Discard all unsaved changes?',
+    'Discard the pasted menu?': 'Discard the pasted menu?',
     'You have unsaved changes. Leave this page?': 'You have unsaved changes. Leave this page?',
     'Some changes were not saved. Press Save to try again.': 'Some changes were not saved. Press Save to try again.',
     'Type to add a product…': 'Type to add a product…',

@@ -338,6 +338,7 @@ export default {
     'Import menu': 'Menu importeren',
     'Drag to change the sequence': 'Sleep om de volgorde te wijzigen',
     'Discard all unsaved changes?': 'Alle niet-opgeslagen wijzigingen verwerpen?',
+    'Discard the pasted menu?': 'Het geplakte menu verwerpen?',
     'You have unsaved changes. Leave this page?': 'Je hebt niet-opgeslagen wijzigingen. Deze pagina verlaten?',
     'Some changes were not saved. Press Save to try again.': 'Sommige wijzigingen zijn niet opgeslagen. Druk op Opslaan om het opnieuw te proberen.',
     'Type to add a product…': 'Typ om een product toe te voegen…',

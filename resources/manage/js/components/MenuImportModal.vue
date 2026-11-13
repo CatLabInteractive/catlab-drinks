@@ -21,7 +21,7 @@
 
 <template>
 
-	<b-modal ref="modal" size="xl" :title="$t('Import menu')">
+	<b-modal ref="modal" size="xl" :title="$t('Import menu')" no-close-on-backdrop no-close-on-esc @hide="onHide">
 
 		<p class="text-muted">{{ $t('Paste a table from an email, Word, or Excel into the first cell.') }}</p>
 
@@ -153,6 +153,7 @@
 				cells: [emptyRow(2)],
 				types: ['name', 'price'],
 				categoryId: null,
+				closeWithoutQuestion: false,
 				columnTypes: COLUMN_TYPES,
 				typeLabels: TYPE_LABELS
 			};
@@ -205,6 +206,7 @@
 				this.cells = [emptyRow(2)];
 				this.types = ['name', 'price'];
 				this.categoryId = null;
+				this.closeWithoutQuestion = false;
 				this.$refs.modal.show();
 			},
 
@@ -212,11 +214,26 @@
 				this.$refs.modal.hide();
 			},
 
+			/**
+			 * The header X and Cancel ask before a pasted sheet is thrown away.
+			 * Backdrop and Esc do not close the dialog at all.
+			 */
+			onHide(bvModalEvent) {
+				if (this.closeWithoutQuestion) {
+					this.closeWithoutQuestion = false;
+					return;
+				}
+				if (this.contentRowIndexes.length > 0 && !confirm(this.$t('Discard the pasted menu?'))) {
+					bvModalEvent.preventDefault();
+				}
+			},
+
 			submit() {
 				if (!this.importable) {
 					return;
 				}
 				this.$emit('import', this.importRows.map(row => rowFromImport(row, this.categoryId)));
+				this.closeWithoutQuestion = true;
 				this.hide();
 			},
 
