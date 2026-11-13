@@ -290,6 +290,20 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
 
 ---
 
+## NFC simulator
+
+`tools/nfc-simulator/` takes the place of the socket.io NFC reader service that `RemoteNfcReader` connects to.
+Use it to test card payments in the POS on a computer without an NFC reader.
+Start it with `npm run nfc-simulator`. Then set the NFC server in the POS settings to `http://127.0.0.1:3030`.
+You tap and remove cards with HTTP requests, for example `curl -X POST http://127.0.0.1:3030/cards/04a1b2c3d4e5f6/tap`.
+The simulator is a development tool. The application does not load it.
+For the environment variables, the HTTP interface, and the limits, see `tools/nfc-simulator/README.md`.
+
+- Before the POS reads or writes a card, an admin must approve the public key of the device in Manage.
+- A new organisation has `min_nfc_version` 1. In that case, the POS shows a new (blank) card as "Corrupt card" on its first tap. The POS writes v1 data on that tap. Remove the card and tap it again to use it.
+
+---
+
 ## Instance Configuration
 
 - `config/instance.php` + `App\Support\InstanceSettings`: `PRODUCTION_ORGANISATION_IDS`
