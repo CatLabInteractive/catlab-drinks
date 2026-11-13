@@ -119,6 +119,109 @@ class MenuSequenceTest extends TestCase
 		$this->assertEquals(7, MenuItem::find($response->json('id'))->position);
 	}
 
+	public function testSequenceEndpointStoresTheSequence(): void
+	{
+		[$a, $b, $c] = $this->makeItems($this->event, ['A', 'B', 'C']);
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl(), ['items' => [['id' => $c->id], ['id' => $a->id], ['id' => $b->id]]])
+			->assertStatus(200)->assertJson(['success' => true]);
+		$this->assertEquals([2, 3, 1], [$a->fresh()->position, $b->fresh()->position, $c->fresh()->position]);
+	}
+
+	public function testProductsMissingFromTheListGoAfterTheListedOnes(): void
+	{
+		[$a, $b, $c, $d] = $this->makeItems($this->event, ['A', 'B', 'C', 'D']);
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl(), ['items' => [['id' => $d->id], ['id' => $b->id]]])->assertStatus(200);
+		// listed: D=1, B=2. Not listed keep their relative sequence: A=3, C=4.
+		$this->assertEquals([3, 2, 4, 1], [$a->fresh()->position, $b->fresh()->position, $c->fresh()->position, $d->fresh()->position]);
+	}
+
+	public function testSequenceRejectsIdsOfADifferentEvent(): void
+	{
+		[$a, $b] = $this->makeItems($this->event, ['A', 'B']);
+		[$x] = $this->makeItems($this->otherEventOfSameOrganisation, ['X']);
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl(), ['items' => [['id' => $b->id], ['id' => $x->id], ['id' => $a->id]]])
+			->assertStatus(422);
+		$this->assertEquals([1, 2, 1], [$a->fresh()->position, $b->fresh()->position, $x->fresh()->position]);
+	}
+
+	public function testSequenceRejectsDuplicateIds(): void
+	{
+		[$a, $b] = $this->makeItems($this->event, ['A', 'B']);
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl(), ['items' => [['id' => $a->id], ['id' => $a->id], ['id' => $b->id]]])
+			->assertStatus(422);
+		$this->assertEquals([1, 2], [$a->fresh()->position, $b->fresh()->position]);
+	}
+
+	public function testSequenceRejectsADeletedProduct(): void
+	{
+		[$a, $b] = $this->makeItems($this->event, ['A', 'B']);
+		$b->delete();
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl(), ['items' => [['id' => $a->id], ['id' => $b->id]]])
+			->assertStatus(422);
+	}
+
+	public function testSequenceRejectsABodyWithoutItems(): void
+	{
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl(), [])->assertStatus(422);
+		$this->putJson($this->sequenceUrl(), ['items' => 'x'])->assertStatus(422);
+	}
+
+	public function testSequenceDeniedForOtherOrganisation(): void
+	{
+		$otherEvent = Event::factory()->create([
+			'organisation_id' => $this->otherOrganisation->id,
+			'is_selling' => true,
+			'allow_unpaid_online_orders' => true,
+			'order_token_secret' => null,
+		]);
+		[$x] = $this->makeItems($otherEvent, ['X']);
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl($otherEvent), ['items' => [['id' => $x->id]]])->assertStatus(403);
+	}
+
+	public function testSequenceDeniedForDevices(): void
+	{
+		$status = $this->withHeader('Authorization', 'Bearer ' . $this->createDeviceToken($this->organisation))
+			->putJson('/pos-api/v1/events/' . $this->event->id . '/menu/sequence', ['items' => []])
+			->status();
+		$this->assertContains($status, [404, 405]);
+	}
+
+	public function testSequenceErrorUsesTheCommonErrorFormat(): void
+	{
+		Passport::actingAs($this->user);
+		$response = $this->putJson($this->sequenceUrl(), [])->assertStatus(422);
+		$this->assertNotNull($response->json('error.status'));
+		$this->assertNotNull($response->json('error.message'));
+	}
+
+	public function testBulkCreateReturnsIdsInRequestOrder(): void
+	{
+		Passport::actingAs($this->user);
+		$response = $this->withHeader('X-Bulk-Request', '1')->postJson('/api/v1/events/' . $this->event->id . '/menu', [
+			'items' => [
+				['name' => 'One', 'price' => 1, 'vat_percentage' => 21],
+				['name' => 'Two', 'price' => 2, 'description' => 'second'],
+			],
+		]);
+		$response->assertSuccessful();
+		$this->assertEquals(['One', 'Two'], array_column($response->json('items'), 'name'));
+		$this->assertNotNull($response->json('items.0.id'));
+		$this->assertEquals(21, MenuItem::find($response->json('items.0.id'))->vat_percentage);
+		$this->assertTrue((bool) MenuItem::find($response->json('items.1.id'))->is_selling);
+	}
+
+	private function sequenceUrl(?Event $event = null): string
+	{
+		return '/api/v1/events/' . ($event ?? $this->event)->id . '/menu/sequence';
+	}
+
 	private function shuffleThreeItems(): void
 	{
 		[$a, $b, $c] = $this->makeItems($this->event, ['A', 'B', 'C']);
