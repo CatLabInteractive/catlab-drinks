@@ -44,7 +44,7 @@
 
             <b-row>
                 <b-col>
-                    <b-table striped hover :items="tableRows" :fields="fields" :tbody-tr-class="rowClass" v-if="loaded" class="order-table">
+                    <b-table :striped="!hasHeadings" hover :items="tableRows" :fields="fields" :tbody-tr-class="rowClass" v-if="loaded" class="order-table">
 
                         <template v-slot:row-details="row">
                             {{row.item.description}}
@@ -213,6 +213,14 @@
              */
             tableRows() {
                 return orderTableRows(this.items);
+            },
+
+            /**
+             * True if the table has title rows. Title rows would count in the
+             * zebra stripes, so a menu with headings is shown without stripes.
+             */
+            hasHeadings() {
+                return this.tableRows.some(row => row.isHeading);
             },
 
             fields() {
