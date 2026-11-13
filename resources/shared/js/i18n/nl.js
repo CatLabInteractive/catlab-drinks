@@ -521,6 +521,8 @@ export default {
     'Enter the name of the new heading:': 'Voer de naam van de nieuwe rubriek in:',
     'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.': 'Rubrieken groeperen producten op de bestelschermen. Stations sturen bestellingen naar een locatie, bijvoorbeeld de bar of de keuken.',
     'No headings yet. Create one in the "Heading" column of a product.': 'Nog geen rubrieken. Maak er een aan in de kolom "Rubriek" van een product.',
+    'Station': 'Station',
+    'Heading for all products': 'Rubriek voor alle producten',
 
     // Manage - Public Keys
     'Public Keys': 'Publieke sleutels',

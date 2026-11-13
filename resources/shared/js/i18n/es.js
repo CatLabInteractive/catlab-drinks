@@ -521,6 +521,8 @@ export default {
     'Enter the name of the new heading:': 'Ingrese el nombre de la nueva sección:',
     'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.': 'Las secciones agrupan los productos en las pantallas de pedido. Las estaciones envían los pedidos a un lugar, por ejemplo la barra o la cocina.',
     'No headings yet. Create one in the "Heading" column of a product.': 'Todavía no hay secciones. Cree una en la columna «Sección» de un producto.',
+    'Station': 'Estación',
+    'Heading for all products': 'Sección para todos los productos',
 
     // Manage - Public Keys
     'Public Keys': 'Claves públicas',

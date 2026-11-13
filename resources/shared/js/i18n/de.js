@@ -521,6 +521,8 @@ export default {
     'Enter the name of the new heading:': 'Geben Sie den Namen der neuen Rubrik ein:',
     'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.': 'Rubriken gruppieren Produkte auf den Bestellbildschirmen. Stationen senden Bestellungen an einen Ort, zum Beispiel die Bar oder die Küche.',
     'No headings yet. Create one in the "Heading" column of a product.': 'Noch keine Rubriken. Erstellen Sie eine in der Spalte „Rubrik“ eines Produkts.',
+    'Station': 'Station',
+    'Heading for all products': 'Rubrik für alle Produkte',
 
     // Manage - Public Keys
     'Public Keys': 'Öffentliche Schlüssel',

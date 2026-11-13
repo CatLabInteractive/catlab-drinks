@@ -521,6 +521,8 @@ export default {
     'Enter the name of the new heading:': 'Entrez le nom de la nouvelle rubrique :',
     'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.': 'Les rubriques regroupent les produits sur les écrans de commande. Les postes envoient les commandes vers un lieu, par exemple le bar ou la cuisine.',
     'No headings yet. Create one in the "Heading" column of a product.': 'Pas encore de rubriques. Créez-en une dans la colonne « Rubrique » d\'un produit.',
+    'Station': 'Poste',
+    'Heading for all products': 'Rubrique pour tous les produits',
 
     // Manage - Public Keys
     'Public Keys': 'Clés publiques',

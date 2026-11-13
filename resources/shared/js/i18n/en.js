@@ -521,6 +521,8 @@ export default {
     'Enter the name of the new heading:': 'Enter the name of the new heading:',
     'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.': 'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.',
     'No headings yet. Create one in the "Heading" column of a product.': 'No headings yet. Create one in the "Heading" column of a product.',
+    'Station': 'Station',
+    'Heading for all products': 'Heading for all products',
 
     // Manage - Public Keys
     'Public Keys': 'Public Keys',

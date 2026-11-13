@@ -29,7 +29,7 @@
 				id="menu-import-copy-event"
 				class="form-control form-control-sm menu-import-copy-select"
 				:value="copyEventId"
-				:disabled="copying"
+				:disabled="copying || adding"
 				@change="copyFromEvent($event.target)"
 			>
 				<option value=""></option>
@@ -54,6 +54,7 @@
 							class="form-control form-control-sm"
 							:value="type"
 							:data-column="column"
+							:disabled="adding"
 							@change="changeType(column, $event.target.value)"
 						>
 							<option v-for="option in columnTypes" :key="option" :value="option">
@@ -82,12 +83,13 @@
 							}"
 							:value="cell"
 							:data-column="column"
+							:disabled="adding"
 							@input="setCell(rowIndex, column, $event.target.value)"
 							@paste="onPaste($event, rowIndex, column)"
 						/>
 					</td>
 					<td class="text-right">
-						<b-button size="sm" variant="danger" @click="deleteRow(rowIndex)" :title="$t('Delete')">
+						<b-button size="sm" variant="danger" :disabled="adding" @click="deleteRow(rowIndex)" :title="$t('Delete')">
 							<span>🗑️</span>
 							<span class="sr-only">{{ $t('Delete') }}</span>
 						</b-button>
@@ -97,35 +99,62 @@
 		</table>
 
 		<template #modal-footer>
-			<div class="d-flex align-items-center w-100">
-				<label class="mb-0 mr-2" for="menu-import-category">{{ $t('Category for all products') }}</label>
-				<select
-					id="menu-import-category"
-					class="form-control form-control-sm menu-import-category"
-					v-model="categoryId"
-					:disabled="creatingCategory"
-					@change="onCategoryChange"
-				>
-					<option :value="null"></option>
-					<option v-for="category in categories" :key="category.id" :value="category.id">
-						{{ category.name }}
-					</option>
-					<option v-if="createCategory" :value="NEW_CATEGORY">{{ $t('+ Create new category') }}</option>
-				</select>
-				<small class="text-danger ml-2 menu-import-category-message" v-if="categoryMessage">{{ categoryMessage }}</small>
+			<div class="d-flex flex-wrap align-items-center w-100">
+				<div class="d-flex align-items-center mr-3 mb-1">
+					<label class="mb-0 mr-2" for="menu-import-category">{{ $t('Category for all products') }}</label>
+					<select
+						id="menu-import-category"
+						class="form-control form-control-sm menu-import-category"
+						v-model="categoryId"
+						:disabled="creatingCategory || adding"
+						@change="onSelectorChange('category', $event)"
+					>
+						<option :value="null"></option>
+						<option v-for="category in categories" :key="category.id" :value="category.id">
+							{{ category.name }}
+						</option>
+						<option v-if="createCategory" :value="NEW_CATEGORY">{{ $t('+ Create new category') }}</option>
+					</select>
+					<small class="text-danger ml-2 menu-import-category-message" v-if="categoryMessage">{{ categoryMessage }}</small>
+				</div>
 
-				<div class="ml-auto">
-					<b-button v-if="hasErrors" variant="outline-danger" @click="deleteMarkedRows">
+				<div class="d-flex align-items-center mr-3 mb-1">
+					<label class="mb-0 mr-2" for="menu-import-heading">{{ $t('Heading for all products') }}</label>
+					<select
+						id="menu-import-heading"
+						class="form-control form-control-sm menu-import-heading"
+						v-model="headingId"
+						:disabled="creatingHeading || adding"
+						@change="onSelectorChange('heading', $event)"
+					>
+						<option :value="null"></option>
+						<option v-for="heading in headings" :key="heading.id" :value="heading.id">
+							{{ heading.name }}
+						</option>
+						<option v-if="createHeading" :value="NEW_HEADING">{{ $t('+ Create new heading') }}</option>
+					</select>
+					<small class="text-danger ml-2 menu-import-heading-message" v-if="headingMessage">{{ headingMessage }}</small>
+				</div>
+
+				<div class="ml-auto mb-1 text-right">
+					<b-button v-if="hasErrors" variant="outline-danger" :disabled="adding" @click="deleteMarkedRows">
 						{{ $t('Delete marked rows') }}
 					</b-button>
 
-					<b-button variant="light" class="ml-2" @click="hide">
+					<b-button variant="light" class="ml-2" :disabled="adding" @click="hide">
 						{{ $t('Cancel') }}
 					</b-button>
 
-					<b-button variant="primary" class="ml-2" :disabled="!importable || copying || creatingCategory" @click="submit">
+					<b-button
+						variant="primary"
+						class="ml-2 menu-import-add"
+						:disabled="!importable || copying || creatingCategory || creatingHeading || adding"
+						@click="submit"
+					>
 						{{ $t('Add {count} products', { count: importRows.length }) }}
 					</b-button>
+
+					<div class="text-danger small mt-1 menu-import-add-message" v-if="addMessage">{{ addMessage }}</div>
 				</div>
 			</div>
 		</template>
@@ -144,7 +173,10 @@
 		setColumnType,
 		buildImportRows,
 		canImport,
-		sheetFromItems
+		sheetFromItems,
+		headingOrderFromItems,
+		matchByName,
+		namesToCreate
 	} from "../menu/menuImport";
 	import {rowFromImport} from "../menu/menuChanges";
 	import {MenuService} from "../../../shared/js/services/MenuService";
@@ -155,6 +187,8 @@
 		description: 'Description',
 		price: 'Price',
 		vat_percentage: 'VAT %',
+		category: 'Station',
+		heading: 'Heading',
 		ignore: 'Ignore'
 	};
 
@@ -166,12 +200,52 @@
 		return new Array(width).fill('');
 	}
 
-	// Value of the selector option that creates a category. No category has this ID.
+	// Values of the selector options that create a category or a heading.
+	// No category or heading has this ID.
 	const NEW_CATEGORY = 'new';
+	const NEW_HEADING = 'new';
+
+	/**
+	 * The two selectors "for all products" work the same. Each entry names
+	 * the data fields, props and texts of one selector. `field` is the field
+	 * of an import row that holds a name of this kind.
+	 */
+	const SELECTORS = {
+		category: {
+			field: 'category',
+			value: 'categoryId',
+			previous: 'previousCategoryId',
+			creating: 'creatingCategory',
+			message: 'categoryMessage',
+			list: 'categories',
+			create: 'createCategory',
+			newValue: NEW_CATEGORY,
+			prompt: vm => vm.$t('Enter the name of the new category:')
+		},
+		heading: {
+			field: 'heading',
+			value: 'headingId',
+			previous: 'previousHeadingId',
+			creating: 'creatingHeading',
+			message: 'headingMessage',
+			list: 'headings',
+			create: 'createHeading',
+			newValue: NEW_HEADING,
+			prompt: vm => vm.$t('Enter the name of the new heading:')
+		}
+	};
 
 	export default {
 		props: {
 			categories: {
+				type: Array,
+				default: () => []
+			},
+
+			/**
+			 * The headings of the event: { id, name }.
+			 */
+			headings: {
 				type: Array,
 				default: () => []
 			},
@@ -193,6 +267,16 @@
 			createCategory: {
 				type: Function,
 				default: null
+			},
+
+			/**
+			 * Creates a heading on the server and returns it: (name) => Promise<{ id, name }>.
+			 * The parent adds it to `headings`. Without this function, the
+			 * selector offers existing headings only.
+			 */
+			createHeading: {
+				type: Function,
+				default: null
 			}
 		},
 
@@ -207,7 +291,21 @@
 				previousCategoryId: null,
 				creatingCategory: false,
 				categoryMessage: null,
+				headingId: null,
+				// The heading that was selected before the user chose "create new".
+				previousHeadingId: null,
+				creatingHeading: false,
+				headingMessage: null,
 				NEW_CATEGORY: NEW_CATEGORY,
+				NEW_HEADING: NEW_HEADING,
+				// True while "Add" creates categories and headings.
+				adding: false,
+				addMessage: null,
+				// Raised on each Add, show and close, so that a late answer is ignored.
+				addRequest: 0,
+				// The heading names of the copied event in its heading sequence.
+				// New headings are created in this sequence.
+				copiedHeadingOrder: [],
 				closeWithoutQuestion: false,
 				copyEventId: '',
 				copyMessage: null,
@@ -269,52 +367,59 @@
 				this.previousCategoryId = null;
 				this.creatingCategory = false;
 				this.categoryMessage = null;
+				this.headingId = null;
+				this.previousHeadingId = null;
+				this.creatingHeading = false;
+				this.headingMessage = null;
+				this.resetAdd();
 				this.closeWithoutQuestion = false;
 				this.resetCopy();
 				this.$refs.modal.show();
 			},
 
 			/**
-			 * "Create new category" asks for a name and creates the category
-			 * at once, as the menu table does. On cancel or failure, the
-			 * selector goes back to the category that was selected before.
+			 * "Create new category" and "Create new heading" ask for a name and
+			 * create the entry at once, as the menu table does. On cancel or
+			 * failure, the selector goes back to the entry that was selected
+			 * before.
 			 */
-			async onCategoryChange(event) {
+			async onSelectorChange(kind, event) {
+				const selector = SELECTORS[kind];
 				const select = event.target;
-				this.categoryMessage = null;
+				this[selector.message] = null;
 
-				if (this.categoryId !== NEW_CATEGORY) {
-					this.previousCategoryId = this.categoryId;
+				if (this[selector.value] !== selector.newValue) {
+					this[selector.previous] = this[selector.value];
 					return;
 				}
 
-				const name = prompt(this.$t('Enter the name of the new category:'));
+				const name = prompt(selector.prompt(this));
 				if (!name || !name.trim()) {
-					this.restoreCategory(select);
+					this.restoreSelection(selector, select);
 					return;
 				}
 
-				this.creatingCategory = true;
+				this[selector.creating] = true;
 				try {
-					const category = await this.createCategory(name.trim());
-					this.categoryId = category.id;
-					this.previousCategoryId = category.id;
+					const entry = await this[selector.create](name.trim());
+					this[selector.value] = entry.id;
+					this[selector.previous] = entry.id;
 				} catch (error) {
-					this.restoreCategory(select);
-					this.categoryMessage = getApiErrorMessage(error) || error.message;
+					this.restoreSelection(selector, select);
+					this[selector.message] = getApiErrorMessage(error) || error.message;
 				} finally {
-					this.creatingCategory = false;
+					this[selector.creating] = false;
 				}
 			},
 
 			/**
-			 * Selects the previous category again. The bound value can be the
+			 * Selects the previous entry again. The bound value can be the
 			 * same before and after (no render in between), so Vue does not
 			 * always update the element. Set the element too.
 			 */
-			restoreCategory(select) {
-				this.categoryId = this.previousCategoryId;
-				const index = this.categories.findIndex(category => category.id === this.previousCategoryId);
+			restoreSelection(selector, select) {
+				this[selector.value] = this[selector.previous];
+				const index = this[selector.list].findIndex(entry => entry.id === this[selector.previous]);
 				select.selectedIndex = index + 1;
 			},
 
@@ -327,6 +432,11 @@
 			 * Backdrop and Esc do not close the dialog at all.
 			 */
 			onHide(bvModalEvent) {
+				// Categories and headings are being created: wait for "Add".
+				if (this.adding) {
+					bvModalEvent.preventDefault();
+					return;
+				}
 				if (this.closeWithoutQuestion) {
 					this.closeWithoutQuestion = false;
 					return;
@@ -337,7 +447,14 @@
 			},
 
 			onHidden() {
+				this.resetAdd();
 				this.resetCopy();
+			},
+
+			resetAdd() {
+				this.addRequest++;
+				this.adding = false;
+				this.addMessage = null;
 			},
 
 			resetCopy() {
@@ -395,15 +512,80 @@
 				const sheet = sheetFromItems(menu.items);
 				this.cells = sheet.cells;
 				this.types = sheet.types;
+				this.copiedHeadingOrder = headingOrderFromItems(menu.items);
 			},
 
-			submit() {
-				if (!this.importable || this.copying || this.creatingCategory || this.categoryId === NEW_CATEGORY) {
+			/**
+			 * Creates the categories and headings that the rows name and that
+			 * do not exist yet, one at a time, then adds the rows. If a create
+			 * fails, the dialog stays open and adds nothing. What was created
+			 * stays, and the next "Add" finds it by name.
+			 */
+			async submit() {
+				if (this.adding || !this.importable || this.copying || this.creatingCategory || this.creatingHeading
+					|| this.categoryId === NEW_CATEGORY || this.headingId === NEW_HEADING) {
 					return;
 				}
-				this.$emit('import', this.importRows.map(row => rowFromImport(row, this.categoryId)));
+
+				const request = ++this.addRequest;
+				const importRows = this.importRows;
+				this.adding = true;
+				this.addMessage = null;
+
+				let categories, headings;
+				try {
+					categories = await this.createMissing(importRows, SELECTORS.category, [], request);
+					headings = await this.createMissing(importRows, SELECTORS.heading, this.copiedHeadingOrder, request);
+				} catch (error) {
+					if (request === this.addRequest) {
+						this.adding = false;
+						this.addMessage = getApiErrorMessage(error) || error.message;
+					}
+					return;
+				}
+
+				// The dialog was closed or opened again in the meantime.
+				if (request !== this.addRequest) {
+					return;
+				}
+
+				this.adding = false;
+				this.$emit('import', importRows.map(row => rowFromImport(
+					row,
+					this.resolveId(row.category, categories, this.categoryId),
+					this.resolveId(row.heading, headings, this.headingId)
+				)));
 				this.closeWithoutQuestion = true;
 				this.hide();
+			},
+
+			/**
+			 * Creates the missing entries of one kind and returns the list to
+			 * match the rows against. Each name is matched against the current
+			 * prop value first, because the parent adds each created entry.
+			 */
+			async createMissing(importRows, selector, preferredOrder, request) {
+				const created = [];
+				const current = () => this[selector.list].concat(created);
+				const names = namesToCreate(importRows, selector.field, current(), preferredOrder);
+				for (const name of names) {
+					if (request !== this.addRequest || !this[selector.create]) {
+						break;
+					}
+					if (!matchByName(name, current())) {
+						created.push(await this[selector.create](name));
+					}
+				}
+				return current();
+			},
+
+			/**
+			 * A name gives the matching entry; an empty cell (or a name
+			 * without a match) gives the selection for all products.
+			 */
+			resolveId(name, list, selectedId) {
+				const match = matchByName(name, list);
+				return match ? match.id : selectedId;
 			},
 
 			changeType(column, type) {
@@ -457,6 +639,8 @@
 					const sheet = prepareSheet(parsed);
 					this.cells = sheet;
 					this.types = guessColumnTypes(sheet);
+					// A new sheet: the heading sequence of a copied event no longer applies.
+					this.copiedHeadingOrder = [];
 					return;
 				}
 
@@ -518,7 +702,8 @@
 		min-width: 16em;
 	}
 
-	.menu-import-category {
+	.menu-import-category,
+	.menu-import-heading {
 		width: auto;
 		min-width: 12em;
 	}
