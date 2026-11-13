@@ -161,18 +161,72 @@ function changesFor(original, row) {
 	return changes;
 }
 
-export function rowStatus(row, originals, index) {
-	if (row.deleted) {
-		return 'deleted';
+/**
+ * Indexes of the longest strictly increasing run in a list of ranks. When
+ * several runs are equally long, the one that ends first wins.
+ */
+function longestIncreasingRun(ranks) {
+	const length = [];
+	const previous = [];
+	let best = -1;
+	ranks.forEach((rank, i) => {
+		length[i] = 1;
+		previous[i] = -1;
+		for (let j = 0; j < i; j++) {
+			if (ranks[j] < rank && length[j] + 1 > length[i]) {
+				length[i] = length[j] + 1;
+				previous[i] = j;
+			}
+		}
+		if (best === -1 || length[i] > length[best]) {
+			best = i;
+		}
+	});
+	const run = new Set();
+	for (let i = best; i !== -1; i = previous[i]) {
+		run.add(i);
 	}
-	const original = row.id === null ? null : findOriginal(originals, row);
-	if (!original) {
-		return 'new';
-	}
-	if (changesFor(original, row)) {
-		return 'changed';
-	}
-	return originalsInSequence(originals).indexOf(original) === index ? 'clean' : 'moved';
+	return run;
+}
+
+/**
+ * The status of every row, keyed by row key. A row is only 'moved' when it
+ * is outside the longest run of existing rows that kept their relative
+ * order, so one drag marks one row.
+ */
+export function rowStatuses(originals, rows) {
+	const statuses = {};
+	const rank = new Map();
+	originalsInSequence(originals)
+		.sort((a, b) => {
+			const pa = a.position === null || a.position === undefined ? Infinity : a.position;
+			const pb = b.position === null || b.position === undefined ? Infinity : b.position;
+			return pa === pb ? a.id - b.id : (pa < pb ? -1 : 1);
+		})
+		.forEach((item, i) => rank.set(item.id, i));
+
+	const existing = [];
+	rows.forEach(row => {
+		if (row.id === null && isBlank(row)) {
+			statuses[row.key] = 'blank';
+		} else if (row.deleted) {
+			statuses[row.key] = 'deleted';
+		} else if (row.id === null || !findOriginal(originals, row)) {
+			statuses[row.key] = 'new';
+		} else {
+			existing.push(row);
+		}
+	});
+
+	const run = longestIncreasingRun(existing.map(row => rank.get(row.id)));
+	existing.forEach((row, i) => {
+		if (changesFor(findOriginal(originals, row), row)) {
+			statuses[row.key] = 'changed';
+		} else {
+			statuses[row.key] = run.has(i) ? 'clean' : 'moved';
+		}
+	});
+	return statuses;
 }
 
 export function validateRows(rows) {

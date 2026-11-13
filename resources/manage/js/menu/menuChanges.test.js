@@ -21,7 +21,7 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-	rowFromItem, rowsFromItems, newRow, rowFromImport, isBlank, rowStatus,
+	rowFromItem, rowsFromItems, newRow, rowFromImport, isBlank, rowStatuses,
 	validateRows, moveRow, buildSavePlan, hasChanges,
 } from './menuChanges';
 
@@ -104,7 +104,7 @@ describe('menuChanges', () => {
 		const plan = buildSavePlan(items, rows);
 		expect(plan.sequenceChanged).toBe(true);
 		expect(plan.updates).toEqual([]);
-		expect(rowStatus(rows[0], items, 0)).toBe('moved');
+		expect(rowStatuses(items, rows)[rows[0].key]).toBe('moved');
 		expect(hasChanges(items, rows)).toBe(true);
 	});
 	it('returns a new list from moveRow', () => {
@@ -126,15 +126,48 @@ describe('menuChanges', () => {
 		const rows = rowsFromItems(mixed); rows[1].deleted = true;
 		expect(buildSavePlan(mixed, rows).sequenceChanged).toBe(false);
 	});
-	it('reports the status of each row', () => {
-		const rows = [...rowsFromItems(items), newRow({ name: 'Thee', price: '2' })];
-		rows[0].price = '3'; rows[1].deleted = true;
-		expect(rows.map((row, i) => rowStatus(row, items, i))).toEqual(['changed', 'deleted', 'clean', 'new']);
-	});
-	it('lets changed win over moved', () => {
-		const rows = moveRow(rowsFromItems(items), 2, 0);
-		rows[0].price = '9';
-		expect(rowStatus(rows[0], items, 0)).toBe('changed');
+	describe('rowStatuses', () => {
+		const five = [1, 2, 3, 4, 5].map(id => ({ id, name: 'P' + id, description: null, price: id, vat_percentage: null, is_selling: true, position: id, category: null }));
+		const list = (originals, rows) => {
+			const statuses = rowStatuses(originals, rows);
+			return rows.map(row => statuses[row.key]);
+		};
+		it('marks an untouched table clean', () => {
+			expect(list(items, rowsFromItems(items))).toEqual(['clean', 'clean', 'clean']);
+		});
+		it('marks only the dragged row as moved', () => {
+			expect(list(items, moveRow(rowsFromItems(items), 2, 0))).toEqual(['moved', 'clean', 'clean']);
+		});
+		it('marks one row after moving the last row to the top', () => {
+			const result = list(five, moveRow(rowsFromItems(five), 4, 0));
+			expect(result.filter(s => s === 'moved')).toHaveLength(1);
+		});
+		it('marks one row after swapping two neighbours', () => {
+			const result = list(five, moveRow(rowsFromItems(five), 1, 2));
+			expect(result.filter(s => s === 'moved')).toHaveLength(1);
+		});
+		it('leaves existing rows clean when a new row is inserted at the top', () => {
+			const rows = [newRow({ name: 'Thee', price: '2' }), ...rowsFromItems(items)];
+			expect(list(items, rows)).toEqual(['new', 'clean', 'clean', 'clean']);
+		});
+		it('leaves rows after a deleted row clean', () => {
+			const rows = rowsFromItems(items); rows[1].deleted = true;
+			expect(list(items, rows)).toEqual(['clean', 'deleted', 'clean']);
+		});
+		it('lets changed win over moved', () => {
+			const rows = moveRow(rowsFromItems(items), 2, 0);
+			rows[0].price = '9';
+			expect(list(items, rows)).toEqual(['changed', 'clean', 'clean']);
+		});
+		it('reports the status of each row', () => {
+			const rows = [...rowsFromItems(items), newRow({ name: 'Thee', price: '2' }), newRow()];
+			rows[0].price = '3'; rows[1].deleted = true;
+			expect(list(items, rows)).toEqual(['changed', 'deleted', 'clean', 'new', 'blank']);
+		});
+		it('marks a deleted new row as deleted', () => {
+			const rows = [...rowsFromItems(items), newRow({ name: 'Thee', price: '2', deleted: true })];
+			expect(list(items, rows)[3]).toBe('deleted');
+		});
 	});
 	it('validates name, price and VAT', () => {
 		const rows = rowsFromItems(items);
