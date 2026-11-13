@@ -35,12 +35,14 @@
 		<b-row v-if="loaded">
 			<b-col cols="12">
 
+				<template v-for="group in groups" :key="group.heading ? group.heading.id : 'none'">
+				<h3 v-if="group.heading" class="live-orders-heading">{{ group.heading.name }}</h3>
 				<div class="live-orders">
-					<div v-for="(item, index) in items" class="product" v-on:click="increaseOrder(item, index, $event)">
+					<div v-for="item in group.items" class="product" v-on:click="increaseOrder(item, $event)">
 						<span class="name">{{item.name}}</span>
 						<span class="buttons">
 
-							<button class="btn btn-danger btn-sm" v-on:click="decreaseOrder(item, index, $event)">
+							<button class="btn btn-danger btn-sm" v-on:click="decreaseOrder(item, $event)">
 								<span>−</span>
 								<span class="sr-only">-</span>
 							</button>
@@ -56,6 +58,7 @@
 						<span class="amount">{{item.amount}}</span>
 					</div>
 				</div>
+				</template>
 
 			</b-col>
 		</b-row>
@@ -112,6 +115,7 @@
 	import {MenuService} from "../services/MenuService";
 	import {OrderService} from "../services/OrderService";
 	import { toRaw } from 'vue';
+	import { groupMenuItems } from "../menu/groupMenuItems";
 
 	export default {
 
@@ -155,6 +159,19 @@
 					items: 0,
 					price: 0
 				}
+			}
+		},
+
+		computed: {
+
+			/**
+			 * The products grouped by heading, for display. this.items stays the flat
+			 * product list. Without products there is one empty group, so the screen
+			 * renders the same (empty) tile grid as before headings existed.
+			 */
+			groups() {
+				const groups = groupMenuItems(this.items);
+				return groups.length ? groups : [{ heading: null, items: [] }];
 			}
 		},
 
@@ -225,7 +242,7 @@
 				this.totals.amount = totalAmount;
 			},
 
-			async increaseOrder(product, index, event) {
+			async increaseOrder(product, event) {
 
 				if (event) {
 					event.preventDefault();
@@ -234,11 +251,11 @@
 
 				product.amount ++;
 
-				this.items.splice(index, 1, product);
+				this.replaceItem(product);
 				this.updateTotals();
 			},
 
-			async decreaseOrder(product, index, event) {
+			async decreaseOrder(product, event) {
 
 				if (event) {
 					event.preventDefault();
@@ -250,8 +267,19 @@
 					product.amount = 0;
 				}
 
-				this.items.splice(index, 1, product);
+				this.replaceItem(product);
 				this.updateTotals();
+			},
+
+			/**
+			 * Puts the product back at its own place in the flat list. The tiles are
+			 * shown per heading group, so the place on screen is not the list index.
+			 */
+			replaceItem(product) {
+				const index = this.items.indexOf(product);
+				if (index >= 0) {
+					this.items.splice(index, 1, product);
+				}
 			},
 
 			async submit() {

@@ -44,26 +44,29 @@
 
             <b-row>
                 <b-col>
-                    <b-table striped hover :items="items" :fields="fields" v-if="loaded" class="order-table">
+                    <b-table striped hover :items="tableRows" :fields="fields" :tbody-tr-class="rowClass" v-if="loaded" class="order-table">
 
                         <template v-slot:row-details="row">
                             {{row.item.description}}
                         </template>
 
                         <template v-slot:cell(name)="row">
-                            {{row.item.name}}<br />
-                            <span class="price">€{{row.item.price.toFixed(2)}}</span>
+                            <span v-if="row.item.isHeading" class="order-heading">{{row.item.name}}</span>
+                            <template v-else>
+                                {{row.item.name}}<br />
+                                <span class="price">€{{row.item.price.toFixed(2)}}</span>
+                            </template>
                         </template>
 
                         <template v-slot:cell(amount)="row">
 
-                            <span class="amount">{{row.item.amount}}</span>
+                            <span v-if="!row.item.isHeading" class="amount">{{row.item.amount}}</span>
 
                         </template>
 
                         <template v-slot:cell(actions)="row">
 
-                            <span v-if="!row.item.isTotals">
+                            <span v-if="!row.item.isTotals && !row.item.isHeading">
                                 <b-button variant="danger small" @click="down(row.item)" ><span>−</span></b-button>
                                 <b-button variant="success small" @click="up(row.item)" ><span>＋</span></b-button>
                             </span>
@@ -145,6 +148,7 @@
 <script>
 
     import {MenuService} from "../services/MenuService";
+    import {orderTableRows} from "../../../shared/js/menu/orderTableRows";
 
     export default {
         mounted() {
@@ -202,6 +206,15 @@
         },
 
         computed: {
+            /**
+             * The rows of the order table: the products and the totals row of this.items,
+             * with a title row before the products of each heading. Title rows are for
+             * display only; amounts, totals and the order use this.items.
+             */
+            tableRows() {
+                return orderTableRows(this.items);
+            },
+
             fields() {
                 return [
                     {
@@ -223,6 +236,10 @@
         },
 
         methods: {
+
+            rowClass(item) {
+                return item && item.isHeading ? 'order-heading-row' : null;
+            },
 
             async refresh() {
 
