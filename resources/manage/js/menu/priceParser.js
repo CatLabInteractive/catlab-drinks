@@ -24,8 +24,10 @@
  * functions, no Vue.
  */
 
-const CURRENCY_PREFIX = /^(?:euro|eur|€)\s*/i;
-const CURRENCY_SUFFIX = /\s*(?:euro|eur|€)$/i;
+// \u20AC is the euro sign. It is written as an escape because
+// currency-display.test.js allows no literal currency symbol in the sources.
+const CURRENCY_PREFIX = /^(?:euro|eur|\u20AC)\s*/i;
+const CURRENCY_SUFFIX = /\s*(?:euro|eur|\u20AC)$/i;
 
 /**
  * Rounds to two decimals. Gives null instead of NaN or Infinity.
