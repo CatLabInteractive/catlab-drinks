@@ -34,7 +34,7 @@
 				{{ $t('Reset') }}
 			</b-button>
 
-			<b-button variant="outline-secondary" class="ml-2" :disabled="saving">
+			<b-button variant="outline-secondary" class="ml-2" :disabled="saving || !loaded" @click="$refs.importModal.show()">
 				{{ $t('Import menu') }}
 			</b-button>
 
@@ -184,6 +184,8 @@
 			</tbody>
 		</table>
 
+		<menu-import-modal ref="importModal" :categories="categories" @import="appendRows" />
+
 	</b-container>
 
 </template>
@@ -203,6 +205,7 @@
 		hasChanges
 	} from "../menu/menuChanges";
 	import {runSave} from "../menu/menuSave";
+	import MenuImportModal from "../components/MenuImportModal.vue";
 
 	/**
 	 * The rows, with one blank row at the end for a new product.
@@ -223,6 +226,10 @@
 	};
 
 	export default {
+		components: {
+			MenuImportModal
+		},
+
 		mounted() {
 
 			this.onBeforeUnload = (event) => {

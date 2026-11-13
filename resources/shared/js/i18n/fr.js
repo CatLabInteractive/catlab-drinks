@@ -342,6 +342,12 @@ export default {
     'You have unsaved changes. Leave this page?': 'Vous avez des modifications non enregistrées. Quitter cette page ?',
     'Some changes were not saved. Press Save to try again.': 'Certaines modifications n\'ont pas été enregistrées. Appuyez sur Enregistrer pour réessayer.',
     'Type to add a product…': 'Tapez pour ajouter un produit…',
+    'Paste a table from an email, Word, or Excel into the first cell.': 'Collez un tableau provenant d\'un e-mail, de Word ou d\'Excel dans la première cellule.',
+    'Ignore': 'Ignorer',
+    'Category for all products': 'Catégorie pour tous les produits',
+    'Delete marked rows': 'Supprimer les lignes marquées',
+    'Add {count} products': 'Ajouter {count} produits',
+    'Rows without a name or a readable price are marked. Fix or delete them.': 'Les lignes sans nom ou sans prix lisible sont marquées. Corrigez-les ou supprimez-les.',
 
     // Manage - Devices
     'Point of sale devices': 'Appareils point de vente',

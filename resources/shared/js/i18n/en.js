@@ -342,6 +342,12 @@ export default {
     'You have unsaved changes. Leave this page?': 'You have unsaved changes. Leave this page?',
     'Some changes were not saved. Press Save to try again.': 'Some changes were not saved. Press Save to try again.',
     'Type to add a product…': 'Type to add a product…',
+    'Paste a table from an email, Word, or Excel into the first cell.': 'Paste a table from an email, Word, or Excel into the first cell.',
+    'Ignore': 'Ignore',
+    'Category for all products': 'Category for all products',
+    'Delete marked rows': 'Delete marked rows',
+    'Add {count} products': 'Add {count} products',
+    'Rows without a name or a readable price are marked. Fix or delete them.': 'Rows without a name or a readable price are marked. Fix or delete them.',
 
     // Manage - Devices
     'Point of sale devices': 'Point of sale devices',

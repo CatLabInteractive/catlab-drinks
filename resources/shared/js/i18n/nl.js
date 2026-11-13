@@ -341,6 +341,12 @@ export default {
     'You have unsaved changes. Leave this page?': 'Je hebt niet-opgeslagen wijzigingen. Deze pagina verlaten?',
     'Some changes were not saved. Press Save to try again.': 'Sommige wijzigingen zijn niet opgeslagen. Druk op Opslaan om het opnieuw te proberen.',
     'Type to add a product…': 'Typ om een product toe te voegen…',
+    'Paste a table from an email, Word, or Excel into the first cell.': 'Plak een tabel uit een e-mail, Word of Excel in de eerste cel.',
+    'Ignore': 'Negeren',
+    'Category for all products': 'Categorie voor alle producten',
+    'Delete marked rows': 'Gemarkeerde rijen verwijderen',
+    'Add {count} products': '{count} producten toevoegen',
+    'Rows without a name or a readable price are marked. Fix or delete them.': 'Rijen zonder naam of zonder leesbare prijs zijn gemarkeerd. Verbeter of verwijder ze.',
 
     // Manage - Devices
     'Point of sale devices': 'Kassa-apparaten',
