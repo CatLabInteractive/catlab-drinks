@@ -20,7 +20,7 @@ class MenuHeading extends Model
     {
         static::deleting(function (MenuHeading $heading) {
             // A soft delete keeps the row, so the foreign key does not clear the products.
-            MenuItem::query()->where('heading_id', $heading->id)->update(['heading_id' => null]);
+            MenuItem::withTrashed()->where('heading_id', $heading->id)->update(['heading_id' => null]);
         });
     }
 

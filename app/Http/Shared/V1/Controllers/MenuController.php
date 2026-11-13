@@ -113,27 +113,29 @@ abstract class MenuController extends ResourceController
     protected function beforeSaveEntity(Request $request, \Illuminate\Database\Eloquent\Model $entity, $isNew)
     {
         $this->traitBeforeSaveEntity($request, $entity, $isNew);
-        $this->assertLinksBelongToTheEvent($request, $entity);
+        $this->assertLinksBelongToTheEvent($request, $entity, (bool) $isNew);
         return $entity;
     }
 
     /**
-     * The heading and the category of a product must be live rows of the event of that product.
+     * A new heading or category of a product must be live rows of the event of that product.
      * @param Request $request
      * @param Model $entity
      * @throws ResourceValidationException
      */
-    private function assertLinksBelongToTheEvent(Request $request, Model $entity): void
+    private function assertLinksBelongToTheEvent(Request $request, Model $entity, bool $isNew): void
     {
         $eventId = $entity->event_id ?? $this->getParent($request)->getKey();
 
         $links = [
-            'heading' => [MenuHeading::class, $entity->heading_id],
-            'category' => [Category::class, $entity->category_id],
+            'heading' => [MenuHeading::class, 'heading_id'],
+            'category' => [Category::class, 'category_id'],
         ];
 
-        foreach ($links as $property => [$class, $id]) {
-            if ($id === null) {
+        foreach ($links as $property => [$class, $column]) {
+            // Only a new link is checked. Existing products may hold legacy links.
+            $id = $entity->$column;
+            if ($id === null || !($isNew || $entity->isDirty($column))) {
                 continue;
             }
 

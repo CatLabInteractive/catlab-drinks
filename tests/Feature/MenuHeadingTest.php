@@ -239,6 +239,41 @@ class MenuHeadingTest extends TestCase
 		$this->assertEquals(0, MenuItem::count());
 	}
 
+	public function testProductWithADeletedCategoryCanStillBeSavedByADevice(): void
+	{
+		$category = Category::factory()->create(['event_id' => $this->event->id]);
+		$item = $this->makeItem($this->event, 'Pils');
+		$item->forceFill(['category_id' => $category->id])->save();
+		$category->delete();
+		$this->withHeader('Authorization', 'Bearer ' . $this->createDeviceToken())
+			->putJson('/pos-api/v1/menuitems/' . $item->id, ['is_selling' => false])->assertStatus(200);
+		$this->assertFalse((bool) $item->fresh()->is_selling);
+	}
+
+	public function testProductWithADeletedCategoryCanStillBeEditedByAUser(): void
+	{
+		$category = Category::factory()->create(['event_id' => $this->event->id]);
+		$item = $this->makeItem($this->event, 'Pils');
+		$item->forceFill(['category_id' => $category->id])->save();
+		$category->delete();
+		Passport::actingAs($this->user);
+		$this->putJson('/api/v1/menuitems/' . $item->id, ['name' => 'Pils', 'price' => 4])->assertStatus(200);
+		$this->assertEquals(4, $item->fresh()->price);
+	}
+
+	public function testProductWithACategoryOfAnotherEventCanStillBeEdited(): void
+	{
+		$legacy = Category::factory()->create(['event_id' => $this->otherEvent->id]);
+		$other = Category::factory()->create(['event_id' => $this->otherEvent->id]);
+		$item = $this->makeItem($this->event, 'Pils');
+		$item->forceFill(['category_id' => $legacy->id])->save();
+		Passport::actingAs($this->user);
+		$this->putJson('/api/v1/menuitems/' . $item->id, ['name' => 'Pils', 'price' => 4])->assertStatus(200);
+		$this->assertEquals($legacy->id, $item->fresh()->category_id);
+		$this->putJson('/api/v1/menuitems/' . $item->id, ['name' => 'Pils', 'price' => 4, 'category' => ['id' => $other->id]])->assertStatus(422);
+		$this->assertEquals($legacy->id, $item->fresh()->category_id);
+	}
+
 	public function testDeviceCannotChangeTheHeadingOfAProduct(): void
 	{
 		$heading = $this->makeHeading($this->event, 'Bieren');
@@ -255,10 +290,13 @@ class MenuHeadingTest extends TestCase
 		$heading = $this->makeHeading($this->event, 'Bieren');
 		$a = $this->makeItem($this->event, 'A', $heading);
 		$b = $this->makeItem($this->event, 'B', $heading);
+		$trashed = $this->makeItem($this->event, 'T', $heading);
+		$trashed->delete();
 		Passport::actingAs($this->user);
 		$this->deleteJson('/api/v1/headings/' . $heading->id)->assertSuccessful();
 		$this->assertNull($a->fresh()->heading_id);
 		$this->assertNull($b->fresh()->heading_id);
+		$this->assertNull(MenuItem::withTrashed()->find($trashed->id)->heading_id);
 		$this->assertNotNull($a->fresh());
 		$this->assertNotNull(MenuHeading::withTrashed()->find($heading->id)->deleted_at);
 	}
