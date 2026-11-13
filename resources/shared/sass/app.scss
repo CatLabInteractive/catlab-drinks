@@ -26,7 +26,11 @@
 		border-radius: 10px;
 		padding: 10px;
 		margin: 5px 5px 0 0;
-		height: 7em;
+		// Grow with a long product name. The bottom padding keeps the name clear of
+		// the amount and the minus button, which are positioned at the bottom.
+		min-height: 7em;
+		padding-bottom: 3em;
+		overflow-wrap: anywhere;
 		text-align: left;
 		cursor: pointer;
 		position: relative;
