@@ -29,6 +29,7 @@ import Order from './views/Order'
 import AirbrakeClient from 'airbrake-js';
 import VueCookies from 'vue-cookies'
 import i18n from "../../shared/js/i18n/index";
+import { setCurrency, formatMoney } from '../../shared/js/utils/money';
 
 
 if (typeof (AIRBRAKE_CONFIG) !== 'undefined' && AIRBRAKE_CONFIG !== null) {
@@ -78,6 +79,13 @@ const app = createApp({
     el: '#app',
     components: { App }
 });
+
+// The order page shell emits the event's currency as a global; without it
+// the formatter keeps its default.
+if (typeof(EVENT_CURRENCY) !== 'undefined') {
+    setCurrency(EVENT_CURRENCY);
+}
+app.config.globalProperties.$filters = { money: formatMoney };
 
 app.use(router);
 app.use(i18n);

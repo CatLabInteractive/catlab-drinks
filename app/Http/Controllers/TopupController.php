@@ -26,6 +26,7 @@ use App\Models\Card;
 use App\Models\Organisation;
 use App\Models\OrganisationPaymentGateway;
 use App\Models\Topup;
+use App\Support\Money;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Omnipay\Common\Exception\InvalidRequestException;
@@ -86,12 +87,16 @@ class TopupController extends Controller
             return view('topup.notAvailable');
         }
 
+        $currency = $card->organisation->currency;
+
         return view(
             'topup.topupForm', [
-                'minTopup' => number_format($this->minTopup, 2),
-                'maxTopup' => number_format($this->maxTopup, 2),
+                // Raw numbers for the input's min/max attributes, formatted strings for the copy.
+                'minTopup' => $this->minTopup,
+                'maxTopup' => $this->maxTopup,
+                'minTopupFormatted' => Money::format((float)$this->minTopup, $currency),
                 'action' => action('\App\Http\Controllers\TopupController@processTopup', [ $cardUid ]),
-                'balance' => number_format($card->getBalance() / 100, 2)
+                'balance' => Money::format($card->getBalance() / 100, $currency)
             ]
         );
     }
@@ -221,6 +226,7 @@ class TopupController extends Controller
 
         return view('topup/status', [
             'topup' =>  $topup,
+            'amountFormatted' => Money::format((float)$topup->amount, $card->organisation->currency),
             'retryUrl' => action('TopupController@topupForm', [ $cardUid ])
         ]);
     }
@@ -233,7 +239,7 @@ class TopupController extends Controller
     protected function getParameters(Card $card, Topup $topup) {
         return [
             'token' => $topup->id,
-            'currency' => 'EUR',
+            'currency' => $card->organisation->currency,
             'description' => 'Topup card ' . $card->uid,
             'amount' => number_format((float)$topup->amount, 2, '.', ''),
             'finishUrl' => action('TopupController@status', [ $card->uid, $topup->uid ]),

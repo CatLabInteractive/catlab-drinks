@@ -31,11 +31,13 @@ class DeviceResourceDefinition extends ResourceDefinition
 			->required()
 			->visible();
 
+		// Expanded in the view context so the POS gets the organisation's
+		// currency (and any other visible field) from its own device payload.
 		$this->relationship('organisation', OrganisationResourceDefinition::class)
 			->url('/organisations/{model.organisation.id}')
 			->visible()
 			->one()
-			->expanded(Action::IDENTIFIER, Action::VIEW);
+			->expanded(Action::VIEW, Action::VIEW);
 
 		$this->field('secret_key')
 			->string()

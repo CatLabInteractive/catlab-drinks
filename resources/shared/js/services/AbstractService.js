@@ -22,6 +22,42 @@
 import $ from 'jquery';
 import {installCacheInterceptors} from './ApiCacheService';
 
+/**
+ * Extract the message and issues from an API error response.
+ * Both APIs return { error: { status, message, issues?: { field: [ message ] } } }
+ * (see App\Exceptions\ApiErrorResponse). Responses that never reached the API
+ * (proxy errors, HTML error pages) have no such body.
+ * @param error
+ * @returns {{message: (string|null), issues: string[]}}
+ */
+function parseApiError(error) {
+	const data = error && error.response ? error.response.data : null;
+	const apiError = data && typeof data === 'object' ? data.error : null;
+
+	if (!apiError || typeof apiError !== 'object') {
+		return { message: null, issues: [] };
+	}
+
+	return {
+		message: apiError.message || null,
+		issues: Object.values(apiError.issues || {}).map((messages) => messages[0])
+	};
+}
+
+/**
+ * Human readable message for a failed API request, or null if the
+ * response does not contain one.
+ * @param error
+ * @returns {string|null}
+ */
+export function getApiErrorMessage(error) {
+	const parsed = parseApiError(error);
+	if (parsed.issues.length > 0) {
+		return parsed.issues.join(', \n');
+	}
+	return parsed.message;
+}
+
 export class AbstractService {
 
 	constructor() {
@@ -77,25 +113,14 @@ export class AbstractService {
 				if (status === 422) {
 					console.log({422:error});
 
-					const data = error.response.data || {};
-					let message = error.message;
-					var issues = [];
+					const parsed = parseApiError(error);
+					const message = parsed.message || error.message;
 
-					if (data.error) {
-						// Charon CrudController format: { error: { message, issues: { field: [ ... ] } } }
-						message = data.error.message;
-						for (var k in data.error.issues) {
-							if (data.error.issues.hasOwnProperty(k)) {
-								issues.push(data.error.issues[k][0]);
-							}
-						}
-					} else if (Array.isArray(data.errors)) {
-						// Charon exception handler format: { errors: [ { title, detail } ] }
-						message = data.errors[0].title;
-						issues = data.errors.map(e => e.detail).filter(d => d);
+					if (parsed.issues.length > 0) {
+						alert(message + ': \n' + parsed.issues.join(', \n'));
+					} else {
+						alert(message);
 					}
-
-					alert(message + ': \n' + issues.join(', \n'));
 
 					// The user has been informed; don't report this to the error tracker.
 					error.userNotified = true;
@@ -173,6 +198,23 @@ export class AbstractService {
 
 		return this.execute(
 			'put',
+			'/' + this.entityUrl + '/' + id + "?" + $.param(parameters),
+			this.mapToServerData(data)
+		);
+	}
+
+	/**
+	 * Partial update: only the given fields are validated and written.
+	 * (update() issues PUT, which Charon validates as a whole resource.)
+	 */
+	async patch (id, data, parameters) {
+
+		if (typeof(parameters) === 'undefined') {
+			parameters = {};
+		}
+
+		return this.execute(
+			'patch',
 			'/' + this.entityUrl + '/' + id + "?" + $.param(parameters),
 			this.mapToServerData(data)
 		);

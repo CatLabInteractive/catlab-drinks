@@ -21,6 +21,7 @@ Current documents:
 | `.ai/charon-bulk-delete-instructions.md` | Bulk delete support in Charon v1.8.0 — route format, request/response shape, and a known `mergeOptions()` type-hint bug with middleware arrays |
 | `.ai/deployment.md` | Heroku + Dokku dual-deployment setup — buildpacks, Procfile fallback, app.json, Dockerfile |
 | `.ai/signed-order-urls.md` | Signed remote order URLs — HMAC-SHA256 signature algorithm, token structure, integration guide with code examples |
+| `.ai/usage-reporting.md` | Opt-out usage heartbeat (Matomo) and error reporting (Errbit/Airbrake) — what is sent, triggers, config, footer notice |
 
 ---
 
@@ -52,7 +53,7 @@ php artisan route:list                  # Verify routes are registered correctly
 php artisan route:list --path=<prefix>  # Filter routes by path prefix
 ```
 
-The lock file requires PHP ~8.1 or ~8.2; use `--ignore-platform-reqs` on newer PHP versions.
+The lock file is resolved for PHP 8.5 (`config.platform.php`); production runs `thecodingmachine/php:8.5-v5-slim-apache`.
 
 ### PHP Tests
 ```bash
@@ -61,7 +62,7 @@ vendor/bin/phpunit --filter FooTest     # Single test class
 ```
 Feature tests use the `RefreshDatabase` trait against the `catlab_drinks_test` MySQL
 database (127.0.0.1:3306, user `test`/`test`). GitHub Actions (`.github/workflows/tests.yml`)
-runs the full PHP suite (PHP 8.1/8.2/8.3 matrix + MySQL 8 service) and `npm test` on every
+runs the full PHP suite (PHP 8.5 + MySQL 8 service) and `npm test` on every
 push/PR to main/master/develop.
 
 ### JavaScript Tests
@@ -132,6 +133,13 @@ The backend uses CatLab Charon for REST API scaffolding:
 - Register model events in the model's `boot()` or `booted()` method
 - Use `wasChanged()` (not `isDirty()`) in `updated` events, since `isDirty()` is cleared after save
 
+**API error format:** every error under `/api/*` and `/pos-api/*` is returned as
+`{ "error": { "status", "message", "issues"?: { property: [message] } } }`, built by
+`App\Exceptions\ApiErrorResponse` (used by `ResourceController::getValidationErrorResponse()` and by
+`App\Exceptions\Handler` for uncaught exceptions). Throwing `ResourceValidationException` or calling
+`abort()` from a custom endpoint is fine; don't hand-build other error shapes. The frontend interceptor
+in `AbstractService.js` and `getApiErrorMessage()` read only this format.
+
 ### Adding a New API Endpoint
 1. Create or update the ResourceDefinition (in Shared if used by both APIs, otherwise in the specific API namespace)
 2. Create or update the Controller using Charon traits (in Shared if used by both APIs)
@@ -150,6 +158,11 @@ Policies live in `app/Policies/` and extend `BasePolicy`.
 - When `$allowDevices = false` (default), only `User` principals are accepted (uses `isMyOrganisation()`)
 - **Read-only** POS endpoints should pass `$allowDevices = true`
 - **Write/admin** endpoints should use the default `false`
+
+**Parent checks on `index` / `create`:**
+- Charon's `ChildCrudController` calls `authorize('index', [Entity::class, $parent])` and `authorize('create', [Entity::class, $parent])`, so policy `index()` / `create()` methods receive the parent model (usually `Organisation` or `Event`) as their second argument
+- Always check that parent (`isMyOrganisation()` / `isMyEvent()`); a policy method that ignores it and returns `true` grants access across organisations, because Laravel silently drops the extra argument
+- Top-level `CrudController` index routes (e.g. organisations) have no parent; scope them by overriding `getIndexQuery()` in the controller instead
 
 **Device self-management:**
 - `DevicePolicy::view()` and `DevicePolicy::edit()` allow a device to view/edit itself (`$user->id === $device->id`)
@@ -189,7 +202,7 @@ The app supports two deployment targets that coexist in the same repo:
 | Target | Build method | Web process |
 |--------|-------------|-------------|
 | **Heroku** | Buildpacks (`heroku/nodejs` + `heroku/php`) | `heroku-php-apache2 public/` |
-| **Dokku** | `Dockerfile` (`thecodingmachine/php:8.1-v5-slim-apache`) | `apache2-foreground` (via image entrypoint) |
+| **Dokku** | `Dockerfile` (`thecodingmachine/php:8.5-v5-slim-apache`) | `apache2-foreground` (via image entrypoint) |
 
 ### How it works
 - **`Procfile`** contains the `web:` command with a bash fallback:
@@ -212,7 +225,7 @@ heroku buildpacks:add --index 1 heroku/nodejs
 |------|---------|
 | `Procfile` | Web process + release task for both Heroku and Dokku |
 | `app.json` | Heroku "Deploy to Heroku" button config (stack, buildpacks, env vars, addons) |
-| `Dockerfile` | Dokku build (uses `thecodingmachine/php:8.1-v5-slim-apache`) |
+| `Dockerfile` | Dokku build (uses `thecodingmachine/php:8.5-v5-slim-apache`) |
 | `heroku.yml` | **Deleted** — not used; would conflict with buildpack stack |
 
 ---
@@ -231,6 +244,12 @@ POS devices don't use OAuth — they use device access tokens stored in localSto
 2. Device scans QR / pastes URL → calls `POST /api/v1/device-connect`
 3. New device shows pairing code → admin enters it via `POST /device-connect-requests/{token}/pair`
 4. Device receives access token → stored in localStorage
+
+### Device Access Tokens
+`device_access_tokens.access_token` stores a SHA-256 hash of the bearer token. `Device::createAccessToken()`
+returns the model with the unhashed value in `$token->plainTextToken` (only available right after creation);
+`DeviceAccessToken::findValid()` looks tokens up by hash and transparently upgrades rows that still hold a
+plain-text token from before hashing was introduced.
 
 ### 401 Handling
 The POS Axios interceptor (`resources/pos/js/bootstrap.js`) clears all localStorage keys
@@ -274,6 +293,9 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
   `Auth\SsoLoginController` (SSO first-login); both render `auth.registration-closed`.
 - Database connection/migration failures render `errors/database.blade.php` via
   `App\Exceptions\DatabaseErrorClassifier` in the exception handler (non-debug only).
+- Usage and error reporting back to CatLab is on by default (off when `APP_ENV` is
+  `local` or `testing`); `USAGE_REPORTING=false` / `ERROR_REPORTING=false` opt out.
+  A footer notice tells the owner while it is active — see `.ai/usage-reporting.md`.
 - `DISABLE_PROFILE_MIRROR=1` disables the CatLab Accounts profile sync (kill switch for
   `App\Services\ProfileMirror` — see "Accounts Profile Sync" below).
 
@@ -301,6 +323,33 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
 
 ---
 
+## Menu sequence and import
+
+- `menu_items.position` is the user-controlled sequence, per event. A `creating` hook in
+  `App\Models\MenuItem` gives new products the next position. Both `MenuItemResourceDefinition`
+  classes use `defaultOrder('position')` and expose a sortable `position` field; only the
+  Management API definition makes it writeable. All three menu reads (Management index, Device
+  index, public menu) return products in `position`, then `id` order.
+- `PUT /api/v1/events/{id}/menu/sequence` with `{ "items": [ { "id": 1 }, ... ] }` (Management API
+  only, users only, authorized with the `create` ability of `MenuItemPolicy`). Products not listed
+  keep their relative sequence after the listed ones. Invalid, foreign, duplicate or deleted IDs
+  give 422 and write nothing.
+- Charon rejects an update without `name` and `price`. Save in Manage therefore sends `name` and
+  `price` plus only the fields that changed. Reason: a POS device can switch a product to "not
+  selling" while the menu table is open, and Save must not revert that. `is_selling` is sent only
+  if the user changed it. After each successful request `runSave` (`menuSave.js`) writes the
+  server's values back into the rows, so that a later Save does not send stale values.
+- The import dialog can copy the menu of a different event of the organisation into its sheet
+  ("Copy from event"; `Menu.vue` loads the events list and passes it as `otherEvents`; `sheetFromItems`
+  in `menuImport.js` builds the sheet); the copies are new unsaved rows and the source event is only read.
+- Pure modules in `resources/manage/js/menu/` (each with a Vitest file next to it): `priceParser.js`,
+  `clipboardTable.js`, `menuImport.js`, `menuChanges.js`, `menuSave.js`. The Vue parts are
+  `resources/manage/js/views/Menu.vue` and `resources/manage/js/components/MenuImportModal.vue`.
+- Design: `docs/superpowers/specs/2026-11-12-menu-import-and-ordering-design.md`. Stage 2
+  (category headings on the order screens) is not built yet.
+
+---
+
 ## Key Models
 | Model                | Table                  | Purpose                          |
 |----------------------|------------------------|----------------------------------|
@@ -325,6 +374,7 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
 - POS Events page has an Actions dropdown per event with links to Sales overview and Order history
 - Manage Events page has a richer Actions dropdown including edit, delete, menu editing, attendees, etc.
 - When adding POS access to an existing Manage-only feature: move controller + resource definitions to Shared, create thin stubs in both API namespaces, update the policy's `$allowDevices` flag, add frontend links
+- Amounts of money are formatted with the shared helper (`resources/shared/js/utils/money.js` in the frontends via `$filters.money()`, `App\Support\Money::format()` in PHP) using the organisation's `currency`; never hardcode a currency symbol. Amounts always show two decimals, whatever the currency.
 
 ---
 
@@ -344,6 +394,7 @@ app/
 
 resources/
 ├── manage/js/                  # Manage app (Vue components, services, views)
+│   └── menu/                   # Pure menu table/import modules (priceParser, menuImport, menuSave, ...)
 ├── pos/js/                     # POS app (Vue components, services, views)
 ├── clients/js/                 # Client order app
 ├── shared/js/                  # Shared Vue components and services

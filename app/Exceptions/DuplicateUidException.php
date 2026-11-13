@@ -33,7 +33,7 @@ class DuplicateUidException extends HttpException
      * @param $message
      * @param \Throwable|null $previous
      */
-    public function __construct($message, \Throwable $previous = null)
+    public function __construct($message, ?\Throwable $previous = null)
     {
         parent::__construct(400, $message, $previous);
     }

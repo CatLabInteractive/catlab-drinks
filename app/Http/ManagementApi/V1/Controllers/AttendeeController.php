@@ -23,8 +23,12 @@
 namespace App\Http\ManagementApi\V1\Controllers;
 
 use App\Http\ManagementApi\V1\ResourceDefinitions\AttendeeResourceDefinition;
+use App\Models\Attendee;
 use App\Models\Event;
 use CatLab\Charon\Collections\RouteCollection;
+use CatLab\Requirements\Exceptions\ResourceValidationException;
+use CatLab\Requirements\Collections\MessageCollection;
+use CatLab\Requirements\Models\Message;
 use Illuminate\Http\Request;
 
 /**
@@ -61,11 +65,32 @@ class AttendeeController extends \App\Http\Shared\V1\Controllers\AttendeeControl
     {
         /** @var Event $event */
         $event = $this->getParent($request);
-        $event->attendees()->delete();
+        $this->authorize('create', [ Attendee::class, $event ]);
 
-        $attendees = $request->json('attendees');
+        $attendees = $request->json('attendees', '');
+        if (!is_string($attendees)) {
+            $messages = new MessageCollection();
+            $messages->add(new Message('Attendees must be provided as a single text block.'));
+
+            throw ResourceValidationException::make($messages);
+        }
+
         $lines = explode("\n", $attendees);
 
+        \DB::transaction(function() use ($event, $lines) {
+            $event->attendees()->delete();
+            $this->createAttendees($event, $lines);
+        });
+
+        return \Response::json([ 'success' => true ]);
+    }
+
+    /**
+     * @param Event $event
+     * @param array $lines
+     */
+    private function createAttendees(Event $event, array $lines)
+    {
         foreach ($lines as $line) {
             $parts = explode(':', $line);
             if (count($parts) > 1) {
@@ -92,7 +117,5 @@ class AttendeeController extends \App\Http\Shared\V1\Controllers\AttendeeControl
                 $event->attendees()->create($attributes);
             }
         }
-
-        return \Response::json([ 'success' => true ]);
     }
 }

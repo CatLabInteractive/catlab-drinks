@@ -45,6 +45,8 @@ class MenuItemResourceDefinition extends ResourceDefinition
             ->identifier('id')
             ->int();
 
+        $this->defaultOrder('position');
+
         $this->field('name')
             ->string()
             ->required()
@@ -70,6 +72,12 @@ class MenuItemResourceDefinition extends ResourceDefinition
         $this->field('is_selling')
             ->bool()
             ->visible(true)
+            ->writeable(true, true);
+
+        $this->field('position')
+            ->number()
+            ->visible(true)
+            ->sortable()
             ->writeable(true, true);
 
         $this->relationship('category', CategoryResourceDefinition::class)

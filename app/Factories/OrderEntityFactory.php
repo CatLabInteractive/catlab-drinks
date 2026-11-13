@@ -47,7 +47,7 @@ class OrderEntityFactory extends \CatLab\Charon\Factories\EntityFactory
      * OrderEntityFactory constructor.
      * @param Event $event
      */
-    public function __construct(Event $event = null)
+    public function __construct(?Event $event = null)
     {
         $this->event = $event;
     }

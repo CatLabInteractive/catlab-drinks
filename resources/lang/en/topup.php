@@ -5,7 +5,7 @@ return [
     'title' => 'Card top-up',
     'scan_qr' => 'Please scan the QR code on the card to initiate a top-up.',
     'current_balance' => 'Current balance',
-    'choose_amount' => 'Choose the desired amount (starting from €:min).',
+    'choose_amount' => 'Choose the desired amount (starting from :min).',
     'amount_label' => 'Amount',
     'amount_placeholder' => 'Amount',
     'submit' => 'Top up',

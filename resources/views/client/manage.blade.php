@@ -26,6 +26,7 @@
     var ORGANISATION_ID = {{ $organisation ? $organisation->id : 'null' }};
     window.CATLAB_DRINKS_CONFIG = window.CATLAB_DRINKS_CONFIG || {};
     window.CATLAB_DRINKS_CONFIG.ACCOUNTS_URL = @json(rtrim((string)config('services.catlab.url'), '/'));
+    window.CATLAB_DRINKS_CONFIG.TELEMETRY = @json(\App\Support\Telemetry::notice());
 </script>
 
 <div id="app">

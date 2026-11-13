@@ -30,6 +30,7 @@ use CatLab\Charon\Laravel\Processors\PaginationProcessor;
 use CatLab\Charon\Library\ResourceDefinitionLibrary;
 use CatLab\Charon\Models\Context;
 use CatLab\CursorPagination\CursorPaginationBuilder;
+use App\Exceptions\ApiErrorResponse;
 use CatLab\Requirements\Exceptions\ResourceValidationException;
 use Illuminate\Database\Eloquent\Model;
 use Request;
@@ -229,12 +230,6 @@ class ResourceController extends Controller
      */
     protected function getValidationErrorResponse(ResourceValidationException $e)
     {
-        return Response::json([
-            'error' => [
-                'status' => 422,
-                'message' => 'Could not decode resource.',
-                'issues' => $e->getMessages()->toMap()
-            ]
-        ])->setStatusCode(422);
+        return ApiErrorResponse::fromValidationException($e);
     }
 }

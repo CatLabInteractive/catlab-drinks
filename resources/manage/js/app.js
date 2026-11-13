@@ -32,6 +32,7 @@ import {OrganisationService} from "../../shared/js/services/OrganisationService"
 import {ORGANISATION_STORAGE_KEY, selectOrganisation} from './services/organisationSelection';
 import {CardService} from "../../shared/js/nfccards/CardService";
 import i18n from "../../shared/js/i18n/index";
+import { setCurrency, formatMoney } from '../../shared/js/utils/money';
 
 import App from './views/App'
 import Hello from '../../shared/js/views/Hello'
@@ -185,6 +186,7 @@ function launch() {
 						window.ORGANISATIONS = organisations;
 						window.ORGANISATION_ID = organisation ? organisation.id : null;
 						window.ORGANISATION_TEST_MODE = organisation ? !!organisation.test_mode : false;
+						setCurrency(organisation ? organisation.currency : null);
 
 						// Initialize CardService for transaction viewing (no NFC reader needed)
 						const cardServiceAxios = window.axios.create({
@@ -227,7 +229,8 @@ function launch() {
 						if (value) {
 							return moment(value).format('DD/MM/YYYY HH:mm:ss');
 						}
-					}
+					},
+					money: formatMoney
 				  }
 
 				app.use(router);

@@ -40,6 +40,23 @@ class Organisation extends Model
     ];
 
     /**
+     * Freshly constructed organisations are in euro until told otherwise.
+     */
+    protected $attributes = [
+        'currency' => 'EUR',
+    ];
+
+    /**
+     * A currency is an ISO 4217 alphabetic code: exactly three uppercase ASCII letters.
+     * @param string|null $code
+     * @return bool
+     */
+    public static function isValidCurrencyCode(?string $code): bool
+    {
+        return $code !== null && preg_match('/^[A-Z]{3}$/', $code) === 1;
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function users()
@@ -126,6 +143,7 @@ class Organisation extends Model
         return $this->paymentGateways()
             ->where('gateway', $gateway)
             ->where('is_active', true)
+            ->orderBy('id')
             ->first();
     }
 

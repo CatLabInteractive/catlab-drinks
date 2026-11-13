@@ -223,13 +223,24 @@ class DevicePolicyTest extends TestCase
 	}
 
 	/**
-	 * Test that index is always allowed.
+	 * Test that index is only allowed for members of the organisation.
 	 */
-	public function testIndexAlwaysAllowed(): void
+	public function testIndexRequiresOrganisationMembership(): void
 	{
+		$organisation = new Organisation();
+		$organisation->id = 1;
+
+		$otherOrganisation = new Organisation();
+		$otherOrganisation->id = 2;
+
 		$user = $this->createMock(User::class);
-		$this->assertTrue($this->policy->index($user));
-		$this->assertTrue($this->policy->index(null));
+		$user->method('__get')
+			->with('organisations')
+			->willReturn(new Collection([$organisation]));
+
+		$this->assertTrue($this->policy->index($user, $organisation));
+		$this->assertFalse($this->policy->index($user, $otherOrganisation));
+		$this->assertFalse($this->policy->index(null, $organisation));
 	}
 
 	/**

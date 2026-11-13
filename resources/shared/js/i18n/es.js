@@ -31,7 +31,7 @@ export default {
     'Balance': 'Saldo',
     'Last transaction': 'Última transacción',
     'Confirm topup': 'Confirmar recarga',
-    'Are you sure you want to topup for €{amount}?': '¿Está seguro de que desea recargar por €{amount}?',
+    'Are you sure you want to topup for {amount}?': '¿Está seguro de que desea recargar por {amount}?',
     'Please wait': 'Por favor espere',
     'Topup failed.': 'Recarga fallida.',
     'Card reset successful.': 'Reinicio de tarjeta exitoso.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Artículos del menú',
-    'Total: {amount} items = €{price}': 'Total: {amount} artículos = €{price}',
+    'Total: {amount} items = {price}': 'Total: {amount} artículos = {price}',
     'Payment successful': 'Pago exitoso',
     'Order registered successfully.': 'Pedido registrado exitosamente.',
     'Payment failed': 'Pago fallido',
@@ -285,14 +285,39 @@ export default {
     'Manage & Pair Devices': 'Gestionar y vincular dispositivos',
     'Edit event ID#{id}': 'Editar evento ID#{id}',
     'New event': 'Nuevo evento',
-    'Allow payment with NFC topup cards': 'Permitir pago con tarjetas NFC recargables',
-    'Allow payment in cash': 'Permitir pago en efectivo',
-    'Allow payment with vouchers': 'Permitir pago con vales',
-    'Allow unpaid online orders (without providing card alias)': 'Permitir pedidos en línea no pagados (sin proporcionar alias de tarjeta)',
-    'Split orders by product categories (e.g drinks for the bar, food for the kitchen)': 'Dividir pedidos por categorías de producto (ej. bebidas para la barra, comida para la cocina)',
-    'Voucher value': 'Valor del vale',
     'Checkin URL (callback)': 'URL de registro (callback)',
     'Are you sure you want to remove this event?': '¿Está seguro de que desea eliminar este evento?',
+
+    // Manage - Events - Wizard
+    'What is the event called?': '¿Cómo se llama el evento?',
+    'For example "Quiz 2026" or "Summer bar Friday".': 'Por ejemplo "Quiz 2026" o "Bar de verano viernes".',
+    'Please enter a name.': 'Introduzca un nombre.',
+    'How do your guests pay?': '¿Cómo pagan sus invitados?',
+    'Pick everything that applies.': 'Seleccione todo lo que corresponda.',
+    'NFC topup cards': 'Tarjetas NFC recargables',
+    'Guests load credit on a card and tap at the POS. Recommended.': 'Los invitados cargan saldo en una tarjeta y la acercan al TPV. Recomendado.',
+    'Cash': 'Efectivo',
+    'Cash or Payconiq at the bar, outside the system.': 'Efectivo o Payconiq en la barra, fuera del sistema.',
+    'Vouchers': 'Vales',
+    'Drink tokens with a fixed value.': 'Vales de bebida con un valor fijo.',
+    'Value of one voucher': 'Valor de un vale',
+    'Pick at least one payment method.': 'Seleccione al menos un método de pago.',
+    'Enter the value of one voucher.': 'Introduzca el valor de un vale.',
+    'Can guests order from their own phone?': '¿Pueden los invitados pedir desde su propio teléfono?',
+    'Via the order page with QR code or link.': 'A través de la página de pedidos con código QR o enlace.',
+    'No, only at the bar': 'No, solo en la barra',
+    'Staff take orders on the POS.': 'El personal toma los pedidos en el TPV.',
+    'Yes, and we handle payment ourselves': 'Sí, y gestionamos el pago nosotros mismos',
+    'Guests order ahead and pay at the bar or on pickup.': 'Los invitados piden con antelación y pagan en la barra o al recoger.',
+    'Yes, through an integration that passes the card': 'Sí, mediante una integración que transmite la tarjeta',
+    'E.g. QuizWitz. Orders are charged to the linked NFC card.': 'P. ej. QuizWitz. Los pedidos se cargan a la tarjeta NFC vinculada.',
+    'Requires NFC topup cards': 'Requiere tarjetas NFC recargables',
+    'Choose how guests order.': 'Elija cómo piden los invitados.',
+    'Advanced settings': 'Configuración avanzada',
+    'Split orders by product category (bar / kitchen)': 'Dividir pedidos por categoría de producto (barra / cocina)',
+    'Next': 'Siguiente',
+    'Create event': 'Crear evento',
+    'New event: step {step} of 3': 'Nuevo evento: paso {step} de 3',
 
     // Manage - Menu
     'Create new menu item': 'Crear nuevo artículo del menú',
@@ -308,6 +333,24 @@ export default {
     'Please enter a price for the product.': 'Por favor, ingrese un precio para el producto.',
     'Are you sure you want to remove this menu item?': '¿Está seguro de que desea eliminar este artículo del menú?',
     'Enter the name of the new category:': 'Ingrese el nombre de la nueva categoría:',
+    'Unsaved changes': 'Cambios sin guardar',
+    'All changes saved': 'Todos los cambios guardados',
+    'Import menu': 'Importar menú',
+    'Drag to change the sequence': 'Arrastre para cambiar el orden',
+    'Discard all unsaved changes?': '¿Descartar todos los cambios sin guardar?',
+    'Discard the pasted menu?': '¿Descartar el menú pegado?',
+    'Copy from event': 'Copiar del evento',
+    'Replace the content of the sheet?': '¿Reemplazar el contenido de la hoja?',
+    'This event has no products.': 'Este evento no tiene productos.',
+    'You have unsaved changes. Leave this page?': 'Tiene cambios sin guardar. ¿Salir de esta página?',
+    'Some changes were not saved. Press Save to try again.': 'Algunos cambios no se guardaron. Pulse Guardar para intentarlo de nuevo.',
+    'Type to add a product…': 'Escriba para añadir un producto…',
+    'Paste a table from an email, Word, or Excel into the first cell.': 'Pegue una tabla de un correo electrónico, de Word o de Excel en la primera celda.',
+    'Ignore': 'Ignorar',
+    'Category for all products': 'Categoría para todos los productos',
+    'Delete marked rows': 'Eliminar filas marcadas',
+    'Add {count} products': 'Añadir {count} productos',
+    'Rows without a name or a readable price are marked. Fix or delete them.': 'Las filas sin nombre o sin un precio legible están marcadas. Corríjalas o elimínelas.',
 
     // Manage - Devices
     'Point of sale devices': 'Dispositivos punto de venta',
@@ -436,6 +479,12 @@ export default {
     'Unauthorized': 'No autorizado',
     'This transaction was uploaded by a device that is not allowed to topup cards.': 'Esta transacción fue subida por un dispositivo que no puede recargar tarjetas.',
 
+    // Usage and error reporting notice
+    'This instance sends anonymous usage statistics and error reports to CatLab.': 'Esta instancia envía estadísticas de uso anónimas e informes de errores a CatLab.',
+    'This instance sends anonymous usage statistics to CatLab.': 'Esta instancia envía estadísticas de uso anónimas a CatLab.',
+    'This instance sends error reports to CatLab.': 'Esta instancia envía informes de errores a CatLab.',
+    'What is sent and how to turn it off': 'Qué se envía y cómo desactivarlo',
+
     // Instance testing mode
     'You are using this shared instance in testing mode. Feel free to try things out, but for production events please set up your own instance.': 'Está usando esta instancia compartida en modo de prueba. Siéntase libre de experimentar, pero para eventos en producción configure su propia instancia.',
     'How to set up your own instance': 'Cómo configurar su propia instancia',
@@ -533,6 +582,10 @@ export default {
     // Remote orders (additions)
     '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.': '{count} pedido(s) no se pueden procesar porque ningún POS en línea acepta su categoría. Al menos un POS debe cambiar su filtro para gestionar estos pedidos.',
     'Only show assigned orders': 'Mostrar solo pedidos asignados',
+    'Round robin': 'Round robin',
+    'Round robin is active': 'El round robin está activo',
+    'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.': 'Los pedidos remotos se reparten entre {count} terminales POS. Este terminal solo muestra los pedidos asignados a él.',
+    'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.': 'Se muestran todos los pedidos, incluidos los asignados a los otros {others} terminal(es) POS. Coordina con ellos antes de gestionar sus pedidos.',
     'On my way!': '¡Voy en camino!',
     'Failed to save category filter. Reverting to previous value.': 'Error al guardar el filtro de categorías. Se restaura el valor anterior.',
 
@@ -544,4 +597,8 @@ export default {
     'Stop test': 'Detener prueba',
     'Scan card to start test': 'Escanee una tarjeta para iniciar la prueba',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': '¡Advertencia! Esto aplicará transacciones aleatorias a cualquier tarjeta que se presente. ¿Desea continuar?',
+
+    // Organisation currency
+    'Currency': 'Moneda',
+    'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.': 'Se usa para etiquetar precios, saldos y recargas. Cambiarla también afecta a las ventas pasadas; no se convierte ningún importe.',
 };

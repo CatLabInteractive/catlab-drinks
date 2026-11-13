@@ -18,5 +18,9 @@ class StrandedOrdersSummaryResourceDefinition extends ResourceDefinition
 		$this->field('count')
 			->number()
 			->visible(true);
+
+		$this->field('active_devices')
+			->number()
+			->visible(true);
 	}
 }

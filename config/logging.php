@@ -36,7 +36,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => env('AIRBRAKE_PROJECT_ID') ? ['daily', 'airbrake'] : ['daily'],
+            'channels' => \App\Support\Telemetry::airbrakeProject()['projectId'] ? ['daily', 'airbrake'] : ['daily'],
         ],
 
         'single' => [
@@ -91,7 +91,7 @@ return [
 
         'airbrake' => [
             'driver' => 'custom',
-            'via' => Kouz\LaravelAirbrake\AirbrakeLogger::class,
+            'via' => App\Logging\AirbrakeLogger::class,
             'level' => 'error',
         ]
     ],

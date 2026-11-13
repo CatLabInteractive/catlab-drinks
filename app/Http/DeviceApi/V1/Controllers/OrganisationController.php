@@ -23,7 +23,10 @@
 namespace App\Http\DeviceApi\V1\Controllers;
 
 use App\Http\ManagementApi\V1\ResourceDefinitions\OrganisationResourceDefinition;
+use App\Http\Shared\V1\Transformers\OrganisationSecretTransformer;
+use App\Models\Device;
 use CatLab\Charon\Collections\RouteCollection;
+use CatLab\Charon\Enums\Action;
 use Illuminate\Http\Request;
 use App\Http\Shared\V1\Controllers\Base\ResourceController;
 
@@ -56,5 +59,24 @@ class OrganisationController extends ResourceController
         );
 
         $resource->tag('organisations');
+    }
+
+    /**
+     * Devices need the organisation secret for NFC card signing; nobody else does.
+     * @param $entity
+     * @return \CatLab\Charon\Laravel\Models\ResourceResponse
+     */
+    protected function createViewEntityResponse($entity)
+    {
+        $readContext = $this->getContext(Action::VIEW);
+
+        $principal = \Auth::user();
+        $readContext->setParameter(
+            OrganisationSecretTransformer::CONTEXT_PARAMETER,
+            $principal instanceof Device && $principal->organisation_id === $entity->id
+        );
+
+        $resource = $this->toResource($entity, $readContext);
+        return $this->getResourceResponse($resource, $readContext);
     }
 }

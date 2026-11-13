@@ -286,13 +286,18 @@ class Device extends Model implements
 			$lifetimeSeconds = 60 * 60 * 24 * 7; // 7 days
 		}
 
+		$plainTextToken = Str::random(64);
+
 		$accessToken = new DeviceAccessToken();
 		$accessToken->device()->associate($this);
 		$accessToken->createdBy()->associate($user);
-		$accessToken->access_token = Str::random(64);
+		$accessToken->access_token = DeviceAccessToken::hash($plainTextToken);
 		$accessToken->expires_at = now()->addSeconds($lifetimeSeconds);
 
 		$accessToken->save();
+
+		// Only the hash is stored; the plain token exists in memory for this response only.
+		$accessToken->plainTextToken = $plainTextToken;
 		return $accessToken;
 	}
 }

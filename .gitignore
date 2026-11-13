@@ -10,6 +10,7 @@
 /vendor
 .env
 .phpunit.result.cache
+.phpunit.cache
 Homestead.json
 Homestead.yaml
 npm-debug.log
@@ -17,3 +18,4 @@ yarn-error.log
 _ide_helper.php
 .idea
 .phpstorm.meta.php
+.superpowers/

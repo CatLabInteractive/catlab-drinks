@@ -38,9 +38,9 @@ class DevicePolicy extends BasePolicy
 	 * @param User|null $user
 	 * @return bool
 	 */
-	public function index(?Authorizable $user)
+	public function index(?Authorizable $user, Organisation $organisation)
 	{
-		return true;
+		return $this->isMyOrganisation($user, $organisation);
 	}
 
 	/**
@@ -125,7 +125,7 @@ class DevicePolicy extends BasePolicy
 	 * @param Organisation $organisation
 	 * @return bool
 	 */
-	public function viewPublicKeys(?Authorizable $user, Organisation $organisation = null)
+	public function viewPublicKeys(?Authorizable $user, ?Organisation $organisation = null)
 	{
 		if ($organisation) {
 			return $this->isDeviceOrUserPartOfOrganisation($user, $organisation);

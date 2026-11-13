@@ -31,7 +31,7 @@ export default {
     'Balance': 'Balance',
     'Last transaction': 'Last transaction',
     'Confirm topup': 'Confirm topup',
-    'Are you sure you want to topup for €{amount}?': 'Are you sure you want to topup for €{amount}?',
+    'Are you sure you want to topup for {amount}?': 'Are you sure you want to topup for {amount}?',
     'Please wait': 'Please wait',
     'Topup failed.': 'Topup failed.',
     'Card reset successful.': 'Card reset successful.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Menu items',
-    'Total: {amount} items = €{price}': 'Total: {amount} items = €{price}',
+    'Total: {amount} items = {price}': 'Total: {amount} items = {price}',
     'Confirm order': 'Confirm order',
     'Payment successful': 'Payment successful',
     'Order registered successfully.': 'Order registered successfully.',
@@ -286,14 +286,39 @@ export default {
     'Manage & Pair Devices': 'Manage & Pair Devices',
     'Edit event ID#{id}': 'Edit event ID#{id}',
     'New event': 'New event',
-    'Allow payment with NFC topup cards': 'Allow payment with NFC topup cards',
-    'Allow payment in cash': 'Allow payment in cash',
-    'Allow payment with vouchers': 'Allow payment with vouchers',
-    'Allow unpaid online orders (without providing card alias)': 'Allow unpaid online orders (without providing card alias)',
-    'Split orders by product categories (e.g drinks for the bar, food for the kitchen)': 'Split orders by product categories (e.g drinks for the bar, food for the kitchen)',
-    'Voucher value': 'Voucher value',
     'Checkin URL (callback)': 'Checkin URL (callback)',
     'Are you sure you want to remove this event?': 'Are you sure you want to remove this event?',
+
+    // Manage - Events - Wizard
+    'What is the event called?': 'What is the event called?',
+    'For example "Quiz 2026" or "Summer bar Friday".': 'For example "Quiz 2026" or "Summer bar Friday".',
+    'Please enter a name.': 'Please enter a name.',
+    'How do your guests pay?': 'How do your guests pay?',
+    'Pick everything that applies.': 'Pick everything that applies.',
+    'NFC topup cards': 'NFC topup cards',
+    'Guests load credit on a card and tap at the POS. Recommended.': 'Guests load credit on a card and tap at the POS. Recommended.',
+    'Cash': 'Cash',
+    'Cash or Payconiq at the bar, outside the system.': 'Cash or Payconiq at the bar, outside the system.',
+    'Vouchers': 'Vouchers',
+    'Drink tokens with a fixed value.': 'Drink tokens with a fixed value.',
+    'Value of one voucher': 'Value of one voucher',
+    'Pick at least one payment method.': 'Pick at least one payment method.',
+    'Enter the value of one voucher.': 'Enter the value of one voucher.',
+    'Can guests order from their own phone?': 'Can guests order from their own phone?',
+    'Via the order page with QR code or link.': 'Via the order page with QR code or link.',
+    'No, only at the bar': 'No, only at the bar',
+    'Staff take orders on the POS.': 'Staff take orders on the POS.',
+    'Yes, and we handle payment ourselves': 'Yes, and we handle payment ourselves',
+    'Guests order ahead and pay at the bar or on pickup.': 'Guests order ahead and pay at the bar or on pickup.',
+    'Yes, through an integration that passes the card': 'Yes, through an integration that passes the card',
+    'E.g. QuizWitz. Orders are charged to the linked NFC card.': 'E.g. QuizWitz. Orders are charged to the linked NFC card.',
+    'Requires NFC topup cards': 'Requires NFC topup cards',
+    'Choose how guests order.': 'Choose how guests order.',
+    'Advanced settings': 'Advanced settings',
+    'Split orders by product category (bar / kitchen)': 'Split orders by product category (bar / kitchen)',
+    'Next': 'Next',
+    'Create event': 'Create event',
+    'New event: step {step} of 3': 'New event: step {step} of 3',
 
     // Manage - Menu
     'Create new menu item': 'Create new menu item',
@@ -309,6 +334,24 @@ export default {
     'Please enter a price for the product.': 'Please enter a price for the product.',
     'Are you sure you want to remove this menu item?': 'Are you sure you want to remove this menu item?',
     'Enter the name of the new category:': 'Enter the name of the new category:',
+    'Unsaved changes': 'Unsaved changes',
+    'All changes saved': 'All changes saved',
+    'Import menu': 'Import menu',
+    'Drag to change the sequence': 'Drag to change the sequence',
+    'Discard all unsaved changes?': 'Discard all unsaved changes?',
+    'Discard the pasted menu?': 'Discard the pasted menu?',
+    'Copy from event': 'Copy from event',
+    'Replace the content of the sheet?': 'Replace the content of the sheet?',
+    'This event has no products.': 'This event has no products.',
+    'You have unsaved changes. Leave this page?': 'You have unsaved changes. Leave this page?',
+    'Some changes were not saved. Press Save to try again.': 'Some changes were not saved. Press Save to try again.',
+    'Type to add a product…': 'Type to add a product…',
+    'Paste a table from an email, Word, or Excel into the first cell.': 'Paste a table from an email, Word, or Excel into the first cell.',
+    'Ignore': 'Ignore',
+    'Category for all products': 'Category for all products',
+    'Delete marked rows': 'Delete marked rows',
+    'Add {count} products': 'Add {count} products',
+    'Rows without a name or a readable price are marked. Fix or delete them.': 'Rows without a name or a readable price are marked. Fix or delete them.',
 
     // Manage - Devices
     'Point of sale devices': 'Point of sale devices',
@@ -436,6 +479,12 @@ export default {
     'Unauthorized': 'Unauthorized',
     'This transaction was uploaded by a device that is not allowed to topup cards.': 'This transaction was uploaded by a device that is not allowed to topup cards.',
 
+    // Usage and error reporting notice
+    'This instance sends anonymous usage statistics and error reports to CatLab.': 'This instance sends anonymous usage statistics and error reports to CatLab.',
+    'This instance sends anonymous usage statistics to CatLab.': 'This instance sends anonymous usage statistics to CatLab.',
+    'This instance sends error reports to CatLab.': 'This instance sends error reports to CatLab.',
+    'What is sent and how to turn it off': 'What is sent and how to turn it off',
+
     // Instance testing mode
     'You are using this shared instance in testing mode. Feel free to try things out, but for production events please set up your own instance.': 'You are using this shared instance in testing mode. Feel free to try things out, but for production events please set up your own instance.',
     'How to set up your own instance': 'How to set up your own instance',
@@ -533,6 +582,10 @@ export default {
     // Remote orders (additions)
     '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.': '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.',
     'Only show assigned orders': 'Only show assigned orders',
+    'Round robin': 'Round robin',
+    'Round robin is active': 'Round robin is active',
+    'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.': 'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.',
+    'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.': 'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.',
     'On my way!': 'On my way!',
     'Failed to save category filter. Reverting to previous value.': 'Failed to save category filter. Reverting to previous value.',
 
@@ -544,4 +597,8 @@ export default {
     'Stop test': 'Stop test',
     'Scan card to start test': 'Scan card to start test',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Warning! This will apply random transactions to any card that is presented. Do you want to continue?',
+
+    // Organisation currency
+    'Currency': 'Currency',
+    'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.': 'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.',
 };

@@ -34,10 +34,8 @@ class CardOrderTokenAlias extends Model
         'alias'
     ];
 
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'expires_at'
+    protected $casts = [
+        'expires_at' => 'datetime',
     ];
 
     /**

@@ -19,7 +19,7 @@ The app supports three deployment targets that coexist in the same repo without 
 | `Procfile` | Web process + release task for both Heroku and Dokku |
 | `app.json` | Heroku "Deploy to Heroku" button config (stack, buildpacks, env vars, addons) |
 | `.do/deploy.template.yaml` | DigitalOcean "Deploy to DigitalOcean" button config |
-| `Dockerfile` | Dokku + DigitalOcean build (uses `thecodingmachine/php:8.1-v5-slim-apache`) |
+| `Dockerfile` | Dokku + DigitalOcean build (uses `thecodingmachine/php:8.5-v5-slim-apache`) |
 | `heroku.yml` | **Deleted** — not used; would conflict with buildpack stack |
 
 ---
@@ -73,7 +73,7 @@ The `heroku-postbuild` script in `package.json` runs `npm run prod`. All build t
 
 ## Dockerfile (Dokku only)
 
-The `Dockerfile` uses `thecodingmachine/php:8.1-v5-slim-apache` which:
+The `Dockerfile` uses `thecodingmachine/php:8.5-v5-slim-apache` which:
 - Has `ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]` and `CMD ["apache2-foreground"]`
 - Handles environment setup internally via its entrypoint script
 - Does **not** need `sudo` privileges — Dokku does not set `no_new_privileges`

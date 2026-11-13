@@ -31,7 +31,7 @@ export default {
     'Balance': 'Saldo',
     'Last transaction': 'Laatste transactie',
     'Confirm topup': 'Opwaardering bevestigen',
-    'Are you sure you want to topup for €{amount}?': 'Weet je zeker dat je wilt opwaarderen voor €{amount}?',
+    'Are you sure you want to topup for {amount}?': 'Weet je zeker dat je wilt opwaarderen voor {amount}?',
     'Please wait': 'Even wachten',
     'Topup failed.': 'Opwaardering mislukt.',
     'Card reset successful.': 'Kaart reset geslaagd.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Menu-items',
-    'Total: {amount} items = €{price}': 'Totaal: {amount} items = €{price}',
+    'Total: {amount} items = {price}': 'Totaal: {amount} items = {price}',
     'Payment successful': 'Betaling geslaagd',
     'Order registered successfully.': 'Bestelling succesvol geregistreerd.',
     'Payment failed': 'Betaling mislukt',
@@ -285,14 +285,39 @@ export default {
     'Manage & Pair Devices': 'Apparaten beheren en koppelen',
     'Edit event ID#{id}': 'Evenement ID#{id} bewerken',
     'New event': 'Nieuw evenement',
-    'Allow payment with NFC topup cards': 'Betaling met NFC-opwaardeerkaarten toestaan',
-    'Allow payment in cash': 'Contante betaling toestaan',
-    'Allow payment with vouchers': 'Betaling met bonnen toestaan',
-    'Allow unpaid online orders (without providing card alias)': 'Onbetaalde online bestellingen toestaan (zonder kaart-alias)',
-    'Split orders by product categories (e.g drinks for the bar, food for the kitchen)': 'Bestellingen splitsen per productcategorie (bijv. dranken voor de bar, eten voor de keuken)',
-    'Voucher value': 'Bonwaarde',
     'Checkin URL (callback)': 'Check-in URL (callback)',
     'Are you sure you want to remove this event?': 'Weet je zeker dat je dit evenement wilt verwijderen?',
+
+    // Manage - Events - Wizard
+    'What is the event called?': 'Hoe heet het evenement?',
+    'For example "Quiz 2026" or "Summer bar Friday".': 'Bijvoorbeeld "Quiz 2026" of "Zomerbar vrijdag".',
+    'Please enter a name.': 'Vul een naam in.',
+    'How do your guests pay?': 'Hoe betalen je gasten?',
+    'Pick everything that applies.': 'Kies alles wat van toepassing is.',
+    'NFC topup cards': 'NFC-opwaardeerkaarten',
+    'Guests load credit on a card and tap at the POS. Recommended.': 'Gasten laden saldo op een kaart en tikken aan de kassa. Aanbevolen.',
+    'Cash': 'Contant',
+    'Cash or Payconiq at the bar, outside the system.': 'Cash of Payconiq aan de bar, buiten het systeem om.',
+    'Vouchers': 'Bonnen',
+    'Drink tokens with a fixed value.': 'Drankbonnetjes met een vaste waarde.',
+    'Value of one voucher': 'Waarde van één bon',
+    'Pick at least one payment method.': 'Kies minstens één betaalwijze.',
+    'Enter the value of one voucher.': 'Vul de waarde van één bon in.',
+    'Can guests order from their own phone?': 'Kunnen gasten zelf bestellen via hun telefoon?',
+    'Via the order page with QR code or link.': 'Via de bestelpagina met QR-code of link.',
+    'No, only at the bar': 'Nee, enkel aan de bar',
+    'Staff take orders on the POS.': 'Medewerkers nemen bestellingen op via de kassa.',
+    'Yes, and we handle payment ourselves': 'Ja, en we regelen de betaling zelf',
+    'Guests order ahead and pay at the bar or on pickup.': 'Gasten bestellen vooraf en betalen aan de bar of bij afhaling.',
+    'Yes, through an integration that passes the card': 'Ja, via een integratie die de kaart meegeeft',
+    'E.g. QuizWitz. Orders are charged to the linked NFC card.': 'Bijv. QuizWitz. Bestellingen worden van de gekoppelde NFC-kaart afgehouden.',
+    'Requires NFC topup cards': 'Vereist NFC-opwaardeerkaarten',
+    'Choose how guests order.': 'Kies hoe gasten bestellen.',
+    'Advanced settings': 'Geavanceerde instellingen',
+    'Split orders by product category (bar / kitchen)': 'Bestellingen splitsen per productcategorie (bar / keuken)',
+    'Next': 'Volgende',
+    'Create event': 'Evenement aanmaken',
+    'New event: step {step} of 3': 'Nieuw evenement: stap {step} van 3',
 
     // Manage - Menu
     'Create new menu item': 'Nieuw menu-item aanmaken',
@@ -308,6 +333,24 @@ export default {
     'Please enter a price for the product.': 'Voer een prijs in voor het product.',
     'Are you sure you want to remove this menu item?': 'Weet je zeker dat je dit menu-item wilt verwijderen?',
     'Enter the name of the new category:': 'Voer de naam van de nieuwe categorie in:',
+    'Unsaved changes': 'Niet-opgeslagen wijzigingen',
+    'All changes saved': 'Alle wijzigingen opgeslagen',
+    'Import menu': 'Menu importeren',
+    'Drag to change the sequence': 'Sleep om de volgorde te wijzigen',
+    'Discard all unsaved changes?': 'Alle niet-opgeslagen wijzigingen verwerpen?',
+    'Discard the pasted menu?': 'Het geplakte menu verwerpen?',
+    'Copy from event': 'Kopiëren van evenement',
+    'Replace the content of the sheet?': 'De inhoud van het blad vervangen?',
+    'This event has no products.': 'Dit evenement heeft geen producten.',
+    'You have unsaved changes. Leave this page?': 'Je hebt niet-opgeslagen wijzigingen. Deze pagina verlaten?',
+    'Some changes were not saved. Press Save to try again.': 'Sommige wijzigingen zijn niet opgeslagen. Druk op Opslaan om het opnieuw te proberen.',
+    'Type to add a product…': 'Typ om een product toe te voegen…',
+    'Paste a table from an email, Word, or Excel into the first cell.': 'Plak een tabel uit een e-mail, Word of Excel in de eerste cel.',
+    'Ignore': 'Negeren',
+    'Category for all products': 'Categorie voor alle producten',
+    'Delete marked rows': 'Gemarkeerde rijen verwijderen',
+    'Add {count} products': '{count} producten toevoegen',
+    'Rows without a name or a readable price are marked. Fix or delete them.': 'Rijen zonder naam of zonder leesbare prijs zijn gemarkeerd. Verbeter of verwijder ze.',
 
     // Manage - Devices
     'Point of sale devices': 'Kassa-apparaten',
@@ -436,6 +479,12 @@ export default {
     'Unauthorized': 'Niet toegestaan',
     'This transaction was uploaded by a device that is not allowed to topup cards.': 'Deze transactie werd geüpload door een apparaat dat geen kaarten mag opwaarderen.',
 
+    // Usage and error reporting notice
+    'This instance sends anonymous usage statistics and error reports to CatLab.': 'Deze instantie stuurt anonieme gebruiksstatistieken en foutrapporten naar CatLab.',
+    'This instance sends anonymous usage statistics to CatLab.': 'Deze instantie stuurt anonieme gebruiksstatistieken naar CatLab.',
+    'This instance sends error reports to CatLab.': 'Deze instantie stuurt foutrapporten naar CatLab.',
+    'What is sent and how to turn it off': 'Wat er verstuurd wordt en hoe je het uitschakelt',
+
     // Instance testing mode
     'You are using this shared instance in testing mode. Feel free to try things out, but for production events please set up your own instance.': 'Je gebruikt deze gedeelde instantie in testmodus. Probeer gerust van alles uit, maar zet voor productie-evenementen een eigen instantie op.',
     'How to set up your own instance': 'Hoe je je eigen instantie opzet',
@@ -533,6 +582,10 @@ export default {
     // Remote orders (additions)
     '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.': '{count} bestelling(en) kunnen niet worden verwerkt omdat geen enkele online POS hun categorie accepteert. Minstens één POS moet zijn filter aanpassen om deze bestellingen te verwerken.',
     'Only show assigned orders': 'Alleen toegewezen bestellingen tonen',
+    'Round robin': 'Round robin',
+    'Round robin is active': 'Round robin is actief',
+    'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.': 'Bestellingen op afstand worden verdeeld over {count} POS-terminals. Deze terminal toont enkel de bestellingen die eraan toegewezen zijn.',
+    'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.': 'Alle bestellingen worden getoond, ook die van de {others} andere POS-terminal(s). Overleg met hen voor je hun bestellingen afhandelt.',
     'On my way!': 'Onderweg!',
     'Failed to save category filter. Reverting to previous value.': 'Opslaan van categoriefilter mislukt. Vorige waarde wordt hersteld.',
 
@@ -544,4 +597,8 @@ export default {
     'Stop test': 'Test stoppen',
     'Scan card to start test': 'Scan een kaart om de test te starten',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Waarschuwing! Dit voert willekeurige transacties uit op elke kaart die wordt aangeboden. Wil je doorgaan?',
+
+    // Organisation currency
+    'Currency': 'Valuta',
+    'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.': 'Wordt gebruikt om prijzen, saldo\'s en opwaarderingen te labelen. Wijzigen hernoemt ook eerdere verkopen; er worden geen bedragen omgerekend.',
 };

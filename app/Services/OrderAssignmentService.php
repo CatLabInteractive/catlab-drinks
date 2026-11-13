@@ -131,6 +131,17 @@ class OrderAssignmentService
 	}
 
 	/**
+	 * Count the online devices that currently share remote orders for an event.
+	 * When more than one device is counted, orders are spread over them (round robin).
+	 * @param Event $event
+	 * @return int
+	 */
+	public function countActiveDevices(Event $event): int
+	{
+		return $this->onlineOrderDevicesQuery($event)->count();
+	}
+
+	/**
 	 * Check if a device's category filter matches an order's categories.
 	 * @param Device $device
 	 * @param array $orderCategoryIds
@@ -176,15 +187,7 @@ class OrderAssignmentService
 	 */
 	private function findBestDevice(Event $event, array $orderCategoryIds): ?Device
 	{
-		$gracePeriod = config('devices.reassignment_grace_period', 300);
-		$cutoff = Carbon::now()->subSeconds($gracePeriod);
-
-		// Get all online devices for this organisation that accept remote orders
-		$onlineDevices = Device::where('organisation_id', $event->organisation_id)
-			->where('last_ping', '>', $cutoff)
-			->where('allow_remote_orders', true)
-			->where('allow_sales', true)
-			->get();
+		$onlineDevices = $this->onlineOrderDevicesQuery($event)->get();
 
 		if ($onlineDevices->isEmpty()) {
 			return null;
@@ -201,6 +204,22 @@ class OrderAssignmentService
 		}
 
 		return $this->deviceWithLowestWorkload($compatibleDevices);
+	}
+
+	/**
+	 * Query all online devices for the event's organisation that accept remote orders.
+	 * @param Event $event
+	 * @return \Illuminate\Database\Eloquent\Builder
+	 */
+	private function onlineOrderDevicesQuery(Event $event)
+	{
+		$gracePeriod = config('devices.reassignment_grace_period', 300);
+		$cutoff = Carbon::now()->subSeconds($gracePeriod);
+
+		return Device::where('organisation_id', $event->organisation_id)
+			->where('last_ping', '>', $cutoff)
+			->where('allow_remote_orders', true)
+			->where('allow_sales', true);
 	}
 
 	/**

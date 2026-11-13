@@ -72,7 +72,7 @@ Route::group(['middleware' => 'setup.redirect'], function () {
 
 Route::get('/home', 'HomeController@index')->name('home')->middleware('setup.redirect');
 
-Route::group([ 'auth' ], function() {
+Route::group([ 'middleware' => 'auth' ], function() {
 
     Route::get('report/daily/{organisation}/{date}', [ \App\Http\Controllers\DailyReportController::class, 'dailyReport' ]);
 

@@ -40,6 +40,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\TrustProxies::class,
         \Illuminate\Http\Middleware\HandleCors::class,
+        \App\Http\Middleware\SecurityHeaders::class,
         \App\Http\Middleware\TopupDomainRedirect::class,
     ];
 
@@ -59,12 +60,14 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \Laravel\Passport\Http\Middleware\CreateFreshApiToken::class,
             \App\Http\Middleware\SyncAccountsProfiles::class,
+            \App\Http\Middleware\ReportUsage::class,
         ],
 
         'api' => [
-            //'throttle:60,1',
+            'throttle:api',
             'bindings',
             \App\Http\Middleware\SyncAccountsProfiles::class,
+            \App\Http\Middleware\ReportUsage::class,
         ],
     ];
 
