@@ -20,16 +20,18 @@
  */
 
 /**
- *
+ * Base class of the card exceptions. It is a real Error, so it carries a
+ * stack trace, and `instanceof` works for each subclass.
  */
-export class BaseError {
+export class BaseError extends Error {
     constructor (
-        public message: string,
+        message: string,
         ...args: any[]
     ) {
-        // @ts-ignore
-        Error.apply(this, args);
+        super(message);
+
+        // Babel compiles this class to ES5, where a subclass of Error loses
+        // its own prototype. Restore it, or `instanceof` fails.
+        Object.setPrototypeOf(this, new.target.prototype);
     }
 }
-
-BaseError.prototype = new Error();

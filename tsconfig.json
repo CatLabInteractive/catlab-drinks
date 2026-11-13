@@ -1,24 +1,17 @@
 {
     "compilerOptions": {
-        // this aligns with Vue's browser support
-        "target": "es5",
+        // TypeScript 6 no longer emits ES5; all supported browsers run ES2015
+        "target": "es2015",
         // this enables stricter inference for data properties on `this`
         "strict": true,
         // if using webpack 2+ or rollup, to leverage tree shaking:
         "module": "es2015",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "lib": [
             "dom",
-            "es5",
-            "scripthost",
-            "es2015.promise"
-        ],
-		"baseUrl": ".",
-		"paths": {
-			// Add composition API to your compiler options and alias it to the vue 3 install
-			// The path is relative to `baseUrl` above
-			"@vue/composition-api": ["node_moudules/vue/dist/vue"]
-		  }
+            "es2015",
+            "scripthost"
+        ]
     },
     "files": [
         "untyped-modules.d.ts"
