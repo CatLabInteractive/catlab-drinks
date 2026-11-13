@@ -479,6 +479,12 @@ export default {
     'Unauthorized': 'Nicht autorisiert',
     'This transaction was uploaded by a device that is not allowed to topup cards.': 'Diese Transaktion wurde von einem Gerät hochgeladen, das keine Karten aufladen darf.',
 
+    // Usage and error reporting notice
+    'This instance sends anonymous usage statistics and error reports to CatLab.': 'Diese Instanz sendet anonyme Nutzungsstatistiken und Fehlerberichte an CatLab.',
+    'This instance sends anonymous usage statistics to CatLab.': 'Diese Instanz sendet anonyme Nutzungsstatistiken an CatLab.',
+    'This instance sends error reports to CatLab.': 'Diese Instanz sendet Fehlerberichte an CatLab.',
+    'What is sent and how to turn it off': 'Was gesendet wird und wie Sie es ausschalten',
+
     // Instance testing mode
     'You are using this shared instance in testing mode. Feel free to try things out, but for production events please set up your own instance.': 'Sie verwenden diese geteilte Instanz im Testmodus. Probieren Sie gerne alles aus, aber richten Sie für Produktionsveranstaltungen bitte eine eigene Instanz ein.',
     'How to set up your own instance': 'So richten Sie Ihre eigene Instanz ein',
