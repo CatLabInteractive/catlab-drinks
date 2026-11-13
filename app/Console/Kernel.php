@@ -44,7 +44,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // No-op unless USAGE_REPORTING=true; also triggered by web traffic
+        // No-op when USAGE_REPORTING=false; also triggered by web traffic
         // for installs that run no scheduler.
         $schedule->command('drinks:report-usage')->daily();
     }

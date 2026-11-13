@@ -27,7 +27,7 @@ use App\Services\UsageReporter;
 use Illuminate\Console\Command;
 
 /**
- * Sends (or shows) the opt-in anonymous usage report.
+ * Sends (or shows) the anonymous usage report.
  */
 class ReportUsage extends Command
 {
@@ -35,7 +35,7 @@ class ReportUsage extends Command
         {--dry-run : Print what would be reported without sending anything}
         {--force : Send even if a report went out within the last interval}';
 
-    protected $description = 'Send the opt-in anonymous usage report (USAGE_REPORTING=true)';
+    protected $description = 'Send the anonymous usage report (turn it off with USAGE_REPORTING=false)';
 
     public function handle(UsageReporter $reporter): int
     {
@@ -50,7 +50,7 @@ class ReportUsage extends Command
         if (!$reporter->isEnabled()) {
             $this->warn(config('telemetry.usage.enabled')
                 ? 'Usage reporting is on, but no Matomo URL / site ID is configured.'
-                : 'Usage reporting is disabled (set USAGE_REPORTING=true to opt in).');
+                : 'Usage reporting is off (USAGE_REPORTING=false, or APP_ENV is local or testing).');
             return self::SUCCESS;
         }
 

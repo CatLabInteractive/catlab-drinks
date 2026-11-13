@@ -37,7 +37,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
- * Opt-in anonymous usage heartbeat (USAGE_REPORTING=true).
+ * Anonymous usage heartbeat. On by default; USAGE_REPORTING=false turns it off.
  *
  * Sends one Matomo bulk tracking request per interval: a pageview that
  * marks the instance as active, and one event per reported value. Only

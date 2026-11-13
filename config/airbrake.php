@@ -1,6 +1,6 @@
 <?php
 
-// The instance's own AIRBRAKE_* project, or CatLab's when ERROR_REPORTING is on.
+// The instance's own AIRBRAKE_* project, or CatLab's unless ERROR_REPORTING is off.
 $project = \App\Support\Telemetry::airbrakeProject();
 
 return [

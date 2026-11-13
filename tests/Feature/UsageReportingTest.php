@@ -33,7 +33,8 @@ use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 /**
- * Tests for the opt-in anonymous usage report (USAGE_REPORTING).
+ * Tests for the opt-out anonymous usage report (USAGE_REPORTING) and the
+ * footer notice that tells the owner about it.
  */
 class UsageReportingTest extends TestCase
 {
@@ -43,8 +44,10 @@ class UsageReportingTest extends TestCase
     {
         parent::setUp();
 
+        // The test environment is a quiet one: reporting is off unless asked for.
+        $this->assertFalse(config('telemetry.usage.enabled'));
+
         config([
-            'telemetry.usage.enabled' => false,
             'telemetry.usage.matomo_url' => 'https://matomo.test/',
             'telemetry.usage.matomo_site_id' => 7,
         ]);
@@ -59,6 +62,26 @@ class UsageReportingTest extends TestCase
     private function enable(): void
     {
         config(['telemetry.usage.enabled' => true]);
+    }
+
+    public function testFooterTellsWhatIsReported(): void
+    {
+        $this->enable();
+        $this->get('/setup')->assertOk()
+            ->assertSee('This instance sends anonymous usage statistics to CatLab.')
+            ->assertSee('#usage-and-error-reporting');
+
+        config(['telemetry.errors.to_catlab' => true]);
+        $this->get('/setup')
+            ->assertSee('This instance sends anonymous usage statistics and error reports to CatLab.');
+
+        config(['telemetry.usage.enabled' => false]);
+        $this->get('/setup')->assertSee('This instance sends error reports to CatLab.');
+    }
+
+    public function testFooterIsSilentWhenNothingIsReported(): void
+    {
+        $this->get('/setup')->assertOk()->assertDontSee('telemetry-notice');
     }
 
     public function testNothingIsSentWhenDisabled(): void

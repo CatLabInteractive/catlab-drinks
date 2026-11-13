@@ -24,11 +24,12 @@
 namespace App\Support;
 
 /**
- * CatLab's defaults for the opt-in usage and error reporting.
- * The values here are only used when an instance opts in; an instance can
- * override every one of them with its own environment variables.
+ * CatLab's defaults for the usage and error reporting. Both are on unless
+ * the instance opts out (USAGE_REPORTING=false / ERROR_REPORTING=false); an
+ * instance can override every destination with its own environment variables.
  *
- * This class is read from config files, so it may use env().
+ * isOn() and airbrakeProject() are read from config files, so they may use
+ * env(). Everything else must read config().
  */
 class Telemetry
 {
@@ -50,11 +51,45 @@ class Telemetry
     ];
 
     /**
+     * Environments that do not report unless the switch is set explicitly, so
+     * development machines and test runs stay out of CatLab's statistics.
+     */
+    public const QUIET_ENVIRONMENTS = ['local', 'testing'];
+
+    /**
+     * Is the USAGE_REPORTING / ERROR_REPORTING switch on? Unset means on,
+     * except in the quiet environments. "false", "0", "off", "no" and an
+     * empty value turn it off.
+     */
+    public static function isOn(string $switch): bool
+    {
+        $default = !in_array(env('APP_ENV', 'production'), static::QUIET_ENVIRONMENTS, true);
+
+        return filter_var(env($switch, $default), FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
+     * What this instance reports to CatLab right now, for the notice in the
+     * page footers. Reads config(), so it also works with a cached config.
+     *
+     * @return array{usage: bool, errors: bool}
+     */
+    public static function notice(): array
+    {
+        return [
+            'usage' => config('telemetry.usage.enabled')
+                && config('telemetry.usage.matomo_url')
+                && config('telemetry.usage.matomo_site_id'),
+            'errors' => (bool) config('telemetry.errors.to_catlab'),
+        ];
+    }
+
+    /**
      * The Airbrake project errors go to: the instance's own AIRBRAKE_* project
-     * when set, otherwise CatLab's project when ERROR_REPORTING is on,
+     * when set, otherwise CatLab's project unless ERROR_REPORTING is off,
      * otherwise none (null project id disables Airbrake).
      *
-     * @return array{projectId: mixed, projectKey: mixed, host: mixed, keysBlocklist: ?array}
+     * @return array{projectId: mixed, projectKey: mixed, host: mixed, keysBlocklist: ?array, catlab: bool}
      */
     public static function airbrakeProject(): array
     {
@@ -64,15 +99,17 @@ class Telemetry
                 'projectKey' => env('AIRBRAKE_PROJECT_KEY'),
                 'host' => env('AIRBRAKE_HOST'),
                 'keysBlocklist' => null,
+                'catlab' => false,
             ];
         }
 
-        if (env('ERROR_REPORTING') && static::CATLAB_AIRBRAKE_PROJECT_ID) {
+        if (static::isOn('ERROR_REPORTING') && static::CATLAB_AIRBRAKE_PROJECT_ID) {
             return [
                 'projectId' => static::CATLAB_AIRBRAKE_PROJECT_ID,
                 'projectKey' => static::CATLAB_AIRBRAKE_PROJECT_KEY,
                 'host' => static::CATLAB_AIRBRAKE_HOST,
                 'keysBlocklist' => static::AIRBRAKE_KEYS_BLOCKLIST,
+                'catlab' => true,
             ];
         }
 
@@ -81,6 +118,7 @@ class Telemetry
             'projectKey' => null,
             'host' => null,
             'keysBlocklist' => null,
+            'catlab' => false,
         ];
     }
 }

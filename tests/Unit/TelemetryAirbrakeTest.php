@@ -27,16 +27,32 @@ use App\Support\Telemetry;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests which Airbrake project errors are reported to.
+ * Tests the opt-out switches and which Airbrake project errors are reported to.
  */
 class TelemetryAirbrakeTest extends TestCase
 {
-    private const VARS = ['AIRBRAKE_PROJECT_ID', 'AIRBRAKE_PROJECT_KEY', 'AIRBRAKE_HOST', 'ERROR_REPORTING'];
+    private const VARS = ['APP_ENV', 'AIRBRAKE_PROJECT_ID', 'AIRBRAKE_PROJECT_KEY', 'AIRBRAKE_HOST', 'ERROR_REPORTING'];
+
+    /** @var array<string, ?string> */
+    private array $original = [];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Start every test as a production instance with nothing configured.
+        foreach (self::VARS as $var) {
+            $value = getenv($var);
+            $this->original[$var] = $value === false ? null : $value;
+            $this->setEnv($var, null);
+        }
+        $this->setEnv('APP_ENV', 'production');
+    }
 
     protected function tearDown(): void
     {
-        foreach (self::VARS as $var) {
-            $this->setEnv($var, null);
+        foreach ($this->original as $var => $value) {
+            $this->setEnv($var, $value);
         }
         parent::tearDown();
     }
@@ -52,33 +68,68 @@ class TelemetryAirbrakeTest extends TestCase
         $_ENV[$name] = $_SERVER[$name] = $value;
     }
 
-    public function testDisabledByDefault(): void
+    public function testSwitchIsOnByDefault(): void
     {
-        $this->assertNull(Telemetry::airbrakeProject()['projectId']);
+        $this->assertTrue(Telemetry::isOn('ERROR_REPORTING'));
     }
 
-    public function testOwnProjectWinsOverOptIn(): void
+    public function testSwitchIsOffByDefaultInLocalAndTesting(): void
+    {
+        foreach (Telemetry::QUIET_ENVIRONMENTS as $environment) {
+            $this->setEnv('APP_ENV', $environment);
+
+            $this->assertFalse(Telemetry::isOn('ERROR_REPORTING'), $environment);
+        }
+    }
+
+    public function testExplicitTrueTurnsSwitchOnInTesting(): void
+    {
+        $this->setEnv('APP_ENV', 'testing');
+        $this->setEnv('ERROR_REPORTING', 'true');
+
+        $this->assertTrue(Telemetry::isOn('ERROR_REPORTING'));
+    }
+
+    public function testOptOutValuesTurnSwitchOff(): void
+    {
+        foreach (['false', '0', 'off', 'no', ''] as $value) {
+            $this->setEnv('ERROR_REPORTING', $value);
+
+            $this->assertFalse(Telemetry::isOn('ERROR_REPORTING'), "ERROR_REPORTING='$value'");
+        }
+    }
+
+    public function testOwnProjectWinsOverCatlabProject(): void
     {
         $this->setEnv('AIRBRAKE_PROJECT_ID', '123');
         $this->setEnv('AIRBRAKE_PROJECT_KEY', 'own-key');
-        $this->setEnv('ERROR_REPORTING', 'true');
 
         $project = Telemetry::airbrakeProject();
 
         $this->assertSame('123', $project['projectId']);
         $this->assertSame('own-key', $project['projectKey']);
         $this->assertNull($project['keysBlocklist']);
+        $this->assertFalse($project['catlab']);
     }
 
-    public function testOptInUsesCatlabProjectWithBlocklist(): void
+    public function testDefaultUsesCatlabProjectWithBlocklist(): void
     {
-        $this->setEnv('ERROR_REPORTING', 'true');
-
         $project = Telemetry::airbrakeProject();
 
         $this->assertSame(Telemetry::CATLAB_AIRBRAKE_PROJECT_ID, $project['projectId']);
+        $this->assertSame((bool) Telemetry::CATLAB_AIRBRAKE_PROJECT_ID, $project['catlab']);
         if (Telemetry::CATLAB_AIRBRAKE_PROJECT_ID) {
             $this->assertSame(Telemetry::AIRBRAKE_KEYS_BLOCKLIST, $project['keysBlocklist']);
         }
+    }
+
+    public function testOptOutReportsNowhere(): void
+    {
+        $this->setEnv('ERROR_REPORTING', 'false');
+
+        $project = Telemetry::airbrakeProject();
+
+        $this->assertNull($project['projectId']);
+        $this->assertFalse($project['catlab']);
     }
 }

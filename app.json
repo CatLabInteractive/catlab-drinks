@@ -58,11 +58,11 @@
 			"required": false
 		},
 		"USAGE_REPORTING": {
-			"description": "Set to true to send CatLab an anonymous daily usage report (versions and counts; no names, emails or amounts).",
+			"description": "Set to false to stop the anonymous daily usage report to CatLab (versions and counts; no names, emails or amounts). On by default.",
 			"required": false
 		},
 		"ERROR_REPORTING": {
-			"description": "Set to true to send errors to CatLab's error tracker (passwords, tokens and emails are stripped).",
+			"description": "Set to false to stop sending errors to CatLab's error tracker (passwords, tokens and emails are stripped). On by default.",
 			"required": false
 		}
 	},

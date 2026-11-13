@@ -28,7 +28,7 @@ use Closure;
 use Illuminate\Http\Request;
 
 /**
- * Sends the opt-in usage report after the response has gone out.
+ * Sends the anonymous usage report after the response has gone out.
  * Heroku/Dokku installs usually run no scheduler, so normal traffic is
  * what triggers the (at most daily) report. See UsageReporter.
  */
