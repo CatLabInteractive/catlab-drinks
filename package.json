@@ -23,6 +23,7 @@
         "@vue/test-utils": "^2.4.6",
         "airbrake-js": "^2.0.0-beta.3",
         "axios": "^1.20.0",
+        "bootstrap": "^4.6.2",
         "bootstrap-vue": "^2.23.1",
         "buffer": "^6.0.3",
         "cross-env": "^10.1.0",
@@ -59,6 +60,10 @@
         "yaml": "^2.8.2"
     },
     "overrides": {
+        "bootstrap": {
+            "jquery": "$jquery"
+        },
+        "webpack": "~5.106.2",
         "webpack-cli": "^5",
         "webpackbar": "^7.0.0"
     }

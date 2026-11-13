@@ -45,6 +45,16 @@ Build uses Laravel Mix (`webpack.mix.js`). Output goes to `public/res/`.
 > (e.g. due to different npm versions or platform differences). Always revert any changes to
 > `package-lock.json` before committing. Run `git checkout -- package-lock.json` after `npm install`.
 
+> **Pinned packages:** `overrides` in `package.json` holds `webpack` at `~5.106.2`, because
+> `laravel-mix` 6 loads `webpack/lib/SizeFormatHelpers` and webpack 5.107 removed that file.
+> `bootstrap` is a direct dependency because the Sass files import it. Its override lets it accept
+> jquery 4. Without that override, npm puts `bootstrap` below `bootstrap-vue` and the Sass build fails.
+
+> **Build check from a worktree:** a worktree in `.claude/worktrees/` is inside the main checkout, so
+> Node also finds packages in the `node_modules` of the main checkout. A build can pass there and fail
+> on deploy. To test a dependency change, copy the tracked files to a directory outside the repository,
+> then run `npm install` and `npm run prod` there.
+
 ### Backend
 ```bash
 composer install                        # Install PHP dependencies (use --ignore-platform-reqs if PHP version mismatches)
