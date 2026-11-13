@@ -52,7 +52,7 @@
 
                         <template v-slot:cell(name)="row">
                             {{row.item.name}}<br />
-                            <span class="price">€{{row.item.price.toFixed(2)}}</span>
+                            <span class="price">{{ $filters.money(row.item.price) }}</span>
                         </template>
 
                         <template v-slot:cell(amount)="row">

@@ -31,7 +31,7 @@ export default {
     'Balance': 'Saldo',
     'Last transaction': 'Última transacción',
     'Confirm topup': 'Confirmar recarga',
-    'Are you sure you want to topup for €{amount}?': '¿Está seguro de que desea recargar por €{amount}?',
+    'Are you sure you want to topup for {amount}?': '¿Está seguro de que desea recargar por {amount}?',
     'Please wait': 'Por favor espere',
     'Topup failed.': 'Recarga fallida.',
     'Card reset successful.': 'Reinicio de tarjeta exitoso.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Artículos del menú',
-    'Total: {amount} items = €{price}': 'Total: {amount} artículos = €{price}',
+    'Total: {amount} items = {price}': 'Total: {amount} artículos = {price}',
     'Payment successful': 'Pago exitoso',
     'Order registered successfully.': 'Pedido registrado exitosamente.',
     'Payment failed': 'Pago fallido',
@@ -573,4 +573,8 @@ export default {
     'Stop test': 'Detener prueba',
     'Scan card to start test': 'Escanee una tarjeta para iniciar la prueba',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': '¡Advertencia! Esto aplicará transacciones aleatorias a cualquier tarjeta que se presente. ¿Desea continuar?',
+
+    // Organisation currency
+    'Currency': 'Moneda',
+    'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.': 'Se usa para etiquetar precios, saldos y recargas. Cambiarla también afecta a las ventas pasadas; no se convierte ningún importe.',
 };

@@ -15,5 +15,6 @@
         var ORDER_SIGNATURE = @json($signature);
         var ORDER_CARD_TOKEN = @json($cardToken);
         var ORDER_NAME = @json($orderName);
+        var EVENT_CURRENCY = @json($currency);
     </script>
 @endsection

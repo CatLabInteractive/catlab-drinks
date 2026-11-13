@@ -31,7 +31,7 @@ export default {
     'Balance': 'Saldo',
     'Last transaction': 'Laatste transactie',
     'Confirm topup': 'Opwaardering bevestigen',
-    'Are you sure you want to topup for €{amount}?': 'Weet je zeker dat je wilt opwaarderen voor €{amount}?',
+    'Are you sure you want to topup for {amount}?': 'Weet je zeker dat je wilt opwaarderen voor {amount}?',
     'Please wait': 'Even wachten',
     'Topup failed.': 'Opwaardering mislukt.',
     'Card reset successful.': 'Kaart reset geslaagd.',
@@ -54,7 +54,7 @@ export default {
 
     // Live Sales
     'Menu items': 'Menu-items',
-    'Total: {amount} items = €{price}': 'Totaal: {amount} items = €{price}',
+    'Total: {amount} items = {price}': 'Totaal: {amount} items = {price}',
     'Payment successful': 'Betaling geslaagd',
     'Order registered successfully.': 'Bestelling succesvol geregistreerd.',
     'Payment failed': 'Betaling mislukt',
@@ -573,4 +573,8 @@ export default {
     'Stop test': 'Test stoppen',
     'Scan card to start test': 'Scan een kaart om de test te starten',
     'Warning! This will apply random transactions to any card that is presented. Do you want to continue?': 'Waarschuwing! Dit voert willekeurige transacties uit op elke kaart die wordt aangeboden. Wil je doorgaan?',
+
+    // Organisation currency
+    'Currency': 'Valuta',
+    'Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.': 'Wordt gebruikt om prijzen, saldo\'s en opwaarderingen te labelen. Wijzigen hernoemt ook eerdere verkopen; er worden geen bedragen omgerekend.',
 };

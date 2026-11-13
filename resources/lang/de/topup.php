@@ -5,7 +5,7 @@ return [
     'title' => 'Karte aufladen',
     'scan_qr' => 'Bitte scannen Sie den QR-Code auf der Karte, um eine Aufladung zu starten.',
     'current_balance' => 'Aktuelles Guthaben',
-    'choose_amount' => 'Wählen Sie den gewünschten Betrag (ab :min €).',
+    'choose_amount' => 'Wählen Sie den gewünschten Betrag (ab :min).',
     'amount_label' => 'Betrag',
     'amount_placeholder' => 'Betrag',
     'submit' => 'Aufladen',

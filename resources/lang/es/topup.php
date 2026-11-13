@@ -5,7 +5,7 @@ return [
     'title' => 'Recargar tarjeta',
     'scan_qr' => 'Escanee el código QR de la tarjeta para iniciar una recarga.',
     'current_balance' => 'Saldo actual',
-    'choose_amount' => 'Elija el monto deseado (a partir de :min €).',
+    'choose_amount' => 'Elija el monto deseado (a partir de :min).',
     'amount_label' => 'Monto',
     'amount_placeholder' => 'Monto',
     'submit' => 'Recargar',
