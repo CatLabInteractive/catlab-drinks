@@ -331,6 +331,106 @@ class MenuHeadingTest extends TestCase
 		$this->assertEquals($count, MenuItem::count());
 	}
 
+	public function testSequenceEndpointStoresTheHeadingSequence(): void
+	{
+		[$a, $b, $c] = $this->makeHeadings($this->event, ['A', 'B', 'C']);
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl(), ['items' => [['id' => $c->id], ['id' => $a->id], ['id' => $b->id]]])
+			->assertStatus(200)->assertJson(['success' => true]);
+		$this->assertEquals([2, 3, 1], [$a->fresh()->position, $b->fresh()->position, $c->fresh()->position]);
+	}
+
+	public function testHeadingsMissingFromTheListGoAfterTheListedOnes(): void
+	{
+		[$a, $b, $c, $d] = $this->makeHeadings($this->event, ['A', 'B', 'C', 'D']);
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl(), ['items' => [['id' => $d->id], ['id' => $b->id]]])->assertStatus(200);
+		$this->assertEquals([3, 2, 4, 1], [$a->fresh()->position, $b->fresh()->position, $c->fresh()->position, $d->fresh()->position]);
+	}
+
+	public function testHeadingSequenceCountsSoftDeletedHeadings(): void
+	{
+		[$a, $b, $c] = $this->makeHeadings($this->event, ['A', 'B', 'C']);
+		$b->delete();
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl(), ['items' => [['id' => $c->id]]])->assertStatus(200);
+		$this->assertEquals([2, 3, 1], [
+			$a->fresh()->position,
+			MenuHeading::withTrashed()->find($b->id)->position,
+			$c->fresh()->position,
+		]);
+	}
+
+	public function testHeadingSequenceRejectsIdsOfADifferentEvent(): void
+	{
+		[$a, $b] = $this->makeHeadings($this->event, ['A', 'B']);
+		[$x] = $this->makeHeadings($this->otherEvent, ['X']);
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl(), ['items' => [['id' => $b->id], ['id' => $x->id], ['id' => $a->id]]])
+			->assertStatus(422);
+		$this->assertEquals([1, 2, 1], [$a->fresh()->position, $b->fresh()->position, $x->fresh()->position]);
+	}
+
+	public function testHeadingSequenceRejectsDuplicateIds(): void
+	{
+		[$a, $b] = $this->makeHeadings($this->event, ['A', 'B']);
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl(), ['items' => [['id' => $a->id], ['id' => $a->id], ['id' => $b->id]]])
+			->assertStatus(422);
+		$this->assertEquals([1, 2], [$a->fresh()->position, $b->fresh()->position]);
+	}
+
+	public function testHeadingSequenceRejectsADeletedHeading(): void
+	{
+		[$a, $b] = $this->makeHeadings($this->event, ['A', 'B']);
+		$b->delete();
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl(), ['items' => [['id' => $a->id], ['id' => $b->id]]])
+			->assertStatus(422);
+		$this->assertEquals(1, $a->fresh()->position);
+	}
+
+	public function testHeadingSequenceRejectsABodyWithoutItems(): void
+	{
+		[$a] = $this->makeHeadings($this->event, ['A']);
+		Passport::actingAs($this->user);
+		$response = $this->putJson($this->sequenceUrl(), [])->assertStatus(422);
+		$this->assertNotNull($response->json('error.status'));
+		$this->assertNotNull($response->json('error.message'));
+		$this->putJson($this->sequenceUrl(), ['items' => 'x'])->assertStatus(422);
+		$this->assertEquals(1, $a->fresh()->position);
+	}
+
+	public function testHeadingSequenceDeniedForOtherOrganisation(): void
+	{
+		[$x] = $this->makeHeadings($this->foreignEvent, ['X']);
+		Passport::actingAs($this->user);
+		$this->putJson($this->sequenceUrl($this->foreignEvent), ['items' => [['id' => $x->id]]])->assertStatus(403);
+	}
+
+	public function testHeadingSequenceDeniedForDevices(): void
+	{
+		[$a] = $this->makeHeadings($this->event, ['A']);
+		$status = $this->withHeader('Authorization', 'Bearer ' . $this->createDeviceToken())
+			->putJson('/pos-api/v1/events/' . $this->event->id . '/headings/sequence', ['items' => [['id' => $a->id]]])
+			->status();
+		$this->assertContains($status, [404, 405]);
+	}
+
+	/**
+	 * @param string[] $names
+	 * @return MenuHeading[]
+	 */
+	private function makeHeadings(Event $event, array $names): array
+	{
+		return array_map(fn ($name) => $this->makeHeading($event, $name), $names);
+	}
+
+	private function sequenceUrl(?Event $event = null): string
+	{
+		return $this->indexUrl($event) . '/sequence';
+	}
+
 	private function indexUrl(?Event $event = null): string
 	{
 		return '/api/v1/events/' . ($event ?? $this->event)->id . '/headings';
