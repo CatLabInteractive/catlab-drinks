@@ -25,6 +25,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Services\UsageReporter;
+use App\Support\Telemetry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Cache;
@@ -34,7 +35,7 @@ use Tests\TestCase;
 
 /**
  * Tests for the opt-out anonymous usage report (USAGE_REPORTING) and the
- * footer notice that tells the owner about it.
+ * notice data that tells the owner about it in the footer of Manage.
  */
 class UsageReportingTest extends TestCase
 {
@@ -64,24 +65,19 @@ class UsageReportingTest extends TestCase
         config(['telemetry.usage.enabled' => true]);
     }
 
-    public function testFooterTellsWhatIsReported(): void
+    public function testNoticeTellsWhatIsReported(): void
     {
+        $this->assertSame(['usage' => false, 'errors' => false], Telemetry::notice());
+
         $this->enable();
-        $this->get('/setup')->assertOk()
-            ->assertSee('This instance sends anonymous usage statistics to CatLab.')
-            ->assertSee('#usage-and-error-reporting');
+        $this->assertSame(['usage' => true, 'errors' => false], Telemetry::notice());
 
         config(['telemetry.errors.to_catlab' => true]);
-        $this->get('/setup')
-            ->assertSee('This instance sends anonymous usage statistics and error reports to CatLab.');
+        $this->assertSame(['usage' => true, 'errors' => true], Telemetry::notice());
 
-        config(['telemetry.usage.enabled' => false]);
-        $this->get('/setup')->assertSee('This instance sends error reports to CatLab.');
-    }
-
-    public function testFooterIsSilentWhenNothingIsReported(): void
-    {
-        $this->get('/setup')->assertOk()->assertDontSee('telemetry-notice');
+        // Nothing is sent without a destination, so there is nothing to tell.
+        config(['telemetry.usage.matomo_url' => null]);
+        $this->assertSame(['usage' => false, 'errors' => true], Telemetry::notice());
     }
 
     public function testNothingIsSentWhenDisabled(): void

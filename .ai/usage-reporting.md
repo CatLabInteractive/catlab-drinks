@@ -18,11 +18,10 @@ the owner sets them to `false` to opt out.
 ## Footer notice
 Because reporting is opt-out, the owner must be able to see it. `Telemetry::notice()`
 returns `{ usage, errors }`: what the instance reports to CatLab right now.
-- `resources/views/blocks/telemetry-notice.blade.php` renders it in the footer of
-  `layouts/app.blade.php` (login, register, setup, home).
 - `client/manage.blade.php` passes it as `CATLAB_DRINKS_CONFIG.TELEMETRY`; the footer of
   Manage's `App.vue` renders it (translated in `resources/shared/js/i18n/`).
-- POS and the client order pages show no notice: their users are not the owner.
+- Only Manage shows the notice. The login/setup pages, POS and the client order pages
+  do not.
 - The notice links to the readme section that explains how to opt out.
 
 ## Usage heartbeat

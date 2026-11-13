@@ -70,7 +70,7 @@ class Telemetry
 
     /**
      * What this instance reports to CatLab right now, for the notice in the
-     * page footers. Reads config(), so it also works with a cached config.
+     * footer of Manage. Reads config(), so it also works with a cached config.
      *
      * @return array{usage: bool, errors: bool}
      */

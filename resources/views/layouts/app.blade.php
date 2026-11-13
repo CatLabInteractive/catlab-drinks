@@ -81,8 +81,6 @@
         <main class="py-4">
             @yield('content')
         </main>
-
-        @include('blocks.telemetry-notice')
     </div>
 </body>
 </html>

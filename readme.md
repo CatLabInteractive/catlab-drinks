@@ -56,7 +56,7 @@ checklist on that page: verify the database environment variables and run
 ### Usage and error reporting
 
 Both are on unless you turn them off; they help us see how CatLab Drinks is used and fix bugs.
-While either one is active, the footer of the login pages and of the admin panel says so.
+While either one is active, the footer of the admin panel says so.
 Both stay off when `APP_ENV` is `local` or `testing`, unless you set the variable to `true`.
 
 Unless you set `USAGE_REPORTING=false`, the instance sends one anonymous report per day: a random
