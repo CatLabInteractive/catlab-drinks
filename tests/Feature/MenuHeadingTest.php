@@ -108,6 +108,43 @@ class MenuHeadingTest extends TestCase
 		$this->assertNull($heading->fresh()->deleted_at);
 	}
 
+	public function testUserOfADifferentOrganisationCannotViewAHeading(): void
+	{
+		$heading = $this->makeHeading($this->event, 'Bieren');
+		$stranger = User::query()->create([
+			'name' => 'Stranger',
+			'email' => 'stranger-' . Str::random(8) . '@example.com',
+			'password' => bcrypt('secret'),
+		]);
+		$this->otherOrganisation->users()->attach($stranger->id);
+		Passport::actingAs($stranger);
+		$this->getJson('/api/v1/headings/' . $heading->id)->assertStatus(403);
+	}
+
+	public function testDeviceOfADifferentOrganisationCannotReadHeadings(): void
+	{
+		$heading = $this->makeHeading($this->event, 'Bieren');
+		$auth = ['Authorization' => 'Bearer ' . $this->createDeviceToken($this->otherOrganisation)];
+		$this->withHeaders($auth)->getJson('/pos-api/v1/events/' . $this->event->id . '/headings?records=1000')->assertStatus(403);
+		$this->withHeaders($auth)->getJson('/pos-api/v1/headings/' . $heading->id)->assertStatus(403);
+	}
+
+	public function testHeadingNameLongerThan255CharactersIsRejected(): void
+	{
+		Passport::actingAs($this->user);
+		$response = $this->postJson($this->indexUrl(), ['name' => str_repeat('a', 256)])->assertStatus(422);
+		$this->assertEquals(422, $response->json('error.status'));
+		$this->assertNotNull($response->json('error.message'));
+		$this->assertEquals(0, MenuHeading::count());
+
+		$heading = $this->makeHeading($this->event, 'Bieren');
+		$this->putJson('/api/v1/headings/' . $heading->id, ['name' => str_repeat('b', 256)])
+			->assertStatus(422)->assertJsonPath('error.status', 422);
+		$this->assertEquals('Bieren', $heading->fresh()->name);
+
+		$this->postJson($this->indexUrl(), ['name' => str_repeat('c', 255)])->assertSuccessful();
+	}
+
 	public function testDeviceCanReadHeadings(): void
 	{
 		$heading = $this->makeHeading($this->event, 'Bieren');
@@ -457,9 +494,9 @@ class MenuHeadingTest extends TestCase
 		]);
 	}
 
-	private function createDeviceToken(): string
+	private function createDeviceToken(?Organisation $organisation = null): string
 	{
-		$device = Device::factory()->create(['organisation_id' => $this->organisation->id]);
+		$device = Device::factory()->create(['organisation_id' => ($organisation ?? $this->organisation)->id]);
 		return $device->createAccessToken($this->user)->plainTextToken;
 	}
 }

@@ -45,6 +45,7 @@ class MenuHeadingResourceDefinition extends ResourceDefinition
         $this->field('name')
             ->string()
             ->required()
+            ->max(255)
             ->visible(true)
             ->writeable(true, true)
         ;
