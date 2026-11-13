@@ -33,14 +33,12 @@ namespace App\Support;
  */
 class Telemetry
 {
-    // TODO: fill in CatLab's Matomo instance and site.
-    public const CATLAB_MATOMO_URL = null;
-    public const CATLAB_MATOMO_SITE_ID = null;
+    public const CATLAB_MATOMO_URL = 'https://stats.catlab.eu/';
+    public const CATLAB_MATOMO_SITE_ID = '42';
 
-    // TODO: fill in CatLab's Errbit / Airbrake project.
-    public const CATLAB_AIRBRAKE_HOST = null;
-    public const CATLAB_AIRBRAKE_PROJECT_ID = null;
-    public const CATLAB_AIRBRAKE_PROJECT_KEY = null;
+    public const CATLAB_AIRBRAKE_HOST = 'https://errors.catlab.eu/';
+    public const CATLAB_AIRBRAKE_PROJECT_ID = 'catlab-drinks';
+    public const CATLAB_AIRBRAKE_PROJECT_KEY = 'e5c00db3fbe5fde594c44ff6e559099a';
 
     /**
      * Request keys that are never sent along with an error report.
