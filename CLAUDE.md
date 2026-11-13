@@ -98,7 +98,7 @@ resolves controller names relative to the route collection's `namespace` setting
 3. Create `App\Http\DeviceApi\V1\Controllers\FooController extends \App\Http\Shared\V1\Controllers\FooController {}`
 4. Register routes in both `routes.php` files using `\App\Http\{Api}\V1\Controllers\FooController::setRoutes($routes)`
 
-**Currently shared controllers:** EventController, MenuController, CategoryController, OrderController, OrderSummaryController
+**Currently shared controllers:** EventController, MenuController, MenuHeadingController, CategoryController, OrderController, OrderSummaryController
 
 **Currently shared resource definitions:** OrderResourceDefinition, OrderSummaryResourceDefinition, OrderSummaryItemResourceDefinition
 
@@ -319,7 +319,7 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
 
 ---
 
-## Menu sequence and import
+## Menu sequence, headings and import
 
 - `menu_items.position` is the user-controlled sequence, per event. A `creating` hook in
   `App\Models\MenuItem` gives new products the next position. Both `MenuItemResourceDefinition`
@@ -342,8 +342,45 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
   `clipboardTable.js`, `menuImport.js`, `menuChanges.js`, `menuSave.js`. The Vue parts are
   `resources/manage/js/views/Menu.vue` and `resources/manage/js/components/MenuImportModal.vue`.
 - "Station" in the interface is `category` in the code, API, and database.
-- Design: `docs/superpowers/specs/2026-11-12-menu-import-and-ordering-design.md`. Stage 2
-  (category headings on the order screens) is not built yet.
+- A heading is a title on the order screens that groups products. A category (shown as "Station")
+  decides where an order is prepared. They are separate: a product has one heading or none, and one
+  category or none. Categories have no position and the POS category filter and
+  `Order::splitByCategories()` are unchanged.
+- Headings are stored in `menu_headings` (`App\Models\MenuHeading`: `event_id`, `name`, `position`,
+  soft delete) with a nullable `menu_items.heading_id`. `AssignsNextPosition` (shared with `MenuItem`)
+  gives a new heading the next position of its event and counts soft deleted rows, so a position is
+  never reused. Deleting a heading soft deletes it and clears `heading_id` on its products.
+- `MenuHeadingController` is a shared controller with thin classes in both APIs. Management API:
+  `GET|POST /api/v1/events/{id}/headings`, `GET|PUT|DELETE /api/v1/headings/{id}` and
+  `PUT /api/v1/events/{id}/headings/sequence`. Device API: read only (`GET` index and view).
+  `MenuHeadingPolicy`: users write, devices read (`$allowDevices = true` on `index` and `view` only).
+  The Manage screens rename and reorder headings but have no delete.
+- A product without a heading has no `heading` key in the API output, because Charon leaves an empty
+  relationship out. The same holds for `category`. Frontend code treats a missing key and `null`
+  alike. A write with `heading: null` clears the heading. A device cannot change the heading of a
+  product, because the Device API product definition does not make `heading` writeable.
+- Event check: `MenuController::assertLinksBelongToTheEvent()` runs only for a new product or when
+  `heading_id` or `category_id` changed (`isDirty`). A heading or category of a different event gives
+  422. A deleted or unknown one gives 404. Existing products with an old link are not rejected when
+  other fields change.
+- `App\Services\SequenceWriter` writes the sequence of products (`/menu/sequence`) and of headings
+  (`/headings/sequence`): the listed rows get positions 1..k, the other rows follow in their old order,
+  and invalid, foreign, duplicate or deleted IDs give 422 and write nothing.
+- `resources/shared/js/menu/groupMenuItems.js` groups products by heading: products without a heading
+  first, then one group per heading in heading position. `LiveSales.vue` (POS sales screen) uses it
+  directly. `orderTableRows.js` builds on it for the client order page (`Order.vue`) and adds a title
+  row (`isHeading: true`) before each heading. Title rows are for display only and never reach the
+  order that the customer sends. Without any heading, both screens look as before.
+- Manage: `headingChanges.js` tracks the Headings section (renames, sequence) and `runHeadingSave`
+  sends them with Save. A new heading is created at once, as a new category is.
+- Import: the sheet has "Category" (shown as "Station") and "Heading" column types, which are never
+  guessed. A name in such a column is matched with the existing ones of the event (`matchByName`,
+  ignoring case and outer spaces; `namesToCreate` lists the unmatched names). Add creates the missing
+  ones first, then the rows. An empty cell uses "Station for all products" or "Heading for all
+  products". "Copy from event" fills both columns from the source products.
+- Test a `.vue` component with Vitest through `vitest.config.js`: a small plugin lets a test import
+  only the script block of a `.vue` file.
+- Design: `docs/superpowers/specs/2026-11-12-menu-import-and-ordering-design.md`.
 
 ---
 
@@ -354,6 +391,7 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
 | DeviceAccessToken    | device_access_tokens   | Auth tokens for devices          |
 | DeviceConnectRequest | device_connect_requests| Pairing session state            |
 | Event                | events                 | Bar/event configuration          |
+| MenuHeading          | menu_headings          | Title that groups products       |
 | MenuItem             | menu_items             | Products for sale                |
 | Order                | orders                 | Customer orders                  |
 | OrderItem            | order_items            | Line items within an order       |
