@@ -184,7 +184,7 @@
 			</tbody>
 		</table>
 
-		<menu-import-modal ref="importModal" :categories="categories" @import="appendRows" />
+		<menu-import-modal ref="importModal" :categories="categories" :other-events="otherEvents" @import="appendRows" />
 
 	</b-container>
 
@@ -194,6 +194,7 @@
 
 	import {MenuService} from "../../../shared/js/services/MenuService";
 	import {CategoryService} from "../../../shared/js/services/CategoryService";
+	import {EventService} from "../../../shared/js/services/EventService";
 	import {getApiErrorMessage} from "../../../shared/js/services/AbstractService";
 	import {
 		rowsFromItems,
@@ -241,6 +242,7 @@
 			window.addEventListener('beforeunload', this.onBeforeUnload);
 
 			this.loadEvent(this.$route.params.id);
+			this.loadEvents();
 
 		},
 
@@ -289,6 +291,7 @@
 				originals: [],
 				rows: [],
 				categories: [],
+				events: [],
 				dragIndex: null,
 				dropTarget: null
 			}
@@ -310,6 +313,15 @@
 					fields[problem.key] = problem.fields;
 				});
 				return fields;
+			},
+
+			/**
+			 * The events whose menu the import can copy.
+			 */
+			otherEvents() {
+				return this.events
+					.filter(event => String(event.id) !== String(this.eventId))
+					.map(event => ({ id: event.id, name: event.name }));
 			},
 
 			statuses() {
@@ -339,6 +351,18 @@
 				this.showErrors = false;
 				this.errorMessage = null;
 				this.refresh();
+			},
+
+			/**
+			 * The events of the organisation, in the sequence of the events page.
+			 * Without this list the import only hides its copy selector.
+			 */
+			async loadEvents() {
+				try {
+					this.events = (await new EventService(window.ORGANISATION_ID).index({sort: '!id'})).items;
+				} catch (error) {
+					this.events = [];
+				}
 			},
 
 			async refresh() {

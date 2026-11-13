@@ -143,3 +143,22 @@ export function canImport(types, importRows) {
 		&& importRows.length > 0
 		&& importRows.every((row) => row.errors.length === 0);
 }
+
+const COPY_TYPES = ['name', 'description', 'price', 'vat_percentage'];
+
+/**
+ * Turns the products of a menu into a sheet, so that they can be imported
+ * like a paste: name, description, price with two decimals and VAT.
+ */
+export function sheetFromItems(items) {
+	const text = (value) => (value === undefined || value === null ? '' : String(value));
+	return {
+		cells: items.map((item) => [
+			text(item.name),
+			text(item.description),
+			Number(item.price).toFixed(2),
+			item.vat_percentage === undefined || item.vat_percentage === null ? '' : String(Number(item.vat_percentage)),
+		]),
+		types: COPY_TYPES.slice(),
+	};
+}

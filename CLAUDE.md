@@ -335,6 +335,9 @@ Call `cardService.initializeKeyManager(uid, id, secret)` and `cardService.loadPu
   selling" while the menu table is open, and Save must not revert that. `is_selling` is sent only
   if the user changed it. After each successful request `runSave` (`menuSave.js`) writes the
   server's values back into the rows, so that a later Save does not send stale values.
+- The import dialog can copy the menu of a different event of the organisation into its sheet
+  ("Copy from event"; `Menu.vue` loads the events list and passes it as `otherEvents`; `sheetFromItems`
+  in `menuImport.js` builds the sheet); the copies are new unsaved rows and the source event is only read.
 - Pure modules in `resources/manage/js/menu/` (each with a Vitest file next to it): `priceParser.js`,
   `clipboardTable.js`, `menuImport.js`, `menuChanges.js`, `menuSave.js`. The Vue parts are
   `resources/manage/js/views/Menu.vue` and `resources/manage/js/components/MenuImportModal.vue`.

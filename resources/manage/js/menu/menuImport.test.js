@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	COLUMN_TYPES, smartSplitLine, prepareSheet, guessColumnTypes, setColumnType, buildImportRows, canImport,
+	sheetFromItems,
 } from './menuImport';
 
 describe('COLUMN_TYPES', () => {
@@ -94,5 +95,34 @@ describe('canImport', () => {
 	it('is true for clean rows', () => {
 		const types = ['name', 'price'];
 		expect(canImport(types, buildImportRows([['Pils', '2']], types))).toBe(true);
+	});
+});
+
+describe('sheetFromItems', () => {
+	const TYPES = ['name', 'description', 'price', 'vat_percentage'];
+	const items = [
+		{ id: 1, name: 'Pils', description: '25cl', price: 2.5, vat_percentage: 21 },
+		{ id: 2, name: 'Cola', description: null, price: 2, vat_percentage: null },
+	];
+
+	it('builds one row per product with the four column types', () => {
+		expect(sheetFromItems(items)).toEqual({
+			cells: [['Pils', '25cl', '2.50', '21'], ['Cola', '', '2.00', '']],
+			types: TYPES,
+		});
+	});
+	it('writes a VAT with decimals as plain number text', () => {
+		const sheet = sheetFromItems([{ name: 'Wijn', description: '', price: 4, vat_percentage: 6.5 }]);
+		expect(sheet.cells[0][3]).toBe('6.5');
+	});
+	it('gives an empty sheet for no products', () => {
+		expect(sheetFromItems([])).toEqual({ cells: [], types: TYPES });
+	});
+	it('reads back to the same products', () => {
+		const sheet = sheetFromItems(items);
+		expect(buildImportRows(sheet.cells, sheet.types)).toEqual([
+			{ name: 'Pils', description: '25cl', price: 2.5, vat_percentage: 21, errors: [] },
+			{ name: 'Cola', description: '', price: 2, vat_percentage: null, errors: [] },
+		]);
 	});
 });

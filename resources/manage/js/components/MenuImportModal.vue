@@ -21,7 +21,24 @@
 
 <template>
 
-	<b-modal ref="modal" size="xl" :title="$t('Import menu')" no-close-on-backdrop no-close-on-esc @hide="onHide">
+	<b-modal ref="modal" size="xl" :title="$t('Import menu')" no-close-on-backdrop no-close-on-esc @hide="onHide" @hidden="onHidden">
+
+		<div class="form-group menu-import-copy" v-if="otherEvents.length > 0">
+			<label for="menu-import-copy-event">{{ $t('Copy from event') }}</label>
+			<select
+				id="menu-import-copy-event"
+				class="form-control form-control-sm menu-import-copy-select"
+				:value="copyEventId"
+				:disabled="copying"
+				@change="copyFromEvent($event.target)"
+			>
+				<option value=""></option>
+				<option v-for="event in otherEvents" :key="event.id" :value="String(event.id)">
+					{{ event.name }}
+				</option>
+			</select>
+			<small class="form-text text-muted menu-import-copy-message" v-if="copyMessage">{{ copyMessage }}</small>
+		</div>
 
 		<p class="text-muted">{{ $t('Paste a table from an email, Word, or Excel into the first cell.') }}</p>
 
@@ -98,7 +115,7 @@
 						{{ $t('Cancel') }}
 					</b-button>
 
-					<b-button variant="primary" class="ml-2" :disabled="!importable" @click="submit">
+					<b-button variant="primary" class="ml-2" :disabled="!importable || copying" @click="submit">
 						{{ $t('Add {count} products', { count: importRows.length }) }}
 					</b-button>
 				</div>
@@ -118,9 +135,12 @@
 		guessColumnTypes,
 		setColumnType,
 		buildImportRows,
-		canImport
+		canImport,
+		sheetFromItems
 	} from "../menu/menuImport";
 	import {rowFromImport} from "../menu/menuChanges";
+	import {MenuService} from "../../../shared/js/services/MenuService";
+	import {getApiErrorMessage} from "../../../shared/js/services/AbstractService";
 
 	const TYPE_LABELS = {
 		name: 'Product name',
@@ -143,6 +163,15 @@
 			categories: {
 				type: Array,
 				default: () => []
+			},
+
+			/**
+			 * The events whose menu can be copied: { id, name }, without the
+			 * event whose menu is open.
+			 */
+			otherEvents: {
+				type: Array,
+				default: () => []
 			}
 		},
 
@@ -154,6 +183,11 @@
 				types: ['name', 'price'],
 				categoryId: null,
 				closeWithoutQuestion: false,
+				copyEventId: '',
+				copyMessage: null,
+				copying: false,
+				// Raised on each copy, show and close, so that a late answer is ignored.
+				copyRequest: 0,
 				columnTypes: COLUMN_TYPES,
 				typeLabels: TYPE_LABELS
 			};
@@ -207,6 +241,7 @@
 				this.types = ['name', 'price'];
 				this.categoryId = null;
 				this.closeWithoutQuestion = false;
+				this.resetCopy();
 				this.$refs.modal.show();
 			},
 
@@ -228,8 +263,69 @@
 				}
 			},
 
+			onHidden() {
+				this.resetCopy();
+			},
+
+			resetCopy() {
+				this.copyRequest++;
+				this.copyEventId = '';
+				this.copyMessage = null;
+				this.copying = false;
+			},
+
+			/**
+			 * Fill the sheet with the menu of a different event. The source
+			 * event is only read.
+			 */
+			async copyFromEvent(select) {
+				const eventId = select.value;
+				this.copyEventId = eventId;
+				this.copyMessage = null;
+				if (eventId === '') {
+					return;
+				}
+
+				if (this.contentRowIndexes.length > 0 && !confirm(this.$t('Replace the content of the sheet?'))) {
+					// The bound value does not change in this tick, so set the element too.
+					this.copyEventId = '';
+					select.value = '';
+					return;
+				}
+
+				const request = ++this.copyRequest;
+				this.copying = true;
+
+				let menu;
+				try {
+					menu = await new MenuService(eventId).index();
+				} catch (error) {
+					if (request === this.copyRequest) {
+						this.copying = false;
+						this.copyEventId = '';
+						this.copyMessage = getApiErrorMessage(error) || error.message;
+					}
+					return;
+				}
+
+				// The dialog was closed or opened again, or a different event was selected.
+				if (request !== this.copyRequest) {
+					return;
+				}
+
+				this.copying = false;
+				if (menu.items.length === 0) {
+					this.copyMessage = this.$t('This event has no products.');
+					return;
+				}
+
+				const sheet = sheetFromItems(menu.items);
+				this.cells = sheet.cells;
+				this.types = sheet.types;
+			},
+
 			submit() {
-				if (!this.importable) {
+				if (!this.importable || this.copying) {
 					return;
 				}
 				this.$emit('import', this.importRows.map(row => rowFromImport(row, this.categoryId)));
@@ -342,6 +438,11 @@
 
 	.menu-import-table tr.table-warning .form-control:not(.menu-import-ignored) {
 		background-color: transparent;
+	}
+
+	.menu-import-copy-select {
+		width: auto;
+		min-width: 16em;
 	}
 
 	.menu-import-category {

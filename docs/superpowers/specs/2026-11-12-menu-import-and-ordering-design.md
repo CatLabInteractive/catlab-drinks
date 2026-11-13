@@ -35,7 +35,6 @@ The team can set the sequence in which products show on the order screens.
 - No file upload (`.xlsx`, `.docx`, PDF) and no photo or AI reading of a menu. Paste only.
 - No import in the POS app. The POS menu page keeps its one function: switch a product between selling and not selling.
 - No import step in the event wizard.
-- No copy of a menu from a different event.
 - No new grouping concept next to categories. Headings use the existing categories.
 - No "Category" column type in the import sheet. One category applies to the full pasted batch. (Design call, see "Calls made in this design".)
 - No rename or delete of categories, unless Manage already has it.
@@ -154,6 +153,24 @@ Rules:
 
 Clipboard formats: a table copied from Excel, Word, or an email arrives as text with tab characters between cells. A cell
 with a line break inside arrives in double quotes. The parser must handle both. The parser reads only the plain-text form of the clipboard.
+
+#### Copy from a different event
+
+The dialog has a selector "Copy from event" above the sheet. Its first option is empty.
+The other options are the events of the organisation, in the sequence of the events page. The event whose menu is open is not in the list.
+If there is no other event, the dialog does not show the selector.
+
+When the user selects an event, the dialog loads the menu of that event and fills the sheet.
+The sheet gets four columns: Product name, Description, Price, and VAT %. It gets one row per product, in the menu sequence.
+The price has two decimals. An empty description or VAT gives an empty cell.
+
+After the fill, the sheet works as after a paste. The user can edit cells, change column types, delete rows, and select a category for all rows.
+"Add N products" puts the rows at the end of the menu table as new unsaved rows. Nothing reaches the server before Save.
+
+Categories are not copied. The copied products get the category that the user selects for the full batch, or no category.
+Copied products have the status "selling", the same as every import.
+
+The source event never changes. The only request to the source event reads its menu.
 
 ### Code shape for stage 1
 
