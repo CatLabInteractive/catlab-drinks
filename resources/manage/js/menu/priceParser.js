@@ -27,9 +27,19 @@
 const CURRENCY_PREFIX = /^(?:euro|eur|€)\s*/i;
 const CURRENCY_SUFFIX = /\s*(?:euro|eur|€)$/i;
 
+/**
+ * Rounds to two decimals. Gives null instead of NaN or Infinity.
+ */
 function round2(value) {
-	// Exponent notation avoids float errors such as 2.505 * 100 = 250.49999.
-	return Number(Math.round(Number(value + 'e2')) + 'e-2');
+	if (!Number.isFinite(value)) {
+		return null;
+	}
+	// Exponent notation avoids float errors such as 2.505 * 100 = 250.49999,
+	// but only works for values that print without an exponent.
+	const rounded = String(value).includes('e')
+		? Math.round(value * 100) / 100
+		: Number(Math.round(Number(value + 'e2')) + 'e-2');
+	return Number.isFinite(rounded) ? rounded : null;
 }
 
 /**

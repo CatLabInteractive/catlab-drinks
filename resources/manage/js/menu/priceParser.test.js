@@ -26,3 +26,16 @@ describe('parseNumber', () => {
 		expect(parseNumber(input)).toBeNull();
 	});
 });
+
+describe('never NaN', () => {
+	const finiteOrNull = value => value === null || Number.isFinite(value);
+	it.each([['1e21', 1e21], ['400 nines', '9'.repeat(400)], ['400 nines and decimals', '9'.repeat(400) + ',50']])('parsePrice(%s) is finite or null', (label, input) => {
+		expect(finiteOrNull(parsePrice(input))).toBe(true);
+	});
+	it.each([['0.0000001', 0], [1e-7, 0]])('parsePrice(%s) is %s', (input, expected) => {
+		expect(parsePrice(input)).toBe(expected);
+	});
+	it.each([['1e21', 1e21], ['1e-7', 1e-7], ['400 nines', '9'.repeat(400)]])('parseNumber(%s) is finite or null', (label, input) => {
+		expect(finiteOrNull(parseNumber(input))).toBe(true);
+	});
+});
