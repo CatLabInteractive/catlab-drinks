@@ -137,7 +137,7 @@
 					},
 					{
 						key: 'category',
-						label: this.$t('Category'),
+						label: this.$t('Station'),
 						class: 'text-center'
 					},
 				],

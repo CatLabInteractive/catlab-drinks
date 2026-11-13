@@ -24,10 +24,13 @@
  * functions, no Vue.
  */
 
-// \u20AC is the euro sign. It is written as an escape because
-// currency-display.test.js allows no literal currency symbol in the sources.
-const CURRENCY_PREFIX = /^(?:euro|eur|\u20AC)\s*/i;
-const CURRENCY_SUFFIX = /\s*(?:euro|eur|\u20AC)$/i;
+// A currency mark: any currency symbol, the word "eur" or "euro" in any letter
+// case, or a currency code of three capital letters. The organisation's
+// currency is only a label (see shared/js/utils/money.js), so a pasted price
+// can carry any mark.
+const CURRENCY_MARK = '(?:[Ee][Uu][Rr][Oo]?|[A-Z]{3}|\\p{Sc})';
+const CURRENCY_PREFIX = new RegExp('^' + CURRENCY_MARK + '\\s*', 'u');
+const CURRENCY_SUFFIX = new RegExp('\\s*' + CURRENCY_MARK + '$', 'u');
 
 /**
  * Rounds to two decimals. Gives null instead of NaN or Infinity.

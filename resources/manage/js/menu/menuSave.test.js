@@ -26,7 +26,7 @@ import { runSave } from './menuSave';
 const items = [
 	{ id: 1, name: 'Pils', description: null, price: 2.5, vat_percentage: 21, is_selling: true, position: 1, category: { id: 7, name: 'Drinks' } },
 	{ id: 2, name: 'Cola', description: 'fles', price: 2, vat_percentage: null, is_selling: false, position: 2, category: null },
-	{ id: 3, name: 'Croque', description: null, price: 5, vat_percentage: 6, is_selling: true, position: 3, category: null },
+	{ id: 3, name: 'Croque', description: null, price: 5, vat_percentage: 6, is_selling: true, position: 3, category: null, heading: null },
 ];
 
 function fakeService({ failUpdate = null, failSequence = false, serverValues = {} } = {}) {
@@ -121,6 +121,17 @@ describe('runSave', () => {
 		const second = fakeService();
 		await runSave(second, result.originals, result.rows);
 		expect(second.calls).toEqual(['saveSequence 1,2,3,100']);
+	});
+	it('agrees with the server answer for a product with a heading', async () => {
+		const heading = { id: 4, name: 'Bieren', position: 1 };
+		const originals = items.map(item => (item.id === 1 ? { ...item, heading } : item));
+		const rows = rowsFromItems(originals);
+		rows[0].price = '3';
+		rows[2].heading_id = 4;
+		const result = await runSave(fakeService({ serverValues: { 1: { heading }, 3: { heading } } }), originals, rows);
+		expect(result.error).toBeNull();
+		expect(result.rows.map(row => row.heading_id)).toEqual([4, null, 4]);
+		expect(hasChanges(result.originals, result.rows)).toBe(false);
 	});
 	it('does not mutate its arguments', async () => {
 		const rows = rowsFromItems(items);

@@ -24,10 +24,8 @@ namespace App\Http\ManagementApi\V1\Controllers;
 
 use App\Models\Event;
 use App\Models\MenuItem;
+use App\Services\SequenceWriter;
 use CatLab\Charon\Collections\RouteCollection;
-use CatLab\Requirements\Collections\MessageCollection;
-use CatLab\Requirements\Exceptions\ResourceValidationException;
-use CatLab\Requirements\Models\Message;
 use Illuminate\Http\Request;
 
 /**
@@ -60,59 +58,8 @@ class MenuController extends \App\Http\Shared\V1\Controllers\MenuController
 		$event = $this->getParent($request);
 		$this->authorize('create', [ MenuItem::class, $event ]);
 
-		$items = $request->json('items');
-		if (!is_array($items) || count($items) === 0) {
-			$this->failSequence('Items must be a non-empty list.');
-		}
-
-		$ids = [];
-		foreach ($items as $item) {
-			$id = is_array($item) ? ($item['id'] ?? null) : null;
-			if (!is_int($id)) {
-				$this->failSequence('Every item must have an integer id.');
-			}
-			$ids[] = $id;
-		}
-
-		if (count(array_unique($ids)) !== count($ids)) {
-			$this->failSequence('Every product can be listed only once.');
-		}
-
-		$valid = $event->menuItems()->whereIn('id', $ids)->count();
-		if ($valid !== count($ids)) {
-			$this->failSequence('Every id must be a product of this event that is not deleted.');
-		}
-
-		\DB::transaction(function () use ($event, $ids) {
-			$position = 1;
-			foreach ($ids as $id) {
-				MenuItem::withTrashed()->where('id', $id)->update([ 'position' => $position++ ]);
-			}
-
-			$others = MenuItem::withTrashed()
-				->where('event_id', $event->id)
-				->whereNotIn('id', $ids)
-				->orderBy('position')
-				->orderBy('id')
-				->pluck('id');
-
-			foreach ($others as $id) {
-				MenuItem::withTrashed()->where('id', $id)->update([ 'position' => $position++ ]);
-			}
-		});
+		app(SequenceWriter::class)->write($event->menuItems(), $request->json('items'));
 
 		return \Response::json([ 'success' => true ]);
-	}
-
-	/**
-	 * @param string $message
-	 * @throws ResourceValidationException
-	 */
-	private function failSequence(string $message): void
-	{
-		$messages = new MessageCollection();
-		$messages->add(new Message($message));
-
-		throw ResourceValidationException::make($messages);
 	}
 }

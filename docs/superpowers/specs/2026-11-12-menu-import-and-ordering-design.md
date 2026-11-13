@@ -15,7 +15,7 @@ The team can set the sequence in which products show on the order screens.
 
 ## Words used in this document
 
-- **Sequence**: the position of a product in the menu, or of a category in the list of categories.
+- **Sequence**: the position of a product in the menu, or of a heading in the list of headings.
   This document does not use the word "order" for this, because "order" already means a customer order.
 - **Menu table**: the table on the Manage menu page (`resources/manage/js/views/Menu.vue`).
 - **Import sheet**: the dialog in which the user pastes a menu.
@@ -24,20 +24,19 @@ The team can set the sequence in which products show on the order screens.
 
 ## Goals
 
-1. Products and categories have a sequence that the user controls.
+1. Products and headings have a sequence that the user controls.
 2. The Manage menu page is an editable table with one Save button. The popup form goes away.
 3. The user can paste a menu from an email, Word, or Excel into an import sheet and add all products in one step.
 4. The order screens show products in the menu sequence.
-5. The order screens show a heading for each category (stage 2).
+5. The order screens group products under headings (stage 2).
 
 ## Non-goals
 
 - No file upload (`.xlsx`, `.docx`, PDF) and no photo or AI reading of a menu. Paste only.
 - No import in the POS app. The POS menu page keeps its one function: switch a product between selling and not selling.
 - No import step in the event wizard.
-- No new grouping concept next to categories. Headings use the existing categories.
-- No "Category" column type in the import sheet. One category applies to the full pasted batch. (Design call, see "Calls made in this design".)
-- No rename or delete of categories, unless Manage already has it.
+- No automatic heading from a pasted heading line such as `BIEREN`. That line stays a marked row.
+- No rename or delete of categories, unless Manage already has it. No delete of headings in Manage.
 - No touch drag and no phone layout for the menu table and the import sheet.
 - No product filter on the POS sales screen.
 
@@ -168,7 +167,8 @@ The price has two decimals. An empty description or VAT gives an empty cell.
 After the fill, the sheet works as after a paste. The user can edit cells, change column types, delete rows, and select a category for all rows.
 "Add N products" puts the rows at the end of the menu table as new unsaved rows. Nothing reaches the server before Save.
 
-Categories are not copied. The copied products get the category that the user selects for the full batch, or no category.
+In stage 1, categories are not copied, and the copied products get the category that the user selects for the full batch, or no category.
+Stage 2 changes this: see "Headings and categories in the import".
 Copied products have the status "selling", the same as every import.
 
 The source event never changes. The only request to the source event reads its menu.
@@ -188,40 +188,85 @@ These are constraints. The rest is for the builder.
 - All new interface text goes through `$t()` and is added to all five language files in `resources/shared/js/i18n/`.
 - Follow the project patterns in `CLAUDE.md`: Charon resource definitions, policies that check the parent, and the common API error format.
 
-## Stage 2: category headings on the order screens
+## Stage 2: headings on the order screens
 
-### Sequence of categories
+The owner changed the direction of stage 2 on 2026-11-13. The first design used categories as headings. That fails for a bar that
+serves "Beers" and "Sodas". A POS device filters on one category. An event that splits orders per category sends that bar
+two orders for one customer. Headings are now a separate property of a product. Categories keep their one job, which is routing.
+Nothing changes in the POS category filter, in the split of orders, or in the assignment of orders to devices.
 
-- Add an integer `position` column to `categories`, filled per event in `id` order.
-- Category reads return categories sorted by `position`, then `id`. A new category goes last.
-- The Manage menu page gets a small "Categories" section in which the user drags categories into sequence. It uses the same Save button
-  and the same marks as the menu table. The server stores the category sequence in one request, in the same way as the product sequence.
+### Words
 
-### Headings
+- **Category**: routes an order to a location, for example "Drinks" to the bar and "Food" to the kitchen. Unchanged.
+  The interface calls a category a "Station" (French "Poste", German "Station", Spanish "Estación"). The code, the API, and the database keep `category`.
+- **Heading**: a title on the order screens that groups products for the reader, for example "Beers", "Sodas", "Snacks".
+  A product has one heading or none. A heading belongs to one event and has a name and a position.
 
-- The POS sales screen and the client order page show one heading per category, in category sequence.
-  Below each heading are the products of that category, in menu sequence.
-- Products without a category come first, without a heading.
-- A category without visible products shows no heading.
-- If no visible product has a category, the screen shows no headings and looks as it does today.
-- The POS sales screen has no product filter today, and this design adds none. It groups all products of the menu.
-  The category filter of a device applies only to incoming remote orders (`RemoteOrders.vue`). Do not change that filter.
+### Headings in the data
+
+- A new table `menu_headings` with `event_id`, `name`, `position`, timestamps, and soft delete. A new nullable `menu_items.heading_id`.
+- Heading reads return headings sorted by `position`, then `id`. A new heading goes last.
+- The Management API has create, read, update, and delete for headings of an event. The Device API has read only.
+- The menu item resource of both APIs carries the heading of a product with its `id`, `name`, and `position`. The public menu does too.
+  Only users can change the heading of a product. A device cannot.
+- The server rejects a product that links a heading of a different event. The same check is added for the category of a product.
+- If a heading is deleted, its products keep existing and have no heading.
+- The sequence of headings is stored in one request, in the same way as the product sequence
+  (`PUT /api/v1/events/{id}/headings/sequence`, Management API only, users only).
+- Categories get no position. The category sequence of the first design is dropped.
+
+### Headings on the order screens
+
+- The POS sales screen and the client order page show one title per heading, in heading sequence.
+  Below each title are the products of that heading, in menu sequence.
+- Products without a heading come first, without a title.
+- A heading without visible products shows no title.
+- If no visible product has a heading, the screen shows no titles and looks as it does today.
 - The grouping is one pure shared function with Vitest tests. Both order screens use it.
-- The menu resource that the order screens read must carry the category name and the category position. Make sure that the public menu does too.
+- A heading row on the client order page is not a product. It must never reach the order that the customer sends.
 
-### Manage in stage 2
+### Headings in Manage
 
-- The menu table stays one flat list. The sequence of products inside a category follows from the flat sequence.
-- The hint text of the category selector changes. It must say that categories show as headings on the order screens,
-  and that an event with "split orders by categories" switched on also splits each customer order along these categories.
+- The menu table gets a "Heading" column after "Category". The selector lists no heading, the headings of the event, and "Create new heading".
+  A new heading is created at once through a name prompt, as a new category is.
+- A change of the heading of a product is saved with the Save button, as all other cells are.
+- The menu page gets a "Headings" section below the menu table. It lists the headings in sequence. The user drags a heading to
+  move it and edits its name in place. Both changes are marked and are saved with the same Save button. A heading name must not be empty.
+- The menu table stays one flat list. The sequence of products below a title follows from the flat sequence.
+- A short hint in the "Headings" section explains the difference: headings group products on the order screens, and categories send orders to a location.
+- Delete of a heading is not in the Manage screens. A heading without products shows nowhere.
 
-The owner accepted this tension: finer categories such as "Beers" and "Wines" split orders into more parts for events that use the split option.
-A separate grouping concept is a possible later project. Nothing in this design must block it.
+### Headings and categories in the import
+
+- The import sheet gets two more column types: "Category" and "Heading". The import never guesses these two types.
+- Below the sheet, next to "Category for all products", there is "Heading for all products", with "Create new heading".
+- A row with a value in a "Category" or "Heading" column uses that value. A row with an empty cell uses the selection for all products.
+- A name in such a column is compared with the existing categories or headings of the event. Letter case and outer spaces do not count.
+  If the names are equal, the row uses the existing one.
+  If no match exists, "Add" creates the category or heading at once, and then adds the rows.
+  If a create request fails, the dialog stays open, shows the error, and adds no rows.
+- A copy from a different event also fills the sheet with the category name and the heading name of each product.
+  A column that is empty for all products is left out. New headings are created in the heading sequence of the source event.
+
+### Calls made for stage 2
+
+The owner decided: headings are separate from categories, and a copy from a different event brings its categories and headings.
+The owner declined: a pasted heading line that becomes a heading automatically.
+The owner decided on 2026-11-13: the interface calls a category a "Station", because its one job is to decide where an order is prepared.
+
+The designer decided these. The owner can overrule each one.
+
+1. The word in the interface is "Heading". The code uses `heading` too.
+2. Heading names and sequence are saved with the Save button. A new heading is created at once.
+3. Rename is possible in Manage. Delete is not.
+4. "Category" and "Heading" are open as column types for a paste too, not only for a copy.
+5. The server checks that the heading and the category of a product belong to the same event as the product.
+6. Categories get no position.
 
 ## Tests
 
 - PHPUnit feature tests: menu reads return products in `position` order for the Management API, the Device API, and the public menu.
-  The sequence endpoint stores the sequence, rejects IDs of a different event, rejects a user of a different organisation, and rejects a device. A new product goes last. The same for categories in stage 2.
+  The sequence endpoint stores the sequence, rejects IDs of a different event, rejects a user of a different organisation, and rejects a device. A new product goes last. The same for headings in stage 2.
 - Vitest: parser, price reader, column guess, smart split, change tracking, and the grouping function.
 - A manual walk through both stages in the browser before each stage is called complete: paste from a real Excel table, from a Word
   table, and from plain email lines.
@@ -238,10 +283,10 @@ The owner did not decide these. The designer did. The owner can overrule each on
 2. The sequence is saved through one dedicated request, not through one update per row.
 3. Imported rows land in the menu table as unsaved rows. The Save button of the page stores them.
 4. The "Add" button of the import is blocked while marked rows remain, with a "Delete marked rows" shortcut.
-5. No "Category" column type in the import sheet. One category for the full batch.
+5. Stage 1 had no "Category" column type in the import sheet. Stage 2 adds it.
 6. Smart split takes only the price from a plain line. It does not extract a description.
 7. A warning on leaving the page with unsaved changes, and a Reset button.
 8. New categories are still created at once, not at Save.
-9. Category sequence is set in a small section on the menu page.
-10. Products without a category show first on the order screens, without a heading.
+9. Heading sequence is set in a small section on the menu page.
+10. Products without a heading show first on the order screens, without a title.
 11. Two stages, two pull requests.

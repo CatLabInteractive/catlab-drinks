@@ -40,8 +40,14 @@ describe('answersFromEvent', () => {
 		expect(answersFromEvent({})).toEqual({
 			name: '', payment_cards: true, payment_cash: false, payment_vouchers: false,
 			payment_voucher_value: null, online_ordering: null,
-			split_orders_by_categories: false, checkin_url: '',
+			split_orders_by_categories: true, checkin_url: '',
 		});
+	});
+	it('keeps the split option of an existing event as it is stored', () => {
+		expect(answersFromEvent({ id: 5, split_orders_by_categories: false }).split_orders_by_categories).toBe(false);
+		expect(answersFromEvent({ id: 5, split_orders_by_categories: 0 }).split_orders_by_categories).toBe(false);
+		expect(answersFromEvent({ id: 5 }).split_orders_by_categories).toBe(false);
+		expect(answersFromEvent({ id: 5, split_orders_by_categories: 1 }).split_orders_by_categories).toBe(true);
 	});
 	it('derives answers from an existing event', () => {
 		const answers = answersFromEvent({

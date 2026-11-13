@@ -242,7 +242,6 @@ export default {
     'Editing the menu can only be done from the management console.': 'Editing the menu can only be done from the management console.',
     'Here you can only change the availability of products.': 'Here you can only change the availability of products.',
     'Product name': 'Product name',
-    'Category': 'Category',
     'Not selling': 'Not selling',
     'Selling': 'Selling',
 
@@ -315,7 +314,8 @@ export default {
     'Requires NFC topup cards': 'Requires NFC topup cards',
     'Choose how guests order.': 'Choose how guests order.',
     'Advanced settings': 'Advanced settings',
-    'Split orders by product category (bar / kitchen)': 'Split orders by product category (bar / kitchen)',
+    'Split orders per station': 'Split orders per station',
+    'Each station (for example the bar and the kitchen) gets its own order.': 'Each station (for example the bar and the kitchen) gets its own order.',
     'Next': 'Next',
     'Create event': 'Create event',
     'New event: step {step} of 3': 'New event: step {step} of 3',
@@ -327,13 +327,10 @@ export default {
     'Description': 'Description',
     'Price (all taxes included)': 'Price (all taxes included)',
     'VAT / Tax percentage (optional)': 'VAT / Tax percentage (optional)',
-    'Product category': 'Product category',
-    'By defining multiple product categories, you can split your orders between different locations.': 'By defining multiple product categories, you can split your orders between different locations.',
-    'Create new category': 'Create new category',
     'Please enter a name for the product.': 'Please enter a name for the product.',
     'Please enter a price for the product.': 'Please enter a price for the product.',
     'Are you sure you want to remove this menu item?': 'Are you sure you want to remove this menu item?',
-    'Enter the name of the new category:': 'Enter the name of the new category:',
+    'Enter the name of the new station:': 'Enter the name of the new station:',
     'Unsaved changes': 'Unsaved changes',
     'All changes saved': 'All changes saved',
     'Import menu': 'Import menu',
@@ -348,7 +345,7 @@ export default {
     'Type to add a product…': 'Type to add a product…',
     'Paste a table from an email, Word, or Excel into the first cell.': 'Paste a table from an email, Word, or Excel into the first cell.',
     'Ignore': 'Ignore',
-    'Category for all products': 'Category for all products',
+    'Station for all products': 'Station for all products',
     'Delete marked rows': 'Delete marked rows',
     'Add {count} products': 'Add {count} products',
     'Rows without a name or a readable price are marked. Fix or delete them.': 'Rows without a name or a readable price are marked. Fix or delete them.',
@@ -516,9 +513,25 @@ export default {
     'The order token consists of a public part and a secret part, separated by a dash. The public part identifies the event in the order page URL. The secret part is used by integrating applications, such as QuizWitz, to sign order parameters (card and name) with HMAC-SHA256.': 'The order token consists of a public part and a secret part, separated by a dash. The public part identifies the event in the order page URL. The secret part is used by integrating applications, such as QuizWitz, to sign order parameters (card and name) with HMAC-SHA256.',
     'Only share the full token with trusted integrations.': 'Only share the full token with trusted integrations.',
 
-    // Manage - Categories (additions)
-    'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.': 'By defining multiple product categories, you can split your orders between different locations. Categories should be broad: ie \'Food\' for kitchen and \'Drinks\' for bar.',
-    '+ Create new category': '+ Create new category',
+    // Manage - Stations (additions)
+    '+ Create new station': '+ Create new station',
+
+    // Manage - Menu headings
+    'Heading': 'Heading',
+    'Headings': 'Headings',
+    '+ Create new heading': '+ Create new heading',
+    'Enter the name of the new heading:': 'Enter the name of the new heading:',
+    'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.': 'Headings group products on the order screens. Stations send orders to a location, for example the bar or the kitchen.',
+    'No headings yet. Create one in the "Heading" column of a product.': 'No headings yet. Create one in the "Heading" column of a product.',
+    'Station': 'Station',
+    'Heading for all products': 'Heading for all products',
+    'Add also creates 1 station: {names}': 'Add also creates 1 station: {names}',
+    'Add also creates {count} stations: {names}': 'Add also creates {count} stations: {names}',
+    'Add also creates 1 heading: {names}': 'Add also creates 1 heading: {names}',
+    'Add also creates {count} headings: {names}': 'Add also creates {count} headings: {names}',
+    'A product needs a name and a valid price.': 'A product needs a name and a valid price.',
+    'The VAT % of a product is not a number.': 'The VAT % of a product is not a number.',
+    'A heading needs a name.': 'A heading needs a name.',
 
     // Manage - Public Keys
     'Public Keys': 'Public Keys',
@@ -580,14 +593,14 @@ export default {
     'or': 'or',
 
     // Remote orders (additions)
-    '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.': '{count} order(s) cannot be processed because no online POS accepts their category. At least one POS must change its filter to handle these orders.',
+    '{count} order(s) cannot be processed because no online POS accepts their station. At least one POS must change its filter to handle these orders.': '{count} order(s) cannot be processed because no online POS accepts their station. At least one POS must change its filter to handle these orders.',
     'Only show assigned orders': 'Only show assigned orders',
     'Round robin': 'Round robin',
     'Round robin is active': 'Round robin is active',
     'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.': 'Remote orders are split between {count} POS terminals. This terminal only shows the orders assigned to it.',
     'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.': 'Showing all orders, including orders assigned to the other {others} POS terminal(s). Check with them before handling their orders.',
     'On my way!': 'On my way!',
-    'Failed to save category filter. Reverting to previous value.': 'Failed to save category filter. Reverting to previous value.',
+    'Failed to save station filter. Reverting to previous value.': 'Failed to save station filter. Reverting to previous value.',
 
     // Attendees (additions)
     'Email': 'Email',

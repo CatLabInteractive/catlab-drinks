@@ -50,6 +50,7 @@ export function newRow(values = {}) {
 		price: '',
 		vat_percentage: '',
 		category_id: null,
+		heading_id: null,
 		is_selling: true,
 		deleted: false,
 		...values,
@@ -64,6 +65,7 @@ export function rowFromItem(item) {
 		price: item.price === null || item.price === undefined ? '' : Number(item.price).toFixed(2),
 		vat_percentage: formatNumber(item.vat_percentage),
 		category_id: item.category ? item.category.id : null,
+		heading_id: item.heading ? item.heading.id : null,
 		is_selling: !!item.is_selling,
 	});
 }
@@ -72,13 +74,14 @@ export function rowsFromItems(items) {
 	return items.map(rowFromItem);
 }
 
-export function rowFromImport(importRow, categoryId) {
+export function rowFromImport(importRow, categoryId, headingId = null) {
 	return newRow({
 		name: importRow.name,
 		description: importRow.description || '',
 		price: importRow.price === null || importRow.price === undefined ? '' : importRow.price.toFixed(2),
 		vat_percentage: formatNumber(importRow.vat_percentage),
 		category_id: categoryId,
+		heading_id: headingId,
 	});
 }
 
@@ -121,6 +124,7 @@ function normalizedRow(row) {
 		vat_percentage: parseNumber(row.vat_percentage),
 		is_selling: !!row.is_selling,
 		category_id: row.category_id === undefined ? null : row.category_id,
+		heading_id: row.heading_id === undefined ? null : row.heading_id,
 	};
 }
 
@@ -132,6 +136,7 @@ function normalizedItem(item) {
 		vat_percentage: parseNumber(item.vat_percentage),
 		is_selling: !!item.is_selling,
 		category_id: item.category ? item.category.id : null,
+		heading_id: item.heading ? item.heading.id : null,
 	};
 }
 
@@ -146,7 +151,7 @@ function categoryValue(categoryId) {
 function changesFor(original, row) {
 	const before = normalizedItem(original);
 	const after = normalizedRow(row);
-	const changed = ['description', 'vat_percentage', 'is_selling', 'category_id']
+	const changed = ['description', 'vat_percentage', 'is_selling', 'category_id', 'heading_id']
 		.filter(field => before[field] !== after[field]);
 	const changedName = before.name !== after.name;
 	const changedPrice = before.price !== after.price;
@@ -155,8 +160,13 @@ function changesFor(original, row) {
 	}
 	const changes = { name: after.name, price: after.price };
 	changed.forEach(field => {
-		changes[field === 'category_id' ? 'category' : field] =
-			field === 'category_id' ? categoryValue(after[field]) : after[field];
+		if (field === 'category_id') {
+			changes.category = categoryValue(after[field]);
+		} else if (field === 'heading_id') {
+			changes.heading = categoryValue(after[field]);
+		} else {
+			changes[field] = after[field];
+		}
 	});
 	return changes;
 }
@@ -165,7 +175,7 @@ function changesFor(original, row) {
  * Indexes of the longest strictly increasing run in a list of ranks. When
  * several runs are equally long, the one that ends first wins.
  */
-function longestIncreasingRun(ranks) {
+export function longestIncreasingRun(ranks) {
 	const length = [];
 	const previous = [];
 	let best = -1;
@@ -288,6 +298,7 @@ export function buildSavePlan(originals, rows) {
 					vat_percentage: values.vat_percentage,
 					is_selling: values.is_selling,
 					category: categoryValue(values.category_id),
+					heading: categoryValue(values.heading_id),
 				},
 			});
 			sequenceKeys.push(row.key);
