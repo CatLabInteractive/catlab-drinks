@@ -184,7 +184,7 @@
 			</tbody>
 		</table>
 
-		<menu-import-modal ref="importModal" :categories="categories" :other-events="otherEvents" @import="appendRows" />
+		<menu-import-modal ref="importModal" :categories="categories" :other-events="otherEvents" :create-category="createCategory" @import="appendRows" />
 
 	</b-container>
 
@@ -482,6 +482,22 @@
 				return classes;
 			},
 
+			/**
+			 * Creates a category at once (not at Save) and adds it to the list.
+			 * Used by the menu table and by the import dialog. Rejects if the
+			 * request fails.
+			 */
+			async createCategory(name) {
+				this.creatingCategory = true;
+				try {
+					const category = await this.categoriesService.create({name: name});
+					this.categories.push(category);
+					return category;
+				} finally {
+					this.creatingCategory = false;
+				}
+			},
+
 			async changeCategory(event, row) {
 				const value = event.target.value;
 
@@ -493,19 +509,15 @@
 						return;
 					}
 
-					this.creatingCategory = true;
 					let category;
 					try {
-						category = await this.categoriesService.create({name: name});
+						category = await this.createCategory(name);
 					} catch (error) {
 						event.target.value = row.category_id === null ? '' : String(row.category_id);
 						this.errorMessage = getApiErrorMessage(error) || error.message;
 						return;
-					} finally {
-						this.creatingCategory = false;
 					}
 
-					this.categories.push(category);
 					row.category_id = category.id;
 					event.target.value = String(category.id);
 				} else if (value) {

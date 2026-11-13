@@ -99,12 +99,20 @@
 		<template #modal-footer>
 			<div class="d-flex align-items-center w-100">
 				<label class="mb-0 mr-2" for="menu-import-category">{{ $t('Category for all products') }}</label>
-				<select id="menu-import-category" class="form-control form-control-sm menu-import-category" v-model="categoryId">
+				<select
+					id="menu-import-category"
+					class="form-control form-control-sm menu-import-category"
+					v-model="categoryId"
+					:disabled="creatingCategory"
+					@change="onCategoryChange"
+				>
 					<option :value="null"></option>
 					<option v-for="category in categories" :key="category.id" :value="category.id">
 						{{ category.name }}
 					</option>
+					<option v-if="createCategory" :value="NEW_CATEGORY">{{ $t('+ Create new category') }}</option>
 				</select>
+				<small class="text-danger ml-2 menu-import-category-message" v-if="categoryMessage">{{ categoryMessage }}</small>
 
 				<div class="ml-auto">
 					<b-button v-if="hasErrors" variant="outline-danger" @click="deleteMarkedRows">
@@ -115,7 +123,7 @@
 						{{ $t('Cancel') }}
 					</b-button>
 
-					<b-button variant="primary" class="ml-2" :disabled="!importable || copying" @click="submit">
+					<b-button variant="primary" class="ml-2" :disabled="!importable || copying || creatingCategory" @click="submit">
 						{{ $t('Add {count} products', { count: importRows.length }) }}
 					</b-button>
 				</div>
@@ -158,6 +166,9 @@
 		return new Array(width).fill('');
 	}
 
+	// Value of the selector option that creates a category. No category has this ID.
+	const NEW_CATEGORY = 'new';
+
 	export default {
 		props: {
 			categories: {
@@ -172,6 +183,16 @@
 			otherEvents: {
 				type: Array,
 				default: () => []
+			},
+
+			/**
+			 * Creates a category on the server and returns it: (name) => Promise<{ id, name }>.
+			 * The parent adds it to `categories`. Without this function, the
+			 * selector offers existing categories only.
+			 */
+			createCategory: {
+				type: Function,
+				default: null
 			}
 		},
 
@@ -182,6 +203,11 @@
 				cells: [emptyRow(2)],
 				types: ['name', 'price'],
 				categoryId: null,
+				// The category that was selected before the user chose "create new".
+				previousCategoryId: null,
+				creatingCategory: false,
+				categoryMessage: null,
+				NEW_CATEGORY: NEW_CATEGORY,
 				closeWithoutQuestion: false,
 				copyEventId: '',
 				copyMessage: null,
@@ -240,9 +266,56 @@
 				this.cells = [emptyRow(2)];
 				this.types = ['name', 'price'];
 				this.categoryId = null;
+				this.previousCategoryId = null;
+				this.creatingCategory = false;
+				this.categoryMessage = null;
 				this.closeWithoutQuestion = false;
 				this.resetCopy();
 				this.$refs.modal.show();
+			},
+
+			/**
+			 * "Create new category" asks for a name and creates the category
+			 * at once, as the menu table does. On cancel or failure, the
+			 * selector goes back to the category that was selected before.
+			 */
+			async onCategoryChange(event) {
+				const select = event.target;
+				this.categoryMessage = null;
+
+				if (this.categoryId !== NEW_CATEGORY) {
+					this.previousCategoryId = this.categoryId;
+					return;
+				}
+
+				const name = prompt(this.$t('Enter the name of the new category:'));
+				if (!name || !name.trim()) {
+					this.restoreCategory(select);
+					return;
+				}
+
+				this.creatingCategory = true;
+				try {
+					const category = await this.createCategory(name.trim());
+					this.categoryId = category.id;
+					this.previousCategoryId = category.id;
+				} catch (error) {
+					this.restoreCategory(select);
+					this.categoryMessage = getApiErrorMessage(error) || error.message;
+				} finally {
+					this.creatingCategory = false;
+				}
+			},
+
+			/**
+			 * Selects the previous category again. The bound value can be the
+			 * same before and after (no render in between), so Vue does not
+			 * always update the element. Set the element too.
+			 */
+			restoreCategory(select) {
+				this.categoryId = this.previousCategoryId;
+				const index = this.categories.findIndex(category => category.id === this.previousCategoryId);
+				select.selectedIndex = index + 1;
 			},
 
 			hide() {
@@ -325,7 +398,7 @@
 			},
 
 			submit() {
-				if (!this.importable || this.copying) {
+				if (!this.importable || this.copying || this.creatingCategory || this.categoryId === NEW_CATEGORY) {
 					return;
 				}
 				this.$emit('import', this.importRows.map(row => rowFromImport(row, this.categoryId)));

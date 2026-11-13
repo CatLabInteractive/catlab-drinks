@@ -130,6 +130,7 @@ The menu page has an "Import menu" button. It opens a dialog with an empty sheet
 4. The import guesses the type of each column. The user can change each guess.
 5. The user can edit cells and delete rows in the sheet.
 6. Below the sheet, the user can select one category for all rows. The default is no category.
+   The selector also offers "Create new category". It asks for a name and creates the category at once, as the menu table does.
 7. The user presses "Add N products".
 
 Rules:
