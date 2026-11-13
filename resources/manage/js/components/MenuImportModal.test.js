@@ -21,15 +21,14 @@
 
 /**
  * Tests for the logic of the import dialog. Vitest does not compile SFCs
- * here, so the test loads the <script> block of the component and runs its
- * data, computed values and methods on a plain object. The template and
+ * here: the `vue-script-only` plugin in vitest.config.js makes an import of a
+ * .vue file give the options of its <script> block. The test runs its data,
+ * computed values and methods on a plain object. The template and
  * Bootstrap-Vue are not involved.
  */
 
-import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
-import { readFileSync, writeFileSync, unlinkSync } from 'fs';
-import { resolve } from 'path';
-import { parse } from '@vue/compiler-sfc';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import component from './MenuImportModal.vue';
 
 const menuIndex = vi.fn();
 
@@ -44,26 +43,6 @@ vi.mock('../../../shared/js/services/MenuService', () => ({
 		}
 	}
 }));
-
-const COMPONENT = resolve(__dirname, 'MenuImportModal.vue');
-
-let component;
-
-/**
- * Writes the script block to a temporary module next to the component (so
- * that its relative imports resolve, and the MenuService mock applies),
- * imports it, and removes the file again.
- */
-async function loadComponent() {
-	const { descriptor } = parse(readFileSync(COMPONENT, 'utf-8'));
-	const file = resolve(__dirname, `.MenuImportModal.script-${process.pid}-${Date.now()}.js`);
-	writeFileSync(file, descriptor.script.content);
-	try {
-		return (await import(/* @vite-ignore */ file)).default;
-	} finally {
-		unlinkSync(file);
-	}
-}
 
 function deferred() {
 	let resolveFn, rejectFn;
@@ -144,10 +123,6 @@ function emittedRows(vm) {
 	expect(vm.$emit.mock.calls[0][0]).toBe('import');
 	return vm.$emit.mock.calls[0][1];
 }
-
-beforeAll(async () => {
-	component = await loadComponent();
-});
 
 beforeEach(() => {
 	menuIndex.mockReset();
@@ -287,6 +262,25 @@ describe('MenuImportModal Add', () => {
 		expect(vm.adding).toBe(false);
 		expect(emittedRows(vm)[0].heading_id).toBe(3);
 		expect(vm.hiddenCount).toBe(1);
+	});
+
+	it('prevents a close through the header X or Cancel while the requests run', async () => {
+		const vm = makeVm();
+		const request = deferred();
+		vm.createHeading = vi.fn(() => request.promise);
+		sheet(vm, [['Pils', '2,50', 'Bieren']], ['name', 'price', 'heading']);
+
+		const done = vm.submit();
+		expect(vm.adding).toBe(true);
+		const preventDefault = vi.fn();
+		vm.onHide({ trigger: 'headerclose', preventDefault });
+		expect(preventDefault).toHaveBeenCalledTimes(1);
+		expect(confirm).not.toHaveBeenCalled();
+
+		const entry = { id: 3, name: 'Bieren' };
+		vm.headings.push(entry);
+		request.resolve(entry);
+		await done;
 	});
 
 	it('stops at a failed create, shows the message and adds nothing; a second Add creates only the rest', async () => {
@@ -432,6 +426,38 @@ describe('MenuImportModal copy from a different event', () => {
 		await vm.submit();
 
 		expect(vm.createHeading.mock.calls.map(call => call[0])).toEqual(['Frisdrank', 'Bieren']);
+	});
+
+	it('forgets the heading sequence of the source when the dialog is opened again', async () => {
+		menuIndex.mockResolvedValue({ items: sourceItems });
+		const vm = makeVm();
+		creators(vm);
+		await vm.copyFromEvent({ value: '9' });
+		vm.hide();
+
+		vm.show();
+		sheet(vm, [['Pils', '2,50', 'Bieren'], ['Cola', '2,00', 'Frisdrank']], ['name', 'price', 'heading']);
+		await vm.submit();
+
+		expect(vm.createHeading.mock.calls.map(call => call[0])).toEqual(['Bieren', 'Frisdrank']);
+	});
+
+	it('forgets the heading sequence of an earlier copy when a copy finds no products', async () => {
+		menuIndex.mockResolvedValue({ items: sourceItems });
+		const vm = makeVm();
+		creators(vm);
+		await vm.copyFromEvent({ value: '9' });
+
+		vm.cells = [['', '']];
+		vm.types = ['name', 'price'];
+		menuIndex.mockResolvedValue({ items: [] });
+		await vm.copyFromEvent({ value: '10' });
+		expect(vm.copyMessage).toBe('This event has no products.');
+
+		sheet(vm, [['Pils', '2,50', 'Bieren'], ['Cola', '2,00', 'Frisdrank']], ['name', 'price', 'heading']);
+		await vm.submit();
+
+		expect(vm.createHeading.mock.calls.map(call => call[0])).toEqual(['Bieren', 'Frisdrank']);
 	});
 });
 

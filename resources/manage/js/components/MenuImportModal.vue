@@ -371,6 +371,7 @@
 				this.previousHeadingId = null;
 				this.creatingHeading = false;
 				this.headingMessage = null;
+				this.copiedHeadingOrder = [];
 				this.resetAdd();
 				this.closeWithoutQuestion = false;
 				this.resetCopy();
@@ -505,6 +506,8 @@
 
 				this.copying = false;
 				if (menu.items.length === 0) {
+					// The sheet keeps its content, but no longer comes from an earlier copy.
+					this.copiedHeadingOrder = [];
 					this.copyMessage = this.$t('This event has no products.');
 					return;
 				}
