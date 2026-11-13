@@ -11,7 +11,9 @@ module.exports = {
 				strict: true,
 				esModuleInterop: true,
 				lib: ['dom', 'es2015'],
-				skipLibCheck: true
+				skipLibCheck: true,
+				// TypeScript 6 no longer loads every @types package by itself
+				types: ['jest', 'node']
 			}
 		}]
 	},
