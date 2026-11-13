@@ -25,6 +25,7 @@ To stop the simulator, press Ctrl+C.
 ## HTTP interface
 
 Every answer is JSON and has the header `Access-Control-Allow-Origin: *`.
+If a browser sends a preflight request, the simulator answers any `OPTIONS` request with 204.
 A card UID has 8 to 20 hexadecimal characters.
 
 | Request | Action | Answer |

@@ -186,6 +186,15 @@ describe('nfc simulator http interface', () => {
 		expect((await fetch(base + '/cards')).status).toBe(200);
 	});
 
+	test('an OPTIONS preflight gives 204 with the CORS headers', async () => {
+		await start();
+		const res = await fetch(base + '/cards/aaaaaaaa', { method: 'OPTIONS' });
+		expect(res.status).toBe(204);
+		expect(res.headers.get('access-control-allow-origin')).toBe('*');
+		expect(res.headers.get('access-control-allow-methods')).toBe('GET, POST, DELETE, OPTIONS');
+		expect(res.headers.get('access-control-allow-headers')).toBe('*');
+	});
+
 	test('an unknown route gives 404', async () => {
 		await start();
 		expect((await fetch(base + '/nothing')).status).toBe(404);
@@ -221,5 +230,15 @@ describe('nfc simulator edge cases', () => {
 		socket.emit('nfc:password', { uid: 'aaaaaaaa', password: 'x' });
 		await new Promise((r) => setTimeout(r, 100));
 		expect(events).toBe(0);
+	});
+});
+
+describe('nfc simulator authentication', () => {
+	test('a write before hello is answered with NotAuthenticated and stores nothing', async () => {
+		await start();
+		sim.tap(uid);
+		const ack = await emitWithAck(socket, 'nfc:write', { uid, ndef: 'AQID' });
+		expect(ack).toEqual({ success: false, error: { error: { name: 'NotAuthenticated' } } });
+		expect(sim.state().cards).toEqual([{ uid, ndef: null }]);
 	});
 });

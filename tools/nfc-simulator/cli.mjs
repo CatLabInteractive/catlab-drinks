@@ -5,7 +5,13 @@ const host = process.env.NFC_SIM_HOST || '127.0.0.1';
 const password = process.env.NFC_SIM_PASSWORD || '';
 
 const simulator = createSimulator({ password });
-const actualPort = await simulator.listen(port, host);
+let actualPort;
+try {
+	actualPort = await simulator.listen(port, host);
+} catch (error) {
+	console.error(`Cannot listen on ${host}:${port}: ${error.message}`);
+	process.exit(1);
+}
 
 console.log(`NFC simulator listening on http://${host}:${actualPort}`);
 console.log(`Tap a card: curl -X POST http://${host}:${actualPort}/cards/04a1b2c3d4e5f6/tap`);

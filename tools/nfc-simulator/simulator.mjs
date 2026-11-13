@@ -31,7 +31,14 @@ export function createSimulator(options = {}) {
 		const method = request.method;
 		const tapMatch = path.match(/^\/cards\/([^/]+)\/tap$/);
 		const cardMatch = path.match(/^\/cards\/([^/]+)$/);
-		if (method === 'GET' && path === '/cards') {
+		if (method === 'OPTIONS') {
+			response.writeHead(204, {
+				'Access-Control-Allow-Origin': '*',
+				'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+				'Access-Control-Allow-Headers': '*',
+			});
+			response.end();
+		} else if (method === 'GET' && path === '/cards') {
 			send(response, 200, api.state());
 		} else if (method === 'POST' && tapMatch) {
 			api.tap(decodeURIComponent(tapMatch[1]));
@@ -89,6 +96,7 @@ export function createSimulator(options = {}) {
 
 		socket.on('nfc:write', (payload, callback) => {
 			if (!socket.rooms.has(READERS)) {
+				acknowledge(callback, { success: false, error: { error: { name: 'NotAuthenticated' } } });
 				return;
 			}
 			if (current === null || payload?.uid !== current) {
