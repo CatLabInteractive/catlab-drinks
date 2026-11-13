@@ -34,6 +34,16 @@ return new class extends Migration
 	 */
 	public function down()
 	{
+		// MySQL dropped the implicit index of the event_id foreign key when the
+		// composite index took over that role. Restore it first, otherwise the
+		// composite index cannot be dropped (error 1553). After an earlier
+		// rollback the index is explicit and still there.
+		if (!Schema::hasIndex('menu_items', 'menu_items_event_id_foreign')) {
+			Schema::table('menu_items', function (Blueprint $table) {
+				$table->index('event_id', 'menu_items_event_id_foreign');
+			});
+		}
+
 		Schema::table('menu_items', function (Blueprint $table) {
 			$table->dropIndex(['event_id', 'position']);
 			$table->dropColumn('position');
