@@ -73,6 +73,11 @@
 
 		<router-view></router-view>
 
+		<footer v-if="telemetryNotice" class="container text-center text-muted small py-3">
+			{{ telemetryNotice }}
+			<a href="https://github.com/CatLabInteractive/catlab-drinks#usage-and-error-reporting" target="_blank" rel="noopener">{{ $t('What is sent and how to turn it off') }}</a>
+		</footer>
+
 	</div>
 
 </template>
@@ -93,12 +98,26 @@
 			return {
 				kioskMode: false,
 				testMode: !!window.ORGANISATION_TEST_MODE,
+				telemetry: (window.CATLAB_DRINKS_CONFIG || {}).TELEMETRY || {},
 				organisations: window.ORGANISATIONS || [],
 				currentOrganisationId: window.ORGANISATION_ID
 			}
 		},
 
 		computed: {
+			telemetryNotice() {
+				if (this.telemetry.usage && this.telemetry.errors) {
+					return this.$t('This instance sends anonymous usage statistics and error reports to CatLab.');
+				}
+				if (this.telemetry.usage) {
+					return this.$t('This instance sends anonymous usage statistics to CatLab.');
+				}
+				if (this.telemetry.errors) {
+					return this.$t('This instance sends error reports to CatLab.');
+				}
+				return '';
+			},
+
 			currentOrganisationName() {
 				const current = this.organisations.find(
 					(organisation) => organisation.id === this.currentOrganisationId
