@@ -26,11 +26,11 @@
 		<h2>{{ $t('Menu') }}</h2>
 
 		<div class="menu-toolbar d-flex align-items-center mb-2">
-			<b-button variant="success" @click="save" :disabled="saving || !loaded || !dirty">
+			<b-button variant="success" @click="save" :disabled="saving || creatingCategory || !loaded || !dirty">
 				{{ $t('Save changes') }}
 			</b-button>
 
-			<b-button variant="light" class="ml-2" @click="reset" :disabled="saving || !loaded">
+			<b-button variant="light" class="ml-2" @click="reset" :disabled="saving || loading">
 				{{ $t('Reset') }}
 			</b-button>
 
@@ -45,7 +45,7 @@
 			{{ errorMessage }}
 		</b-alert>
 
-		<div class="text-center" v-if="!loaded">
+		<div class="text-center" v-if="loading">
 			<b-spinner :label="$t('Loading data')" />
 		</div>
 
@@ -280,8 +280,10 @@
 		data() {
 			return {
 				loaded: false,
+				loading: false,
 				eventId: null,
 				saving: false,
+				creatingCategory: false,
 				showErrors: false,
 				errorMessage: null,
 				originals: [],
@@ -342,10 +344,24 @@
 			async refresh() {
 
 				const eventId = this.eventId;
-				const [menu, categories] = await Promise.all([
-					this.service.index(),
-					this.categoriesService.index()
-				]);
+				// The table is not editable while it reloads.
+				this.loaded = false;
+				this.loading = true;
+
+				let menu, categories;
+				try {
+					[menu, categories] = await Promise.all([
+						this.service.index(),
+						this.categoriesService.index()
+					]);
+				} catch (error) {
+					if (eventId === this.eventId) {
+						// Reset stays available to try again.
+						this.loading = false;
+						this.errorMessage = getApiErrorMessage(error) || error.message;
+					}
+					return;
+				}
 
 				// The user switched to a different event in the meantime.
 				if (eventId !== this.eventId) {
@@ -355,6 +371,7 @@
 				this.originals = menu.items;
 				this.categories = categories.items;
 				this.rows = withTrailingBlank(rowsFromItems(this.originals));
+				this.loading = false;
 				this.loaded = true;
 
 			},
@@ -369,7 +386,15 @@
 				this.saving = true;
 				this.errorMessage = null;
 
+				const eventId = this.eventId;
 				const result = await runSave(this.service, this.originals, this.rows);
+
+				// The user switched to a different event in the meantime.
+				if (eventId !== this.eventId) {
+					this.saving = false;
+					return;
+				}
+
 				this.originals = result.originals;
 				this.rows = withTrailingBlank(result.rows);
 				this.saving = false;
@@ -444,7 +469,18 @@
 						return;
 					}
 
-					const category = await this.categoriesService.create({name: name});
+					this.creatingCategory = true;
+					let category;
+					try {
+						category = await this.categoriesService.create({name: name});
+					} catch (error) {
+						event.target.value = row.category_id === null ? '' : String(row.category_id);
+						this.errorMessage = getApiErrorMessage(error) || error.message;
+						return;
+					} finally {
+						this.creatingCategory = false;
+					}
+
 					this.categories.push(category);
 					row.category_id = category.id;
 					event.target.value = String(category.id);
