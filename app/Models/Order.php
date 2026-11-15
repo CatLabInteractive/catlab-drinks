@@ -24,6 +24,7 @@ namespace App\Models;
 
 use CatLab\Charon\Laravel\Database\Model;
 use DB;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Ramsey\Uuid\Uuid;
 
@@ -233,6 +234,10 @@ class Order extends Model
             if (!isset($categories[$categoryId])) {
                 $order = $this->replicate();
                 $order->uid = Uuid::uuid1(); // Must have a unique uid
+
+                // replicate() copies the relations by reference, so without this the new order
+                // would share (and add to) the item collection of the original order.
+                $order->setRelation('order', new Collection());
 
                 $categories[$categoryId] = $order;
             }
