@@ -185,7 +185,7 @@
 			}
 		},
 
-		beforeDestroy() {
+		beforeUnmount() {
 			if (this.interval) {
 				clearInterval(this.interval);
 			}

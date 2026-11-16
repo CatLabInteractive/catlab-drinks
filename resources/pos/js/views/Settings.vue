@@ -257,7 +257,7 @@
 			this.loaded = true;
 		},
 
-		beforeDestroy() {
+		beforeUnmount() {
 			if (this._offlineListener) {
 				this._offlineListener.unbind();
 			}

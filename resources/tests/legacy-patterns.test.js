@@ -40,4 +40,9 @@ describe('Vue 2 patterns that pull request 1 removed', () => {
 			expect(read(file)).toContain('Object.assign(app.config.globalProperties, services)');
 		}
 	});
+
+	it('no component uses the beforeDestroy or destroyed hook', () => {
+		const hits = sourceFiles().filter((f) => /\b(beforeDestroy|destroyed)\s*\(/.test(read(f)));
+		expect(hits).toEqual([]);
+	});
 });

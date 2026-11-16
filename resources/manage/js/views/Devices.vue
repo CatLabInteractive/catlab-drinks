@@ -266,7 +266,7 @@
 
 		},
 
-		beforeDestroy() {
+		beforeUnmount() {
 			if (this.statusPinger) {
 				clearInterval(this.statusPinger);
 			}
