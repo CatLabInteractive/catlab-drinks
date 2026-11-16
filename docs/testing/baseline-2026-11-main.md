@@ -19,13 +19,38 @@ Later pull requests run the same list and compare their result with this file.
 
 | Mode | Items | Pass | Fail | Not conclusive | Not run |
 |------|-------|------|------|----------------|---------|
-| `auto` | 104 | 79 | 25 | 0 | 0 |
+| `auto` | 107 | 82 | 25 | 0 | 0 |
+| `between-items` | 1 | 1 | 0 | 0 | 0 |
 | `manual` | 19 | 9 | 2 | 2 | 6 |
 
 - The `auto` results come from one script run on a new database. That run used the script of fix round 1. It has stricter checks and two new POS items.
+- The final fix wave added three `auto` items (`manage-devices-polling-stops`, `manage-sales-history-polling-stops`, `pos-hq-polling-stops`) and the pseudo-item `between-items`. See "Report for the comparison" below.
 - I did the `manual` items with ad-hoc Playwright steps on the same stack after the script run. Their screenshots are not in the repository.
 - An item that shows "not run" was not done. The notes below tell why.
 - "Not conclusive" means that the step ran but did not show the expected result for a reason outside the item.
+
+## Report for the comparison
+
+The raw report of a run is in `docs/testing/baseline-2026-11-main.report.json`. Use it with `node tools/walkthrough/compare.mjs`.
+
+| Item | Value |
+|------|-------|
+| Commit | The head of `feature/interface-migration-prepare`: `0323e68` with the changes of the final fix wave, which the commit that adds this file holds. The application code on this branch behaves as `main` (`e917bc4`). The fix wave changes only the tooling, the documents, and three test names. |
+| Date | 2026-11-16 |
+| Build | Production build (`npm run prod`) in the checkout |
+| Stack and script | As in the table "Run" above, with the `compose.override.yml` and the script of the final fix wave |
+| Result | 108 entries: 107 `auto` items and `between-items`. 83 pass, 25 fail. |
+
+The 104 earlier items have the same status as in the table "Result of each item". The three new items and `between-items` pass.
+A second run on a new database gave 0 differences with `compare.mjs`.
+
+A production build shows other names in some messages than the development build of the table "Run":
+
+| Development build | Production build |
+|-------------------|------------------|
+| `assign is not a function` | `i is not a function` |
+| `el[assignKey] is not a function` | `e[Lu] is not a function` |
+| `InsufficientFundsException: Insufficient funds.` | `t: Insufficient funds.` |
 
 ## Causes of failures
 
@@ -143,6 +168,7 @@ The items are in the sequence of the list.
 | `manage-summary-names` | auto | pass |  |
 | `manage-summary-detail-modal` | auto | pass |  |
 | `manage-sales-history` | auto | pass |  |
+| `manage-sales-history-polling-stops` | auto | pass |  |
 | `manage-transactions` | auto | fail | `P2` |
 | `manage-card-details-topup` | auto | pass |  |
 | `manage-financial-overview` | auto | pass |  |
@@ -154,6 +180,7 @@ The items are in the sequence of the list.
 | `manage-settings-gateway-edit-delete` | auto | pass |  |
 | `manage-devices-list` | auto | pass |  |
 | `manage-devices-pair-cancel` | auto | pass |  |
+| `manage-devices-polling-stops` | auto | pass |  |
 | `manage-devices-pair` | auto | pass |  |
 | `manage-devices-open-pos-button` | manual | pass (ad hoc) | `M1` |
 | `manage-devices-approve-key` | auto | pass |  |
@@ -173,6 +200,7 @@ The items are in the sequence of the list.
 | `pos-events` | auto | pass |  |
 | `pos-menu` | auto | pass |  |
 | `pos-hq` | auto | pass |  |
+| `pos-hq-polling-stops` | auto | pass |  |
 | `pos-sale-cash` | auto | pass |  |
 | `pos-sale-vouchers` | auto | fail | `P2` |
 | `pos-sale-cancel-payment` | auto | fail | `P2` |
@@ -217,3 +245,4 @@ The items are in the sequence of the list.
 | `client-language-toggle` | auto | pass |  |
 | `client-order-signed-url` | manual | not run | `N8` |
 | `client-order-closed-event` | manual | pass (ad hoc) | `M3` |
+| `between-items` | auto | pass |  |
