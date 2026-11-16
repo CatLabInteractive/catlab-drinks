@@ -24,7 +24,7 @@ export default defineConfig({
 	plugins: [vueScriptOnly],
 	test: {
 		environment: 'jsdom',
-		include: ['resources/**/*.test.js'],
+		include: ['resources/**/*.test.js', 'tools/**/*.test.js'],
 	},
 	resolve: {
 		alias: {
