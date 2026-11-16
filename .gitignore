@@ -19,3 +19,4 @@ _ide_helper.php
 .idea
 .phpstorm.meta.php
 .superpowers/
+/tools/walkthrough/output/

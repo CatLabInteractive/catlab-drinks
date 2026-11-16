@@ -1,0 +1,15 @@
+# Compose override for the frontend walk-through.
+# Use it only with its own project name, so that it gets its own MySQL volume:
+#   docker compose -p catlab-drinks-walk -f docker-compose.yml -f tools/walkthrough/compose.override.yml up -d --no-build webserver
+services:
+  webserver:
+    container_name: catlab-drinks-walk
+    ports: !override
+      - "127.0.0.1:8098:80"
+  mysql-db:
+    ports: !override []
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 10.213.98.0/24
