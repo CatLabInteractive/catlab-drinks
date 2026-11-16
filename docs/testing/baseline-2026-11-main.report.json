@@ -1,0 +1,727 @@
+[
+  {
+    "id": "blade-setup",
+    "status": "fail",
+    "consoleErrors": [
+      "[manage] Failed to load resource: the server responded with a status of 404 (Not Found) (/js/app.js)",
+      "[manage] Refused to execute script from 'http://localhost:8098/js/app.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled. (/setup)"
+    ],
+    "note": ""
+  },
+  {
+    "id": "blade-getting-started",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "blade-register-closed",
+    "status": "fail",
+    "consoleErrors": [
+      "[anon] Failed to load resource: the server responded with a status of 404 (Not Found) (/js/app.js)",
+      "[anon] Refused to execute script from 'http://localhost:8098/js/app.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled. (/register)"
+    ],
+    "note": "expected console error: [anon] Failed to load resource: the server responded with a status of 403 (Forbidden) (/register)"
+  },
+  {
+    "id": "blade-login-wrong-password",
+    "status": "fail",
+    "consoleErrors": [
+      "[anon] Failed to load resource: the server responded with a status of 404 (Not Found) (/js/app.js)",
+      "[anon] Refused to execute script from 'http://localhost:8098/js/app.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled. (/login)",
+      "[anon] Failed to load resource: the server responded with a status of 404 (Not Found) (/js/app.js)",
+      "[anon] Refused to execute script from 'http://localhost:8098/js/app.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled. (/login)"
+    ],
+    "note": ""
+  },
+  {
+    "id": "blade-welcome",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-events-list",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "test mode banner shown: false"
+  },
+  {
+    "id": "manage-events-create",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-events-wizard-back-cancel",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-events-toggle-open",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-events-edit",
+    "status": "fail",
+    "consoleErrors": [
+      "[manage] pageerror: i is not a function",
+      "[manage] pageerror: i is not a function"
+    ],
+    "note": ""
+  },
+  {
+    "id": "manage-events-order-token",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "order url host: localhost:8098"
+  },
+  {
+    "id": "manage-events-actions-links",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "client order form link host (not opened): localhost:8098"
+  },
+  {
+    "id": "manage-language-toggle",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-navbar-settings-dropdown",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-navbar-mobile",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-menu-add-products",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog prompt: Enter the name of the new station: | dialog prompt: Enter the name of the new heading: | dialog prompt: Enter the name of the new station: | dialog prompt: Enter the name of the new heading:"
+  },
+  {
+    "id": "manage-menu-selling-delete-undo",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-menu-reset",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog confirm: Discard all unsaved changes?"
+  },
+  {
+    "id": "manage-menu-leave-unsaved",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog confirm: You have unsaved changes. Leave this page? | dialog confirm: You have unsaved changes. Leave this page?"
+  },
+  {
+    "id": "manage-menu-reorder-drag",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-menu-headings-rename",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-menu-import-paste",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-menu-import-cancel",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog confirm: Discard the pasted menu?"
+  },
+  {
+    "id": "manage-menu-import-copy-event",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-events-delete",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog confirm: Are you sure you want to remove this event?"
+  },
+  {
+    "id": "manage-settings-currency",
+    "status": "fail",
+    "consoleErrors": [
+      "[manage] pageerror: e[Lu] is not a function",
+      "[manage] pageerror: e[Lu] is not a function"
+    ],
+    "note": ""
+  },
+  {
+    "id": "manage-settings-gateway-add",
+    "status": "fail",
+    "consoleErrors": [
+      "[manage] pageerror: e[Lu] is not a function"
+    ],
+    "note": ""
+  },
+  {
+    "id": "manage-settings-gateway-edit-delete",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog confirm: Are you sure you want to remove the Pay.nl payment gateway?"
+  },
+  {
+    "id": "manage-devices-list",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-devices-pair-cancel",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-devices-polling-stops",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "GET requests while on the screen: {\"devices\":2,\"cards (not counted)\":3} | GET requests in the 15 s after leaving: {\"devices\":0,\"cards (not counted)\":2}"
+  },
+  {
+    "id": "manage-sales-history-polling-stops",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "GET requests while on the screen: {\"orders\":2,\"cards (not counted)\":2} | GET requests in the 15 s after leaving: {\"orders\":0,\"cards (not counted)\":2}"
+  },
+  {
+    "id": "manage-public-keys-empty",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-attendees-edit",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-attendees-paste-dialog",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-devices-pair",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "connect URL host in Manage (not opened): drinks.catlab.eu"
+  },
+  {
+    "id": "pos-events",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "pos-language-toggle",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "pos-menu",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "pos-hq",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "pos-hq-polling-stops",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "GET requests while on the screen: {\"remote orders\":2,\"remote order status\":3,\"cards (not counted)\":2} | GET requests in the 15 s after leaving: {\"remote orders\":0,\"remote order status\":0,\"cards (not counted)\":3}"
+  },
+  {
+    "id": "pos-sale-cash",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "pos-sale-vouchers",
+    "status": "fail",
+    "consoleErrors": [
+      "[pos] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) (/pos-api/v1/events/1/orders)",
+      "[pos] pageerror: Request failed with status code 422"
+    ],
+    "note": "dialog alert: Could not decode resource.: Linkable resources may not contain any other attributes. | [pos] POST /pos-api/v1/events/1/orders -> 422 {\"error\":{\"status\":422,\"message\":\"Could not decode resource.\",\"issues\":{\"name\":[\"Linkable resources may not contain any other attributes.\",\"Linkable resources may not contain any other attributes.\"]}} | sent: {\"items\":[{\"location\":\"Manual\",\"status\":\"processed\",\"paid\":true,\"price\":7,\"discount\":0,\"order\":{\"items\":[{\"menuItem\":{\"id\":2,\"name\":\"Walk Cola\"},\"amount\":1,\"price\":2},{\"menuItem\":{\"id\":1,\"name\":\"Walk Beer\"},\"amount\":2,\"price\":2.5}]},\"uid\":\"493c0dd0-e1c7-11f1-8c53-c325e0114b03\",\"payment_type\":\"cash\"} | voucher button: 🎟️ 1 vouchers"
+  },
+  {
+    "id": "pos-sale-cancel-payment",
+    "status": "fail",
+    "consoleErrors": [
+      "[pos] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) (/pos-api/v1/events/1/orders)",
+      "[pos] pageerror: Request failed with status code 422"
+    ],
+    "note": "dialog alert: Could not decode resource.: Linkable resources may not contain any other attributes. | [pos] POST /pos-api/v1/events/1/orders -> 422 {\"error\":{\"status\":422,\"message\":\"Could not decode resource.\",\"issues\":{\"name\":[\"Linkable resources may not contain any other attributes.\",\"Linkable resources may not contain any other attributes.\"]}} | sent: {\"items\":[{\"location\":\"Manual\",\"status\":\"processed\",\"paid\":true,\"price\":7,\"discount\":0,\"order\":{\"items\":[{\"menuItem\":{\"id\":2,\"name\":\"Walk Cola\"},\"amount\":1,\"price\":2},{\"menuItem\":{\"id\":1,\"name\":\"Walk Beer\"},\"amount\":2,\"price\":2.5}]},\"uid\":\"493c0dd0-e1c7-11f1-8c53-c325e0114b03\",\"payment_type\":\"cash\"}"
+  },
+  {
+    "id": "pos-settings-live-remote",
+    "status": "fail",
+    "consoleErrors": [
+      "[pos] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) (/pos-api/v1/events/1/orders)",
+      "[pos] pageerror: Request failed with status code 422"
+    ],
+    "note": "dialog alert: Could not decode resource.: Linkable resources may not contain any other attributes. | [pos] POST /pos-api/v1/events/1/orders -> 422 {\"error\":{\"status\":422,\"message\":\"Could not decode resource.\",\"issues\":{\"name\":[\"Linkable resources may not contain any other attributes.\",\"Linkable resources may not contain any other attributes.\"]}} | sent: {\"items\":[{\"location\":\"Manual\",\"status\":\"processed\",\"paid\":true,\"price\":7,\"discount\":0,\"order\":{\"items\":[{\"menuItem\":{\"id\":2,\"name\":\"Walk Cola\"},\"amount\":1,\"price\":2},{\"menuItem\":{\"id\":1,\"name\":\"Walk Beer\"},\"amount\":2,\"price\":2.5}]},\"uid\":\"493c0dd0-e1c7-11f1-8c53-c325e0114b03\",\"payment_type\":\"cash\"}"
+  },
+  {
+    "id": "pos-settings-sync",
+    "status": "fail",
+    "consoleErrors": [
+      "[pos] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) (/pos-api/v1/events/1/orders)",
+      "[pos] Sync failed: AxiosError: Request failed with status code 422\n    at Xe (http://localhost:8098/res/pos.js:2:901228)\n    at XMLHttpRequest._ (http://localhost:8098/res/pos.js:2:910690)\n    at fn.request (http://localhost:8098/res/pos.js:2:927954) (/res/pos.js)"
+    ],
+    "note": "error: locator.waitFor: Timeout 1000ms exceeded. | dialog alert: Could not decode resource.: Linkable resources may not contain any other attributes. | [pos] POST /pos-api/v1/events/1/orders -> 422 {\"error\":{\"status\":422,\"message\":\"Could not decode resource.\",\"issues\":{\"name\":[\"Linkable resources may not contain any other attributes.\",\"Linkable resources may not contain any other attributes.\"]}} | sent: {\"items\":[{\"location\":\"Manual\",\"status\":\"processed\",\"paid\":true,\"price\":7,\"discount\":0,\"order\":{\"items\":[{\"menuItem\":{\"id\":2,\"name\":\"Walk Cola\"},\"amount\":1,\"price\":2},{\"menuItem\":{\"id\":1,\"name\":\"Walk Beer\"},\"amount\":2,\"price\":2.5}]},\"uid\":\"493c0dd0-e1c7-11f1-8c53-c325e0114b03\",\"payment_type\":\"cash\"}"
+  },
+  {
+    "id": "pos-settings-logout-cancel",
+    "status": "fail",
+    "consoleErrors": [
+      "[pos] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) (/pos-api/v1/events/1/orders)"
+    ],
+    "note": "dialog alert: Could not decode resource.: Linkable resources may not contain any other attributes. | [pos] POST /pos-api/v1/events/1/orders -> 422 {\"error\":{\"status\":422,\"message\":\"Could not decode resource.\",\"issues\":{\"name\":[\"Linkable resources may not contain any other attributes.\",\"Linkable resources may not contain any other attributes.\"]}} | sent: {\"items\":[{\"location\":\"Manual\",\"status\":\"processed\",\"paid\":true,\"price\":7,\"discount\":0,\"order\":{\"items\":[{\"menuItem\":{\"id\":2,\"name\":\"Walk Cola\"},\"amount\":1,\"price\":2},{\"menuItem\":{\"id\":1,\"name\":\"Walk Beer\"},\"amount\":2,\"price\":2.5}]},\"uid\":\"493c0dd0-e1c7-11f1-8c53-c325e0114b03\",\"payment_type\":\"cash\"} | dialog confirm: There are still 3 pending items that have not been uploaded. Logging out may cause data loss. Are you sure you want to logout?"
+  },
+  {
+    "id": "client-order-load",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "client-order-empty",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "client-order-place",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "client-language-toggle",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "pos-remote-orders-accept",
+    "status": "fail",
+    "consoleErrors": [
+      "[pos] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) (/pos-api/v1/events/1/orders)",
+      "[pos] pageerror: Request failed with status code 422"
+    ],
+    "note": "dialog alert: Could not decode resource.: Linkable resources may not contain any other attributes. | [pos] POST /pos-api/v1/events/1/orders -> 422 {\"error\":{\"status\":422,\"message\":\"Could not decode resource.\",\"issues\":{\"name\":[\"Linkable resources may not contain any other attributes.\",\"Linkable resources may not contain any other attributes.\"]}} | sent: {\"items\":[{\"location\":\"Manual\",\"status\":\"processed\",\"paid\":true,\"price\":7,\"discount\":0,\"order\":{\"items\":[{\"menuItem\":{\"id\":2,\"name\":\"Walk Cola\"},\"amount\":1,\"price\":2},{\"menuItem\":{\"id\":1,\"name\":\"Walk Beer\"},\"amount\":2,\"price\":2.5}]},\"uid\":\"493c0dd0-e1c7-11f1-8c53-c325e0114b03\",\"payment_type\":\"cash\"}"
+  },
+  {
+    "id": "client-order-place-second",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "pos-remote-orders-decline",
+    "status": "fail",
+    "consoleErrors": [
+      "[pos] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) (/pos-api/v1/events/1/orders)",
+      "[pos] pageerror: Request failed with status code 422"
+    ],
+    "note": "dialog alert: Could not decode resource.: Linkable resources may not contain any other attributes. | [pos] POST /pos-api/v1/events/1/orders -> 422 {\"error\":{\"status\":422,\"message\":\"Could not decode resource.\",\"issues\":{\"name\":[\"Linkable resources may not contain any other attributes.\",\"Linkable resources may not contain any other attributes.\"]}} | sent: {\"items\":[{\"location\":\"Manual\",\"status\":\"processed\",\"paid\":true,\"price\":7,\"discount\":0,\"order\":{\"items\":[{\"menuItem\":{\"id\":2,\"name\":\"Walk Cola\"},\"amount\":1,\"price\":2},{\"menuItem\":{\"id\":1,\"name\":\"Walk Beer\"},\"amount\":2,\"price\":2.5}]},\"uid\":\"493c0dd0-e1c7-11f1-8c53-c325e0114b03\",\"payment_type\":\"cash\"}"
+  },
+  {
+    "id": "pos-remote-orders-filters",
+    "status": "fail",
+    "consoleErrors": [
+      "[pos] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) (/pos-api/v1/events/1/orders)",
+      "[pos] pageerror: Request failed with status code 422",
+      "[pos] pageerror: i is not a function",
+      "[pos] pageerror: i is not a function"
+    ],
+    "note": "dialog alert: Could not decode resource.: Linkable resources may not contain any other attributes. | [pos] POST /pos-api/v1/events/1/orders -> 422 {\"error\":{\"status\":422,\"message\":\"Could not decode resource.\",\"issues\":{\"name\":[\"Linkable resources may not contain any other attributes.\",\"Linkable resources may not contain any other attributes.\"]}} | sent: {\"items\":[{\"location\":\"Manual\",\"status\":\"processed\",\"paid\":true,\"price\":7,\"discount\":0,\"order\":{\"items\":[{\"menuItem\":{\"id\":2,\"name\":\"Walk Cola\"},\"amount\":1,\"price\":2},{\"menuItem\":{\"id\":1,\"name\":\"Walk Beer\"},\"amount\":2,\"price\":2.5}]},\"uid\":\"493c0dd0-e1c7-11f1-8c53-c325e0114b03\",\"payment_type\":\"cash\"} | orders with Walk Fries at the end: 1"
+  },
+  {
+    "id": "nfc-settings-connect",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "nfc-key-generate",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-devices-approve-key",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog confirm: Approve the public key for device \"Walk POS 005517\"? This will allow other terminals to verify cards signed by this device."
+  },
+  {
+    "id": "nfc-reader-ready",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "nfc-card-first-tap",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "navbar after the first tap: CatLab DrinksNFCCorrupt card, contact supportEventsCardsSettingsEnglishEnglishNederlandsFrançaisDeutschEspañol | known: a blank card shows \"Corrupt card\" on its first tap when min_nfc_version is 1; removed and tapped again | card id 1"
+  },
+  {
+    "id": "nfc-card-topup-default",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "nfc-card-topup-custom",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "nfc-card-remove-retap",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "nfc-card-aliases",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "nfc-card-discount",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "nfc-card-payment",
+    "status": "fail",
+    "consoleErrors": [
+      "[pos] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) (/pos-api/v1/events/1/orders)",
+      "[pos] pageerror: Request failed with status code 422"
+    ],
+    "note": "dialog alert: Could not decode resource.: Linkable resources may not contain any other attributes. | [pos] POST /pos-api/v1/events/1/orders -> 422 {\"error\":{\"status\":422,\"message\":\"Could not decode resource.\",\"issues\":{\"name\":[\"Linkable resources may not contain any other attributes.\",\"Linkable resources may not contain any other attributes.\"]}} | sent: {\"items\":[{\"location\":\"Manual\",\"status\":\"processed\",\"paid\":true,\"price\":7,\"discount\":0,\"order\":{\"items\":[{\"menuItem\":{\"id\":2,\"name\":\"Walk Cola\"},\"amount\":1,\"price\":2},{\"menuItem\":{\"id\":1,\"name\":\"Walk Beer\"},\"amount\":2,\"price\":2.5}]},\"uid\":\"493c0dd0-e1c7-11f1-8c53-c325e0114b03\",\"payment_type\":\"cash\"}"
+  },
+  {
+    "id": "nfc-card-insufficient-funds",
+    "status": "fail",
+    "consoleErrors": [
+      "[pos] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) (/pos-api/v1/events/1/orders)",
+      "[pos] pageerror: Request failed with status code 422",
+      "[pos] t: Insufficient funds.\n    at t.<anonymous> (http://localhost:8098/res/pos.js:2:1651263)\n    at Generator.<anonymous> (http://localhost:8098/res/pos.js:2:1637478)\n    at Generator.next (http://localhost:8098/res/pos.js:2:1638321)\n    at http://localhost:8098/res/pos.js:2:1640078\n    at new Promise (<anonymous>)\n    at _Y (http://localhost:8098/res/pos.js:2:1639815)\n    at t.value (http://localhost:8098/res/pos.js:2:1650874)\n    at t.<anonymous> (http://localhost:8098/res/pos.js:2:1913554)\n    at Generator.<anonymous> (http://localhost:8098/res/pos.js:2:1907688)\n    at Generator.next (http://localhost:8098/res/pos.js:2:1908531) (/res/pos.js)"
+    ],
+    "note": "dialog alert: Could not decode resource.: Linkable resources may not contain any other attributes. | [pos] POST /pos-api/v1/events/1/orders -> 422 {\"error\":{\"status\":422,\"message\":\"Could not decode resource.\",\"issues\":{\"name\":[\"Linkable resources may not contain any other attributes.\",\"Linkable resources may not contain any other attributes.\"]}} | sent: {\"items\":[{\"location\":\"Manual\",\"status\":\"processed\",\"paid\":true,\"price\":7,\"discount\":0,\"order\":{\"items\":[{\"menuItem\":{\"id\":2,\"name\":\"Walk Cola\"},\"amount\":1,\"price\":2},{\"menuItem\":{\"id\":1,\"name\":\"Walk Beer\"},\"amount\":2,\"price\":2.5}]},\"uid\":\"493c0dd0-e1c7-11f1-8c53-c325e0114b03\",\"payment_type\":\"cash\"} | popup message: Card error: Insufficient funds."
+  },
+  {
+    "id": "nfc-checkin",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "nfc-cards-transactions-link",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-summary",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-summary-names",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-summary-detail-modal",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-sales-history",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "orders listed: 3"
+  },
+  {
+    "id": "manage-transactions",
+    "status": "fail",
+    "consoleErrors": [],
+    "note": "error: no transaction is linked to an order (no \"Order #\" button)"
+  },
+  {
+    "id": "manage-card-details-topup",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "balance in modal: 10.00 -> 13.00"
+  },
+  {
+    "id": "manage-financial-overview",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-cards",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "page text: Card Management TransactionsNo NFC card service found. Please check the settings."
+  },
+  {
+    "id": "manage-test-transactions",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-hello",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "pos-summary",
+    "status": "fail",
+    "consoleErrors": [
+      "[pos] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) (/pos-api/v1/events/1/orders)",
+      "[pos] pageerror: Request failed with status code 422"
+    ],
+    "note": "dialog alert: Could not decode resource.: Linkable resources may not contain any other attributes. | [pos] POST /pos-api/v1/events/1/orders -> 422 {\"error\":{\"status\":422,\"message\":\"Could not decode resource.\",\"issues\":{\"name\":[\"Linkable resources may not contain any other attributes.\",\"Linkable resources may not contain any other attributes.\"]}} | sent: {\"items\":[{\"location\":\"Manual\",\"status\":\"processed\",\"paid\":true,\"price\":7,\"discount\":0,\"order\":{\"items\":[{\"menuItem\":{\"id\":2,\"name\":\"Walk Cola\"},\"amount\":1,\"price\":2},{\"menuItem\":{\"id\":1,\"name\":\"Walk Beer\"},\"amount\":2,\"price\":2.5}]},\"uid\":\"493c0dd0-e1c7-11f1-8c53-c325e0114b03\",\"payment_type\":\"cash\"}"
+  },
+  {
+    "id": "pos-sales-history",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "pos-transactions",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "pos-financial-overview",
+    "status": "fail",
+    "consoleErrors": [
+      "[pos] Failed to load resource: the server responded with a status of 404 (Not Found) (/pos-api/v1/organisations/1/financial-overview)",
+      "[pos] pageerror: Request failed with status code 404"
+    ],
+    "note": "error: locator.waitFor: Timeout 15000ms exceeded. | [pos] GET /pos-api/v1/organisations/1/financial-overview -> 404 {\"error\":{\"status\":404,\"message\":\"The route pos-api\\/v1\\/organisations\\/1\\/financial-overview could not be found.\"}}"
+  },
+  {
+    "id": "pos-test-transactions",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "pos-hello",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "pos-attendees",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-devices-signed-cards",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-public-keys-list",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-devices-license",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "license error: ⚠️ Invalid license key: not valid base64."
+  },
+  {
+    "id": "manage-devices-buy-license-link",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "Buy License link (not opened): https://accounts.catlab.eu/licenses/10/buy"
+  },
+  {
+    "id": "manage-devices-edit",
+    "status": "fail",
+    "consoleErrors": [
+      "[manage] pageerror: i is not a function",
+      "[manage] pageerror: i is not a function",
+      "[manage] pageerror: i is not a function",
+      "[manage] pageerror: i is not a function"
+    ],
+    "note": ""
+  },
+  {
+    "id": "pos-disabled-device",
+    "status": "fail",
+    "consoleErrors": [
+      "[manage] pageerror: i is not a function",
+      "[manage] pageerror: i is not a function",
+      "[manage] pageerror: i is not a function",
+      "[manage] pageerror: i is not a function"
+    ],
+    "note": ""
+  },
+  {
+    "id": "nfc-card-reset",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog confirm: Are you sure you want to set the card value to 0?"
+  },
+  {
+    "id": "nfc-card-rebuild",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog confirm: Danger! Rebuilding will only keep all transactions that are available online. Are you sure you want to do that? | dialog alert: Card is rebuilt from online data. | dialogs: confirm: Danger! Rebuilding will only keep all transactions that are available online. Are you sure you want to do that? / alert: Card is rebuilt from online data."
+  },
+  {
+    "id": "manage-devices-revoke-key",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog confirm: WARNING: Revoking this key will invalidate 1 cards that were last signed by this device. Are you sure?"
+  },
+  {
+    "id": "nfc-key-revoked-regenerate",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-public-keys-approve",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog confirm: Approve the public key for device \"Walk POS 005517\"?"
+  },
+  {
+    "id": "blade-topup-not-available",
+    "status": "fail",
+    "consoleErrors": [
+      "[anon] pageerror: EVENT_TOKEN is not defined"
+    ],
+    "note": "page text: var AIRBRAKE_CONFIG = null; Card top-up Online top-up is not yet available."
+  },
+  {
+    "id": "blade-qr-generator",
+    "status": "fail",
+    "consoleErrors": [],
+    "note": "error: QR code image -> 500 | dialog alert: NFC server address not set."
+  },
+  {
+    "id": "blade-landing-pages",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "blade-docs",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "blade-home",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-devices-delete",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog confirm: Are you sure you want to delete device \"Walk POS 005517\"? This will revoke the device's access token and it will no longer be able to connect. The device will n"
+  },
+  {
+    "id": "pos-unpaired",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": "dialog alert: Session expired. Please re-authenticate your device. | [pos] GET /pos-api/v1/devices/current -> 401  | dialogs: confirm: Are you sure you want to delete device \"Walk POS 005517\"? This will revoke the device's access token and it will no longer be able to connect. The device will n / alert: Session expired. Please re-authenticate your device. | expected console error: [pos] Failed to load resource: the server responded with a status of 401 (Unauthorized) (/pos-api/v1/devices/current)"
+  },
+  {
+    "id": "pos-authenticate-manual-entry",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  },
+  {
+    "id": "manage-logout",
+    "status": "fail",
+    "consoleErrors": [
+      "[manage] Failed to load resource: the server responded with a status of 404 (Not Found) (/js/app.js)",
+      "[manage] Refused to execute script from 'http://localhost:8098/js/app.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled. (/login)",
+      "[manage] Failed to load resource: the server responded with a status of 404 (Not Found) (/js/app.js)",
+      "[manage] Refused to execute script from 'http://localhost:8098/js/app.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled. (/login)"
+    ],
+    "note": ""
+  },
+  {
+    "id": "blade-login",
+    "status": "fail",
+    "consoleErrors": [
+      "[manage] Failed to load resource: the server responded with a status of 404 (Not Found) (/js/app.js)",
+      "[manage] Refused to execute script from 'http://localhost:8098/js/app.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled. (/login)"
+    ],
+    "note": ""
+  },
+  {
+    "id": "between-items",
+    "status": "pass",
+    "consoleErrors": [],
+    "note": ""
+  }
+]

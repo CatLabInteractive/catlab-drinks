@@ -65,12 +65,12 @@
         </div>
 
         <div class="mb-3">
-            <b-btn variant="success" @click="$emit('save')" :disabled="saving">
+            <b-button variant="success" @click="$emit('save')" :disabled="saving">
                 {{ saving ? $t('Saving') : $t('Save changes') }}
-            </b-btn>
-            <b-btn variant="light" @click="$emit('reset')">{{ $t('Reset') }}</b-btn>
-            <b-btn variant="outline-secondary" @click="addRows(5)">{{ $t('Add rows') }}</b-btn>
-            <b-btn variant="outline-danger" @click="confirmDeleteAll" class="float-right">{{ $t('Delete all') }}</b-btn>
+            </b-button>
+            <b-button variant="light" @click="$emit('reset')">{{ $t('Reset') }}</b-button>
+            <b-button variant="outline-secondary" @click="addRows(5)">{{ $t('Add rows') }}</b-button>
+            <b-button variant="outline-danger" @click="confirmDeleteAll" class="float-right">{{ $t('Delete all') }}</b-button>
 
             <b-alert v-if="saved" variant="success" show class="d-inline-block ml-2 mb-0 py-1 px-2">{{ $t('Saved') }}</b-alert>
         </div>

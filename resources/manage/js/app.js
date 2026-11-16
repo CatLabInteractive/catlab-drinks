@@ -168,11 +168,15 @@ function launch() {
 	 * or customize the JavaScript scaffolding to fit your unique needs.
 	 */
 
-	// Bootstrap card service
-	Vue.prototype.$settingService = new SettingService();
-	Vue.prototype.$organisationService = new OrganisationService();
+	// The services that the app gives to its components (this.$cardService and so on).
+	// Boot code fills this object; it is copied onto the app once the app is created.
+	const services = {};
 
-	Vue.prototype.$settingService.load()
+	// Bootstrap card service
+	services.$settingService = new SettingService();
+	services.$organisationService = new OrganisationService();
+
+	services.$settingService.load()
 		.then(
 			() => {
 				return axios.get('/api/v1/users/me')
@@ -204,7 +208,7 @@ function launch() {
 							cardServiceAxios.defaults.headers.common['X-CSRF-TOKEN'] = csrfHeader;
 						}
 
-						Vue.prototype.$cardService = new CardService(
+						services.$cardService = new CardService(
 							cardServiceAxios,
 							window.ORGANISATION_ID
 						);
@@ -223,6 +227,7 @@ function launch() {
 						}
 					}
 				});
+				Object.assign(app.config.globalProperties, services);
 
 				app.config.globalProperties.$filters = {
 					formatDate(value) {

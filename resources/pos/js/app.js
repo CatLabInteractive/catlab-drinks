@@ -108,9 +108,13 @@ async function launch() {
 	window.axios.defaults.baseURL = CATLAB_DRINKS_CONFIG.API;
 	window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + authData.accessToken;
 
+	// The services that the main app gives to its components (this.$cardService and so on).
+	// Boot code fills this object; it is copied onto the app once the app is created.
+	const services = {};
+
 	// Initialize offline manager and install caching interceptors
 	const offlineManager = new OfflineManager();
-	Vue.prototype.$offlineManager = offlineManager;
+	services.$offlineManager = offlineManager;
 	window.OFFLINE_MANAGER = offlineManager; // Also on window for non-Vue code (AbstractService)
 	installCacheInterceptors(window.axios, offlineManager);
 
@@ -236,10 +240,10 @@ async function launch() {
 	 */
 
 	// Bootstrap card service
-	Vue.prototype.$settingService = new SettingService();
-	Vue.prototype.$organisationService = new OrganisationService();
+	services.$settingService = new SettingService();
+	services.$organisationService = new OrganisationService();
 
-	Vue.prototype.$settingService.load()
+	services.$settingService.load()
 		.then(
 			async () => {
 				let deviceData = null;
@@ -289,70 +293,70 @@ async function launch() {
 				});
 				installCacheInterceptors(cardServiceAxios, offlineManager);
 
-				Vue.prototype.$cardService = new CardService(
+				services.$cardService = new CardService(
 					cardServiceAxios,
 					window.ORGANISATION_ID
 				);
 
 				// Pass offline manager to card service
-				Vue.prototype.$cardService.setOfflineManager(offlineManager);
+				services.$cardService.setOfflineManager(offlineManager);
 
-				Vue.prototype.$kioskModeService = new KioskService();
+				services.$kioskModeService = new KioskService();
 
 				// Initialize key manager (load existing key, don't generate)
 				if (window.DEVICE_UID && window.DEVICE_SECRET) {
-					Vue.prototype.$cardService.initializeKeyManager(
+					services.$cardService.initializeKeyManager(
 						window.DEVICE_UID,
 						window.DEVICE_ID,
 						window.DEVICE_SECRET
 					);
 
 					// Determine key approval status
-					const keyManager = Vue.prototype.$cardService.getKeyManager();
+					const keyManager = services.$cardService.getKeyManager();
 					const hasLocalKey = keyManager && keyManager.isInitialized();
 					const hasServerKey = !!window.DEVICE_PUBLIC_KEY;
 
 					if (hasLocalKey && hasServerKey && window.DEVICE_APPROVED_AT) {
-						Vue.prototype.$cardService.setKeyApprovalStatus('approved');
+						services.$cardService.setKeyApprovalStatus('approved');
 
 						// Load approved public keys (with offline cache fallback)
-						Vue.prototype.$cardService.fetchAndCachePublicKeys(window.ORGANISATION_ID);
+						services.$cardService.fetchAndCachePublicKeys(window.ORGANISATION_ID);
 					} else if (hasLocalKey && hasServerKey && !window.DEVICE_APPROVED_AT) {
-						Vue.prototype.$cardService.setKeyApprovalStatus('pending');
+						services.$cardService.setKeyApprovalStatus('pending');
 					} else if (hasLocalKey && !hasServerKey) {
 						// Local key exists but server key was revoked
-						Vue.prototype.$cardService.setKeyApprovalStatus('revoked');
+						services.$cardService.setKeyApprovalStatus('revoked');
 					} else {
-						Vue.prototype.$cardService.setKeyApprovalStatus('none');
+						services.$cardService.setKeyApprovalStatus('none');
 					}
 				}
 
 				// Only try to connect to the nfc reader if config variables are set.
 				if (
-					Vue.prototype.$settingService.nfcServer ||
+					services.$settingService.nfcServer ||
 					(typeof(window.CATLAB_DRINKS_APP) !== 'undefined' && window.CATLAB_DRINKS_APP.nfc)
 				) {
 					try {
 
 						// Enable skipping refresh when offline
-						Vue.prototype.$cardService.setSkipRefreshWhenBadInternetConnection(true);
+						services.$cardService.setSkipRefreshWhenBadInternetConnection(true);
 
-						Vue.prototype.$cardService.connect(
-							Vue.prototype.$settingService.nfcServer,
-							Vue.prototype.$settingService.nfcPassword
+						services.$cardService.connect(
+							services.$settingService.nfcServer,
+							services.$settingService.nfcPassword
 						);
 
-						Vue.prototype.$organisationService.get(ORGANISATION_ID, {fields: '*,secret,topup_domain'})
+						services.$organisationService.get(ORGANISATION_ID, {fields: '*,secret,topup_domain'})
 							.then(
 								(organisation) => {
 									// WARNING: This MUST be the organisation secret, NOT the device secret.
 									// Otherwise NFC cards will only be valid on the POS where they were registered
-									Vue.prototype.$cardService.setPassword(organisation.secret);
-									Vue.prototype.$cardService.setMinNfcVersion(organisation.min_nfc_version || 0);
+									services.$cardService.setPassword(organisation.secret);
+									services.$cardService.setMinNfcVersion(organisation.min_nfc_version || 0);
 
 									// Set the topup domain for NFC card URLs
 									if (organisation.topup_domain) {
-										Vue.prototype.$cardService.setTopupDomain(organisation.topup_domain);
+										services.$cardService.setTopupDomain(organisation.topup_domain);
 									}
 								}
 							);
@@ -364,9 +368,9 @@ async function launch() {
 				}
 
 				// Payment service
-				Vue.prototype.$paymentService = new PaymentService();
-				if (Vue.prototype.$cardService) {
-					Vue.prototype.$paymentService.setCardService(Vue.prototype.$cardService);
+				services.$paymentService = new PaymentService();
+				if (services.$cardService) {
+					services.$paymentService.setCardService(services.$cardService);
 				}
 
 				// and now boot the app
@@ -378,6 +382,7 @@ async function launch() {
 						}
 					}
 				});
+				Object.assign(app.config.globalProperties, services);
 
 				app.config.globalProperties.$filters = {
 					formatDate(value) {

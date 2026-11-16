@@ -60,10 +60,10 @@
 							<td>
 								<span v-if="index === 0">
 									<span v-if="product.menuItem">{{product.menuItem.name}}</span>
-									<b-btn size="sm" v-if="product.menuItem && hasDetails" @click="openDetails(product)">{{product.menuItem.name}}</b-btn>
+									<b-button size="sm" v-if="product.menuItem && hasDetails" @click="openDetails(product)">{{product.menuItem.name}}</b-button>
 
 									<span v-if="productGroup.hasName && !hasDetails">{{ productGroup.visibleName }}</span>
-									<b-btn size="sm" v-if="productGroup.hasName && hasDetails" @click="openDetails(product)">{{ productGroup.visibleName }}</b-btn>
+									<b-button size="sm" v-if="productGroup.hasName && hasDetails" @click="openDetails(product)">{{ productGroup.visibleName }}</b-button>
 								</span>
 							</td>
 							<td>{{product.amount}}</td>
@@ -128,7 +128,7 @@
 
 		},
 
-		beforeDestroy() {
+		beforeUnmount() {
 			if (this.interval) {
 				clearInterval(this.interval);
 			}

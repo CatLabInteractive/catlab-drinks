@@ -19,7 +19,7 @@ function readFile(relativePath) {
 describe('POS offline support - App.vue', () => {
 	const source = readFile('pos/js/views/App.vue');
 
-	it('uses $offlineManager from Vue prototype', () => {
+	it('uses this.$offlineManager', () => {
 		expect(source).toContain('this.$offlineManager');
 	});
 
@@ -45,7 +45,7 @@ describe('POS offline support - App.vue', () => {
 describe('POS offline support - RemoteOrders.vue', () => {
 	const source = readFile('shared/js/components/RemoteOrders.vue');
 
-	it('uses $offlineManager from Vue prototype', () => {
+	it('uses this.$offlineManager', () => {
 		expect(source).toContain('this.$offlineManager');
 	});
 
@@ -106,8 +106,8 @@ describe('POS offline support - app.js', () => {
 		expect(source).toContain('getCachedResponse');
 	});
 
-	it('sets OfflineManager on Vue.prototype.$offlineManager', () => {
-		expect(source).toContain('Vue.prototype.$offlineManager = offlineManager');
+	it('puts OfflineManager in the services for the app as $offlineManager', () => {
+		expect(source).toContain('services.$offlineManager = offlineManager');
 	});
 
 	it('also sets window.OFFLINE_MANAGER for non-Vue code', () => {
@@ -240,7 +240,7 @@ describe('POS offline support - i18n translations', () => {
 describe('POS offline support - Settings.vue sync status', () => {
 	const source = readFile('pos/js/views/Settings.vue');
 
-	it('uses $offlineManager from Vue prototype', () => {
+	it('uses this.$offlineManager', () => {
 		expect(source).toContain('this.$offlineManager');
 	});
 
