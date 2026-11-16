@@ -24,7 +24,7 @@
  * It uses navigator.onLine for initial state and listens for browser online/offline events.
  * API request success/failure also updates the connectivity state.
  *
- * Usage: instantiate once and place on Vue.prototype.$offlineManager (see app.js).
+ * Usage: instantiate once and place on app.config.globalProperties.$offlineManager (see app.js).
  */
 export class OfflineManager {
 

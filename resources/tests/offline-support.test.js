@@ -106,8 +106,8 @@ describe('POS offline support - app.js', () => {
 		expect(source).toContain('getCachedResponse');
 	});
 
-	it('sets OfflineManager on Vue.prototype.$offlineManager', () => {
-		expect(source).toContain('Vue.prototype.$offlineManager = offlineManager');
+	it('puts OfflineManager in the services for the app as $offlineManager', () => {
+		expect(source).toContain('services.$offlineManager = offlineManager');
 	});
 
 	it('also sets window.OFFLINE_MANAGER for non-Vue code', () => {

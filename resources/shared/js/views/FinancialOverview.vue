@@ -51,7 +51,6 @@
 
 <script>
 
-    import Vue from "vue";
     import {VisibleAmount} from "../nfccards/tools/VisibleAmount";
 
     export default {
@@ -72,7 +71,7 @@
 
             async refresh() {
 
-                Vue.prototype.$organisationService.getFinancialOverview(ORGANISATION_ID)
+                this.$organisationService.getFinancialOverview(ORGANISATION_ID)
                     .then(
                         (overview) => {
                             console.log(overview);
