@@ -3,7 +3,8 @@
 // Usage and environment variables: tools/walkthrough/README.md
 import fs from 'node:fs';
 import path from 'node:path';
-import { OUT, BASE, SIM, CARD_UID, results, dialogs, launch, newPage, runItem, writeReport } from './lib.mjs';
+import { addressProblems } from './localAddress.mjs';
+import { OUT, BASE, SIM, CARD_UID, results, dialogs, launch, newPage, runItem, writeReport, betweenItemsResult } from './lib.mjs';
 import { bladeItems } from './blade.mjs';
 import { manageItems } from './manage.mjs';
 import { posItems } from './pos.mjs';
@@ -22,10 +23,11 @@ const SEQUENCE = [
 	'manage-menu-reorder-drag', 'manage-menu-headings-rename', 'manage-menu-import-paste', 'manage-menu-import-cancel',
 	'manage-menu-import-copy-event', 'manage-events-delete',
 	'manage-settings-currency', 'manage-settings-gateway-add', 'manage-settings-gateway-edit-delete',
-	'manage-devices-list', 'manage-devices-pair-cancel', 'manage-public-keys-empty',
+	'manage-devices-list', 'manage-devices-pair-cancel', 'manage-devices-polling-stops', 'manage-sales-history-polling-stops',
+	'manage-public-keys-empty',
 	'manage-attendees-edit', 'manage-attendees-paste-dialog',
 	// Pairing and the POS
-	'manage-devices-pair', 'pos-events', 'pos-language-toggle', 'pos-menu', 'pos-hq', 'pos-sale-cash', 'pos-sale-vouchers', 'pos-sale-cancel-payment',
+	'manage-devices-pair', 'pos-events', 'pos-language-toggle', 'pos-menu', 'pos-hq', 'pos-hq-polling-stops', 'pos-sale-cash', 'pos-sale-vouchers', 'pos-sale-cancel-payment',
 	'pos-settings-live-remote', 'pos-settings-sync', 'pos-settings-logout-cancel',
 	// Client order and remote orders on the POS
 	'client-order-load', 'client-order-empty', 'client-order-place', 'client-language-toggle',
@@ -50,6 +52,21 @@ const SEQUENCE = [
 ];
 
 async function main() {
+	// The route guard sees only the browser. The script's own requests go to WALK_BASE_URL and WALK_NFC_SIM,
+	// so refuse a value that is not local before anything is requested.
+	const problems = addressProblems({ WALK_BASE_URL: BASE, WALK_NFC_SIM: SIM });
+	if (problems.length) {
+		for (const p of problems) console.error('Refused: ' + p);
+		process.exitCode = 2;
+		return;
+	}
+	const only = process.env.WALK_ONLY ? new RegExp(process.env.WALK_ONLY) : null;
+	const queue = SEQUENCE.filter((id) => !only || only.test(id));
+	if (!queue.length) {
+		console.error(`WALK_ONLY=${process.env.WALK_ONLY} matches no item. Nothing to run.`);
+		process.exitCode = 2;
+		return;
+	}
 	fs.rmSync(OUT, { recursive: true, force: true });
 	fs.mkdirSync(OUT, { recursive: true });
 	console.log(`Walk-through against ${BASE}, NFC simulator ${SIM}`);
@@ -71,9 +88,7 @@ async function main() {
 	const missing = SEQUENCE.filter((id) => !items[id]);
 	if (missing.length) throw new Error('no function for: ' + missing.join(', '));
 
-	const only = process.env.WALK_ONLY ? new RegExp(process.env.WALK_ONLY) : null;
 	try {
-		const queue = SEQUENCE.filter((id) => !only || only.test(id));
 		for (let i = 0; i < queue.length; i++) {
 			const result = await runItem(queue[i], items[queue[i]]);
 			writeReport();
@@ -90,8 +105,10 @@ async function main() {
 		writeReport();
 		await browser.close();
 	}
-	const failed = results.filter((r) => r.status !== 'pass');
-	console.log(`\n${results.length - failed.length} passed, ${failed.length} failed. Report: ${path.join(OUT, 'report.json')}`);
+	const all = [...results, betweenItemsResult()];
+	const failed = all.filter((r) => r.status !== 'pass');
+	if (failed.at(-1)?.id === 'between-items') console.log('FAIL between-items: errors arrived while no item ran (see report.json)');
+	console.log(`\n${all.length - failed.length} passed, ${failed.length} failed. Report: ${path.join(OUT, 'report.json')}`);
 	process.exitCode = failed.length ? 1 : 0;
 }
 

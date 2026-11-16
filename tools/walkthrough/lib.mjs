@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { LOCAL_HOSTNAMES } from './localAddress.mjs';
 
 const require = createRequire(import.meta.url);
 
@@ -15,13 +16,13 @@ export const SIM = (process.env.WALK_NFC_SIM || 'http://127.0.0.1:3030').replace
 export const USER = process.env.WALK_USER || 'walk@example.test';
 export const PASSWORD = process.env.WALK_PASSWORD || 'walk-password-1';
 export const RUN = process.env.WALK_RUN_ID || String(Date.now()).slice(-6);
-// A new card UID for each run, so that a second run on the same database gets a blank card.
 // The time that one item may take. After a timeout the run stops (see walkthrough.mjs).
 export const ITEM_TIMEOUT_MS = Number(process.env.WALK_ITEM_TIMEOUT_MS || 120000);
+// A new card UID for each run, so that a second run on the same database gets a blank card.
 export const CARD_UID = process.env.WALK_CARD_UID || ('04a1b2c3' + RUN.padStart(6, '0'));
 
 // Hosts that may be loaded. Everything else is aborted.
-const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+const LOCAL_HOSTS = new Set([...LOCAL_HOSTNAMES, '::1']);
 // Aborted requests to these hosts are expected (web fonts) and are not a failure.
 const FONT_HOSTS = new Set(['fonts.googleapis.com', 'fonts.gstatic.com']);
 
@@ -50,6 +51,9 @@ export const playwright = loadPlaywright();
 export const results = [];
 export const hostsSeen = new Map(); // host -> count of requests the browser tried
 let current = null;
+// Console errors, page errors, failed API calls and blocked requests that arrive while no item runs.
+// They go into the pseudo-item `between-items` at the end of the report (see betweenItemsResult()).
+const between = { consoleErrors: [], notes: [], blocked: [], lastId: 'start' };
 const pages = []; // [label, page] of every page that newPage() opened
 
 /**
@@ -62,6 +66,29 @@ export function expectConsoleError(pattern) {
 
 export function note(text) {
 	if (current) current.notes.push(text);
+	else between.notes.push(`after ${between.lastId}: ${text}`);
+}
+
+/** Record a console error for the current item, or for `between-items` if no item runs. */
+function consoleError(text) {
+	if (current) current.consoleErrors.push(text);
+	else { between.consoleErrors.push(text); between.notes.push(`after ${between.lastId}: console error`); }
+}
+
+function blocked(msg) {
+	if (current) current.blocked.push(msg);
+	else { between.blocked.push(`after ${between.lastId}: ${msg}`); console.warn('[guard]', msg); }
+}
+
+/** The pseudo-item with everything that arrived between items. It has the same shape as an item. */
+export function betweenItemsResult() {
+	const fail = between.consoleErrors.length || between.blocked.length;
+	return {
+		id: 'between-items',
+		status: fail ? 'fail' : 'pass',
+		consoleErrors: [...between.consoleErrors],
+		note: [...between.notes, ...between.blocked].join(' | '),
+	};
 }
 
 function isLocal(u) {
@@ -75,15 +102,13 @@ export async function guardContext(context, label) {
 		hostsSeen.set(u.host || u.protocol, (hostsSeen.get(u.host || u.protocol) || 0) + 1);
 		if (isLocal(u)) return route.continue();
 		if (!FONT_HOSTS.has(u.hostname)) {
-			const msg = `blocked request to public host: ${route.request().method()} ${u.origin}${u.pathname}`;
-			if (current) current.blocked.push(msg); else console.warn('[guard]', msg);
+			blocked(`blocked request to public host: ${route.request().method()} ${u.origin}${u.pathname}`);
 		}
 		return route.abort('blockedbyclient');
 	});
 	if (context.routeWebSocket) {
 		await context.routeWebSocket((u) => !LOCAL_HOSTS.has(u.hostname), (ws) => {
-			const msg = `blocked websocket to public host: ${ws.url()}`;
-			if (current) current.blocked.push(msg); else console.warn('[guard]', msg);
+			blocked(`blocked websocket to public host: ${ws.url()}`);
 			ws.close();
 		});
 	}
@@ -100,7 +125,7 @@ function watchPage(page, label) {
 		if (/^Failed to load resource/.test(m.text()) && loc) {
 			try { if (FONT_HOSTS.has(new URL(loc).hostname)) return; } catch (e) { /* keep it */ }
 		}
-		if (current) current.consoleErrors.push(`[${label}] ${m.text()}${loc ? ' (' + loc.replace(BASE, '') + ')' : ''}`);
+		consoleError(`[${label}] ${m.text()}${loc ? ' (' + loc.replace(BASE, '') + ')' : ''}`);
 	});
 	// Keep the evidence of each failed API call: method, path, status, the start of the body sent, and the answer.
 	page.on('response', async (r) => {
@@ -111,7 +136,7 @@ function watchPage(page, label) {
 		note(`[${label}] ${r.request().method()} ${r.url().replace(BASE, '')} -> ${r.status()} ${answer}${sent ? ' | sent: ' + sent : ''}`);
 	});
 	page.on('pageerror', (e) => {
-		if (current) current.consoleErrors.push(`[${label}] pageerror: ${e.message}`);
+		consoleError(`[${label}] pageerror: ${e.message}`);
 	});
 	page.on('dialog', async (d) => {
 		const text = `${d.type()}: ${d.message().replace(/\s+/g, ' ').slice(0, 160)}`;
@@ -135,19 +160,22 @@ export async function runItem(id, fn, shotPage) {
 	dialogs.dismissConfirm = false;
 	let error = null;
 	let timedOut = false;
+	let timer = null;
 	let page = shotPage;
 	const started = Date.now();
 	try {
 		const p = await Promise.race([
 			fn(),
-			new Promise((_, rej) => setTimeout(() => {
+			new Promise((_, rej) => { timer = setTimeout(() => {
 				timedOut = true;
 				rej(new Error(`timeout: the item did not finish within ${ITEM_TIMEOUT_MS / 1000} s`));
-			}, ITEM_TIMEOUT_MS)),
+			}, ITEM_TIMEOUT_MS); }),
 		]);
 		if (p && typeof p.screenshot === 'function') page = p;
 	} catch (e) {
 		error = e;
+	} finally {
+		clearTimeout(timer);
 	}
 	if (error) {
 		for (const [label, pg] of pages) {
@@ -163,6 +191,7 @@ export async function runItem(id, fn, shotPage) {
 	}
 	const item = current;
 	current = null;
+	between.lastId = id;
 	const notes = [...item.notes];
 	for (const pattern of item.expected) {
 		const hits = item.consoleErrors.filter((e) => pattern.test(e));
@@ -244,9 +273,50 @@ export function assert(cond, message) {
 	if (!cond) throw new Error(message);
 }
 
+/**
+ * Open a screen that polls, wait for at least two GET requests to each of its endpoints (the first load and
+ * one request of its timer), leave the screen with `leave` (a real in-app navigation), and expect no request
+ * to those endpoints for `quietMs`. `patterns` maps a name to a RegExp for the request path.
+ * The endless refresh of /organisations/{id}/cards (TransactionStore, on every page) is counted apart and
+ * does not count as a leak.
+ */
+export async function pollingStops(page, { url, patterns, pollWithinMs, leave, leftUrl, quietMs = 15000 }) {
+	const names = Object.keys(patterns);
+	const counts = {};
+	const reset = () => { for (const k of [...names, 'cards (not counted)']) counts[k] = 0; };
+	reset();
+	const listener = (req) => {
+		if (req.method() !== 'GET') return;
+		const p = new URL(req.url()).pathname;
+		if (/\/organisations\/\d+\/cards$/.test(p)) counts['cards (not counted)']++;
+		for (const k of names) if (patterns[k].test(p)) counts[k]++;
+	};
+	page.on('request', listener);
+	try {
+		await goto(page, url);
+		const deadline = Date.now() + pollWithinMs;
+		while (names.some((k) => counts[k] < 2)) {
+			if (Date.now() > deadline) throw new Error('the screen did not poll: ' + JSON.stringify(counts));
+			await page.waitForTimeout(250);
+		}
+		note('GET requests while on the screen: ' + JSON.stringify(counts));
+		await leave();
+		await page.waitForURL(leftUrl);
+		reset();
+		await page.waitForTimeout(quietMs);
+		note(`GET requests in the ${quietMs / 1000} s after leaving: ` + JSON.stringify(counts));
+		const leaks = names.filter((k) => counts[k] > 0);
+		assert(!leaks.length, 'polling did not stop after leaving the screen: ' + leaks.map((k) => `${k} ${counts[k]}`).join(', '));
+	} finally {
+		page.off('request', listener);
+	}
+	return page;
+}
+
 // ---- NFC simulator ---------------------------------------------------------
 
 export async function sim(method, p) {
+	// Node fetch does not pass the browser route guard. walkthrough.mjs checks at start-up that SIM is local.
 	const r = await fetch(SIM + p, { method });
 	const body = await r.text();
 	if (!r.ok) throw new Error(`simulator ${method} ${p} -> ${r.status} ${body}`);
@@ -254,7 +324,7 @@ export async function sim(method, p) {
 }
 
 export function writeReport() {
-	fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify(results, null, 2));
+	fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify([...results, betweenItemsResult()], null, 2));
 	fs.writeFileSync(path.join(OUT, 'hosts.json'), JSON.stringify(Object.fromEntries(hostsSeen), null, 2));
 	fs.writeFileSync(path.join(OUT, 'dialogs.json'), JSON.stringify(dialogs.log, null, 2));
 }

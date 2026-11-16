@@ -1,6 +1,6 @@
 // Walk-through items for device pairing and the POS app (/pos/), without cards.
 import { placeClientOrder } from './client.mjs';
-import { BASE, RUN, dialogs, note, expectConsoleError, sim, newPage, goto, text, modal, noModal, rowAction, assert, localUrl } from './lib.mjs';
+import { BASE, RUN, dialogs, note, expectConsoleError, sim, newPage, goto, text, modal, noModal, rowAction, assert, localUrl, pollingStops } from './lib.mjs';
 
 async function addToOrder(p, name, times = 1) {
 	for (let i = 0; i < times; i++) await p.locator('.live-orders .product', { hasText: name }).locator('.name').click();
@@ -100,6 +100,20 @@ export function posItems(s) {
 			await p.locator('.remote-orders').waitFor();
 			return p;
 		},
+		'pos-hq-polling-stops': async () => {
+			const p = s.pos;
+			// RemoteOrders polls the pending orders and RemoteOrderStatus polls the event, both every 5 s.
+			return pollingStops(p, {
+				url: `/pos/events/${s.eventId}/hq`,
+				patterns: {
+					'remote orders': /^\/pos-api\/v1\/events\/\d+\/orders$/,
+					'remote order status': /^\/pos-api\/v1\/events\/\d+$/,
+				},
+				pollWithinMs: 15000,
+				leave: () => p.locator('.navbar a', { hasText: /^\s*Events\s*$/ }).click(),
+				leftUrl: /\/pos\/events$/,
+			});
+		},
 		'pos-sale-cash': async () => {
 			const p = await hq(s);
 			await addToOrder(p, 'Walk Cola', 2);
@@ -138,7 +152,8 @@ export function posItems(s) {
 			const live = p.locator('#allow_live_orders input[type=checkbox]');
 			await live.uncheck();
 			await Promise.all([p.waitForEvent('load'), p.click('form button[type=submit]')]);
-			await hq(s).catch(() => {});
+			// Without live orders the screen has no product tiles, so hq() would wait in vain. Open it and wait for the remote orders.
+			await goto(p, `/pos/events/${s.eventId}/hq`);
 			await p.locator('.remote-orders').waitFor();
 			assert(await p.locator('#live-orders').count() === 0, 'live orders still shown');
 			await p.screenshot({ path: s.out('pos-settings-live-remote-hq.png'), fullPage: true });

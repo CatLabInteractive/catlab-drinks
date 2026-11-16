@@ -1,11 +1,27 @@
 # Compose override for the frontend walk-through.
-# Use it only with its own project name, so that it gets its own MySQL volume:
+# Use it only with its own project name, so that it gets its own MySQL volume.
+# Build the image (see tools/walkthrough/README.md, step 1):
+#   docker compose -p catlab-drinks-walk -f docker-compose.yml -f tools/walkthrough/compose.override.yml up -d --build webserver
+# Or, after you tagged a local PHP 8.5 image as catlab-drinks-walk-webserver:latest, skip the build:
 #   docker compose -p catlab-drinks-walk -f docker-compose.yml -f tools/walkthrough/compose.override.yml up -d --no-build webserver
 services:
   webserver:
     container_name: catlab-drinks-walk
     ports: !override
       - "127.0.0.1:8098:80"
+    # These variables are real environment variables of the container. Laravel reads .env only for the
+    # variables that are not set already, and this stack does not cache the configuration, so these
+    # values win over the checkout's .env (see the README, "Notes about this machine type").
+    environment:
+      APP_ENV: local
+      USAGE_REPORTING: "false"
+      ERROR_REPORTING: "false"
+      DB_CONNECTION: mysql
+      DB_HOST: mysql-db
+      DB_PORT: "3306"
+      DB_DATABASE: myuser
+      DB_USERNAME: myuser
+      DB_PASSWORD: secret
   mysql-db:
     ports: !override []
 networks:

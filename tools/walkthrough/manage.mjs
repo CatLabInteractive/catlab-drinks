@@ -1,5 +1,5 @@
 // Walk-through items for the Manage app (/manage/).
-import { RUN, dialogs, note, goto, modal, noModal, rowAction, assert, localUrl } from './lib.mjs';
+import { RUN, dialogs, note, goto, modal, noModal, rowAction, assert, localUrl, pollingStops } from './lib.mjs';
 
 async function menuRows(p) {
 	return p.locator('.menu-table tbody tr');
@@ -406,6 +406,26 @@ export function manageItems(s) {
 			await m.locator('.modal-footer button', { hasText: 'Cancel' }).click();
 			await noModal(p);
 			return p;
+		},
+		'manage-devices-polling-stops': async () => {
+			const p = s.manage;
+			return pollingStops(p, {
+				url: '/manage/devices',
+				patterns: { devices: /^\/api\/v1\/organisations\/\d+\/devices$/ },
+				pollWithinMs: 25000, // the devices screen polls every 10 s
+				leave: () => p.locator('.navbar a', { hasText: /^\s*Events\s*$/ }).click(),
+				leftUrl: /\/manage\/events$/,
+			});
+		},
+		'manage-sales-history-polling-stops': async () => {
+			const p = s.manage;
+			return pollingStops(p, {
+				url: `/manage/events/${s.eventId}/sales`,
+				patterns: { orders: /^\/api\/v1\/events\/\d+\/orders$/ },
+				pollWithinMs: 15000, // the sales history polls every 5 s
+				leave: () => p.locator('.navbar a', { hasText: /^\s*Events\s*$/ }).click(),
+				leftUrl: /\/manage\/events$/,
+			});
 		},
 		'manage-public-keys-empty': async () => {
 			const p = s.manage;
