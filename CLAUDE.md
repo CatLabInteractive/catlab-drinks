@@ -86,7 +86,8 @@ The walk-through goes through every screen of Manage, POS and the client order p
 It shows that a change does not alter what the screens do.
 The list of items is in `docs/testing/frontend-walkthrough.md`. The result on `main` is in `docs/testing/baseline-2026-11-main.md`.
 The script and its steps are in `tools/walkthrough/README.md`. It needs the Docker stack and the NFC simulator.
-If you change the frontend libraries, run the walk-through again and compare each item with the baseline.
+If you change the frontend libraries, run the walk-through again. Compare the status and the console errors of each item with the baseline.
+For that comparison, use `node tools/walkthrough/compare.mjs docs/testing/baseline-2026-11-main.report.json`.
 
 ---
 

@@ -13,6 +13,21 @@ The baseline of November 2026 is in `docs/testing/baseline-2026-11-main.md`.
 - The browser console must show no error during the walk-through. The script records each console error and each page error for the item that runs.
 - An item fails in three cases: its action fails, the console shows an error, or the browser tried to load a page from a public host.
 - The script blocks each request to a host that is not `localhost` or `127.0.0.1`. Web fonts from Google are blocked without a failure.
+- The report also has the pseudo-item `between-items`. It collects the errors that arrive while no item runs. If it has a console error, it fails.
+- To compare a run with the baseline, use `tools/walkthrough/compare.mjs`. The README tells how it compares the items.
+
+### Screens with a timer
+
+Some screens ask the server for new data at a fixed interval. When you leave such a screen, its timer must stop.
+Each `*-polling-stops` item opens the screen and waits for two requests of the screen: the first load and one request of its timer.
+Then it leaves the screen with a click on `Events` in the navbar. A change of the URL hash does not leave the route, so the item does not use it.
+For 15 seconds after that, the browser must send no request to the endpoints of the screen.
+These items do not count `GET /organisations/{id}/cards`. `TransactionStore` asks for it every 5 seconds on each page. That is how the application works today, and it is not a timer of the screen that you left.
+
+Two screens have no such item:
+
+- The sales summary (`SalesSummary.vue`) starts a timer, but the body of the timer is a comment. The timer makes no request. An item for this screen cannot fail, so it is not useful.
+- The POS configuration screen has no timer.
 
 ### Words in this list
 
@@ -22,7 +37,7 @@ The baseline of November 2026 is in `docs/testing/baseline-2026-11-main.md`.
 | Heading | A title that groups products on the order screens |
 | The event | The event that `manage-events-create` makes, named `Walk Event <run>` |
 | The device | The POS that `manage-devices-pair` pairs, named `Walk POS <run>` |
-| The card | The simulated NFC card with UID `04a1b2c3d4e5f6` |
+| The card | The simulated NFC card. Each run makes a new UID: `04a1b2c3` and the six digits of the run ID. |
 | Known error | The console error of issue 251: `assign is not a function` or `el[assignKey] is not a function`. A production build shows a short name, for example `i is not a function`. |
 
 ## Blade pages
@@ -105,6 +120,7 @@ The baseline of November 2026 is in `docs/testing/baseline-2026-11-main.md`.
 | `manage-summary-names` | Tabs `Sold items` and `Orderer names` | Click `Orderer names`, then `Sold items`. | Each tab opens its summary. | auto |
 | `manage-summary-detail-modal` | Tab `Orderer names`, name button, modal `Order details` | Click the first name button. Click `OK`. | The modal lists the orders of that name. Only this tab has the buttons. | auto |
 | `manage-sales-history` | `/manage/events/{id}/sales` | Open the page. | The page lists the orders with their status. | auto |
+| `manage-sales-history-polling-stops` | `/manage/events/{id}/sales`, then the navbar link `Events` | Open the page. Wait for two `GET /api/v1/events/{id}/orders` requests. Click `Events`. Count those requests for 15 seconds. | The page asks for the orders every 5 seconds. After the click, there is no request. `GET /organisations/{id}/cards` is not counted (see "Screens with a timer"). | auto |
 | `manage-transactions` | `/manage/transactions`, table, modals `Order details` and `Card details` | Click an `Order #` button and close the modal. Click a card UID. | Each modal shows its details. The card modal shows the balance and the transactions of the card. | auto |
 | `manage-card-details-topup` | Modal `Card details`, top-up form | Enter amount `3` and a reason. Click `Topup`, then `Confirm`. | The modal shows `Topup successful.`. | auto |
 | `manage-financial-overview` | `/manage/financial-overview` | Open the page. | The table shows `Total credit` and the top-ups of the last 24 hours. | auto |
@@ -126,6 +142,7 @@ The baseline of November 2026 is in `docs/testing/baseline-2026-11-main.md`.
 |----|-------|--------|----------|------|
 | `manage-devices-list` | Devices table | Open the page. | The heading and the button `+` (pair a device) show. | auto |
 | `manage-devices-pair-cancel` | Button `+`, modal `Connect & authenticate a device` | Open the modal. Click `Cancel`. | The modal shows a QR code and the connection URL. `Cancel` closes it. | auto |
+| `manage-devices-polling-stops` | `/manage/devices`, then the navbar link `Events` | Open the page. Wait for two `GET /api/v1/organisations/{id}/devices` requests. Click `Events`. Count those requests for 15 seconds. | The page asks for the devices every 10 seconds. After the click, there is no request. `GET /organisations/{id}/cards` is not counted (see "Screens with a timer"). | auto |
 | `manage-devices-pair` | Same modal, step with the pairing code | Open the modal. Open the connect URL on the local host in a second browser (never on `drinks.catlab.eu`). Click `Continue in Browser`. Enter the pairing code of the POS and a device name. Click `Pair Device`. | The local `/connect` page shows `Continue in Browser` (`blade-connect.png`). The POS shows a pairing code (`pos-pairing-code.png`), then opens. The modal closes. The table shows the device. | auto |
 | `manage-devices-open-pos-button` | Modal `Connect & authenticate a device`, button `Open POS on this device` | Read the link of the button. Do not click it. | The link is the connect URL. Today it points to `https://drinks.catlab.eu/connect`. | manual |
 | `manage-devices-approve-key` | Row dropdown `Actions`, item `Approve Key` | Click it after `nfc-key-generate`. Accept the dialog. | The column with the key status shows `Approved`. | auto |
@@ -162,6 +179,7 @@ The baseline of November 2026 is in `docs/testing/baseline-2026-11-main.md`.
 | `pos-events` | `/pos/events`, events table, row dropdown `Actions` | Open the dropdown. Click `Open` two times. Click the event name. | The dropdown has `Sales overview`, `Order history`, and `Check-In attendees`. The button changes between `Closed` and `Open`. The name opens the sales screen. | auto |
 | `pos-menu` | `/pos/events/{id}/menu`, products table | Click the selling button of a product two times. | The button changes between red and green. | auto |
 | `pos-hq` | `/pos/events/{id}/hq` | Open the page. | The live order tiles show, grouped by heading. The remote orders column shows. | auto |
+| `pos-hq-polling-stops` | `/pos/events/{id}/hq`, then the navbar link `Events` | Open the page. Wait for two `GET /pos-api/v1/events/{id}/orders` requests (remote orders) and two `GET /pos-api/v1/events/{id}` requests (remote order status). Click `Events`. Count those requests for 15 seconds. | Both components ask every 5 seconds. After the click, there is no request. `GET /organisations/{id}/cards` is not counted (see "Screens with a timer"). | auto |
 | `pos-sale-cash` | Live order tiles, modals `Confirm order`, `Payment`, `Payment successful` | Click `Walk Cola` two times and its minus button one time. Click `Walk Beer` two times. Click `Confirm` and `OK`. Click the cash button. | The amounts follow the clicks. The payment modal shows the cash button. After the payment, `Payment successful` shows and closes itself. | auto |
 | `pos-sale-vouchers` | Modal `Payment`, voucher button | Order one `Walk Cola`. Click `Confirm` and `OK`. Click the voucher button. | The voucher button shows the number of vouchers. `Payment successful` shows. | auto |
 | `pos-sale-cancel-payment` | Modal `Payment`, button `Cancel` | Make an order. Click `Cancel` in the payment modal. | `Payment failed` shows. `OK` closes it. | auto |
@@ -238,6 +256,11 @@ These items use the NFC simulator in `tools/nfc-simulator/`. The script taps and
 
 The owner does these steps in the Android app against the staging instance, before the merge of pull requests 2 and 3.
 Use a real NFC card and the built-in reader of the phone.
+
+On the code of today, some steps fail for known reasons. Use the table "Causes of failures" in `docs/testing/baseline-2026-11-main.md` to tell an old failure from a new one.
+
+- A click on a checkbox, for example in step 18, shows the console error of issue 251 (cause `K`).
+- The sales screen does not save its sales, because the server answers 422 (cause `P2`). So step 20 can show fewer sales than you made, and step 21 shows that 422.
 
 1. If the app is paired, log out in `Settings` and accept the dialog.
 2. In Manage on staging, open `Points of sale` and click `+`.
