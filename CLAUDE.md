@@ -81,6 +81,13 @@ npx jest            # Run Jest tests (KeyManager, Card, etc.)
 npx vitest run      # Run Vitest tests (route/view tests)
 ```
 
+### Frontend walk-through
+The walk-through goes through every screen of Manage, POS and the client order page in a real Chrome.
+It shows that a change does not alter what the screens do.
+The list of items is in `docs/testing/frontend-walkthrough.md`. The result on `main` is in `docs/testing/baseline-2026-11-main.md`.
+The script and its steps are in `tools/walkthrough/README.md`. It needs the Docker stack and the NFC simulator.
+If you change the frontend libraries, run the walk-through again and compare each item with the baseline.
+
 ---
 
 ## Architecture
