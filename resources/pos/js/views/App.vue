@@ -171,7 +171,7 @@
 			</div>
 
 			<template #modal-footer>
-				<b-btn variant="light" @click="$refs.keyModal.hide()">{{ $t('Close') }}</b-btn>
+				<b-button variant="light" @click="$refs.keyModal.hide()">{{ $t('Close') }}</b-button>
 			</template>
 		</b-modal>
 

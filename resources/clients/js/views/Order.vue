@@ -94,7 +94,7 @@
                     </b-alert>
                     -->
 
-                    <p><b-btn type="submit" variant="success" @click="submit()" size="lg">{{ $t('Place order') }}</b-btn></p>
+                    <p><b-button type="submit" variant="success" @click="submit()" size="lg">{{ $t('Place order') }}</b-button></p>
                 </b-col>
             </b-row>
 

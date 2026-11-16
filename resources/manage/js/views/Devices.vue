@@ -184,7 +184,7 @@
 		</div>
 
 		<template #modal-footer>
-			<b-btn type="button" variant="light" @click="resetConnectForm()">{{ $t('Cancel') }}</b-btn>
+			<b-button type="button" variant="light" @click="resetConnectForm()">{{ $t('Cancel') }}</b-button>
 		</template>
 	</b-modal>
 
@@ -208,10 +208,10 @@
 		</b-form-group>
 
 		<template #modal-footer>
-			<b-btn type="button" variant="light" @click="resetEditForm()">{{ $t('Cancel') }}</b-btn>
-			<b-btn type="button" variant="success" @click="saveEdit()">
+			<b-button type="button" variant="light" @click="resetEditForm()">{{ $t('Cancel') }}</b-button>
+			<b-button type="button" variant="success" @click="saveEdit()">
 				<span class="mr-1">💾</span> {{ $t('Save') }}
-			</b-btn>
+			</b-button>
 		</template>
 	</b-modal>
 
@@ -227,10 +227,10 @@
 		</b-alert>
 
 		<template #modal-footer>
-			<b-btn type="button" variant="light" @click="resetLicenseForm()">{{ $t('Cancel') }}</b-btn>
-			<b-btn type="button" variant="success" @click="submitLicense()" :disabled="!licenseKey">
+			<b-button type="button" variant="light" @click="resetLicenseForm()">{{ $t('Cancel') }}</b-button>
+			<b-button type="button" variant="success" @click="submitLicense()" :disabled="!licenseKey">
 				<span class="mr-1">✓</span> {{ $t('Apply License') }}
-			</b-btn>
+			</b-button>
 		</template>
 	</b-modal>
 

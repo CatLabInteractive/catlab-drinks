@@ -42,11 +42,11 @@
 			<p class="text-muted">{{ $t('Used to label prices, balances and top-ups. Changing it relabels past sales too; no amounts are converted.') }}</p>
 			<b-form inline @submit.prevent="saveCurrency" class="mb-4">
 				<b-form-select id="organisation-currency" v-model="currency" :options="currencyOptions" class="mr-2" />
-				<b-btn variant="success" type="submit" :disabled="savingCurrency || currency === savedCurrency">
+				<b-button variant="success" type="submit" :disabled="savingCurrency || currency === savedCurrency">
 					<b-spinner small v-if="savingCurrency" />
 					<span class="mr-1" v-if="!savingCurrency">💾</span>
 					{{ $t('Save') }}
-				</b-btn>
+				</b-button>
 				<b-alert v-if="currencySaved" variant="success" :show="2" class="mb-0 ml-2 py-1">{{ $t('Saved') }}</b-alert>
 			</b-form>
 
@@ -136,12 +136,12 @@
 			</b-form-group>
 
 			<template #modal-footer>
-				<b-btn variant="light" @click="resetForm">{{ $t('Cancel') }}</b-btn>
-				<b-btn variant="success" @click="saveGateway" :disabled="saving">
+				<b-button variant="light" @click="resetForm">{{ $t('Cancel') }}</b-button>
+				<b-button variant="success" @click="saveGateway" :disabled="saving">
 					<b-spinner small v-if="saving" />
 					<span class="mr-1" v-if="!saving">💾</span>
 					{{ $t('Save') }}
-				</b-btn>
+				</b-button>
 			</template>
 
 		</b-modal>

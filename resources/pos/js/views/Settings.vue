@@ -34,7 +34,7 @@
 
 				<b-form @submit="onSubmit" @reset="onReset">
 
-					<b-form-fieldset>
+					<b-form-group>
 						<legend>{{ $t('General settings') }}</legend>
 
 						<b-form-group
@@ -74,11 +74,11 @@
 							</b-form-group>
 						</template>
 
-					</b-form-fieldset>
+					</b-form-group>
 
 					<hr />
 
-					<b-form-fieldset>
+					<b-form-group>
 						<legend>{{ $t('Remote NFC reader') }}</legend>
 						<p class="text-muted">
 							{{ $t('Requires') }} <a href="https://github.com/CatLabInteractive/nfc-socketio" target="_blank">{{ $t('an additional service') }}</a>.
@@ -110,7 +110,7 @@
 							></b-form-input>
 						</b-form-group>
 
-					</b-form-fieldset>
+					</b-form-group>
 
 					<b-button type="submit" variant="primary">{{ $t('Save') }}</b-button>
 					<b-button type="reset" variant="danger">{{ $t('Reset') }}</b-button>
@@ -118,7 +118,7 @@
 
 				<hr v-if="licenseStatus" />
 
-				<b-form-fieldset v-if="licenseStatus">
+				<b-form-group v-if="licenseStatus">
 					<legend>{{ $t('License') }}</legend>
 					<div v-if="licenseStatus.valid">
 						<b-alert variant="success" :show="true">
@@ -141,11 +141,11 @@
 							{{ $t('Visit the management portal to buy and activate a license for this device.') }}
 						</p>
 					</div>
-				</b-form-fieldset>
+				</b-form-group>
 
 				<hr />
 
-				<b-form-fieldset>
+				<b-form-group>
 					<legend>{{ $t('Sync status') }}</legend>
 
 					<div v-if="isOffline" class="mb-3">
@@ -186,18 +186,18 @@
 					<b-alert v-if="syncSuccess" variant="success" :show="true" class="mt-2">
 						{{ $t('Synchronization complete.') }}
 					</b-alert>
-				</b-form-fieldset>
+				</b-form-group>
 
 				<hr />
 
-				<b-form-fieldset>
+				<b-form-group>
 					<legend>{{ $t('Device') }}</legend>
 					<p class="text-muted">{{ $t('Disconnect this device from the server. You will need to re-pair it to use it again.') }}</p>
 					<b-button variant="outline-danger" @click="logout" :disabled="isLoggingOut">
 						<b-spinner small v-if="isLoggingOut" class="mr-1"></b-spinner>
 						<span v-else class="mr-1">🚪</span> {{ $t('Logout') }}
 					</b-button>
-				</b-form-fieldset>
+				</b-form-group>
 
 			</b-col>
 		</b-row>

@@ -45,4 +45,15 @@ describe('Vue 2 patterns that pull request 1 removed', () => {
 		const hits = sourceFiles().filter((f) => /\b(beforeDestroy|destroyed)\s*\(/.test(read(f)));
 		expect(hits).toEqual([]);
 	});
+
+	it('no template uses a BootstrapVue alias tag', () => {
+		const hits = sourceFiles().filter((f) => /<\/?b-(btn|form-fieldset)\b/.test(read(f)));
+		expect(hits).toEqual([]);
+	});
+
+	it('no bootstrap.js loads Popper', () => {
+		for (const app of ['manage', 'pos', 'clients']) {
+			expect(read(app + '/js/bootstrap.js')).not.toContain('popper');
+		}
+	});
 });
