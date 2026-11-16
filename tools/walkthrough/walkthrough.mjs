@@ -38,7 +38,7 @@ const SEQUENCE = [
 	// Shared views, after sales exist
 	'manage-summary', 'manage-summary-names', 'manage-summary-detail-modal', 'manage-sales-history',
 	'manage-transactions', 'manage-card-details-topup', 'manage-financial-overview', 'manage-cards', 'manage-test-transactions', 'manage-hello',
-	'pos-summary', 'pos-sales-history', 'pos-transactions', 'pos-financial-overview', 'pos-test-transactions',
+	'pos-summary', 'pos-sales-history', 'pos-transactions', 'pos-financial-overview', 'pos-test-transactions', 'pos-hello', 'pos-attendees',
 	'manage-devices-signed-cards', 'manage-public-keys-list', 'manage-devices-license', 'manage-devices-buy-license-link',
 	'manage-devices-edit', 'pos-disabled-device',
 	// Card reset and rebuild, key revoke and approval from the Public Keys page
@@ -73,10 +73,18 @@ async function main() {
 
 	const only = process.env.WALK_ONLY ? new RegExp(process.env.WALK_ONLY) : null;
 	try {
-		for (const id of SEQUENCE) {
-			if (only && !only.test(id)) continue;
-			await runItem(id, items[id]);
+		const queue = SEQUENCE.filter((id) => !only || only.test(id));
+		for (let i = 0; i < queue.length; i++) {
+			const result = await runItem(queue[i], items[queue[i]]);
 			writeReport();
+			if (result.timedOut) {
+				// The timed-out item may still drive the shared pages. Do not run anything else on them.
+				for (const id of queue.slice(i + 1)) {
+					results.push({ id, status: 'fail', consoleErrors: [], note: `not run: an earlier item timed out (${queue[i]})` });
+				}
+				console.log(`Stopped: ${queue[i]} timed out. ${queue.length - i - 1} later items are marked as not run.`);
+				break;
+			}
 		}
 	} finally {
 		writeReport();

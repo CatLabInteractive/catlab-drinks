@@ -1,5 +1,6 @@
 // Walk-through items for device pairing and the POS app (/pos/), without cards.
-import { BASE, RUN, dialogs, note, expectConsoleError, newPage, goto, text, modal, noModal, rowAction, assert, localUrl } from './lib.mjs';
+import { placeClientOrder } from './client.mjs';
+import { BASE, RUN, dialogs, note, expectConsoleError, sim, newPage, goto, text, modal, noModal, rowAction, assert, localUrl } from './lib.mjs';
 
 async function addToOrder(p, name, times = 1) {
 	for (let i = 0; i < times; i++) await p.locator('.live-orders .product', { hasText: name }).locator('.name').click();
@@ -192,21 +193,57 @@ export function posItems(s) {
 			return p;
 		},
 		'pos-remote-orders-filters': async () => {
+			// A pending order with only a Kitchen product, so that the station filter has something to hide.
+			await placeClientOrder(s, 'Walk Fries', 1, '14');
 			const p = await hq(s);
+			const fries = p.locator('.remote-order-container .order', { hasText: 'Walk Fries' });
+			const count = () => fries.count();
+			await fries.first().waitFor({ timeout: 30000 });
 			const select = p.locator('.remote-orders select');
-			await select.waitFor();
-			const options = await select.locator('option').allTextContents();
-			const kitchen = options.find((o) => o.includes('Kitchen'));
-			assert(kitchen, 'no Kitchen station in the filter: ' + options.join(', '));
-			await select.selectOption({ label: kitchen.trim() });
-			await p.waitForTimeout(1000);
+			const options = (await select.locator('option').allTextContents()).map((o) => o.trim());
+			const bar = options.find((o) => o.includes('"Bar"'));
+			const kitchen = options.find((o) => o.includes('"Kitchen"'));
+			assert(bar && kitchen, 'stations missing in the filter: ' + options.join(', '));
+			await select.selectOption({ label: bar });
+			await p.waitForFunction(() => ![...document.querySelectorAll('.remote-order-container .order')].some((o) => o.textContent.includes('Walk Fries')), null, { timeout: 15000 });
+			await p.screenshot({ path: s.out('pos-remote-orders-filters-bar.png') });
+			await select.selectOption({ label: kitchen });
+			await fries.first().waitFor({ timeout: 15000 });
 			await select.selectOption({ index: 0 });
-			await p.waitForTimeout(1000);
-			const box = p.locator('.remote-orders .custom-control', { hasText: /assigned/i }).locator('label');
-			await box.click();
+			await fries.first().waitFor({ timeout: 15000 });
+			// The checkbox "Only show assigned orders": off, then on again. The order stays (it is assigned to this POS).
+			const box = p.locator('.remote-orders .custom-control', { hasText: /assigned/i });
+			const checked = () => box.locator('input[type=checkbox]').isChecked();
+			const start = await checked();
+			await box.locator('label').click();
 			await p.waitForTimeout(500);
-			await box.click();
+			assert((await checked()) === !start, 'checkbox did not change after the first click');
+			await box.locator('label').click();
 			await p.waitForTimeout(500);
+			assert((await checked()) === start, 'checkbox did not change back after the second click');
+			await fries.first().waitFor({ timeout: 15000 });
+			note('orders with Walk Fries at the end: ' + (await count()));
+			// Clean up: decline the order.
+			await fries.first().locator('button', { hasText: 'Not accepted' }).click();
+			const m = await modal(p, 'Confirm declined order');
+			await m.locator('.modal-footer .btn-primary, .modal-footer .btn-danger').first().click();
+			const done = await modal(p, 'Order declined');
+			await done.locator('.modal-footer button').click();
+			await noModal(p);
+			return p;
+		},
+		'pos-hello': async () => {
+			const p = s.pos;
+			await goto(p, '/pos/hello');
+			await p.locator('h1', { hasText: 'Hello world' }).waitFor();
+			return p;
+		},
+		'pos-attendees': async () => {
+			const p = s.pos;
+			await goto(p, `/pos/events/${s.eventId}/attendees`);
+			await p.locator('.spreadsheet-table').waitFor();
+			const names = await p.$$eval('.spreadsheet-table tbody tr', (rows) => rows.map((r) => r.querySelectorAll('input')[1]?.value).filter(Boolean));
+			assert(names.includes('Walk Attendee One'), 'attendees of Manage not listed: ' + names.join(', '));
 			return p;
 		},
 		'pos-summary': async () => {
@@ -227,7 +264,10 @@ export function posItems(s) {
 		'pos-transactions': async () => {
 			const p = s.pos;
 			await goto(p, '/pos/transactions');
-			await p.locator('table, .alert-warning').first().waitFor();
+			await p.locator('h3', { hasText: 'All transactions' }).waitFor();
+			// Earlier items made top-ups, so the table must have rows.
+			await p.locator('table tbody tr a.card-id').first().waitFor();
+			if (await p.locator('.alert-danger').count() > 0) throw new Error('error shown: ' + (await text(p, '.alert-danger')));
 			return p;
 		},
 		'pos-financial-overview': async () => {
@@ -238,8 +278,10 @@ export function posItems(s) {
 		},
 		'pos-test-transactions': async () => {
 			const p = s.pos;
+			// Take the card off the reader first. With a card on the reader the page shows "Start test" instead.
+			await sim('POST', '/remove');
 			await goto(p, '/pos/tests/transactions');
-			await p.locator('.container-fluid').first().waitFor();
+			await p.locator('p', { hasText: 'Scan card to start test' }).waitFor();
 			return p;
 		},
 		'pos-unpaired': async () => {

@@ -31,7 +31,8 @@ export function bladeItems(s) {
 		'blade-getting-started': async () => {
 			const p = s.manage;
 			await goto(p, '/getting-started');
-			assert((await p.title()) !== '' || (await p.locator('h1').count()) > 0, 'page has no title or heading');
+			await p.locator('h1', { hasText: 'Getting Started' }).waitFor();
+			await p.locator('h2', { hasText: 'Prerequisites' }).waitFor();
 			return p;
 		},
 		'blade-register-closed': async () => {
@@ -95,6 +96,9 @@ export function bladeItems(s) {
 			const p = s.manage;
 			await goto(p, '/home');
 			assert(!p.url().includes('/login'), 'redirected to login');
+			// HomeController@index renders the welcome view (not home.blade.php).
+			await p.locator('h1', { hasText: 'CatLab Drinks' }).waitFor();
+			await p.locator('a', { hasText: 'Open Web App' }).waitFor();
 			return p;
 		},
 		'manage-logout': async () => {

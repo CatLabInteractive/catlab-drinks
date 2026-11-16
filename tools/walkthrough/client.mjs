@@ -1,7 +1,7 @@
 // Walk-through items for the client order page (/order/{token}).
 import { goto, modal, noModal, assert } from './lib.mjs';
 
-async function order(s, product, times, table) {
+export async function placeClientOrder(s, product, times, table) {
 	const p = s.client;
 	await goto(p, s.orderUrl);
 	await p.locator('.order-table').waitFor();
@@ -46,9 +46,9 @@ export function clientItems(s) {
 			await row.locator('button.btn-success').click();
 			await row.locator('button.btn-danger').click();
 			assert((await row.locator('.amount').textContent()).trim() === '0', 'minus button did not lower the amount');
-			return order(s, 'Walk Beer', 2, '12');
+			return placeClientOrder(s, 'Walk Beer', 2, '12');
 		},
-		'client-order-place-second': async () => order(s, 'Walk Fries', 1, '13'),
+		'client-order-place-second': async () => placeClientOrder(s, 'Walk Fries', 1, '13'),
 		'client-language-toggle': async () => {
 			const p = s.client;
 			await goto(p, s.orderUrl);

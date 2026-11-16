@@ -113,7 +113,7 @@ export function sharedItems(s) {
 		'manage-test-transactions': async () => {
 			const p = s.manage;
 			await goto(p, '/manage/tests/transactions');
-			await p.locator('.container-fluid').first().waitFor();
+			await p.locator('p', { hasText: 'Scan card to start test' }).waitFor();
 			return p;
 		},
 		'manage-hello': async () => {

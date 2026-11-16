@@ -19,10 +19,10 @@ Later pull requests run the same list and compare their result with this file.
 
 | Mode | Items | Pass | Fail | Not conclusive | Not run |
 |------|-------|------|------|----------------|---------|
-| `auto` | 102 | 77 | 25 | 0 | 0 |
+| `auto` | 104 | 79 | 25 | 0 | 0 |
 | `manual` | 19 | 9 | 2 | 2 | 6 |
 
-- The `auto` results come from one script run on a new database.
+- The `auto` results come from one script run on a new database. That run used the script of fix round 1. It has stricter checks and two new POS items.
 - I did the `manual` items with ad-hoc Playwright steps on the same stack after the script run. Their screenshots are not in the repository.
 - An item that shows "not run" was not done. The notes below tell why.
 - "Not conclusive" means that the step ran but did not show the expected result for a reason outside the item.
@@ -65,6 +65,8 @@ Other observations:
 - `manage-transactions` fails because no card transaction is linked to an order. The card payment order is rejected by `P2`.
 - `blade-register-closed` expects the 403 status of `/register`. `pos-unpaired` expects the 401 of the deleted device. The script moves those two console errors to the note.
 - `manage-events-list` notes that the testing mode banner is not shown.
+- In `pos-remote-orders-filters` the list followed the filter. The order with `Walk Fries` went away with the `Bar` filter and came back with `Kitchen`. The item fails only on the console errors `K` and `P2`.
+- `blade-home` shows the welcome page, because `HomeController@index` renders the welcome view. The view `home.blade.php` is not used.
 
 ## Console errors and the items that showed them
 
@@ -83,7 +85,7 @@ Other observations:
 ## Requests to public hosts
 
 The request guard aborted every request to a host that is not `localhost` or `127.0.0.1`.
-In the script run, `hosts.json` lists these hosts: `localhost:8098` (1146 requests), `127.0.0.1:3030` (96 requests), and `fonts.googleapis.com` (131 requests, all aborted).
+In the script run, `hosts.json` lists these hosts: `localhost:8098` (1188 requests), `127.0.0.1:3030` (104 requests), and `fonts.googleapis.com` (134 requests, all aborted).
 No item has a "blocked request to public host" note. The ad-hoc steps showed the same three hosts only.
 
 ## Result of each item
@@ -189,6 +191,8 @@ The items are in the sequence of the list.
 | `pos-transactions` | auto | pass |  |
 | `pos-financial-overview` | auto | fail | `P3` |
 | `pos-test-transactions` | auto | pass |  |
+| `pos-hello` | auto | pass |  |
+| `pos-attendees` | auto | pass |  |
 | `nfc-settings-connect` | auto | pass |  |
 | `nfc-key-generate` | auto | pass |  |
 | `nfc-reader-ready` | auto | pass |  |

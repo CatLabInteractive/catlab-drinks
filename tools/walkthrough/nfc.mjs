@@ -161,13 +161,27 @@ export function nfcItems(s) {
 		},
 		'nfc-card-discount': async () => {
 			const p = s.pos;
-			const input = p.locator('input[type=number][max="100.0"]');
-			await input.fill('10');
-			await p.locator('p', { has: input }).locator('button', { hasText: 'Save' }).click();
-			await p.locator('span', { hasText: /^Saved$/ }).waitFor({ timeout: 15000 });
-			await input.fill('0');
-			await p.locator('p', { has: input }).locator('button', { hasText: 'Save' }).click();
-			await p.waitForTimeout(2000);
+			const input = () => p.locator('input[type=number][max="100.0"]');
+			const save = async (value) => {
+				await input().fill(value);
+				await p.locator('p', { has: input() }).locator('button', { hasText: 'Save' }).click();
+				await p.locator('span', { hasText: /^Saved$/ }).waitFor({ timeout: 15000 });
+			};
+			// Read the card again, so that the value comes from the card and not from the form.
+			const reread = async () => {
+				await removeCard();
+				await p.waitForFunction(() => !document.querySelector('nav.navbar').textContent.includes('Balance:'), null, { timeout: 15000 });
+				await tap(s);
+				await input().waitFor({ timeout: 20000 });
+				await p.waitForTimeout(1000);
+				return input().inputValue();
+			};
+			await save('10');
+			const ten = await reread();
+			assert(ten === '10', 'discount after the re-read: expected 10, got ' + ten);
+			await save('0');
+			const zero = await reread();
+			assert(zero === '0', 'discount after the re-read: expected 0, got ' + zero);
 			return p;
 		},
 		'nfc-card-payment': async () => {

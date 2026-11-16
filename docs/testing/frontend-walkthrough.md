@@ -1,6 +1,6 @@
 # Frontend walk-through
 
-This list names each screen of the three frontend apps and each Blade page.
+This list names each screen (route) of the three frontend apps and each Blade page.
 For each screen it names each modal, dropdown, form, and table, with the action to do and the result to expect.
 Each pull request that changes the frontend runs this list again and compares the result with the baseline.
 The baseline of November 2026 is in `docs/testing/baseline-2026-11-main.md`.
@@ -30,7 +30,7 @@ The baseline of November 2026 is in `docs/testing/baseline-2026-11-main.md`.
 | ID | Where | Action | Expected | Mode |
 |----|-------|--------|----------|------|
 | `blade-setup` | `/` and `/setup` on a new database | Open `/`. Fill name, email, password, password again, and organisation name. Click the submit button. | `/` sends you to `/setup`. After the submit, `/getting-started` opens and you are logged in. | auto |
-| `blade-getting-started` | `/getting-started` | Open the page. | The page shows its title and the steps. | auto |
+| `blade-getting-started` | `/getting-started` | Open the page. | The heading `Getting Started` and the section `Prerequisites` show. | auto |
 | `blade-register-closed` | `/register` | Open the page while you are logged out. | The page tells that registration is closed. The status is 403. | auto |
 | `blade-login-wrong-password` | `/login` | Enter the email and a wrong password. Click the submit button. | The login form shows an error message below the email field. | auto |
 | `blade-welcome` | `/` | Open the page while you are logged out. | The welcome page shows. It has a link to log in or to Manage. | auto |
@@ -39,7 +39,7 @@ The baseline of November 2026 is in `docs/testing/baseline-2026-11-main.md`.
 | `blade-qr-generator-cards` | `/qr-generator` | Store an NFC server in the POS on the same browser. Open the page. Tap two cards. | The page shows one QR code with its UID for each card. | manual |
 | `blade-landing-pages` | `/student-union-cashless`, `/indie-festival-payments`, `/hacker-camp-nfc`, `/whitepaper` | Open each page. | Each page answers 200 and shows its content. | auto |
 | `blade-docs` | `/docs` | Open the page. | The Swagger UI shows the API documentation. | auto |
-| `blade-home` | `/home` | Open the page while you are logged in. | The page shows. You are not sent to `/login`. | auto |
+| `blade-home` | `/home` | Open the page while you are logged in. | The welcome page shows the heading `CatLab Drinks` and the button `Open Web App`. You are not sent to `/login`. | auto |
 | `blade-daily-report` | `/report/daily/{organisation}/{date}` | Open the report of the organisation for today while you are logged in. Write the date in the form `YYYYMMDD`. | The report shows the sales of the day. | manual |
 | `blade-topup-form` | `/topup/{card uid}` with an active Pay.nl gateway | Open the page. Enter an amount. Submit. | The page sends you to Pay.nl. This contacts a public host, so do it only against staging. | manual |
 | `blade-database-error` | Any page while MySQL is down | Stop the database. Open `/`. | The page `errors/database.blade.php` shows. | manual |
@@ -109,7 +109,7 @@ The baseline of November 2026 is in `docs/testing/baseline-2026-11-main.md`.
 | `manage-card-details-topup` | Modal `Card details`, top-up form | Enter amount `3` and a reason. Click `Topup`, then `Confirm`. | The modal shows `Topup successful.`. | auto |
 | `manage-financial-overview` | `/manage/financial-overview` | Open the page. | The table shows `Total credit` and the top-ups of the last 24 hours. | auto |
 | `manage-cards` | `/manage/cards` | Open the page. | The page shows its heading and a message about the card reader. | auto |
-| `manage-test-transactions` | `/manage/tests/transactions` | Open the page. | The page asks to scan a card. | auto |
+| `manage-test-transactions` | `/manage/tests/transactions` | Open the page. | The page shows `Scan card to start test`. | auto |
 | `manage-hello` | `/manage/hello` | Open the page. | The page shows `Hello world`. | auto |
 
 ### Organisation configuration (`/manage/settings`)
@@ -172,7 +172,7 @@ The baseline of November 2026 is in `docs/testing/baseline-2026-11-main.md`.
 |----|-------|--------|----------|------|
 | `pos-remote-orders-accept` | Remote orders column, button `Completed`, modals `Payment` and `Order accepted` | After `client-order-place`, click `Completed`. Pay with the cash button. Click `OK`. | The order shows in the column. `Order accepted` shows the table number. | auto |
 | `pos-remote-orders-decline` | Button `Not accepted`, modals `Confirm declined order` and `Order declined` | After `client-order-place-second`, click `Not accepted`. Click `OK` two times. | `Order declined` shows the table number. The order goes away. | auto |
-| `pos-remote-orders-filters` | Station select and the checkbox `Only show assigned orders` | Choose `Kitchen`, then the first option. Click the checkbox two times. | The list follows the filter. The baseline shows the known error for each checkbox click. | auto |
+| `pos-remote-orders-filters` | Station select and the checkbox `Only show assigned orders` | Place a client order with only `Walk Fries` (station `Kitchen`). Choose `Only show "Bar" orders`, then `Kitchen`, then the first option. Click the checkbox two times. Decline the order. | The order goes away with `Bar` and comes back with `Kitchen` and with the first option. Each click changes the checkbox, and the order stays. The baseline shows the known error for each checkbox click. | auto |
 | `pos-remote-orders-round-robin` | Remote orders with two POS devices online | Pair a second device. Open the sales screen on both. Place client orders. | The badge `Round robin` shows. Each POS gets a part of the orders. | manual |
 
 ### POS configuration (`/pos/settings`)
@@ -192,9 +192,11 @@ The baseline of November 2026 is in `docs/testing/baseline-2026-11-main.md`.
 |----|-------|--------|----------|------|
 | `pos-summary` | `/pos/events/{id}/summary` and the tab `Orderer names` | Open the page. Click the tab. | Both summaries show a table. | auto |
 | `pos-sales-history` | `/pos/events/{id}/sales` | Open the page. | The page lists the orders. | auto |
-| `pos-transactions` | `/pos/transactions` | Open the page. | The transactions table shows. | auto |
+| `pos-transactions` | `/pos/transactions` | Open the page. | The heading `All transactions` and a table with card rows show. No red error shows. | auto |
 | `pos-financial-overview` | `/pos/financial-overview` | Open the page. | The table with `Total credit` shows. | auto |
-| `pos-test-transactions` | `/pos/tests/transactions` | Open the page. | The page asks to scan a card. | auto |
+| `pos-test-transactions` | `/pos/tests/transactions` | Remove the card from the reader. Open the page. | The page shows `Scan card to start test`. | auto |
+| `pos-hello` | `/pos/hello` | Open the page. | The page shows `Hello world`. | auto |
+| `pos-attendees` | `/pos/events/{id}/attendees` | Open the page of the event. | The attendees sheet shows the attendees that Manage saved, for example `Walk Attendee One`. | auto |
 
 ## POS with the NFC simulator
 
@@ -210,7 +212,7 @@ These items use the NFC simulator in `tools/nfc-simulator/`. The script taps and
 | `nfc-card-topup-custom` | Card view, field `Custom amount` | Enter `7.50`. Click `Topup`. Click `OK` two times. | The navbar shows `Balance: 12.50`. | auto |
 | `nfc-card-remove-retap` | Navbar | Remove the card. Tap it again. | The balance goes away and comes back as `12.50`. The transactions table lists the top-ups. | auto |
 | `nfc-card-aliases` | Card view, section `Aliases` | Add the alias `walk-tmp-alias`. Remove it. | The alias shows in the list and goes away again. | auto |
-| `nfc-card-discount` | Card view, section `Discount` | Enter `10`. Click `Save`. Set `0` and save. | `Saved` shows. | auto |
+| `nfc-card-discount` | Card view, section `Discount` | Enter `10`. Click `Save`. Remove the card and tap it again. Set `0`, save, remove, and tap again. | `Saved` shows after each save. After each new tap the field shows the saved value (`10`, then `0`). | auto |
 | `nfc-card-payment` | Sales screen, modal `Payment` | Remove the card. Order one `Walk Beer`. In the payment modal tap the card. | `Payment successful` shows. The navbar shows `Balance: 10.00`. | auto |
 | `nfc-card-insufficient-funds` | Modal `Payment` | Order four `Walk Fries`. Tap the card. Click `Cancel`. | The modal shows a card error about the balance. `Payment failed` shows. The balance does not change. | auto |
 | `nfc-checkin` | `/pos/events/{id}/check-in`, modal `Confirm check-in` | Tap the card. Click `Walk Attendee One`. Click `OK`. | The list of attendees shows. After `OK` the card view shows the alias `walk-alias-1`. | auto |

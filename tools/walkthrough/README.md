@@ -80,6 +80,7 @@ Then start the stack again with step 1.
 | `WALK_NFC_SIM` | `http://127.0.0.1:3030` | The address of the NFC simulator |
 | `WALK_CARD_UID` | `04a1b2c3d4e5f6` | The UID of the simulated card |
 | `WALK_ONLY` | empty | A regular expression. If set, only the items with a matching ID run. Most items need earlier items, so use it only to debug. |
+| `WALK_ITEM_TIMEOUT_MS` | `120000` | The maximum time for one item, in milliseconds. If an item takes longer, it fails and the run stops. Each later item gets the note `not run: an earlier item timed out (<id>)`. |
 | `WALK_HEADED` | empty | If set, Chrome opens a window |
 | `WALK_PLAYWRIGHT` | empty | The folder of the Playwright package |
 

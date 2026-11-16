@@ -16,6 +16,8 @@ export const USER = process.env.WALK_USER || 'walk@example.test';
 export const PASSWORD = process.env.WALK_PASSWORD || 'walk-password-1';
 export const RUN = process.env.WALK_RUN_ID || String(Date.now()).slice(-6);
 // A new card UID for each run, so that a second run on the same database gets a blank card.
+// The time that one item may take. After a timeout the run stops (see walkthrough.mjs).
+export const ITEM_TIMEOUT_MS = Number(process.env.WALK_ITEM_TIMEOUT_MS || 120000);
 export const CARD_UID = process.env.WALK_CARD_UID || ('04a1b2c3' + RUN.padStart(6, '0'));
 
 // Hosts that may be loaded. Everything else is aborted.
@@ -132,12 +134,16 @@ export async function runItem(id, fn, shotPage) {
 	dialogs.promptAnswer = 'Walk';
 	dialogs.dismissConfirm = false;
 	let error = null;
+	let timedOut = false;
 	let page = shotPage;
 	const started = Date.now();
 	try {
 		const p = await Promise.race([
 			fn(),
-			new Promise((_, rej) => setTimeout(() => rej(new Error('item timed out after 120 s')), 120000)),
+			new Promise((_, rej) => setTimeout(() => {
+				timedOut = true;
+				rej(new Error(`timeout: the item did not finish within ${ITEM_TIMEOUT_MS / 1000} s`));
+			}, ITEM_TIMEOUT_MS)),
 		]);
 		if (p && typeof p.screenshot === 'function') page = p;
 	} catch (e) {
@@ -168,6 +174,8 @@ export async function runItem(id, fn, shotPage) {
 	const status = error || item.consoleErrors.length || item.blocked.length ? 'fail' : 'pass';
 	const result = { id, status, consoleErrors: item.consoleErrors, note: notes.join(' | ') };
 	results.push(result);
+	// Not in the report: the caller must stop the run, because the item function may still drive the pages.
+	Object.defineProperty(result, 'timedOut', { value: timedOut, enumerable: false });
 	console.log(`${status === 'pass' ? 'PASS' : 'FAIL'} ${id} (${((Date.now() - started) / 1000).toFixed(1)} s)` +
 		(item.consoleErrors.length ? ` console errors: ${item.consoleErrors.length}` : '') +
 		(error ? ` - ${String(error.message).split('\n')[0]}` : ''));
