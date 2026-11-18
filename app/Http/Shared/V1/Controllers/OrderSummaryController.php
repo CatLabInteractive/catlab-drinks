@@ -127,6 +127,10 @@ class OrderSummaryController extends ResourceController
         $orderSummary->endDate = Carbon::parse($result->last_sale_date);
 
         $items = $groupedQuery->get();
+
+        // The resource expands category and heading of each product: load them all at once.
+        $items->load(['menuItem.category', 'menuItem.heading']);
+
         foreach ($items as $item) {
             $orderItem = new OrderSummaryItem();
 
