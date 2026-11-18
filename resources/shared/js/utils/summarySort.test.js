@@ -84,4 +84,10 @@ describe('sortGroups', () => {
 
 		expect(names(sortGroups(groups, { key: 'name', direction: 'asc' }, 'nl'))).toEqual(['agent', 'Alles', 'élan']);
 	});
+
+	it('sorts numbers in names by value', () => {
+		const groups = [group('Team 10', [sale(1)]), group('Team 2', [sale(1)])];
+
+		expect(names(sortGroups(groups, { key: 'name', direction: 'asc' }, 'nl'))).toEqual(['Team 2', 'Team 10']);
+	});
 });

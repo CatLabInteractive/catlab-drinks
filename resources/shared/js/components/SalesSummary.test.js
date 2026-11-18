@@ -220,4 +220,13 @@ describe('SalesSummary refresh', () => {
 		expect(vm.sortedGroups.map(g => g.menuItem.name)).toEqual(['Pils', 'Cola']);
 		component.unmounted.call(vm);
 	});
+
+	it('shows a sort hint on sortable columns before the first click', () => {
+		const vm = makeVm();
+
+		expect(vm.sortIcon('amount')).toBe('↕');
+		vm.setSort('amount');
+		expect(vm.sortIcon('amount')).toBe('▼');
+		expect(vm.sortIcon('name')).toBe('↕');
+	});
 });

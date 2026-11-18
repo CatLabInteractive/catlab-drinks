@@ -43,7 +43,7 @@ export function sortGroups(groups, sort, locale) {
 
 	const value = VALUES[sort.key];
 	const sign = sort.direction === 'asc' ? 1 : -1;
-	const collator = new Intl.Collator(locale, { sensitivity: 'base' });
+	const collator = new Intl.Collator(locale, { sensitivity: 'base', numeric: true });
 
 	const compare = (a, b) => typeof a === 'string' ? collator.compare(a, b) : a - b;
 

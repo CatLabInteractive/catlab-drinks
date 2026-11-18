@@ -44,7 +44,7 @@
 					<tr>
 						<th v-for="column in columns" :key="column.key" :class="column.class" :aria-sort="column.sortable ? ariaSort(column.key) : null">
 							<button v-if="column.sortable" type="button" class="btn btn-link p-0 font-weight-bold text-reset text-decoration-none text-nowrap" @click="setSort(column.key)">
-								{{ column.label }}<span v-if="sort && sort.key === column.key" class="ml-1" aria-hidden="true">{{ sort.direction === 'asc' ? '▲' : '▼' }}</span>
+								{{ column.label }}<span class="ml-1" :class="{ 'text-muted': !sort || sort.key !== column.key }" aria-hidden="true">{{ sortIcon(column.key) }}</span>
 							</button>
 							<template v-else>{{ column.label }}</template>
 						</th>
@@ -286,6 +286,14 @@
 
 			setSort(key) {
 				this.sort = nextSort(this.sort, key);
+			},
+
+			// A muted ↕ shows that a column can be sorted; ▲ or ▼ marks the active column.
+			sortIcon(key) {
+				if (!this.sort || this.sort.key !== key) {
+					return '↕';
+				}
+				return this.sort.direction === 'asc' ? '▲' : '▼';
 			},
 
 			ariaSort(key) {
