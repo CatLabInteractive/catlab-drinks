@@ -34,12 +34,12 @@ export class OrderService extends AbstractOfflineQueue {
 		this.entityUrl = 'orders';
 	}
 
-	summary(parameters = {}) {
-		return this.execute('get', 'events/' + this.eventId + '/ordersummary' + "?" + $.param(parameters))
+	summary(parameters = {}, options = {}) {
+		return this.execute('get', 'events/' + this.eventId + '/ordersummary' + "?" + $.param(parameters), {}, options)
 	}
 
-	summaryNames(parameters = {}) {
-		return this.execute('get', 'events/' + this.eventId + '/ordersummary/names' + "?" + $.param(parameters))
+	summaryNames(parameters = {}, options = {}) {
+		return this.execute('get', 'events/' + this.eventId + '/ordersummary/names' + "?" + $.param(parameters), {}, options)
 	}
 
 	async prepare(content) {

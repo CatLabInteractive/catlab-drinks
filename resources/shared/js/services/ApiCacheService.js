@@ -79,7 +79,8 @@ export function installCacheInterceptors(axiosInstance, offlineManager) {
     axiosInstance.interceptors.response.use(
         response => {
             offlineManager.markOnline();
-            if (response.config && response.config.method === 'get') {
+            // Background requests must report the real state of the server, so they skip the cache.
+            if (response.config && response.config.method === 'get' && !response.config.background) {
                 const url = response.config.url || '';
                 cacheResponse(url, response.data);
             }
@@ -90,7 +91,7 @@ export function installCacheInterceptors(axiosInstance, offlineManager) {
                 offlineManager.markOffline();
 
                 // For GET requests, try to return cached data
-                if (error.config && error.config.method === 'get') {
+                if (error.config && error.config.method === 'get' && !error.config.background) {
                     const url = error.config.url || '';
                     const cached = await getCachedResponse(url);
                     if (cached) {
