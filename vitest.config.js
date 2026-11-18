@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import { parse } from '@vue/compiler-sfc';
+import { fileURLToPath } from 'url';
 
 /**
  * Lets a test import a .vue file as a module: the module is the content of
@@ -24,11 +25,13 @@ export default defineConfig({
 	plugins: [vueScriptOnly],
 	test: {
 		environment: 'jsdom',
-		include: ['resources/**/*.test.js', 'tools/**/*.test.js'],
+		include: ['tests/js/**/*.test.js'],
 	},
 	resolve: {
 		alias: {
 			vue: '@vue/compat',
+			// Tests import source files as '@resources/shared/js/...'.
+			'@resources': fileURLToPath(new URL('./resources', import.meta.url)),
 		},
 	},
 });

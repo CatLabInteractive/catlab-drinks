@@ -80,6 +80,11 @@ push/PR to main/master/develop.
 npx jest            # Run Jest tests (KeyManager, Card, etc.)
 npx vitest run      # Run Vitest tests (route/view tests)
 ```
+All JavaScript tests live in `tests/js/`, not next to the source. Vitest runs the `*.test.js` files
+and Jest runs the `*.test.ts` files. A test for a module in `resources/<app>/js/<path>` goes in
+`tests/js/<app>/<path>`, for example `tests/js/manage/menu/priceParser.test.js`. Tests that read
+the source of several apps stay at the top of `tests/js/`. Vitest tests import source files through
+the `@resources` alias (`vitest.config.js`), for example `import { parsePrice } from '@resources/manage/js/menu/priceParser'`.
 
 ---
 
@@ -366,7 +371,7 @@ For the environment variables, the HTTP interface, and the limits, see `tools/nf
 - The import dialog can copy the menu of a different event of the organisation into its sheet
   ("Copy from event"; `Menu.vue` loads the events list and passes it as `otherEvents`; `sheetFromItems`
   in `menuImport.js` builds the sheet); the copies are new unsaved rows and the source event is only read.
-- Pure modules in `resources/manage/js/menu/` (each with a Vitest file next to it): `priceParser.js`,
+- Pure modules in `resources/manage/js/menu/` (each with a Vitest file in `tests/js/manage/menu/`): `priceParser.js`,
   `clipboardTable.js`, `menuImport.js`, `menuChanges.js`, `menuSave.js`. The Vue parts are
   `resources/manage/js/views/Menu.vue` and `resources/manage/js/components/MenuImportModal.vue`.
 - "Station" in the interface is `category` in the code, API, and database.
