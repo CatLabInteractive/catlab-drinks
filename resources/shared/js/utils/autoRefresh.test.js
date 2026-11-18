@@ -82,6 +82,16 @@ describe('AutoRefresh', () => {
 		expect(load).toHaveBeenCalledTimes(2);
 	});
 
+	it('passes a failed load to onError', async () => {
+		const error = new Error('offline');
+		const onError = vi.fn();
+		const refresher = new AutoRefresh(() => Promise.reject(error), { intervalMs: 30000, doc, onError });
+
+		await refresher.refresh();
+
+		expect(onError).toHaveBeenCalledWith(error);
+	});
+
 	it('stop removes the timer and the listener', async () => {
 		const load = vi.fn(() => Promise.resolve());
 		const refresher = new AutoRefresh(load, { intervalMs: 30000, doc });

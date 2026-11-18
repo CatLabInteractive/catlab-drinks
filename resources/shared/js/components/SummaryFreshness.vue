@@ -47,6 +47,8 @@
 	export default {
 		props: {
 			loadedAt: { type: Number, default: null },
+			// True while the first load runs: there is nothing old to warn about yet.
+			loading: { type: Boolean, default: false },
 			refreshing: { type: Boolean, default: false }
 		},
 
@@ -60,7 +62,7 @@
 
 		computed: {
 			stale() {
-				return isStale(this.loadedAt, this.now);
+				return !this.loading && isStale(this.loadedAt, this.now);
 			},
 
 			loadTime() {

@@ -26,7 +26,7 @@
 			<span v-if="event">{{event.name}} - </span>{{ $t('Sales summary') }}
 		</h2>
 
-		<summary-freshness :loaded-at="loadedAt" :refreshing="refreshing" @refresh="refreshNow" />
+		<summary-freshness :loaded-at="loadedAt" :loading="!firstLoadDone" :refreshing="refreshing" @refresh="refreshNow" />
 
 		<ul class="nav nav-tabs">
 			<b-nav-item :to="{ name: 'summary', params: { id: this.eventId } }" :active="this.summaryType === 'items'">{{ $t('Sold items') }}</b-nav-item>
@@ -198,7 +198,8 @@
 					intervalMs: this.summaryType === 'names' ? NAMES_REFRESH_MS : ITEMS_REFRESH_MS,
 					onChange: (running) => {
 						this.refreshing = running;
-					}
+					},
+					onError: (error) => this.reportRefreshError(error)
 				});
 				this.autoRefresh.start();
 
@@ -217,6 +218,24 @@
 					window.document.title = this.event.name + ' - CatLab Drinks';
 				} catch (e) {
 					// The title is optional; the figures still load.
+				}
+			},
+
+			/**
+			 * A failed request (offline, timeout, server error) is expected, and the page
+			 * shows it as old data. Any other error is a bug: send it to the error handler
+			 * of the app (error reporting), because the scheduler calls refresh() outside Vue.
+			 */
+			reportRefreshError(error) {
+				if (error && error.isAxiosError) {
+					return;
+				}
+
+				const errorHandler = this.$ && this.$.appContext.config.errorHandler;
+				if (errorHandler) {
+					errorHandler(error, this, 'sales summary refresh');
+				} else {
+					console.error(error);
 				}
 			},
 

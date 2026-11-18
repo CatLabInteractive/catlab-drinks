@@ -58,6 +58,7 @@ function makeVm(summaryType = 'items') {
 		vm[key] = component.methods[key].bind(vm);
 	});
 	vm.$t = (key) => key;
+	vm.$ = { appContext: { config: { errorHandler: vi.fn() } } };
 	component.mounted.call(vm);
 	return vm;
 }
@@ -159,5 +160,26 @@ describe('SalesSummary refresh', () => {
 		await vi.advanceTimersByTimeAsync(120000);
 
 		expect(services.summary).not.toHaveBeenCalled();
+	});
+
+	it('reports an error that is not a failed request to the app error handler', async () => {
+		services.summary = vi.fn(() => Promise.resolve({ items: null }));
+		const vm = makeVm();
+
+		await setEventId(vm, 155);
+
+		expect(vm.$.appContext.config.errorHandler).toHaveBeenCalledTimes(1);
+		expect(vm.$.appContext.config.errorHandler.mock.calls[0][0]).toBeInstanceOf(TypeError);
+		component.unmounted.call(vm);
+	});
+
+	it('does not report a failed request', async () => {
+		services.summary = vi.fn(() => Promise.reject(Object.assign(new Error('timeout'), { isAxiosError: true })));
+		const vm = makeVm();
+
+		await setEventId(vm, 155);
+
+		expect(vm.$.appContext.config.errorHandler).not.toHaveBeenCalled();
+		component.unmounted.call(vm);
 	});
 });
