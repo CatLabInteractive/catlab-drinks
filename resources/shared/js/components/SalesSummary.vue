@@ -42,19 +42,17 @@
 			<table class="table table-striped">
 				<thead>
 					<tr>
-						<th>{{ $t('Rank') }}</th>
-						<th>{{ $t('Item') }}</th>
-						<th>{{ $t('Amount') }}</th>
-						<th>{{ $t('Price') }}</th>
-						<th>{{ $t('VAT %') }}</th>
-						<th class="text-right">{{ $t('Netto') }}</th>
-						<th class="text-right">{{ $t('VAT') }}</th>
-						<th class="text-right">{{ $t('Total') }}</th>
+						<th v-for="column in columns" :key="column.key" :class="column.class" :aria-sort="column.sortable ? ariaSort(column.key) : null">
+							<button v-if="column.sortable" type="button" class="btn btn-link p-0 font-weight-bold text-reset text-decoration-none text-nowrap" @click="setSort(column.key)">
+								{{ column.label }}<span class="ml-1" :class="{ 'text-muted': !sort || sort.key !== column.key }" aria-hidden="true">{{ sortIcon(column.key) }}</span>
+							</button>
+							<template v-else>{{ column.label }}</template>
+						</th>
 					</tr>
 				</thead>
 
 				<tbody>
-					<template v-for="(productGroup, rootIndex) in groupedItems" :key="productGroup.menuItem ? productGroup.menuItem.id : rootIndex">
+					<template v-for="(productGroup, rootIndex) in sortedGroups" :key="productGroup.menuItem ? productGroup.menuItem.id : rootIndex">
 						<tr v-for="(product, index) in productGroup.sales" :key="index">
 							<td>
 								<span v-if="index === 0">{{ productGroup.rank }}</span>
@@ -68,10 +66,12 @@
 								</span>
 							</td>
 							<td>{{product.amount}}</td>
-							<td><span v-if="product.menuItem">{{ $filters.money(product.price) }}</span></td>
-							<td><span v-if="product.menuItem && product.vat_percentage">{{product.vat_percentage.toFixed(2)}}%</span></td>
-							<td class="text-right"><span v-if="product.net_total">{{ $filters.money(product.net_total) }}</span></td>
-							<td class="text-right"><span v-if="product.vat_total">{{ $filters.money(product.vat_total) }}</span></td>
+							<template v-if="!isNames">
+								<td><span v-if="product.menuItem">{{ $filters.money(product.price) }}</span></td>
+								<td><span v-if="product.menuItem && product.vat_percentage">{{product.vat_percentage.toFixed(2)}}%</span></td>
+								<td class="text-right"><span v-if="product.net_total">{{ $filters.money(product.net_total) }}</span></td>
+								<td class="text-right"><span v-if="product.vat_total">{{ $filters.money(product.vat_total) }}</span></td>
+							</template>
 							<td class="text-right">{{ $filters.money(product.totalSales) }}</td>
 						</tr>
 					</template>
@@ -82,10 +82,12 @@
 						<th>{{ $t('Total') }}</th>
 						<th> </th>
 						<th>{{summary.amount}}</th>
-						<th>&nbsp;</th>
-						<th>&nbsp;</th>
-						<th class="text-right"><span v-if="summary.net_total">{{ $filters.money(summary.net_total) }}</span></th>
-						<th class="text-right"><span v-if="summary.vat_total">{{ $filters.money(summary.vat_total) }}</span></th>
+						<template v-if="!isNames">
+							<th>&nbsp;</th>
+							<th>&nbsp;</th>
+							<th class="text-right"><span v-if="summary.net_total">{{ $filters.money(summary.net_total) }}</span></th>
+							<th class="text-right"><span v-if="summary.vat_total">{{ $filters.money(summary.vat_total) }}</span></th>
+						</template>
 						<th class="text-right">{{ $filters.money(summary.totalSales) }}</th>
 					</tr>
 				</tfoot>
@@ -112,6 +114,8 @@
 	import {OrderService} from "../services/OrderService";
 	import {EventService} from "../services/EventService";
 	import {AutoRefresh} from "../utils/autoRefresh";
+	import {nextSort, sortGroups} from "../utils/summarySort";
+	import {getLocale} from "../i18n/index";
 	import SalesHistoryModal from "./SalesHistoryModal.vue";
 	import SummaryFreshness from "./SummaryFreshness.vue";
 
@@ -178,8 +182,42 @@
 				hasDetails: false,
 				loadedAt: null,
 				refreshing: false,
-				firstLoadDone: false
+				firstLoadDone: false,
+				sort: null
 			}
+		},
+
+		computed: {
+
+			isNames() {
+				return this.summaryType === 'names';
+			},
+
+			// The names tab has no price or VAT: those columns would always be empty.
+			columns() {
+				const columns = [
+					{ key: 'rank', label: this.$t('Rank'), sortable: true },
+					{ key: 'name', label: this.isNames ? this.$t('Name') : this.$t('Item'), sortable: true },
+					{ key: 'amount', label: this.$t('Amount'), sortable: true }
+				];
+
+				if (!this.isNames) {
+					columns.push(
+						{ key: 'price', label: this.$t('Price'), sortable: true },
+						{ key: 'vatPercentage', label: this.$t('VAT %') },
+						{ key: 'net', label: this.$t('Netto'), class: 'text-right' },
+						{ key: 'vat', label: this.$t('VAT'), class: 'text-right' }
+					);
+				}
+
+				columns.push({ key: 'total', label: this.$t('Total'), sortable: true, class: 'text-right' });
+				return columns;
+			},
+
+			sortedGroups() {
+				return sortGroups(this.groupedItems, this.sort, getLocale());
+			}
+
 		},
 
 		watch: {
@@ -244,6 +282,25 @@
 					this.autoRefresh.stop();
 					this.autoRefresh = null;
 				}
+			},
+
+			setSort(key) {
+				this.sort = nextSort(this.sort, key);
+			},
+
+			// A muted ↕ shows that a column can be sorted; ▲ or ▼ marks the active column.
+			sortIcon(key) {
+				if (!this.sort || this.sort.key !== key) {
+					return '↕';
+				}
+				return this.sort.direction === 'asc' ? '▲' : '▼';
+			},
+
+			ariaSort(key) {
+				if (!this.sort || this.sort.key !== key) {
+					return 'none';
+				}
+				return this.sort.direction === 'asc' ? 'ascending' : 'descending';
 			},
 
 			refreshNow() {

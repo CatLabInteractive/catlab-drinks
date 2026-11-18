@@ -51,11 +51,25 @@ function itemsResponse(amount) {
 	};
 }
 
+function twoProducts(pils, cola) {
+	return {
+		amount: pils + cola,
+		totalSales: 3 * (pils + cola),
+		items: { items: [
+			{ menuItem: { id: 1, name: 'Pils' }, amount: pils, totalSales: pils * 3, price: 3 },
+			{ menuItem: { id: 2, name: 'Cola' }, amount: cola, totalSales: cola * 3, price: 3 }
+		] }
+	};
+}
+
 function makeVm(summaryType = 'items') {
 	const vm = { eventId: null, summaryType };
 	Object.assign(vm, component.data.call(vm));
 	Object.keys(component.methods).forEach((key) => {
 		vm[key] = component.methods[key].bind(vm);
+	});
+	Object.keys(component.computed || {}).forEach((key) => {
+		Object.defineProperty(vm, key, { get: () => component.computed[key].call(vm) });
 	});
 	vm.$t = (key) => key;
 	vm.$ = { appContext: { config: { errorHandler: vi.fn() } } };
@@ -181,5 +195,38 @@ describe('SalesSummary refresh', () => {
 
 		expect(vm.$.appContext.config.errorHandler).not.toHaveBeenCalled();
 		component.unmounted.call(vm);
+	});
+
+	it('sorts the rows when a header is clicked', async () => {
+		services.summary = vi.fn(() => Promise.resolve(twoProducts(2, 5)));
+		const vm = makeVm();
+		await setEventId(vm, 155);
+
+		vm.setSort('amount');
+
+		expect(vm.sortedGroups.map(g => g.menuItem.name)).toEqual(['Cola', 'Pils']);
+		component.unmounted.call(vm);
+	});
+
+	it('keeps the sort after a refresh', async () => {
+		services.summary = vi.fn(() => Promise.resolve(twoProducts(2, 5)));
+		const vm = makeVm();
+		await setEventId(vm, 155);
+		vm.setSort('amount');
+
+		services.summary = vi.fn(() => Promise.resolve(twoProducts(9, 5)));
+		await vi.advanceTimersByTimeAsync(30000);
+
+		expect(vm.sortedGroups.map(g => g.menuItem.name)).toEqual(['Pils', 'Cola']);
+		component.unmounted.call(vm);
+	});
+
+	it('shows a sort hint on sortable columns before the first click', () => {
+		const vm = makeVm();
+
+		expect(vm.sortIcon('amount')).toBe('↕');
+		vm.setSort('amount');
+		expect(vm.sortIcon('amount')).toBe('▼');
+		expect(vm.sortIcon('name')).toBe('↕');
 	});
 });
