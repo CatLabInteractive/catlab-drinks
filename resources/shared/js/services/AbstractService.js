@@ -22,6 +22,8 @@
 import $ from 'jquery';
 import {installCacheInterceptors} from './ApiCacheService';
 
+const BACKGROUND_REQUEST_TIMEOUT_MS = 20000;
+
 /**
  * Extract the message and issues from an API error response.
  * Both APIs return { error: { status, message, issues?: { field: [ message ] } } }
@@ -86,8 +88,8 @@ export class AbstractService {
 
 				const status = error.response.status;
 
-				// Show the user a 500 error
-				if (status >= 500) {
+				// Show the user a 500 error, unless the page sent the request on its own
+				if (status >= 500 && !(error.config && error.config.background)) {
 					console.log({500:error});
 					alert(error.message);
 				}
@@ -136,14 +138,23 @@ export class AbstractService {
 	 * @param method
 	 * @param resource
 	 * @param data
+	 * @param options `background: true` for a request that the page sends on its own (a timed
+	 * refresh): no alert on a server error, no offline cache, and a timeout.
 	 * @returns {Promise<void>}
 	 */
-	async execute(method, resource, data = {}) {
-		return this.client({
+	async execute(method, resource, data = {}, options = {}) {
+		const config = {
 			method: method,
 			url: resource,
 			data: data
-		}).then(
+		};
+
+		if (options.background) {
+			config.background = true;
+			config.timeout = BACKGROUND_REQUEST_TIMEOUT_MS;
+		}
+
+		return this.client(config).then(
 			(response) => {
 				return response.data;
 			}

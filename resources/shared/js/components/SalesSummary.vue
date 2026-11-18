@@ -26,12 +26,14 @@
 			<span v-if="event">{{event.name}} - </span>{{ $t('Sales summary') }}
 		</h2>
 
+		<summary-freshness :loaded-at="loadedAt" :loading="!firstLoadDone" :refreshing="refreshing" @refresh="refreshNow" />
+
 		<ul class="nav nav-tabs">
 			<b-nav-item :to="{ name: 'summary', params: { id: this.eventId } }" :active="this.summaryType === 'items'">{{ $t('Sold items') }}</b-nav-item>
 			<b-nav-item :to="{ name: 'summary-names', params: { id: this.eventId } }" :active="this.summaryType === 'names'">{{ $t('Orderer names') }}</b-nav-item>
 		</ul>
 
-		<div class="text-center" v-if="!loaded">
+		<div class="text-center" v-if="!firstLoadDone">
 			<b-spinner :label="$t('Loading data')" />
 		</div>
 
@@ -52,18 +54,17 @@
 				</thead>
 
 				<tbody>
-					<template v-for="(productGroup, rootIndex) in groupedItems">
-						<tr v-for="(product, index) in productGroup.sales">
+					<template v-for="(productGroup, rootIndex) in groupedItems" :key="productGroup.menuItem ? productGroup.menuItem.id : rootIndex">
+						<tr v-for="(product, index) in productGroup.sales" :key="index">
 							<td>
 								<span v-if="index === 0">{{ productGroup.rank }}</span>
 							</td>
 							<td>
 								<span v-if="index === 0">
 									<span v-if="product.menuItem">{{product.menuItem.name}}</span>
-									<b-btn size="sm" v-if="product.menuItem && hasDetails" @click="openDetails(product)">{{product.menuItem.name}}</b-btn>
 
 									<span v-if="productGroup.hasName && !hasDetails">{{ productGroup.visibleName }}</span>
-									<b-btn size="sm" v-if="productGroup.hasName && hasDetails" @click="openDetails(product)">{{ productGroup.visibleName }}</b-btn>
+									<button type="button" class="btn btn-secondary btn-sm" v-if="productGroup.hasName && hasDetails" @click="openDetails(product)">{{ productGroup.visibleName }}</button>
 								</span>
 							</td>
 							<td>{{product.amount}}</td>
@@ -110,11 +111,32 @@
 	import {MenuService} from "../services/MenuService";
 	import {OrderService} from "../services/OrderService";
 	import {EventService} from "../services/EventService";
+	import {AutoRefresh} from "../utils/autoRefresh";
 	import SalesHistoryModal from "./SalesHistoryModal.vue";
+	import SummaryFreshness from "./SummaryFreshness.vue";
+
+	const ITEMS_REFRESH_MS = 30000;
+
+	// The names tab can return thousands of rows at a large event.
+	const NAMES_REFRESH_MS = 60000;
+
+	/**
+	 * Freezes the rows, so Vue does not make thousands of rows reactive. A refresh
+	 * replaces the whole list.
+	 */
+	function freezeGroups(groups) {
+		groups.forEach((group) => {
+			group.sales.forEach(sale => Object.freeze(sale));
+			Object.freeze(group.sales);
+			Object.freeze(group);
+		});
+		return Object.freeze(groups);
+	}
 
 	export default {
 		components: {
 			SalesHistoryModal,
+			SummaryFreshness,
 		},
 
 		props: [
@@ -128,13 +150,10 @@
 
 		},
 
-		beforeDestroy() {
-			if (this.interval) {
-				clearInterval(this.interval);
-			}
-		},
-
 		unmounted() {
+
+			this.destroyed = true;
+			this.stopRefresh();
 
 			if (this.orderService) {
 				this.orderService.destroy();
@@ -152,43 +171,86 @@
 
 		data() {
 			return {
-				loaded: false,
 				summary: null,
 				groupedItems: [],
 				event: null,
 				orderFilters: null,
-				hasDetails: false
+				hasDetails: false,
+				loadedAt: null,
+				refreshing: false,
+				firstLoadDone: false
 			}
 		},
 
 		watch: {
 
-			async eventId(newVal, oldVal) {
+			eventId(newVal) {
+
+				this.stopRefresh();
+				if (!newVal || this.destroyed) {
+					return;
+				}
 
 				this.menuService = new MenuService(newVal);
 				this.orderService = new OrderService(newVal);
 
-				if (this.interval) {
-					clearInterval(this.interval);
-				}
-
-				this.event = await this.eventService.get(this.eventId);
-
-				// hacky hack hack
-				window.document.title = this.event.name + ' - CatLab Drinks';
-
-				await this.refresh();
-				this.interval = setInterval(
-					() => {
-						//this.refresh();
+				this.autoRefresh = new AutoRefresh(() => this.refresh(), {
+					intervalMs: this.summaryType === 'names' ? NAMES_REFRESH_MS : ITEMS_REFRESH_MS,
+					onChange: (running) => {
+						this.refreshing = running;
 					},
-					30000
-				);
+					onError: (error) => this.reportRefreshError(error)
+				});
+				this.autoRefresh.start();
+
+				return this.loadEvent();
 			}
 
 		},
 
 		methods: {
+
+			async loadEvent() {
+				try {
+					this.event = await this.eventService.get(this.eventId);
+
+					// hacky hack hack
+					window.document.title = this.event.name + ' - CatLab Drinks';
+				} catch (e) {
+					// The title is optional; the figures still load.
+				}
+			},
+
+			/**
+			 * A failed request (offline, timeout, server error) is expected, and the page
+			 * shows it as old data. Any other error is a bug: send it to the error handler
+			 * of the app (error reporting), because the scheduler calls refresh() outside Vue.
+			 */
+			reportRefreshError(error) {
+				if (error && error.isAxiosError) {
+					return;
+				}
+
+				const errorHandler = this.$ && this.$.appContext.config.errorHandler;
+				if (errorHandler) {
+					errorHandler(error, this, 'sales summary refresh');
+				} else {
+					console.error(error);
+				}
+			},
+
+			stopRefresh() {
+				if (this.autoRefresh) {
+					this.autoRefresh.stop();
+					this.autoRefresh = null;
+				}
+			},
+
+			refreshNow() {
+				if (this.autoRefresh) {
+					this.autoRefresh.refresh();
+				}
+			},
 
 			openDetails(row) {
 
@@ -206,59 +268,62 @@
 				this.$refs.detailModal.show();
 			},
 
+			/**
+			 * Loads the figures. On a failure it changes nothing, so the old rows and
+			 * the old load time stay, and the page shows that they are old.
+			 */
 			async refresh() {
 
-				this.loaded = true;
+				try {
+					const names = this.summaryType === 'names';
+					const summary = names
+						? await this.orderService.summaryNames({}, { background: true })
+						: await this.orderService.summary({}, { background: true });
 
-				switch (this.summaryType) {
-					case 'names':
-						this.summary = (await this.orderService.summaryNames({}));
+					const groupedItems = names ? this.groupByName(summary) : this.groupByMenuItem(summary);
 
-						this.groupedItems = [];
-
-						this.summary.items.items.forEach(
-							(summaryLine) => {
-								this.groupedItems.push({
-									name: summaryLine.name,
-									hasName: true,
-									visibleName: summaryLine.name ? summaryLine.name : this.$t('Unknown / manual'),
-									sales: [summaryLine]
-								})
-							}
-						);
-
-						this.calculateRanks(this.groupedItems);
-
-						this.hasDetails = true;
-
-						break;
-
-					default:
-						this.summary = (await this.orderService.summary({}));
-
-						this.groupedItems = [];
-
-						let indexMap = {};
-						var rank = 1;
-						this.summary.items.items.forEach(
-							(summaryLine) => {
-
-								const key = summaryLine.menuItem.id;
-
-								if (typeof(indexMap[key]) === 'undefined') {
-									indexMap[key] = this.groupedItems.push({
-										menuItem: summaryLine.menuItem,
-										rank: rank ++,
-										sales: []
-									}) - 1;
-								}
-
-								this.groupedItems[indexMap[key]].sales.push(summaryLine);
-							}
-						);
-
-						break;
+					this.summary = Object.freeze(summary);
+					this.groupedItems = freezeGroups(groupedItems);
+					this.hasDetails = names;
+					this.loadedAt = Date.now();
+				} finally {
+					this.firstLoadDone = true;
 				}
+			},
+
+			groupByName(summary) {
+				const groupedItems = summary.items.items.map(summaryLine => ({
+					name: summaryLine.name,
+					hasName: true,
+					visibleName: summaryLine.name ? summaryLine.name : this.$t('Unknown / manual'),
+					sales: [summaryLine]
+				}));
+
+				this.calculateRanks(groupedItems);
+
+				return groupedItems;
+			},
+
+			groupByMenuItem(summary) {
+				const groupedItems = [];
+				const indexMap = {};
+				let rank = 1;
+
+				summary.items.items.forEach((summaryLine) => {
+					const key = summaryLine.menuItem.id;
+
+					if (typeof(indexMap[key]) === 'undefined') {
+						indexMap[key] = groupedItems.push({
+							menuItem: summaryLine.menuItem,
+							rank: rank ++,
+							sales: []
+						}) - 1;
+					}
+
+					groupedItems[indexMap[key]].sales.push(summaryLine);
+				});
+
+				return groupedItems;
 			},
 
 			calculateRanks(groupedItems) {
