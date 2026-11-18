@@ -21,6 +21,7 @@
 
 import $ from "jquery";
 import {AbstractOfflineQueue} from "./AbstractOfflineQueue";
+import {toOrderPayload} from "./orderPayload";
 
 const { v1: uuidv1 } = require('uuid');
 
@@ -45,6 +46,10 @@ export class OrderService extends AbstractOfflineQueue {
 	async prepare(content) {
 		content.uid = uuidv1();
 		return content;
+	}
+
+	toUploadData(data) {
+		return toOrderPayload(data);
 	}
 
 	strandedOrders(parameters = {}) {

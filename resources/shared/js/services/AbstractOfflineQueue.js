@@ -89,7 +89,7 @@ export class AbstractOfflineQueue extends AbstractService {
 		};
 
 		items.forEach((item) => {
-			body.items.push(item.data);
+			body.items.push(this.toUploadData(item.data));
 		});
 
 		await this.execute('post', '/' + this.indexUrl, body);
@@ -99,6 +99,16 @@ export class AbstractOfflineQueue extends AbstractService {
 			localForage.removeItem(item.localStorageKey);
 		});
 	};
+
+	/**
+	 * Converts the stored data of one queue item to the body that the API accepts.
+	 * It runs at upload time, so that it also applies to items that are already in the queue.
+	 * @param {*} data
+	 * @returns {*}
+	 */
+	toUploadData(data) {
+		return data;
+	}
 
 	/**
 	 * Get all transactions that have not been synced to the online api
