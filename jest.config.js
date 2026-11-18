@@ -2,6 +2,8 @@ module.exports = {
 	preset: 'ts-jest',
 	testEnvironment: 'node',
 	roots: ['<rootDir>/tests/js'],
+	// The .test.js files in tests/js are Vitest tests.
+	testMatch: ['**/*.test.ts'],
 	transform: {
 		'^.+\\.tsx?$': ['ts-jest', {
 			tsconfig: {
